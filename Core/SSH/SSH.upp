@@ -1,0 +1,48 @@
+description "SSH protocol encapsulation., using libssh2.\377";
+
+acceptflags
+	USEMALLOC;
+
+uses
+	Core;
+
+library(POSIX) "crypto ssl z";
+
+library(WIN32 MSC !SHARED !DEBUG) "libeay32MT ssleay32MT";
+
+library(WIN32 MSC !SHARED DEBUG) "libeay32MTd ssleay32MTd";
+
+library(WIN32 MSC SHARED !DEBUG) "libeay32MD ssleay32MD";
+
+library(WIN32 MSC SHARED DEBUG) "libeay32MDd ssleay32MDd";
+
+library(WIN32 GCC) "ssl crypto";
+
+library(WIN32) "gdi32 ws2_32";
+
+link(WIN32 MSC SO) /nodefaultlib:libc;
+
+file
+	SSH.h,
+	Core.h,
+	Core.cpp,
+	Malloc.cpp,
+	Session.h,
+	Session.cpp,
+	SFtp.h,
+	SFtp.cpp,
+	SFtpMT.cpp,
+	Channels.h,
+	Channels.cpp,
+	"Library Files" readonly separator,
+	libssh2upp.c,
+	libssh2\libssh2_config.h,
+	libssh2/Copying,
+	Info readonly separator,
+	Copying,
+	ReadMe,
+	src.tpp;
+
+mainconfig
+	"" = "";
+
