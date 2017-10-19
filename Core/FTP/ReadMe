@@ -1,0 +1,65 @@
+Ftp class is a U++ client side implementation of the File Transfer Protocol (FTP) as specified in RFC 959, with several advanced capabilities: 
+
+- Support for IPv6 and NATs, as specified in RFC 2428.
+- Support for ftp over TLS/SSL (FTPS), as specified in RFC 2228.
+- Support for feature negotiation mechanism as specifien in RFC 2389.
+- Support for multithreading, using worker threads. 
+- Support for parsing UNIX and DOS style directory listings.
+- Support for extending the functionality of Ftp class, using the low-level SendCommand() method.
+- Support for transfer restart (resume) mechanism, as specified in RFC 3959.
+
+ToDo:
+--------
+- Proxy support (using NetworkProxy).
+- Refactoring and optimization of FtpAsyncIO.
+
+History:
+--------
+(13-07-2017):   Ftp package, version 1.2.1.
+                Transfer restart mechanism fixed. It now properly handles failed or aborted transfer.
+(02-06-2017):   REST and APPE commands are implemented. See RFC 3659 for more informations.
+                Accordingly, Ftp::Append(), Ftp::Restart(), Ftp::GetRestartPos(), Ftp:Request::Restart(), 
+                Ftp::Request::DeleteFailed(), and Ftp::Result::IsRestarted() methods are added. 
+                It is now possible to restart a failed transfer.             
+(01-06-2017):   GetSize() method is added to Ftp class.
+(21-04-2017):   Ftp::Request::UserData() and Ftp::Result::GetUserData() methods are added. 
+                These methods allow passing user data/messages through worker threads a convenient way.
+                Ftp::Request::Priority() method implemented. This method allows user to pre-set a priority level for given worker thread.
+(17-04-2017):   FtpAsyncIO and related helper functions refactored. Ftp threads are limited to max 256 slots per process.
+(16-04-2017):   Ftp::DirEntry further refactored. Directory listing parser moved to DirEntry::Parser() function.
+                Multithreaded convenience functions now check whether the MT infrastructure is available.
+                Accordingly ifdef/define preprocessor commands to check MT are removed.
+(15-04-2017):   Ftp::DirEntry now properly handles pathnames with whitespaces.
+(14-04-2017):   NAMESPACE_UPP and END_UPP_NAMESPACE macros removed.
+                Ftp convenience functions are re-written, using an objective approach. (Sugggested by Klugier)
+                As a result, two new helper class added to the package: Ftp::Request and Ftp::Result.
+                Ftp:DirEnty refactored.
+                Possible race condition in AbortWorker() is fixed.
+(12-04-2017):   FTP package, version 1.1 
+                GetFeatures() method is added. Thıs method implements the FEAT command. See RFC 2389 for details.
+(09-04-2017):   FtpAsyncIO: Data buffer size used by FileStream is set to 5 MB (default was 4k) in order to reduce  disk I/O.
+                Ftp[Async]Put/Get methods' parameter list order changed.  
+(07-04-2017):   FTP package, version 1.0 
+                This version brings concurrent file transfers, using Upp's multithreading infrastructure.
+(04-04-2017):   FtpAsyncGet() and FtpAsyncPut() convenience functions are added to the package.
+                These helper functions simplify asynchronous file transfers while retaining the flexibility and features of Ftp class.
+                Slight API changes for better integration with GUI apps. Ftp::Type (ASCII|BINARY) and Ftp::Mode (PASSIVE|ACTIVE) enums made private.
+                (See Get() and Put() documentation for API changes.)
+                Documentation updated accordingly.
+(02-04-2017):   Fixed Ftp::TransferData(): The server reply for failed transfers is now properly handled.
+                Control connection now checks if the socket is open.
+(06-03-2017):   Ftp package, version 0.9 
+                GetReplyAsXml() method is added. This method simplifies the parsing of FTP protocol messages and internal messages.
+(30-01-2017):   From now on FTP package requires at least C++11.
+(20-01-2015):   Fixed Active mode IPV6 data connection. Improved FTPS. From now on, Ftp class supports also TLS. (As long as it is supported by U++ Core/SSL package)
+(07-01-2015):   Ftp package, version 0.8
+                Added basic FTPS (SSL) support. FTPS is limited to passive mode connections and can only be invoked per ftp session (latter is a security measure).
+(29-12-2014):   Possible namspace clash fixed (Thanks Klugier!).
+(25-12-2014):   Ftp package, version 0.7
+                FtpGet() and FtpPut() convenience functions are added to the package. These helper functions simplify ftp transfers while retaining flexibility and features of Ftp class.
+(24-12-2014):   Complete rewrite of Ftp class. (API breakage). 
+                Ftp class from now on supports IPv6 and adjustable data chunk size. 
+                Abort() sequence is refined.
+(12-05-2014):   Fixed DecodePath() method and download/upload start marker code 125 is now properly handled.
+(08-05-2014):   Added Noop() method. Useful for keeping connections alive.
+(07-05-2014):   This is the first public beta.

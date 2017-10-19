@@ -1,0 +1,17 @@
+description "A network proxy class implementing SOCKS and HTTP protocols..\377";
+
+uses
+	Core;
+
+file
+	NetProxy.h,
+	NetProxy.cpp,
+	Info readonly separator,
+	ReadMe,
+	Copying,
+	Docs readonly separator,
+	src.tpp;
+
+mainconfig
+	"" = "";
+

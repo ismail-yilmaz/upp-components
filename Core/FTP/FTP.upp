@@ -1,0 +1,16 @@
+description "File Transfer Protocol encapsulation. Author: İsmail Yılmaz\377";
+
+uses
+	Core;
+
+file
+	Ftp.h,
+	Ftp.cpp,
+	src.tpp,
+	ReadMe,
+	Copying;
+
+mainconfig
+	"" = "MT",
+	"With Network Proxy Support" = "MT SSE2 USEPROXY";
+
