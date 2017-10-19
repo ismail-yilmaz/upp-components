@@ -64,7 +64,7 @@ History:
     
              6) Network proxy support is added. This new feature uses NetProxy (Http/Socks4/4a/5)
                 package It works through a plugin, provided via SshSession::WhenProxy callback.
-                And it is completely optional.
+                And it is completely optional. 
 
              7) Cancellation mechanism is added. Any operation can be cancelled at any time using
                 the Cancel() method.
