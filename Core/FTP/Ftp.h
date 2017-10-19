@@ -145,6 +145,7 @@ public:
     bool                InProgress() const                                  { return progress; }
 
     Event<>             WhenWait;
+    Gate<>				WhenProxy;
 
     int64               GetSize(const String& path);
     int64               GetRestartPos() const                               { return position; }

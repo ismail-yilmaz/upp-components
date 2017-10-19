@@ -438,7 +438,8 @@ bool Ftp::Connect(const String& host, int port)
 		}
 		control_socket.Clear();
 		LLOG("** Connecting to " << host << ":" << port);
-		if(!control_socket.Connect(ftp_host, Nvl(ftp_port, 21)))
+		if((WhenProxy && !WhenProxy()) ||
+		  (!control_socket.Connect(ftp_host, Nvl(ftp_port, 21))))
 			throw Exc("Couldn't connect to " << ftp_host << ":" << ftp_port);
 		// Get server greeting.
 		PutGet(Null);
