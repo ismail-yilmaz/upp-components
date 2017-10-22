@@ -31,8 +31,7 @@ ool]_[* Add]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 ho
 shHosts`::Info][@(0.0.255) `&]_[*@3 info], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 comment])&]
 [s2;%% Adds a [%-*@3 host] to the known hosts list. Usually after verification. 
-Returns true on success. See [^topic`:`/`/SSH`/src`/Ssh`_KnownHosts`$en`-us`#Upp`:`:KnownHosts`:`:Check`(const Upp`:`:String`&`,int`)^ C
-heck()].&]
+Returns true on success. &]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshHosts`:`:Remove`(Upp`:`:SshHost`*`): [@(0.0.255) bool]_[* Remove]([_^Upp`:`:SshHost^ S
