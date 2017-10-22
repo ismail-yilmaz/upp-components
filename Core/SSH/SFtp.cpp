@@ -29,8 +29,8 @@ bool SFtp::Init()
 		return true;
 	}
 	if(!WouldBlock())
-		SetError(WouldBlock());
-	 return false;
+		SetError(-1);
+	return false;
 }
 
 void SFtp::Exit()
@@ -322,7 +322,7 @@ SFtpHandle*	 SFtp::OpenDir(const String& path)
 		ASSERT(sftp->session);
 		sftp->handle = libssh2_sftp_opendir(sftp->session, path);
 		if(!sftp->handle && !WouldBlock())
-			SetError(WouldBlock());
+			SetError(-1);
 		if(sftp->handle)
 			LLOG(Format("Directory '%s' is successfully opened.", path));
 		return sftp->handle != NULL;
@@ -591,7 +591,7 @@ String SFtp::DirEntry::ToString() const
 {
 	if(!valid) return "<N/A>";
 	const char *hypen = "-", *r = "r", *w = "w", *x = "x";
-	return Format("%c%c%c%c%c%c%c%c%c%c %5<d %5<d %12>d %s %s",
+	return Format("%c%c%c%c%c%c%c%c%c%c %5<d %5<d %12>d %s %s %s",
 				(IsFile()
 				? *hypen : (IsDirectory()
 				? 'd' : (IsSymLink()
@@ -613,7 +613,41 @@ String SFtp::DirEntry::ToString() const
 				GetGid(),
 				GetSize(),
 				AsString(GetLastModified()),
+				AsString(GetLastAccessed()),
 				GetName());
+}
+
+String SFtp::DirEntry::ToXml() const
+{
+	if(!valid) return XmlTag("N/A").Text("N/A");
+	const char *hypen = "-", *r = "r", *w = "w", *x = "x";
+	return XmlTag("sftp::direntry")
+			("type", (IsFile()
+				? "file" : (IsDirectory()
+				? "directory" : (IsSymLink()
+				? "symlink" : (IsSocket()
+				? "socket" : (IsPipe()
+				? "pipe" : (IsBlock()
+				? "block-special" : (IsSpecial()
+				? "character-special" : "other")
+			)))))))
+			("uid", AsString(GetUid()))
+			("gid", AsString(GetGid()))
+			("size", AsString(GetSize()))
+			("modified", AsString(GetLastModified()))
+			("accessed", AsString(GetLastAccessed()))
+			("permissions", Format("%c%c%c%c%c%c%c%c%c",
+				((a->permissions & IRUSR) ? *r : *hypen),
+				((a->permissions & IWUSR) ? *w : *hypen),
+				((a->permissions & IXUSR) ? *x : *hypen),
+				((a->permissions & IRGRP) ? *r : *hypen),
+				((a->permissions & IWGRP) ? *w : *hypen),
+				((a->permissions & IXGRP) ? *x : *hypen),
+				((a->permissions & IROTH) ? *r : *hypen),
+				((a->permissions & IWOTH) ? *w : *hypen),
+				((a->permissions & IXOTH) ? *x : *hypen)
+			))
+			.Text(GetName());
 }
 
 bool SFtp::DirEntry::CanMode(dword u, dword g, dword o) const

@@ -2,7 +2,8 @@ class SshChannel : public Ssh {
 public:
     SshChannel&         Timeout(int ms)                                             { ssh->timeout = ms; return *this; }
     SshChannel&         NonBlocking(bool b = true)                                  { ssh->async = b; return *this ;}
-
+    SshChannel&         ChunkSize(int sz)                                           { if(sz >= 1024) ssh->chunk_size = sz; return *this; }
+    
     LIBSSH2_CHANNEL*    GetHandle() const                                           { return chdata->channel; }
     String              GetResult()                                                 { return pick(chdata->data); }
 

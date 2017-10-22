@@ -133,6 +133,8 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			if(session->authmethods.IsEmpty()) { if(!WouldBlock()) SetError(-1); return false; }
 			LLOG("Authentication methods successfully retrieved.");
 			WhenAuth();
+			if(session->phrase.IsEmpty())
+				session->phrase = password;
 			return true;
 		});
 		Cmd(CONNECT, [=]() mutable {
@@ -150,6 +152,9 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 				case KEYBOARD:
 					rc = libssh2_userauth_keyboard_interactive(ssh->session, ~user,
 						&ssh_keyboard_callback);
+					break;
+				case SSHAGENT:
+					rc = TryAgent(user);
 					break;
 				default:
 					NEVER();
@@ -222,6 +227,55 @@ String SshSession::GetMethodNames(int type)
 	for(int i = 0; i < v.GetCount(); i++)
 		names << v[i].To<String>() << (i < v.GetCount() - 1 ? "," : "");
 	return pick(names);
+}
+
+int SshSession::TryAgent(const String& username)
+{
+	LLOG("Attempting to authenticate via ssh-agent...");
+	auto agent = libssh2_agent_init(ssh->session);
+	if(!agent)
+		SetError(-1, "Couldn't initialize ssh-agent support.");
+	if(libssh2_agent_connect(agent)) {
+		libssh2_agent_free(agent);
+		SetError(-1, "Couldn't connect to ssh-agent.");
+	}
+	if(libssh2_agent_list_identities(agent)) {
+		FreeAgent(agent);
+		SetError(-1, "Couldn't request identities to ssh-agent.");
+	}
+	libssh2_agent_publickey *id = NULL, *previd = NULL;
+	
+	for(;;) {
+		auto rc = libssh2_agent_get_identity(agent, &id, previd);
+		if(rc < 0) {
+			FreeAgent(agent);
+			SetError(-1, "Unable to obtain identity from ssh-agent.");
+		}
+		if(rc != 1) {
+			if(libssh2_agent_userauth(agent, ~username, id)) {
+				LLOG(Format("Authentication with username %s and public key %s failed.",
+							username, id->comment));
+			}
+			else {
+				LLOG(Format("Authentication with username %s and public key % s succeeded.",
+							username, id->comment));
+				break;
+			}
+		}
+		else {
+			FreeAgent(agent);
+			SetError(-1, "Couldn't authenticate via ssh-agent");
+		}
+		previd = id;
+	}
+	FreeAgent(agent);
+	return 0;
+}
+
+void SshSession::FreeAgent(SshAgent* agent)
+{
+	libssh2_agent_disconnect(agent);
+	libssh2_agent_free(agent);
 }
 
 

@@ -24,6 +24,6 @@
 #include  "libssh2/transport.c"
 #include  "libssh2/userauth.c"
 #include  "libssh2/version.c"
-#include  "libssh2/wincng.c"
+//#include  "libssh2/wincng.c"
 
 #endif

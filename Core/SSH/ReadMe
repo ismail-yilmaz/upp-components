@@ -25,6 +25,11 @@ Todo:
 
 History:
 --------------------
+2017-10-21:  Ssh agents support added. A ToXml() method added to SFtp::DirEntry class.
+             Timeouts error code is from now on -1000. This is to prevent unnecessary cleanup 
+             rounds when the server is not responding.
+2017-10-20:  Known hosts support is re-added via SshHosts class. Docs are updated accordingly.
+
 2017-10-17:  Class names finalized:
              Core class       -> Ssh
              Session class    -> SshSession

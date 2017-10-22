@@ -28,7 +28,7 @@ public:
         IRWXA = IRALL | IWALL | IXALL
     };
 
-    class DirEntry  : public Moveable<DirEntry>{
+    class DirEntry : public Moveable<DirEntry> {
         friend class SFtp;
         public:
             String GetName() const                  { return filename; }
@@ -55,7 +55,7 @@ public:
             bool IsExecutable() const               { return !IsDirectory() && CanMode(IXUSR, IXGRP, IXOTH); }
 
             String ToString() const;
-//          String ToXml() const;
+            String ToXml() const;
 
             DirEntry(const String& path);
             DirEntry(const String& path, const SFtpAttrs& attrs);
@@ -78,6 +78,7 @@ public:
 public:
     SFtp&                   Timeout(int ms)                                         { ssh->timeout = ms; return *this; }
     SFtp&                   NonBlocking(bool b = true)                              { ssh->async = b; return *this ;}
+    SFtp&                   ChunkSize(int sz)                                       { if(sz >= 1024) ssh->chunk_size = sz; return *this; }
 
     LIBSSH2_SFTP_HANDLE*    GetHandle() const                                       { return sftp->handle; };
     Value                   GetResult() const                                       { return sftp->value; }

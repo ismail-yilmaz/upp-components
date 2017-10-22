@@ -1,4 +1,4 @@
-topic "SshSession";
+topic "Session";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
@@ -11,145 +11,283 @@ topic "SshSession";
 [b42;2 $$9,9#13035079074754324216151401829390:normal]
 [{_} 
 [ {{10000@(113.42.0) [s0;%% [*@7;4 SshSession]]}}&]
-[s1;@(0.0.255)3 &]
+[s3; &]
 [s1;:Upp`:`:SshSession`:`:class: [@(0.0.255)3 class][3 _][*3 SshSession][3 _:_][@(0.0.255)3 publ
 ic][3 _][*@3;3 Ssh]&]
-[s2;*@3;3 &]
+[s0;#l288;%% This class encapsulates a secure shell (version 2) client 
+session. It is responsible for establishing, authenticating, 
+and managing a cryptographically secured shell session on an 
+SSH2 compliant server. SshSession class is derived from Ssh base 
+class, and has pick semantics.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
-[s4; &]
+[s3; &]
 [s5;:Upp`:`:SshSession`:`:Timeout`(int`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* Timeout]([@(0.0.255) int]_[*@3 ms])&]
-[s2;%%  [%-*@3 ms] .&]
+[s2;%% Sets timeout value in miliseconds. Default value is 60000 
+milliseconds (one minute).  Setting the timeout value to 0 disables 
+timeout. Returns `*this for methods chaining. Note that ssh subsystems 
+and channels inherit their default timeout value from their session.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:NonBlocking`(bool`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* NonBlocking]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%%  [%-*@3 b] .&]
+[s2;%% Activates or deactivates non`-blocking mode. Default is blocking 
+mode. Returns `*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`): [_^Upp`:`:SshSession^ S
 shSession][@(0.0.255) `&]_[* Keys]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 prikey], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 pubkey], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 phrase]_`=_Null)&]
-[s2;%%  [%-*@3 prikey] [%-*@3 pubkey] [%-*@3 phrase] .&]
+[s2;%% Sets paths to private and public key files stored on disk. 
+[%-*@3 phrase] can be used to decipher the private key. If [%-*@3 phrase] 
+is not specified, supplied password will be used instead. Returns 
+`*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Method`(int`,Upp`:`:Value`): [_^Upp`:`:SshSession^ SshSession
 ][@(0.0.255) `&]_[* Method]([@(0.0.255) int]_[*@3 type], [_^Upp`:`:Value^ Value]_[*@3 method])
 &]
-[s2;%%  [%-*@3 type] [%-*@3 method] .&]
+[s2;%% Sets preferred transport method for the method [%-*@3 type]. 
+Transport [%-*@3 method] .parameter may contain a single method, 
+or a list of methods, with the most preferred method listed as 
+first and the least preferred as last. Returns `*this for methods 
+chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Methods`(Upp`:`:ValueMap`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* Methods]([_^Upp`:`:ValueMap^ ValueMap]_[*@3 methods])&]
-[s2;%%  [%-*@3 methods] .&]
+[s2;%% Sets transport [%-*@3 methods]. Methods list should contain 
+key`-value pairs, where keys represent possible method types, 
+and values represent a single or multiple transport method(s), 
+with the most preferred listed as first and the least preferred 
+as last. Returns `*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:PasswordAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* PasswordAuth]()&]
-[s2;%% &]
+[s2;%% Sets the authentication method to basic password authentication. 
+Returns `*this for methods chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:PublicKeyAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* PublicKeyAuth]()&]
-[s2;%% &]
+[s2;%% Sets the authentication method to public key authentication. 
+Returns `*this for methods chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:KeyboardAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* KeyboardAuth]()&]
-[s2;%% &]
+[s2;%% Sets the authentication method to keyboard`-interactive (challenge/response) 
+authentication. Returns `*this for methods chaining.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:SshSession`:`:SshAgentAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
+]_[* SshAgentAuth]()&]
+[s2;%% Enables using an ssh`-agent for authentication. Returns this 
+for methods chaining. This method requires public and private 
+keys to be present.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetHandle`(`): [_^LIBSSH2`_SESSION^ LIBSSH2`_SESSION][@(0.0.255) `*
 ]_[* GetHandle]()&]
-[s2;%% &]
+[s2; Returns the libssh2 session handle on success, NULL on failure.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetBanner`(`)const: [_^Upp`:`:String^ String]_[* GetBanner]()_[@(0.0.255) c
 onst]&]
-[s2;%% &]
+[s2;%% Returns the servers banner if available.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetFingerprint`(`)const: [_^Upp`:`:String^ String]_[* GetFinger
 print]()_[@(0.0.255) const]&]
-[s2;%% &]
+[s2;%% Returns the computed digest of the server`'s host key (in 
+raw bytes) on success, or an empty String on failure.&]
 [s3; &]
-[s4; &]
-[s5;:Upp`:`:SshSession`:`:GetAuthMethods`(`): [_^Upp`:`:Vector^ Vector]<[_^Upp`:`:String^ S
-tring]>_[* GetAuthMethods]()&]
-[s2;%% &]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetSocket`(`): [_^Upp`:`:TcpSocket^ TcpSocket][@(0.0.255) `&]_[* G
 etSocket]()&]
-[s2;%% &]
+[s2;%% Returns a reference to the session socket.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetMethods`(`): [_^Upp`:`:ValueMap^ ValueMap]_[* GetMethods]()&]
-[s2;%% &]
-[s3; &]
+[s0;l288;%% Returns a list of supported transport methods on success, 
+and an empty list on failure. Supported method types are represented 
+by `"keys`", and available methods, which can be a single string 
+or a list of strings, are represented by `"values`". Note that 
+all values are in lowercase letters.&]
+[s3;%% &]
 [s4; &]
+[s5;:Upp`:`:SshSession`:`:GetAuthMethods`(`): [_^Upp`:`:Vector^ Vector]<[_^Upp`:`:String^ S
+tring]>_[* GetAuthMethods]()&]
+[s0;l288;%% Returns a list of supported user authentication methods. 
+Returns an empty vector on failure. The following three authentication 
+methods are currently supported: `"password`", `"publickey`", 
+`"keyboard`-interactive`".&]
+[s3;^Upp`:`:SFtp^ &]
+[s4;^Upp`:`:SFtp^ &]
 [s5;:Upp`:`:SshSession`:`:CreateSFtp`(`): [_^Upp`:`:SFtp^ SFtp]_[* CreateSFtp]()&]
-[s2;%% &]
+[s2;%% Creates an SFtp channel instance.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:CreateChannel`(`): [_^Upp`:`:SshChannel^ SshChannel]_[* CreateC
 hannel]()&]
-[s2;%% &]
+[s2;%% Creates a generic channel instance.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:CreateExec`(`): [_^Upp`:`:SshExec^ SshExec]_[* CreateExec]()&]
-[s2;%% &]
+[s2;%% Creates an Exec channel instance.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:CreateScp`(`): [_^Upp`:`:Scp^ Scp]_[* CreateScp]()&]
-[s2;%% &]
+[s2;%% Creates an Scp channel instance.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Connect`(const Upp`:`:String`&`,int`,const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b
 ool]_[* Connect]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 host], 
 [@(0.0.255) int]_[*@3 port], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 u
 ser], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 password])&]
-[s2;%%  [%-*@3 host] [%-*@3 port] [%-*@3 user] [%-*@3 password] .&]
+[s2;%% Connects to a SSH2 server specified at [%-*@3 host] and [%-*@3 port]. 
+Returns true on success.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Disconnect`(`): [@(0.0.255) void]_[* Disconnect]()&]
-[s2;%% &]
+[s2;%% Disconnects from the SSH2 server.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenDo: [_^Upp`:`:Event^ Event]<>_[* WhenDo]&]
-[s2;%% &]
+[s2;%% This event is emitted at the end of Do() loop. Useful for 
+updating GUIs. Note that all ssh channels privately has a similar 
+callback defined and redirect their calls to their session`'s 
+WhenDo callback.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenConfig: [_^Upp`:`:Event^ Event]<>_[* WhenConfig]&]
-[s2;%% &]
+[s2;%% This event is emitted at the beginning of the protocol handshake 
+phase to allow user to query or set the transport methods.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenAuth: [_^Upp`:`:Event^ Event]<>_[* WhenAuth]&]
-[s2;%% &]
+[s0;l288;%% This event is emitted at the beginning of the session 
+authentication phase to allow user to query or set the authentication 
+method(s)&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenVerify: [_^Upp`:`:Gate^ Gate]<>_[* WhenVerify]&]
-[s2;%% &]
+[s0;l288;%% This gate is invoked after a successful protocol handshake 
+to allow user to verify the host against a list of known (trusted) 
+hosts. Returning false halts the connection process.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenProxy: [_^Upp`:`:Gate^ Gate]<>_[* WhenProxy]&]
-[s2;%% &]
+[s2;%% If this gate is defined it will be invoked right before the 
+initial socket connection. It is meant to allow utilizing third 
+party `-`"plug`-in`" network proxy adapters on`-demand. Returning 
+false halts the connection process.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenKeyboard: [_^Upp`:`:Function^ Function]<[_^Upp`:`:String^ S
 tring]([_^Upp`:`:String^ String], [_^Upp`:`:String^ String], [_^Upp`:`:String^ String])
 >_[* WhenKeyboard]&]
-[s2;%% &]
+[s0;l288;%% This callback is required by the keyboard`-interactive 
+(challenge/response) authentication method. The host will issue 
+one or more challenges and require a response for each challenge. 
+Therefore this callback, responsible for obtaining responses, 
+may be invoked more than once, and has 3 additional parameters 
+(as strings): [*@3 title], [*@3 instructions], and [*@3 prompt]. Title 
+and instructions may be empty strings. Returned responses will 
+be evaluated by the designated host. Returning an empty string 
+will halt the connection.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
 [s5;:Upp`:`:SshSession`:`:SshSession`(`): [* SshSession]()&]
-[s2;%% &]
+[s2;%% Default constructor.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:`~SshSession`(`): [@(0.0.255) `~][* SshSession]()&]
-[s2;%% &]
+[s2;%% Default destructor. Automatically closes the session.&]
 [s3; &]
+[s0;%% &]
+[s0; &]
+[ {{10000@(113.42.0) [s0;%% [*@7;4 Ssh Transport Methods]]}}&]
+[s2; &]
+[s2; Below is a list of transport method types (keys) and methods 
+(values) supported by SSH package.&]
+[s2; &]
+[s3; &]
+[ {{4133:5867l/26r/26t/14b/14@1-1 [s0;=%% [* Key Exchange]]
+::l/25r/25t/15b/15@2 [s0; ]
+::l/26r/26t/14b/14@(178) [s0;=%% Key]
+:: [s0;=%% Value(s)]
+::l/25r/25t/15b/15@2|4 [s0;=%% [*C SshSession`::METHOD`_EXCHANGE]]
+:: [s0;%% [C diffie`-hellman`-group1`-sha1]]
+:: [s0; ]
+:: [s0;%% [C diffie`-hellman`-group14`-sha1]]
+:: [s0; ]
+:: [s0;%% [C diffie`-hellman`-group14`-sha1]]
+:: [s0; ]
+:: [s0;%% [C diffie`-hellman`-group`-exchange`-sha1]]
+:: [s0; ]
+:: [s0;%% [C diffie`-hellman`-group`-exchange`-sha256]]
+::l/26r/26t/14b/14@1-1 [s0;=%% [* HostKey]]
+::l/25r/25t/15b/15@2 [s0; ]
+::l/26r/26t/14b/14@(178) [s0;=%% Key]
+:: [s0;=%% Value(s)]
+::l/25r/25t/15b/15@2|1 [s0;=%% [*C SshSession`::METHOD`_HOSTKEY]]
+:: [s0;%% [C ssh`-dss]]
+:: [s0; ]
+:: [s0;%% [C ssh`-rsa]]
+::l/26r/26t/14b/14@1-1 [s0;=%% [* Cipher (Client and/or Server)]]
+::l/25r/25t/15b/15@2 [s0; ]
+::l/26r/26t/14b/14@(178) [s0;=%% Key]
+:: [s0;=%% Value(s)]
+::l/25r/25t/15b/15@2|11 [s0;=%% [*C SshSession`::METHOD`_CENCRYPTION]&]
+[s0;=%% [*C SshSession`::METHOD`_SENCRYPTION]]
+:: [s0;%% [C aes256`-ctr ]]
+:: [s0; ]
+:: [s0;%% [C aes192`-ctr]]
+:: [s0; ]
+:: [s0;%% [C aes192`-ctr]]
+:: [s0; ]
+:: [s0;%% [C aes256`-cbc (rijndael`-cbc`@lysator.liu.se)]]
+:: [s0; ]
+:: [s0;%% [C aes192`-cbc]]
+:: [s0; ]
+:: [s0;%% [C aes128`-cbc]]
+:: [s0; ]
+:: [s0;%% [C 3des`-cbc]]
+:: [s0; ]
+:: [s0;%% [C 3des`-cbc]]
+:: [s0; ]
+:: [s0;%% [C cast128`-cbc]]
+:: [s0; ]
+:: [s0;%% [C arcfour]]
+:: [s0; ]
+:: [s0;%% [C arcfour128]]
+:: [s0; ]
+:: [s0;%% [C none]]
+::l/26r/26t/14b/14@1-1 [s0;=%% [* MAC Hashing (Client and/or Server)]]
+::l/25r/25t/15b/15@2 [s0; ]
+::l/26r/26t/14b/14@(178) [s0;=%% Key]
+:: [s0;=%% Value(s)]
+::l/25r/25t/15b/15@2|7 [s0;=%% [*C SshSession`::METHOD`_CMAC]&]
+[s0;=%% [*C SshSession`::METHOD`_SMAC]]
+:: [s0;%% [C hmac`-sha2`-256]]
+:: [s0; ]
+:: [s0;%% [C hmac`-sha2`-512]]
+:: [s0; ]
+:: [s0;%% [C hmac`-sha1]]
+:: [s0; ]
+:: [s0;%% [C hmac`-sha1`-96]]
+:: [s0; ]
+:: [s0;%% [C hmac`-md5]]
+:: [s0; ]
+:: [s0;%% [C hmac`-md5`-96]]
+:: [s0; ]
+:: [s0;%% [C hmac`-ripemd160 (hmac`-ripemd160`@openssh.com)]]
+:: [s0; ]
+:: [s0;%% [C none]]}}&]
 [s0;%% ]]

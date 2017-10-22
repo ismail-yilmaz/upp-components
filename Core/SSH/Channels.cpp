@@ -22,7 +22,7 @@ bool SshChannel::Init()
 {
 	chdata->channel = libssh2_channel_open_session(ssh->session);
 	if(!chdata->channel && !WouldBlock())
-		SetError(WouldBlock());
+		SetError(-1);
 	if(chdata->channel)
 		LLOG("A new channel is opened.");
 	return chdata->channel != NULL;
@@ -57,8 +57,9 @@ bool SshChannel::Close()
 		if(!chdata || !chdata->channel)
 			return true;
 		auto rc = libssh2_channel_close(chdata->channel);
-		if(!WouldBlock(rc) && rc < 0)
+		if(!WouldBlock(rc) && rc < 0) {
 			SetError(rc);
+		}
 		if(rc == 0) {
 			LLOG("Closing channel...");
 			chdata->channel = NULL;
@@ -319,7 +320,7 @@ bool Scp::Get(Stream& out, const String& path, Gate<int64, int64> progress)
 				SetError(-1, "Path is not set.");
 			chdata->channel = libssh2_scp_recv2(ssh->session, path, &chdata->fstat);
 			if(!chdata->channel && !WouldBlock())
-				SetError(WouldBlock());
+				SetError(-1);
 			if(chdata->channel)
 				LLOG("Channel obtained.");
 			return chdata->channel != NULL;
@@ -351,7 +352,7 @@ bool Scp::Put(Stream& in, const String& path, long mode, Gate<int64, int64> prog
 				SetError(-1, "Path is not set.");
 			chdata->channel = libssh2_scp_send64(ssh->session, path, mode, in.GetSize(), 0, 0);
 			if(!chdata->channel && !WouldBlock())
-				SetError(WouldBlock());
+				SetError(-1);
 			if(chdata->channel)
 				LLOG("Channel obtained.");
 			return chdata->channel != NULL;

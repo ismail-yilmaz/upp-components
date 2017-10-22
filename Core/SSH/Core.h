@@ -1,6 +1,5 @@
 class Ssh {
 public:
-    Ssh&                ChunkSize(int sz)                       { if(sz >= 1024 && ssh) ssh->chunk_size = sz; return *this; }
     bool                Do();
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
 
@@ -31,7 +30,10 @@ public:
         Error(const String& reason) : Exc(reason), code(-1) {}
         Error(int rc, const String& reason) : Exc(reason), code(rc) {}
     };
-        
+    enum Type  {
+		SESSION, SFTP, CHANNEL, SCP, EXEC
+	};
+
 protected:
     struct CoreData {
         BiVector<Tuple<int, Gate<>>> queue;
@@ -52,8 +54,7 @@ protected:
     One<CoreData> ssh;
     
     enum Status         { WORKING, FINISHED, CLEANUP, CANCELLED, FAILED };
-    enum ObjectType     { SESSION, SFTP, SCP, CHANNEL, EXEC, TERMINAL };
-
+ 
     virtual bool        Init()                                  { return true; }
     virtual void        Exit() = 0;
     virtual bool        Cmd(int code, Function<bool()>&& fn);

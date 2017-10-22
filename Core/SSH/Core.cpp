@@ -9,24 +9,20 @@ bool sTraceVerbose = false;
 String GetName(int type, int64 id)
 {
 	String s;
-    enum { SESSION, SFTP, SCP, CHANNEL, EXEC, TERMINAL };
 	switch(type) {
-		case SESSION:
+		case Ssh::SESSION:
 			s = "Session";
 			break;
-		case SFTP:
+		case Ssh::SFTP:
 			s = "SFtp";
 			break;
-		case SCP:
+		case Ssh::SCP:
 			s = "Scp";
 			break;
-		case EXEC:
+		case Ssh::EXEC:
 			s = "Exec";
 			break;
-		case TERMINAL:
-			s = "Terminal";
-			break;
-		case CHANNEL:
+		case Ssh::CHANNEL:
 			s = "Channel";
 			break;
 		default:
@@ -42,9 +38,9 @@ String GetName(int type, int64 id)
 void Ssh::Check()
 {
 	if(IsTimeout())
-		SetError(-1, "Operation timed out.");
+		SetError(-1000, "Operation timed out.");
 	if(ssh->status == CANCELLED)
-		SetError(-1, "Operation cancelled.");
+		SetError(-1001, "Operation cancelled.");
 	ssh->event_proxy();
 }
 
@@ -126,7 +122,7 @@ bool Ssh::Cleanup(Error& e)
 	if(b) return false;
 	ssh->error  = MakeTuple<int, String>(e.code, e);
 	LLOG("Failed." << " Code = " << e.code << ", " << e);
-	return !b;
+	return !b && e.code  != 1000; // Make sure we don't loop on timeout errors.
 }
 
 void Ssh::SetError(int rc, const String& reason)
@@ -159,10 +155,11 @@ Ssh::Ssh()
 	ssh->timeout		= 60000;
 	ssh->start_time		= 0;
 	ssh->chunk_size		= 65536;
-	ssh->packet_length = 0;
+	ssh->packet_length  = 0;
 	ssh->status			= FINISHED;
 	ssh->ccmd			= -1;
 	ssh->oid			= GetNewId();
+	ssh->otype          = 0;
 }
 
 Ssh::~Ssh()
