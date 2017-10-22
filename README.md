@@ -1,5 +1,5 @@
 # upp-components
-A collection of packages for U++ framework.
+A collection of 3rd party packages for U++ framework.
 
 Ultimate++ is located at https://www.ultimatepp.org/
 
