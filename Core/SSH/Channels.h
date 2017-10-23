@@ -13,11 +13,11 @@ public:
     bool        Request(const String& request, const String& params = Null);
     bool        Exec(const String& cmdline)                                         { return Request("exec", cmdline); }
     bool        Shell()                                                             { return Request("shell", Null); }
-    bool        Subsystem(const String& subsystem)                                  { return Request("subsystem", subsystem); }
+	bool        Subsystem(const String& subsystem)                                  { return Request("subsystem", subsystem); }
     bool        Terminal(const String& term, int width, int height);
     bool        SetEnv(const String& variable, const String& value);
     bool        Read(Stream& out, int64 size, Gate<int64, int64> progress = Null);
-    bool        Write(Stream& in, int64 size, Gate<int64, int64> progress = Null);
+    bool        Write(Stream& in, int64 size = 0, Gate<int64, int64> progress = Null);
     bool        SendEof();
     bool        RecvEof();
     bool        SendRecvEof();

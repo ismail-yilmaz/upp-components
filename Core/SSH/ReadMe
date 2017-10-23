@@ -1,9 +1,7 @@
 SSH package for U++
 --------------------
-
 SSH package is a libssh2 wrapper for Ultimate++.
-It aims to be a complete secure shell client solution. (SFtp, Scp, Exec, Terminal, X11, known hosts)
-Currently it is at a technical preview stage, which means it is a work-in-progress, and subject to change.
+Currently it is in beta stage.
 
 
 Features and Highlights:
@@ -17,8 +15,6 @@ Features and Highlights:
 
 Todo:
 --------------------
-- Re-add ssh known hosts support
-- Add ssh agents support.
 - Add more high level methods.
 - Better (preferably internal) multithreading support, using AsyncWork.
 - Documentation.

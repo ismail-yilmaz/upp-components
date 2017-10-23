@@ -105,7 +105,6 @@ print]()_[@(0.0.255) const]&]
 [s2;%% Returns the computed digest of the server`'s host key (in 
 raw bytes) on success, or an empty String on failure.&]
 [s3; &]
-[s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetSocket`(`): [_^Upp`:`:TcpSocket^ TcpSocket][@(0.0.255) `&]_[* G
 etSocket]()&]

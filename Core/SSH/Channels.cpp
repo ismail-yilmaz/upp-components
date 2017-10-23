@@ -89,13 +89,13 @@ bool SshChannel::Request(const String& request, const String& params)
 			chdata->channel,
 			request,
 			request.GetLength(),
-			~params,
+			params.GetLength() ? ~params : NULL,
 			params.GetLength()
 		);
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
 		if(rc == 0)
-			LLOG("\"" << params << "\" request is successful.");
+			LLOG("\"" << request << "\" request (params: " << params << ") is successful.");
 		return rc == 0;
 	});
 }
@@ -148,28 +148,22 @@ bool SshChannel::Read(Stream& out, int64 size, Gate<int64, int64> progress)
 bool SshChannel::DataRead(int id, Stream& out, int64 size, Gate<int64, int64> progress)
 {
 	ASSERT(chdata->channel);
-	auto remaining = size - ssh->packet_length;
-	auto sz = ssh->chunk_size > remaining
-		? static_cast<ssize_t>(remaining)
-		: ssh->chunk_size;
-	Buffer<char> buffer(sz);
-	auto rc = libssh2_channel_read_ex(chdata->channel, 0, buffer, sz);
-	if(rc < 0) {
-		if(!WouldBlock(rc))
-			SetError(rc);
-		return false;
-	}
-	if(rc == 0)
-		return true;
-	out.Put64(buffer, rc);
-	ssh->packet_length += rc;
-	if(progress(size, ssh->packet_length))
-		SetError(-1, "Read aborted.");
-	if(size == ssh->packet_length) {
-		LLOG(Format("%ld of %ld bytes successfully read.",
-				(int64) ssh->packet_length, (int64) size));
-		ssh->packet_length = 0;
-		return true;
+	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
+
+	while(!IsTimeout()) {
+		Buffer<char> buffer(sz);
+		auto rc = libssh2_channel_read_ex(chdata->channel, id, ~buffer, sz);
+		if(rc < 0) {
+			if(!WouldBlock(rc))
+				SetError(rc);
+			break;
+		}
+		if(rc == 0)
+			return true;
+		out.Put64(buffer, rc);
+		out.Flush();
+		if(progress(size, out.GetSize()))
+			SetError(-1, "Read aborted.");
 	}
 	return false;
 }
@@ -185,23 +179,23 @@ bool SshChannel::Write(Stream& in, int64 size, Gate<int64, int64> progress)
 bool SshChannel::DataWrite(int id, Stream& in, int64 size, Gate<int64, int64> progress)
 {
 	ASSERT(chdata->channel);
-	auto rc = libssh2_channel_write_ex(chdata->channel, id,
-					in.Get(ssh->chunk_size),
-					ssh->chunk_size);
-	if(rc < 0) {
-		if(!WouldBlock(rc))
-			SetError(rc);
-		return false;
-	}
-	if(rc == 0)
-		return true;
-	ssh->packet_length += rc;
-	in.Seek(ssh->packet_length);
-	if(progress(in.GetSize(), in.GetPos()))
-		SetError(-1, "Write aborted.");
-	if(in.IsEof()) {
-		LLOG(Format("%ld of %ld bytes successfully written.", in.GetPos(), in.GetSize()));
-		return true;
+	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
+
+	while(!IsTimeout()) {
+		auto remaining  = (ssize_t) sz - ssh->packet_length;
+		auto rc = libssh2_channel_write_ex(chdata->channel, id, in.Get(remaining), remaining);
+		if(rc < 0) {
+			if(!WouldBlock(rc))
+				SetError(rc);
+			break;
+		}
+		if(rc == 0) {
+			ssh->packet_length = 0;
+			return true;
+		}
+		ssh->packet_length += rc;
+		if(progress(sz, ssh->packet_length))
+			SetError(-1, "Write aborted");
 	}
 	return false;
 }
@@ -214,7 +208,7 @@ bool SshChannel::SendEof()
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
 		if(rc == 0)
-			LLOG("EOF message sent to server.");
+			LLOG("EOF message's sent to the server.");
 		return rc == 0;
 	});
 }
@@ -227,7 +221,7 @@ bool SshChannel::RecvEof()
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
 		if(rc == 0)
-			LLOG("EOF message acknowledged by the server.");
+			LLOG("EOF message's acknowledged by the server.");
 		return rc == 0;
 	});
 }

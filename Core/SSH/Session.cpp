@@ -124,7 +124,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			session->fingerprint = libssh2_hostkey_hash(ssh->session, LIBSSH2_HOSTKEY_HASH_SHA1);
 			if(session->fingerprint.IsEmpty()) LLOG("Warning: Fingerprint is not available!.");
 			LDUMPHEX(session->fingerprint);
-			if(WhenVerify())
+			if(WhenVerify && !WhenVerify())
 				SetError(-1);
 			return true;
 		});

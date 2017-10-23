@@ -15,9 +15,9 @@ topic "Channels";
 [s1;:Upp`:`:SshExec`:`:class: [@(0.0.255)3 class][3 _][*3 SshExec][3 _:_][@(0.0.255)3 public][3 _][*@3;3 S
 shChannel]&]
 [s0;#l288;%% This class encapsulates an SSH2 remote process execution 
-(exec) channel. It provides a means for executing processes on 
-remote hosts. SshExec class is derived from SshChannel class, 
-and has pick semantics.&]
+(exec) channel. It provides a means for executing a single shell 
+command on a remote host. SshExec class is derived from SshChannel 
+class, and has pick semantics.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -32,7 +32,9 @@ nt]_[* operator()]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[
 [s0;l288;%% Executes remote process defined by [%-*@3 cmd] command 
 line, returns its standard output in [%-*@3 out], its standard 
 error output in [%-*@3 err], and its exit code as return value. 
-&]
+In non`-blocking mode, SshChannel`::GetExitCode() and SshChannel`::GetExitSignal() 
+methods can be used to retrieve the exit code and message of 
+the executed command. &]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
