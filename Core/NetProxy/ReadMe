@@ -24,6 +24,9 @@ Known Issues
 History
 -----------------------
 
+- 2017-11-07: GetWaitEvents() and AddTo() methods are added.
+              These methods are intented to simplify waiting on client socket in non-blocking mode.
+
 - 2017-09-23: Initial release of version 2.0:
               A change in naming: NetworkProxy is from now on called NetProxy.
               This change is in parallel with the change in class design.

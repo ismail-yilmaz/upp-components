@@ -16,14 +16,17 @@ String GetName(int type, int64 id)
 		case Ssh::SFTP:
 			s = "SFtp";
 			break;
+		case Ssh::CHANNEL:
+			s = "Channel";
+			break;
 		case Ssh::SCP:
 			s = "Scp";
 			break;
 		case Ssh::EXEC:
 			s = "Exec";
 			break;
-		case Ssh::CHANNEL:
-			s = "Channel";
+		case Ssh::SHELL:
+			s = "Shell";
 			break;
 		default:
 			return "";
@@ -58,13 +61,14 @@ bool Ssh::Cmd(int code, Function<bool()>&& fn)
 
 bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 {
+	bool b = IsComplexCmd(); // Is this complex command a part of another complex command?
 	ssh->ccmd = code;
 	if(ssh->status != CLEANUP)
 		ssh->status = WORKING;
-	if(!IsComplexCmd()) // Are we a part of another complex command?
+	if(!b)
 		ssh->queue.Clear();
 	fn();
-	if(!ssh->async)
+	if(!b && !ssh->async)
 		while(_Do());
 	return !IsError();
 }
@@ -113,6 +117,16 @@ bool Ssh::Do()
 	return _Do();
 }
 
+bool Ssh::Wait(int ms)
+{
+	// For SsshSession: Make sure we call this only after the socket is connected.
+	if(ssh->otype == SESSION && (!ssh->socket  || !ssh->session))
+		return false;
+	SocketWaitEvent we;
+	we.Add(*ssh->socket, WAIT_READ | WAIT_WRITE);
+	return we.Wait(ms);
+}
+
 bool Ssh::Cleanup(Error& e)
 {
 	ssh->queue.Clear();
@@ -150,9 +164,10 @@ Ssh::Ssh()
 {
 	ssh.Create();
 	ssh->session		= NULL;
+	ssh->socket			= NULL;
 	ssh->async			= false;
 	ssh->init			= false;
-	ssh->timeout		= 60000;
+	ssh->timeout		= 0;
 	ssh->start_time		= 0;
 	ssh->chunk_size		= 65536;
 	ssh->packet_length  = 0;

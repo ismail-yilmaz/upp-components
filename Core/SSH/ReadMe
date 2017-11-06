@@ -15,6 +15,7 @@ Features and Highlights:
 
 Todo:
 --------------------
+- Add SshShell class for shell support.
 - Add more high level methods.
 - Better (preferably internal) multithreading support, using AsyncWork.
 - Documentation.

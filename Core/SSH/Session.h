@@ -22,7 +22,7 @@ public:
     SshSession&         PasswordAuth()                          { session->authmethod = PASSWORD;  return *this; }
     SshSession&         PublicKeyAuth()                         { session->authmethod = PUBLICKEY; return *this; }
     SshSession&         KeyboardAuth()                          { session->authmethod = KEYBOARD;  return *this; }
-    SshSession&			SshAgentAuth()							{ session->authmethod = SSHAGENT;  return *this; }
+    SshSession&         SshAgentAuth()                          { session->authmethod = SSHAGENT;  return *this; }
 
     LIBSSH2_SESSION*    GetHandle()                             { return ssh->session; }
     String              GetBanner() const                       { return ssh->session ? pick(String(libssh2_session_banner_get(ssh->session))) : Null; }
@@ -35,6 +35,7 @@ public:
     SshChannel          CreateChannel();
     SshExec             CreateExec();
     Scp                 CreateScp();
+    SshShell			CreateShell();
     
     bool                Connect(const String& host, int port, const String& user, const String& password);
     void                Disconnect();
@@ -56,8 +57,8 @@ private:
     virtual void        Exit() override;
     virtual void        Check() override;
     String              GetMethodNames(int type);
-    int					TryAgent(const String& username);
-    void				FreeAgent(SshAgent* agent);
+    int                 TryAgent(const String& username);
+    void                FreeAgent(SshAgent* agent);
 
     struct SessionData {
         TcpSocket       socket;

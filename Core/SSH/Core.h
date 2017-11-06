@@ -1,6 +1,7 @@
 class Ssh {
 public:
     bool                Do();
+    bool				Wait(int ms = 10);
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
 
     int                 GetTimeout() const                      { return ssh->timeout; }
@@ -31,13 +32,19 @@ public:
         Error(int rc, const String& reason) : Exc(reason), code(rc) {}
     };
     enum Type  {
-		SESSION, SFTP, CHANNEL, SCP, EXEC
-	};
+        SESSION,
+        SFTP,
+        CHANNEL,
+        SCP,
+        EXEC,
+        SHELL
+    };
 
 protected:
     struct CoreData {
         BiVector<Tuple<int, Gate<>>> queue;
         LIBSSH2_SESSION*    session;
+        TcpSocket*			socket;
         Tuple<int, String>  error;
         Event<>             event_proxy;
         int                 ccmd;
@@ -61,7 +68,7 @@ protected:
     virtual bool        ComplexCmd(int code, Function<void()>&& fn);
     virtual void        Check();
     virtual bool        Cleanup(Error& e);
-    
+   
     int&                OpCode()                                { return ssh->queue.Head().Get<int>(); }
     bool                WouldBlock(int rc)                      { return rc == LIBSSH2_ERROR_EAGAIN; }
     bool                WouldBlock()                            { return ssh->session && WouldBlock(libssh2_session_last_errno(ssh->session)); }

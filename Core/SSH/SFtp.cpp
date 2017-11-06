@@ -575,6 +575,7 @@ SFtp::SFtp(SshSession& session)
 	sftp->handle	= NULL;
 	sftp->value		= Null;
 	ssh->session	= session.GetHandle();
+	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
 	ssh->event_proxy = Proxy(session.WhenDo);
 }

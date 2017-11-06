@@ -103,6 +103,7 @@ bool NetProxy::Init()
 	status = WORKING;
 	start_time = msecs();
 	ipinfo.Start(proxy_host, proxy_port);
+	events = WAIT_READ;
 	LLOG(Format("** NetProxy: Connecting to proxy server: %s:%d", proxy_host, proxy_port));
 	return true;
 }
@@ -111,6 +112,7 @@ bool NetProxy::Exit()
 {
 	socket->Timeout(timeout_backup);
 	socket = NULL;
+	events  = 0;
 	LLOG("** NetProxy: Exiting...");
 	return true;
 }
@@ -138,19 +140,24 @@ bool NetProxy::Connect()
 
 bool NetProxy::Get()
 {
-
+	events = WAIT_READ;
+	
 	while(!IsTimeout()) {
 		char c;
 		if(socket->Get(&c, sizeof(char)) == 0)
 			return false;
 		packet.Cat(c);
-		if(IsEof())
+		if(IsEof()) {
+			events &= ~WAIT_READ;
 			return true;
+		}
 	}
 }
 
 bool NetProxy::Put()
 {
+	events = WAIT_WRITE;
+	
 	while(!IsTimeout()) {
 		int n = packet.GetCharCount() - packet_length;
 		n = socket->Put(~packet + packet_length, n);
@@ -160,6 +167,7 @@ bool NetProxy::Put()
 		if(packet_length == packet.GetCharCount()) {
 			packet.Clear();
 			packet_length = 0;
+			events &= ~WAIT_WRITE;
 			return true;
 		}
 	}
@@ -570,8 +578,10 @@ bool NetProxy::Run()
 bool NetProxy::Do()
 {	try {
 		Check();
-		if(!queue.IsEmpty() && queue.Head()())
+		if(!queue.IsEmpty() && queue.Head()()) {
 			queue.DropHead();
+			events = 0;
+		}
 		if(queue.IsEmpty()) {
 			status = FINISHED;
 			LLOG("++ NetProxy: Proxy connection is successful.");
@@ -641,6 +651,7 @@ NetProxy::NetProxy()
 	ssl = false;
 	lookup = false;
 	bound = false;
+	events = 0;
 	proxy_type = HTTP;
 	command = CONNECT;
 }

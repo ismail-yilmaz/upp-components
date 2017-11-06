@@ -151,6 +151,20 @@ etSocket]()&]
 [s2; Returns a reference to the delegated TcpSocket.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:NetProxy`:`:GetWaitEvents`(`)const:%- [_^Upp`:`:dword^ dword]_[* GetWaitEvent
+s]()_[@(0.0.255) const]&]
+[s2; Returns a combination of WAIT`_READ and WAIT`_WRITE flags to 
+indicate what is blocking the operation of NetProxy. Can be used 
+with SocketWaitEvent.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:NetProxy`:`:AddTo`(Upp`:`:SocketWaitEvent`&`):%- [_^Upp`:`:NetProxy^ NetPro
+xy][@(0.0.255) `&]_[* AddTo]([_^Upp`:`:SocketWaitEvent^ SocketWaitEvent][@(0.0.255) `&]_[*@3 e
+])&]
+[s2; Adds NetProxy (it`'s client socket) to SocketWaitEvent for waiting 
+on it. Returns `*this for methods chaining.&]
+[s3; &]
+[s4;%- &]
 [s5;:Upp`:`:NetProxy`:`:IsError`(`)const:%- [@(0.0.255) bool]_[* IsError]()_[@(0.0.255) con
 st]&]
 [s2; Returns true if the operation has failed.&]

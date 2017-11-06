@@ -144,6 +144,11 @@ hannel]()&]
 [s2;%% Creates an Scp channel instance.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:SshSession`:`:CreateShell`(`): [_^Upp`:`:SshShell^ SshShell]_[* CreateShell](
+)&]
+[s2;%% Creates a ssh shell instance.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:SshSession`:`:Connect`(const Upp`:`:String`&`,int`,const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b
 ool]_[* Connect]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 host], 
 [@(0.0.255) int]_[*@3 port], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 u

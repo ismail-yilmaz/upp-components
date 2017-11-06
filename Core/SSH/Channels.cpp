@@ -7,8 +7,9 @@ namespace Upp {
 
 bool SshChannel::Cleanup(Error& e)
 {
-	if(!Ssh::Cleanup(e) || !IsComplexCmd())
+	if(!Ssh::Cleanup(e) || !IsComplexCmd()) {
 		return false;
+	}
 	ssh->ccmd = -1;
 	if(chdata->channel) {
 		LLOG("Cleaning up...");
@@ -102,10 +103,43 @@ bool SshChannel::Request(const String& request, const String& params)
 
 bool SshChannel::Terminal(const String& term, int width, int height)
 {
+/*
+	byte terminalModes[] = {
+	33, 0,0,0,0,
+	34, 0,0,0,0,
+	35, 0,0,0,0,
+	36, 0,0,0,0,
+	38, 0,0,0,0,
+	39, 0,0,0,0,
+	40, 0,0,0,0,
+	70, 0,0,0,0,
+	50,	0,0,0,0,
+	51,	0,0,0,0,
+	53,	0,0,0,0,
+	59,	0,0,0,0,
+	60, 0,0,0,0,
+	61, 0,0,0,0,
+	91,	0,0,0,0,
+	0
+};
+*/
+//	String term_modes(&terminalModes[0], 76);
+	
+//	term_modes.Cat(0x00);
 	return ComplexCmd(CHREQUEST, [=]() mutable {
 		Cmd(CHREQUEST, [=]() mutable {
 			ASSERT(chdata->channel);
-			auto rc = libssh2_channel_request_pty(chdata->channel, ~term);
+			auto rc = libssh2_channel_request_pty_ex(
+				chdata->channel,
+				~term,
+				term.GetLength(),
+				NULL,
+				0,
+				LIBSSH2_TERM_WIDTH,
+				LIBSSH2_TERM_HEIGHT,
+				LIBSSH2_TERM_WIDTH_PX,
+				LIBSSH2_TERM_HEIGHT_PX);
+				
 			if(!WouldBlock(rc) && rc < 0)
 				SetError(rc);
 			if(rc == 0)
@@ -158,12 +192,16 @@ bool SshChannel::DataRead(int id, Stream& out, int64 size, Gate<int64, int64> pr
 				SetError(rc);
 			break;
 		}
-		if(rc == 0)
-			return true;
-		out.Put64(buffer, rc);
+		if(rc > 0) {
+			ssh->packet_length += rc;
+			out.Put64(buffer, rc);
+			if(progress(size, out.GetSize()))
+				SetError(-1, "Read aborted.");
+		}
 		out.Flush();
-		if(progress(size, out.GetSize()))
-			SetError(-1, "Read aborted.");
+		if(rc == 0 || ssh->packet_length == sz) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -190,6 +228,7 @@ bool SshChannel::DataWrite(int id, Stream& in, int64 size, Gate<int64, int64> pr
 			break;
 		}
 		if(rc == 0) {
+			LLOG(ssh->packet_length << " bytes written.");
 			ssh->packet_length = 0;
 			return true;
 		}
@@ -198,6 +237,43 @@ bool SshChannel::DataWrite(int id, Stream& in, int64 size, Gate<int64, int64> pr
 			SetError(-1, "Write aborted");
 	}
 	return false;
+}
+
+bool SshChannel::CmdGet(int id, Stream& out, int64 size, Gate<int64, int64> progress)
+{
+	ASSERT(chdata->channel);
+	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
+
+	Buffer<char> buffer(sz);
+	auto rc = libssh2_channel_read_ex(chdata->channel, id, ~buffer, sz);
+	if(rc < 0) {
+		if(!WouldBlock(rc))
+			SetError(rc);
+		break;
+	}
+	if(rc > 0) {
+		ssh->packet_length += rc;
+		out.Put64(buffer, rc);
+		if(progress(size, out.GetSize()))
+			SetError(-1, "Read aborted.");
+	}
+	out.Flush();
+	if(rc == 0 || ssh->packet_length == sz) {
+		return true;
+	}
+	return false;
+}
+
+bool SshChannel::CmdPut(int id, Stream& in, int64 size, Gate<int64, int64> progress)
+{
+}
+
+bool SshChannel::CmdIsEof()
+{
+	auto rc = libssh2_channel_eof(chdata->channel);
+	if(rc < 0)
+		SetError(rc);
+	return rc == 1;
 }
 
 bool SshChannel::SendEof()
@@ -276,6 +352,7 @@ SshChannel::SshChannel(SshSession& session)
 	chdata->open	= false;
 	ssh->otype		= CHANNEL;
 	ssh->session	= session.GetHandle();
+	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
 	ssh->event_proxy = Proxy(session.WhenDo);
 
@@ -288,21 +365,6 @@ SshChannel::~SshChannel()
 		Exit();
 	}
 }
-
-int SshExec::Execute(const String& cmd, Stream& out, Stream& err)
-{
-	ComplexCmd(EXEC, [=, &out, &err]() mutable {
-		SshChannel::Open();
-		SshChannel::Exec(cmd);
-		SshChannel::Read(out, ssh->chunk_size);
-		SshChannel::ReadStdErr(err);
-		SshChannel::Close();
-		Cmd(CHRC,  [=]() mutable { SshChannel::GetExitCode(); return true; });
-		Cmd(CHSIG, [=]() mutable { SshChannel::GetExitSignal(); return true; });
-	});
-	return chdata->code;
-}
-
 
 bool Scp::Get(Stream& out, const String& path, Gate<int64, int64> progress)
 {
@@ -358,4 +420,19 @@ bool Scp::Put(Stream& in, const String& path, long mode, Gate<int64, int64> prog
 		Close();
 	});
 }
+
+int SshExec::Execute(const String& cmd, Stream& out, Stream& err)
+{
+	ComplexCmd(CHEXEC, [=, &out, &err]() mutable {
+		SshChannel::Open();
+		SshChannel::Exec(cmd);
+		SshChannel::Read(out, ssh->chunk_size);
+		SshChannel::ReadStdErr(err);
+		SshChannel::Close();
+		Cmd(CHRC,  [=]() mutable { SshChannel::GetExitCode(); return true; });
+		Cmd(CHSIG, [=]() mutable { SshChannel::GetExitSignal(); return true; });
+	});
+	return chdata->code;
+}
+
 }

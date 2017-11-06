@@ -25,6 +25,14 @@ TTI], error management, and logging.&]
 in blocking mode. Returns true if the request is still in progress.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:Ssh`:`:Wait`(int`): [@(0.0.255) bool]_[* Wait]([@(0.0.255) int]_[*@3 ms]_`=_[@3 10])
+&]
+[s2;%% Encapsulates a POSIX select() call. Waits [%-*@3 ms] miliseconds 
+for read and write events for the associated session socket. 
+Returns true if an event is signalled. Intented to be used in 
+non`-blocking mode.&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:Ssh`:`:Cancel`(`): [@(0.0.255) void]_[* Cancel]()&]
 [s2;%% Cancels the current request.&]
 [s3; &]
@@ -54,7 +62,8 @@ a unique id on construction.&]
 [s4; &]
 [s5;:Upp`:`:Ssh`:`:GetType`(`)const: [@(0.0.255) int]_[* GetType]()_[@(0.0.255) const]&]
 [s0;l288;%% Returns the ssh object type identifier. Currently it 
-can be one of the following: SESSION, SFTP, SCP, CHANNEL, EXEC&]
+can be one of the following: SESSION, SFTP, SCP, CHANNEL, EXEC, 
+SHELL&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Ssh`:`:To`(`): [@(0.0.255) template]_<[@(0.0.255) class]_[*@4 T]>_[*@4 T][@(0.0.255) `&

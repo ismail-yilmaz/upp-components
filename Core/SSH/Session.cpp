@@ -21,6 +21,7 @@ void SshSession::Exit()
 {
 	ComplexCmd(DISCONNECT, [=]() mutable {
 		ssh->queue.Clear();
+		ssh->ccmd = -1;
 		Cmd(DISCONNECT, [=]() mutable {
 			if(!ssh->session)
 				return true;
@@ -36,6 +37,7 @@ void SshSession::Exit()
 			auto rc = libssh2_session_free(ssh->session);
 			if(WouldBlock(rc))
 				return false;
+			ssh->socket = NULL;
 			ssh->session = NULL;
 			session->connected = false;
 			LLOG("Session handles freed.");
@@ -103,6 +105,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 				SetError(-1, "Failed to initalize libssh2 session.");
 			libssh2_session_set_blocking(ssh->session, 0);
 			LLOG(Format("Successfully connected to %s:%d", host, port));
+			ssh->socket = &session->socket;
 			WhenConfig();
 			return true;
 		});
@@ -199,6 +202,12 @@ Scp SshSession::CreateScp()
 {
 	ASSERT(ssh && ssh->session);
 	return pick(Scp(*this));
+}
+
+SshShell SshSession::CreateShell()
+{
+	ASSERT(ssh && ssh->session);
+	return pick(SshShell(*this));
 }
 
 ValueMap SshSession::GetMethods()
