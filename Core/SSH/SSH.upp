@@ -30,7 +30,7 @@ file
 	Session.cpp,
 	SFtp.h,
 	SFtp.cpp,
-	SFtpMT.cpp,
+	Async.cpp,
 	Channels.h,
 	Channels.cpp,
 	Hosts.h,

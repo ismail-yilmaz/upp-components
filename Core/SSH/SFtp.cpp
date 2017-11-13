@@ -620,7 +620,7 @@ String SFtp::DirEntry::ToString() const
 
 String SFtp::DirEntry::ToXml() const
 {
-	if(!valid) return XmlTag("N/A").Text("N/A");
+	if(!valid) return XmlTag("<N/A>").Text("<N/A>");
 	const char *hypen = "-", *r = "r", *w = "w", *x = "x";
 	return XmlTag("sftp:direntry")
 			("type", (IsFile()
