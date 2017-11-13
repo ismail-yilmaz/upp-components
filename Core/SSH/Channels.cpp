@@ -143,7 +143,7 @@ bool SshChannel::SetEnv(const String& variable, const String& value)
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
 		if(rc == 0)
-			LLOG("Environment variable " << variable << " set to " << value);
+			LLOG("Environment variable '" << variable << "' set to " << value);
 		return rc == 0;
 	});
 }

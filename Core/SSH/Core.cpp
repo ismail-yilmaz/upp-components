@@ -47,6 +47,7 @@ void Ssh::Check()
 	ssh->event_proxy();
 }
 
+// TODO: Merge Cmd & ComplexCmd.
 bool Ssh::Cmd(int code, Function<bool()>&& fn)
 {
 	if(ssh->status != CLEANUP)
@@ -75,6 +76,7 @@ bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 
 bool Ssh::_Do()
 {
+INTERLOCKED {
 	try {
 		if(ssh->start_time == 0)
 			ssh->start_time = msecs();
@@ -83,11 +85,9 @@ bool Ssh::_Do()
 		}
 		else
 		if(!ssh->queue.IsEmpty()) {
-			INTERLOCKED {
-				auto cmd = ssh->queue.Head().Get<Gate<>>();
-				if(cmd())
-					ssh->queue.DropHead();
-			}
+			auto cmd = ssh->queue.Head().Get<Gate<>>();
+			if(cmd())
+				ssh->queue.DropHead();
 		}
 		if(ssh->queue.IsEmpty()) {
 			switch(ssh->status) {
@@ -108,6 +108,7 @@ bool Ssh::_Do()
 	catch(Error& e) {
 		Cleanup(e);
 	}
+}
 	return ssh->status == WORKING || ssh->status == CLEANUP;
 }
 
