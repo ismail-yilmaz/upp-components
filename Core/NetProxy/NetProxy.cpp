@@ -43,7 +43,7 @@ const char* NetProxy::GetMsg(int code)
 static bool sTrace = false;
 static bool sTraceVerbose = false;
 
-#define LLOG(x)       do { if(sTrace) RLOG(x); } while(false)
+#define LLOG(x)       do { if(sTrace) RLOG("NetProxy: " << x); } while(false)
 #define LDUMPHEX(x)	  do { if(sTraceVerbose) RDUMPHEX(x); } while(false)
 
 static  bool NtoP(int family, const String& in, String& bound_ip)
@@ -84,7 +84,7 @@ void NetProxy::TraceVerbose(bool b)
 
 bool NetProxy::Init()
 {
-	LLOG("** NetProxy: Starting... ");
+	LLOG("Starting... ");
 	if(!socket)
 		SetError(NO_SOCKET_ATTACHED);
 
@@ -103,8 +103,8 @@ bool NetProxy::Init()
 	status = WORKING;
 	start_time = msecs();
 	ipinfo.Start(proxy_host, proxy_port);
-	events = WAIT_READ;
-	LLOG(Format("** NetProxy: Connecting to proxy server: %s:%d", proxy_host, proxy_port));
+	events = WAIT_READ | WAIT_WRITE;
+	LLOG(Format("Connecting to proxy server: %s:%d", proxy_host, proxy_port));
 	return true;
 }
 
@@ -113,7 +113,7 @@ bool NetProxy::Exit()
 	socket->Timeout(timeout_backup);
 	socket = NULL;
 	events  = 0;
-	LLOG("** NetProxy: Exiting...");
+	LLOG("Exiting...");
 	return true;
 }
 
@@ -132,7 +132,7 @@ bool NetProxy::Connect()
 	auto b = socket->Connect(ipinfo);
 	if(b) {
 		ipinfo.Clear();
-		LLOG(Format("++ NetProxy: Successfully connected to proxy server at %s:%d",
+		LLOG(Format("Successfully connected to proxy server at %s:%d",
 			proxy_host, proxy_port));
 	}
 	return b;
@@ -140,15 +140,12 @@ bool NetProxy::Connect()
 
 bool NetProxy::Get()
 {
-	events = WAIT_READ;
-	
 	while(!IsTimeout()) {
 		char c;
 		if(socket->Get(&c, sizeof(char)) == 0)
 			return false;
 		packet.Cat(c);
 		if(IsEof()) {
-			events &= ~WAIT_READ;
 			return true;
 		}
 	}
@@ -156,8 +153,6 @@ bool NetProxy::Get()
 
 bool NetProxy::Put()
 {
-	events = WAIT_WRITE;
-	
 	while(!IsTimeout()) {
 		int n = packet.GetCharCount() - packet_length;
 		n = socket->Put(~packet + packet_length, n);
@@ -167,7 +162,6 @@ bool NetProxy::Put()
 		if(packet_length == packet.GetCharCount()) {
 			packet.Clear();
 			packet_length = 0;
-			events &= ~WAIT_WRITE;
 			return true;
 		}
 	}
@@ -184,12 +178,12 @@ void NetProxy::StartSSL()
 {
 	queue.AddTail() = [=]{
 		bool b = socket->StartSSL();
-		if(b) LLOG("** NetProxy: SSL negotiation successfully started.");
+		if(b) LLOG("SSL negotiation successfully started.");
 		return b;
 	};
 	queue.AddTail() = [=]{
 		bool b = socket->SSLHandshake();
-		if(!b) LLOG("++ NetProxy: SSL handshake successful.");
+		if(!b) LLOG("SSL handshake successful.");
 		return !b;
 	};
 }
@@ -221,7 +215,7 @@ void NetProxy::HttpcConnect()
 
 bool NetProxy::HttpcRequest()
 {
-	LLOG("** NetProxy: Starting HTTP_CONNECT tunneling...");
+	LLOG("Starting HTTP_CONNECT tunneling...");
 	packet.Clear();
 	packet_length = 0;
 	int port = Nvl(target_port, ssl ? 443 : 80);
@@ -250,7 +244,7 @@ bool NetProxy::HttpcParseReply()
 		StartSSL();
 		return true;
 	}
-	LLOG("++ HTTP_CONNECT: Connection successful.");
+	LLOG("HTTP_CONNECT: Connection successful.");
 	return Exit();
 }
 
@@ -267,7 +261,7 @@ bool NetProxy::HttpcIsEof()
 
 bool NetProxy::SocksStart()
 {
-	LLOG(Format("** NetProxy: Starting SOCKS%d connection.", proxy_type));
+	LLOG(Format("Starting SOCKS%d connection.", proxy_type));
 	packet_type = SOCKS5_HELO;
 	if(!lookup) {
 		ipinfo.Start(target_host, target_port);
@@ -282,7 +276,7 @@ bool NetProxy::SocksCommand(int cmd)
 	switch(cmd) {
 		case BIND:
 			if(!bound) {
-				LLOG("** SOCKS" << proxy_type << ": BIND info received.");
+				LLOG("SOCKS" << proxy_type << ": BIND info received.");
 				bound = true;
 				ParseBoundAddr();
 				packet.Clear();
@@ -290,15 +284,15 @@ bool NetProxy::SocksCommand(int cmd)
 				queue.AddTail() = [=] { return Get(); };
 				return true;
 			}
-			LLOG("++ SOCKS" << proxy_type << ": BIND command successful.");
+			LLOG("SOCKS" << proxy_type << ": BIND command successful.");
 			break;
 		case CONNECT:
 			if(ssl) {
 				StartSSL();
-				LLOG("** SOCKS" << proxy_type << ": Starting SSL...");
+				LLOG("SOCKS" << proxy_type << ": Starting SSL...");
 				return true;
 			}
-			LLOG(Format("++ SOCKS%d: Successfully connected to %s:%d (via proxy %s:%d)",
+			LLOG(Format("SOCKS%d: Successfully connected to %s:%d (via proxy %s:%d)",
 				proxy_type, target_host, target_port, proxy_host, proxy_port));
 			break;
 		default:
@@ -559,7 +553,7 @@ bool NetProxy::Bind(int type, const String& host, int port)
 		default:{
 			String err = GetMsg(HTTPCONNECT_NOBIND);
 			error = MakeTuple<int, String>(10011, err);
-			LLOG("-- NetProxy: Failed. " << err);
+			LLOG("Failed. " << err);
 			status = FAILED;
 			return false;
 		}
@@ -580,11 +574,10 @@ bool NetProxy::Do()
 		Check();
 		if(!queue.IsEmpty() && queue.Head()()) {
 			queue.DropHead();
-			events = 0;
 		}
 		if(queue.IsEmpty()) {
 			status = FINISHED;
-			LLOG("++ NetProxy: Proxy connection is successful.");
+			LLOG("Proxy connection is successful.");
 		}
 		else WhenDo();
 	}
@@ -592,7 +585,7 @@ bool NetProxy::Do()
 		status = FAILED;
 		queue.Clear();
 		error = MakeTuple<int, String>(e.code, e);
-		LLOG("-- NetProxy failed. " << e);
+		LLOG("failed. " << e);
 		Exit();
 	}
 	return status == WORKING;
@@ -635,7 +628,7 @@ void NetProxy::ParseBoundAddr()
 	String ip_buffer;
 	if(!NtoP(family, ip, ip_buffer))
 		throw Error(-1, Format("SOCKS%d: Malformed BIND address.", proxy_type));
-	LLOG(Format("++ SOCKS%d: Bind successful. [%s:%d]", proxy_type, ip_buffer, ntohs(port)));
+	LLOG(Format("SOCKS%d: Bind successful. [%s:%d]", proxy_type, ip_buffer, ntohs(port)));
 	WhenBound(ip_buffer, ntohs(port));
 }
 

@@ -23,8 +23,12 @@ public:
     bool        SendRecvEof();
     bool        ReadStdErr(Stream& err);
     bool        WriteStdErr(Stream& err);
+    bool        SetReadwindowSize(int64 size, bool force = false);
+    int64       GetReadWindowSize();
+    int64       GetWriteWindowSize();
     int         GetExitCode();
     String      GetExitSignal();
+
 
     SshChannel(SshSession& session);
     virtual ~SshChannel();
@@ -36,13 +40,16 @@ protected:
     virtual bool Init() override;
     virtual void Exit() override;
     virtual bool Cleanup(Error& e);
-	
-    bool DataRead(int id, Stream& out, int64 size, Gate<int64, int64> progress = Null);
-    bool DataWrite(int id, Stream& in, int64 size, Gate<int64, int64> progress = Null);
-    bool CmdGet(int id, Stream& out, int64 size, Gate<int64, int64> progress = Null);
-    bool CmdPut(int id, Stream& in, int64 size, Gate<int64, int64> progress = Null);
-	bool CmdIsEof();
-	
+
+    bool _Read(int id, Stream& out, int64 size, Gate<int64, int64> progress = Null);
+    bool _Write(int id, Stream& in, int64 size, Gate<int64, int64> progress = Null);
+    bool _ReadChar(char& c);
+    bool _WriteChar(const char& c);
+    bool _IsEof();
+    bool _SendEof();
+    bool _RecvEof();
+    bool _SetWndSz(int64 size, bool force = false);
+
     struct ChannelData {
         LIBSSH2_CHANNEL*    channel;
         libssh2_struct_stat fstat;
@@ -67,6 +74,7 @@ protected:
         CHSTDERR,
         CHRC,
         CHSIG,
+        CHWNDSZ,
         CHEXEC,
         CHSHELL
     };
@@ -82,6 +90,11 @@ public:
     bool    Put(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null);
     bool    operator()(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null)   { return Put(in, path, mode, progress); }
 
+    static  AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
+
     Scp(SshSession& session) : SshChannel(session)                                                      { ssh->otype = SCP; }
 
 private:
@@ -92,8 +105,11 @@ private:
 class SshExec : public SshChannel {
 public:
     int Execute(const String& cmd, Stream& out, Stream& err);
-    int operator()(const String& cmd, Stream& out, Stream& err)											{ return Execute(cmd, out, err); }
-    SshExec(SshSession& session) : SshChannel(session)													{ ssh->otype = EXEC; };
+    int operator()(const String& cmd, Stream& out, Stream& err)                                         { return Execute(cmd, out, err); }
+
+    static  AsyncWork<Tuple<int, String, String>> Async(SshSession& session, const String& cmd);
+
+    SshExec(SshSession& session) : SshChannel(session)                                                  { ssh->otype = EXEC; };
 
 private:
     bool Init() override { return true; }

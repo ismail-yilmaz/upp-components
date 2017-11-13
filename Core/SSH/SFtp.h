@@ -144,7 +144,12 @@ public:
     bool                    BlockExists(const String& path)                         { QueryAttr(path, BLOCK); return sftp->value; }
     bool                    SpecialFileExists(const String& path)                   { QueryAttr(path, SPECIAL); return sftp->value; }
 
-
+    // (Multithreaed I/O)
+    static AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
+    
     SFtp(SshSession& session);
     virtual ~SFtp();
 
@@ -184,7 +189,4 @@ private:
         SIZE, LASTMODIFIED, LASTACCESSED
     };
 };
-
-// WARNING: Below functions are experimental, and subject to change.
-AsyncWork<String>   SFtpGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
 AsyncWork<void>     SFtpGet(SshSession& session, const String& source, const String& target, Gate<int64, int64> progress = Null);

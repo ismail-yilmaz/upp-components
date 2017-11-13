@@ -24,7 +24,7 @@ and has pick semantics.&]
 [s3; &]
 [s5;:Upp`:`:SFtp`:`:Timeout`(int`): [_^Upp`:`:SFtp^ SFtp][@(0.0.255) `&]_[* Timeout]([@(0.0.255) i
 nt]_[*@3 ms])&]
-[s2;%% Sets timeout value in miliseconds. SFtp class inherit its 
+[s2;%% Sets timeout value in miliseconds. SFtp class inherits its 
 default timeout value from its session. Setting the timeout value 
 to 0 disables timeout. Returns `*this for methods chaining.&]
 [s3;%% &]
@@ -490,6 +490,54 @@ a given section of a remote file. It does not change the size
 of it.&]
 [s3;%% &]
 [s3; &]
+[ {{10000F(128)G(128)@1 [s0;%% [* Multithreaded Transfer Methods.]]}}&]
+[s3;  &]
+[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[_^Upp`:`:String^ String]>_[* AsyncGet]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 path], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 p
+rogress]_`=_Null)&]
+[s2;%% Downloads the remote file at [%-*@3 path] as string. Throws 
+[^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ Ssh`:
+:Error] on failure. [%-*@3 progress ]function can be used to track 
+the progress of the download; returning true will abort the operation. 
+Requires a valid ssh [%-*@3 session].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const char`*`,const char`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncGet]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 source
+], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 target], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
+nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Overload. Downloads the remote file at [%-*@3 source] path to 
+[%-*@3 target] (local) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
+sh`::Error] on failure. [%-*@3 progress ]function can be used to 
+track the progress of the download; returning true will abort 
+the operation. Requires a valid ssh [%-*@3 session].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,Upp`:`:String`&`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:String^ String][@(0.0.255) `&`&]_[*@3 da
+ta], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 target], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+[s2;%% Uploads [%-*@3 data] to [%-*@3 target] (remote) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
+sh`::Error] on failure. [%-*@3 progress ]function can be used to 
+track the progress of the upload; returning true will abort the 
+operation. Requires a valid ssh [%-*@3 session].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,const char`*`,const char`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 source
+], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 target], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
+nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Overload. Upload the local file at [%-*@3 source] path to [%-*@3 target] 
+(remote) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
+sh`::Error] on failure. [%-*@3 progress ]function can be used to 
+track the progress of the upload; returning true will abort the 
+operation. Requires a valid ssh [%-*@3 session].&]
+[s3;%% &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
 [s5;:Upp`:`:SFtp`:`:SFtp`(Upp`:`:SshSession`&`): [* SFtp]([_^Upp`:`:SshSession^ SshSessio

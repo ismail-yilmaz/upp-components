@@ -175,130 +175,120 @@ bool SshChannel::Read(Stream& out, int64 size, Gate<int64, int64> progress)
 {
 	ssh->packet_length = 0;
 	return Cmd(CHREAD, [=, &out]() mutable {
-		return DataRead(0, out, size, pick(progress));
+		return _Read(0, out, size, pick(progress));
 	});
-}
-
-bool SshChannel::DataRead(int id, Stream& out, int64 size, Gate<int64, int64> progress)
-{
-	ASSERT(chdata->channel);
-	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
-
-	while(!IsTimeout()) {
-		Buffer<char> buffer(sz);
-		auto rc = libssh2_channel_read_ex(chdata->channel, id, ~buffer, sz);
-		if(rc < 0) {
-			if(!WouldBlock(rc))
-				SetError(rc);
-			break;
-		}
-		if(rc > 0) {
-			ssh->packet_length += rc;
-			out.Put64(buffer, rc);
-			if(progress(size, out.GetSize()))
-				SetError(-1, "Read aborted.");
-		}
-		out.Flush();
-		if(rc == 0 || ssh->packet_length == sz) {
-			return true;
-		}
-	}
-	return false;
 }
 
 bool SshChannel::Write(Stream& in, int64 size, Gate<int64, int64> progress)
 {
 	ssh->packet_length = 0;
 	return Cmd(CHWRITE, [=, &in]() mutable {
-		return DataWrite(0, in, size, pick(progress));
+			return _Write(0, in, size, pick(progress));
 	});
 }
 
-bool SshChannel::DataWrite(int id, Stream& in, int64 size, Gate<int64, int64> progress)
+bool SshChannel::_Read(int id, Stream& out, int64 size, Gate<int64, int64> progress)
 {
 	ASSERT(chdata->channel);
 	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
-
-	while(!IsTimeout()) {
-		auto remaining  = (ssize_t) sz - ssh->packet_length;
-		auto rc = libssh2_channel_write_ex(chdata->channel, id, in.Get(remaining), remaining);
-		if(rc < 0) {
-			if(!WouldBlock(rc))
-				SetError(rc);
-			break;
-		}
-		if(rc == 0) {
-			LLOG(ssh->packet_length << " bytes written.");
-			ssh->packet_length = 0;
-			return true;
-		}
-		ssh->packet_length += rc;
-		if(progress(sz, ssh->packet_length))
-			SetError(-1, "Write aborted");
-	}
-	return false;
-}
-
-bool SshChannel::CmdGet(int id, Stream& out, int64 size, Gate<int64, int64> progress)
-{
-	ASSERT(chdata->channel);
-	ssize_t sz = size > 0 ? (ssize_t) size : (ssize_t) ssh->chunk_size;
-
 	Buffer<char> buffer(sz);
 	auto rc = libssh2_channel_read_ex(chdata->channel, id, ~buffer, sz);
-	if(rc < 0) {
-		if(!WouldBlock(rc))
-			SetError(rc);
-		break;
-	}
-	if(rc > 0) {
-		ssh->packet_length += rc;
-		out.Put64(buffer, rc);
-		if(progress(size, out.GetSize()))
-			SetError(-1, "Read aborted.");
-	}
-	out.Flush();
-	if(rc == 0 || ssh->packet_length == sz) {
-		return true;
-	}
-	return false;
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc > 0)
+		out.Put(buffer, rc);
+	if(progress(size, out.GetSize()))
+		SetError(-1, "Read aborted.");
+	auto b = rc == 0 || out.GetSize() == size;
+	if(b) LLOG(Format("<< %d bytes read.", out.GetSize()));
+	return b;
 }
 
-bool SshChannel::CmdPut(int id, Stream& in, int64 size, Gate<int64, int64> progress)
+bool SshChannel::_Write(int id, Stream& in, int64 size, Gate<int64, int64> progress)
 {
+	ASSERT(chdata->channel);
+	while(!in.IsEof()) {
+		auto rc = libssh2_channel_write_ex(chdata->channel, id, (const char*)in.PeekPtr(), (ssize_t) size);
+		if(rc < 0 || in.IsError()) {
+			if(!WouldBlock(rc))
+				SetError(rc);
+			return false;
+		}
+		if(rc > 0) {
+			if(progress(size, in.GetSize()))
+				SetError(-1, "Write aborted.");
+			in.Seek(in.GetPos() + rc);
+			continue;
+		}
+	}
+	if(in.IsError())
+		SetError(in.GetError(), in.GetErrorText());
+	else LLOG(Format(">> %d bytes written.", size));
+	return true;
 }
 
-bool SshChannel::CmdIsEof()
+bool SshChannel::_ReadChar(char& c)
+{
+	auto rc = libssh2_channel_read(chdata->channel, &c, 1);
+	if(!WouldBlock(rc) && rc < 0) SetError(rc);
+	return rc == 0;
+}
+
+bool SshChannel::_WriteChar(const char& c)
+{
+	auto rc = libssh2_channel_write(chdata->channel, &c, 1);
+	if(!WouldBlock(rc) && rc < 0) SetError(rc);
+	return rc == 0;
+}
+
+bool SshChannel::_IsEof()
 {
 	auto rc = libssh2_channel_eof(chdata->channel);
-	if(rc < 0)
-		SetError(rc);
+	if(rc < 0) SetError(rc);
 	return rc == 1;
+}
+
+bool SshChannel::_SendEof()
+{
+	auto rc = libssh2_channel_send_eof(chdata->channel);
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc == 0)
+		LLOG("EOF message's sent to the server.");
+	return rc == 0;
+}
+
+bool SshChannel::_RecvEof()
+{
+	auto rc = libssh2_channel_wait_eof(chdata->channel);
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc == 0)
+		LLOG("EOF message's acknowledged by the server.");
+	return rc == 0;
+}
+
+bool SshChannel::_SetWndSz(int64 size, bool force)
+{
+	auto rc = libssh2_channel_receive_window_adjust2(chdata->channel, size, (char)force, NULL);
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc == 0)
+		LLOG(Format("Window size set to %d.", size));
+	return rc == 0;
 }
 
 bool SshChannel::SendEof()
 {
 	return Cmd(CHEOF, [=]() mutable {
-		ASSERT(chdata->channel);
-		auto rc = libssh2_channel_send_eof(chdata->channel);
-		if(!WouldBlock(rc) && rc < 0)
-			SetError(rc);
-		if(rc == 0)
-			LLOG("EOF message's sent to the server.");
-		return rc == 0;
+		return _SendEof();
 	});
 }
 
 bool SshChannel::RecvEof()
 {
 	return Cmd(CHEOF, [=]() mutable {
-		ASSERT(chdata->channel);
-		auto rc = libssh2_channel_wait_eof(chdata->channel);
-		if(!WouldBlock(rc) && rc < 0)
-			SetError(rc);
-		if(rc == 0)
-			LLOG("EOF message's acknowledged by the server.");
-		return rc == 0;
+		return _RecvEof();
 	});
 }
 
@@ -313,15 +303,34 @@ bool SshChannel::SendRecvEof()
 bool SshChannel::ReadStdErr(Stream& err)
 {
 	return Cmd(CHSTDERR, [=, &err]() mutable {
-		return DataRead(SSH_EXTENDED_DATA_STDERR, err, ssh->chunk_size);
+		return _Read(SSH_EXTENDED_DATA_STDERR, err, ssh->chunk_size);
 	});
 }
 
 bool SshChannel::WriteStdErr(Stream& err)
 {
 	return Cmd(CHSTDERR, [=, &err]() mutable {
-		return DataWrite(SSH_EXTENDED_DATA_STDERR, err, ssh->chunk_size);
+		return _Write(SSH_EXTENDED_DATA_STDERR, err, ssh->chunk_size);
 	});
+}
+
+bool SshChannel::SetReadwindowSize(int64 size, bool force)
+{
+	return Cmd(CHWNDSZ, [=]() mutable {
+		return _SetWndSz(size, force);
+	});
+}
+
+int64 SshChannel::GetReadWindowSize()
+{
+	ASSERT(chdata->channel);
+	return (int64) libssh2_channel_window_read(chdata->channel);
+}
+
+int64 SshChannel::GetWriteWindowSize()
+{
+	ASSERT(chdata->channel);
+	return (int64) libssh2_channel_window_write(chdata->channel);
 }
 
 int SshChannel::GetExitCode()
@@ -382,7 +391,7 @@ bool Scp::Get(Stream& out, const String& path, Gate<int64, int64> progress)
 			return chdata->channel != NULL;
 		});
 		Cmd(FGET, [=, &out]() mutable {
-			return DataRead(0, out, chdata->fstat.st_size, pick(progress));
+			return _Read(0, out, chdata->fstat.st_size, pick(progress));
 		});
 		SendRecvEof();
 		Close();
@@ -414,7 +423,7 @@ bool Scp::Put(Stream& in, const String& path, long mode, Gate<int64, int64> prog
 			return chdata->channel != NULL;
 		});
 		Cmd(FPUT, [=, &in]() mutable {
-			return DataWrite(0, in, in.GetSize(), pick(progress));
+			return _Write(0, in, in.GetSize(), pick(progress));
 		});
 		SendRecvEof();
 		Close();
@@ -428,6 +437,7 @@ int SshExec::Execute(const String& cmd, Stream& out, Stream& err)
 		SshChannel::Exec(cmd);
 		SshChannel::Read(out, ssh->chunk_size);
 		SshChannel::ReadStdErr(err);
+		SshChannel::SendRecvEof();
 		SshChannel::Close();
 		Cmd(CHRC,  [=]() mutable { SshChannel::GetExitCode(); return true; });
 		Cmd(CHSIG, [=]() mutable { SshChannel::GetExitSignal(); return true; });

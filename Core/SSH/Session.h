@@ -1,5 +1,5 @@
 class SshSession : public Ssh {
-public: 
+public:
   enum Methods {
         METHOD_EXCHANGE = 0,
         METHOD_HOSTKEY,
@@ -14,15 +14,15 @@ public:
 public:
     SshSession&         Timeout(int ms)                         { ssh->timeout = ms; return *this; }
     SshSession&         NonBlocking(bool b = true)              { ssh->async = b; return *this ;}
-    
+
     SshSession&         Keys(const String& prikey, const String& pubkey, const String& phrase = Null);
     SshSession&         Method(int type, Value method)          { session->iomethods(type) = pick(method); return *this; }
     SshSession&         Methods(ValueMap methods)               { session->iomethods = pick(methods); return *this; }
-    
+
     SshSession&         PasswordAuth()                          { session->authmethod = PASSWORD;  return *this; }
     SshSession&         PublicKeyAuth()                         { session->authmethod = PUBLICKEY; return *this; }
     SshSession&         KeyboardAuth()                          { session->authmethod = KEYBOARD;  return *this; }
-    SshSession&         SshAgentAuth()                          { session->authmethod = SSHAGENT;  return *this; }
+    SshSession&         AgentAuth()                             { session->authmethod = SSHAGENT;  return *this; }
 
     LIBSSH2_SESSION*    GetHandle()                             { return ssh->session; }
     String              GetBanner() const                       { return ssh->session ? pick(String(libssh2_session_banner_get(ssh->session))) : Null; }
@@ -30,29 +30,28 @@ public:
     Vector<String>      GetAuthMethods()                        { return pick(Split(session->authmethods, ' ')); }
     TcpSocket&          GetSocket()                             { return session->socket;  }
     ValueMap            GetMethods();
-    
+
     SFtp                CreateSFtp();
     SshChannel          CreateChannel();
     SshExec             CreateExec();
     Scp                 CreateScp();
-    SshShell			CreateShell();
-    
+
     bool                Connect(const String& host, int port, const String& user, const String& password);
     void                Disconnect();
-    
+
     Event<>             WhenDo;
     Event<>             WhenConfig;
     Event<>             WhenAuth;
     Gate<>              WhenVerify;
     Gate<>              WhenProxy;
     Function<String(String, String, String)>  WhenKeyboard;
-   
+
     SshSession();
     virtual ~SshSession();
 
     SshSession(SshSession&&) = default;
     SshSession& operator=(SshSession&&) = default;
-    
+
 private:
     virtual void        Exit() override;
     virtual void        Check() override;

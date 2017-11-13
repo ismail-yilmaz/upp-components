@@ -4,55 +4,169 @@
 
 namespace Upp {
 
-#define LLOG(x)       do { if(SSH::sTrace) RLOG("SFtp async worker #" << worker.GetId() << " " << x); } while(false)
+#define LLOG(x)       do { if(SSH::sTrace) RLOG("SSH: Worker thread #" << worker.GetId() << " " << x); } while(false)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
-AsyncWork<String> SFtpGet(SshSession& session, const String& path, Gate<int64, int64> progress)
+static void SFtpAsyncIO(int direction, SshSession& session, const String& path, Stream& io, Gate<int64, int64> progress)
+{
+	SFtp worker(session);
+	LLOG("Starting file transfer over SFtp...");
+	worker.NonBlocking();
+	if(direction == 0)
+		worker.Get(path, io, pick(progress));
+	else
+		worker.Put(io, path, pick(progress));
+	auto cancelled = false;
+	while(worker.Do())
+		if(!cancelled && CoWork::IsCanceled()) {
+			LLOG("Transfer cancelled.");
+			worker.Cancel();
+			cancelled = true;
+		}
+	if(worker.IsError()) {
+		LLOG("Transfer failed. " << worker.GetErrorDesc());
+		throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
+	}
+}
+
+AsyncWork<String> SFtp::AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress)
 {
 	auto work = Async([=, &session]{
-		SFtp worker(session);
-		worker.NonBlocking().Get(path, pick(progress));
-		LLOG("Downloading file " << path);
-		auto cancelled = false;
-		while(worker.Do())
-			
-			if(!cancelled && CoWork::IsCanceled()) {
-				LLOG("Job cancelled.");
-				worker.Cancel();
-				cancelled = true;
-			}
-		if(worker.IsError()) {
-			LLOG("File download failed. " << worker.GetErrorDesc());
-			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
-		}
-		return pick(worker.GetResult().To<String>());
-				
+		StringStream ss;
+		ss.Create();
+		SFtpAsyncIO(0, session, path, ss, pick(progress));
+		return pick(ss.GetResult());
 	});
 	return pick(work);
 }
 
-AsyncWork<void> SFtpGet(SshSession& session, const String& source, const String& target, Gate<int64, int64> progress)
+AsyncWork<void> SFtp::AsyncGet(SshSession& session,	const char* source, const char* target, Gate<int64, int64> progress)
 {
 	auto work = Async([=, &session]{
-		SFtp worker(session);
 		FileOut fout(target);
 		if(!fout) {
 			auto error = Format("Unable to open local file '%s' for writing.", target);
-			LLOG(error);
 			throw Ssh::Error(error);
 		}
-		worker.NonBlocking().Get(source, fout, pick(progress));
+		SFtpAsyncIO(0, session, source, fout, pick(progress));
+	});
+	return pick(work);
+}
+
+AsyncWork<void> SFtp::AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		StringStream ss(pick(data));
+		SFtpAsyncIO(1, session, target, ss, pick(progress));
+	});
+	return pick(work);
+}
+
+AsyncWork<void> SFtp::AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		FileIn fin(source);
+		if(fin.IsError()) {
+			auto error = Format("Unable to open local file '%s' for reading.", source);
+			throw Ssh::Error(error);
+		}
+		SFtpAsyncIO(1, session, target, fin, pick(progress));
+	});
+	return pick(work);
+}
+
+static void ScpAsyncIO(int direction, SshSession& session, const String& path, Stream& io, Gate<int64, int64> progress)
+{
+	Scp worker(session);
+	LLOG("Starting file transfer over Scp... ");
+	worker.NonBlocking();
+	if(direction == 0)
+		worker.Get(io, path, pick(progress));
+	else
+		worker.Put(io, path, pick(progress));
+	auto cancelled = false;
+	while(worker.Do())
+		if(!cancelled && CoWork::IsCanceled()) {
+			LLOG("Transfer cancelled.");
+			worker.Cancel();
+			cancelled = true;
+		}
+	if(worker.IsError()) {
+		LLOG("Transfer failed. " << worker.GetErrorDesc());
+		throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
+	}
+}
+
+AsyncWork<String> Scp::AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		StringStream ss;
+		ss.Create();
+		ScpAsyncIO(0, session, path, ss, pick(progress));
+		return pick(ss.GetResult());
+	});
+	return pick(work);
+}
+
+AsyncWork<void> Scp::AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		FileOut fout(target);
+		if(!fout) {
+			auto error = Format("Unable to open local file '%s' for writing.", target);
+			throw Ssh::Error(error);
+		}
+		ScpAsyncIO(0, session, source, fout, pick(progress));
+	});
+	return pick(work);
+}
+
+AsyncWork<void> Scp::AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		StringStream ss(pick(data));
+		ScpAsyncIO(1, session, target, ss, pick(progress));
+	});
+	return pick(work);
+}
+
+AsyncWork<void> Scp::AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
+{
+	auto work = Async([=, &session]{
+		FileIn fin(source);
+		if(!fin) {
+			auto error = Format("Unable to open local file '%s' for reading.", source);
+			throw Ssh::Error(error);
+		}
+		ScpAsyncIO(1, session, target, fin, pick(progress));
+	});
+	return pick(work);
+}
+
+AsyncWork<Tuple<int, String, String>> SshExec::Async(SshSession& session, const String& cmd)
+{
+	auto work = Upp::Async([=, &session]{
+		SshExec worker(session);
+		LLOG("Starting remote  command execution... ");
+		worker.NonBlocking();
 		auto cancelled = false;
+		StringStream out, err;
+		worker.Execute(cmd, out, err);
 		while(worker.Do())
 			if(!cancelled && CoWork::IsCanceled()) {
-				LLOG("Job cancelled.");
+				LLOG("Transfer cancelled.");
 				worker.Cancel();
 				cancelled = true;
 			}
 		if(worker.IsError()) {
-			LLOG("File download failed. " << worker.GetErrorDesc());
+			LLOG("Remote command execution failed. " << worker.GetErrorDesc());
 			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
 		}
+		return MakeTuple<int, String, String>(
+			worker.GetExitCode(),
+			pick(out.GetResult()),
+			pick(err.GetResult())
+			);
 	});
 	return pick(work);
 }

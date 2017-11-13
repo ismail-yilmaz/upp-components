@@ -117,14 +117,17 @@ bool Ssh::Do()
 	return _Do();
 }
 
-bool Ssh::Wait(int ms)
+dword Ssh::GetWaitEvents() const
 {
-	// For SsshSession: Make sure we call this only after the socket is connected.
-	if(ssh->otype == SESSION && (!ssh->socket  || !ssh->session))
-		return false;
-	SocketWaitEvent we;
-	we.Add(*ssh->socket, WAIT_READ | WAIT_WRITE);
-	return we.Wait(ms);
+	dword event = 0;
+	if(ssh->socket  && ssh->session) {
+		auto e = libssh2_session_block_directions(ssh->session);
+		if(e & LIBSSH2_SESSION_BLOCK_INBOUND)
+			event |= WAIT_READ;
+		if(e & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+			event |= WAIT_WRITE;
+	}
+	return event;
 }
 
 bool Ssh::Cleanup(Error& e)

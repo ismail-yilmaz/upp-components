@@ -35,7 +35,7 @@ class NetProxy {
     bool                lookup;
     bool                ssl;
     bool                bound;
-    dword				events;
+    dword               events;
     Tuple<int, String>  error;
     Function<bool()>    IsEof;
     BiVector<Gate<>>    queue;
@@ -136,8 +136,8 @@ public:
     Event<String, int>  WhenBound;
 
     TcpSocket&          GetSocket()                                     { ASSERT(socket); return *socket; }
-    dword				GetWaitEvents() const							{ return events; }
-    NetProxy&           AddTo(SocketWaitEvent& e)						{ ASSERT(socket); e.Add(*socket, events); return *this; }
+    dword               GetWaitEvents() const                           { return events; }
+    NetProxy&           AddTo(SocketWaitEvent& e)                       { ASSERT(socket); e.Add(*socket, events); return *this; }
     
     bool                IsError() const                                 { return status == FAILED; }
     int                 GetError() const                                { return error.Get<int>(); }

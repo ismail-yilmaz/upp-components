@@ -33,8 +33,6 @@ file
 	SFtpMT.cpp,
 	Channels.h,
 	Channels.cpp,
-	Shell.h,
-	Shell.cpp,
 	Hosts.h,
 	Hosts.cpp,
 	Malloc.cpp,

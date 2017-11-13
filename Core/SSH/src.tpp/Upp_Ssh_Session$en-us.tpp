@@ -27,7 +27,8 @@ class, and has pick semantics.&]
 [s2;%% Sets timeout value in miliseconds. Default value is 60000 
 milliseconds (one minute).  Setting the timeout value to 0 disables 
 timeout. Returns `*this for methods chaining. Note that ssh subsystems 
-and channels inherit their default timeout value from their session.&]
+and channels inherit their default timeout values from their 
+session.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:NonBlocking`(bool`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
@@ -83,8 +84,8 @@ Returns `*this for methods chaining.&]
 authentication. Returns `*this for methods chaining.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:SshAgentAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
-]_[* SshAgentAuth]()&]
+[s5;:Upp`:`:SshSession`:`:AgentAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&]_
+[* AgentAuth]()&]
 [s2;%% Enables using an ssh`-agent for authentication. Returns this 
 for methods chaining. This method requires public and private 
 keys to be present.&]
@@ -142,11 +143,6 @@ hannel]()&]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:CreateScp`(`): [_^Upp`:`:Scp^ Scp]_[* CreateScp]()&]
 [s2;%% Creates an Scp channel instance.&]
-[s3; &]
-[s4; &]
-[s5;:Upp`:`:SshSession`:`:CreateShell`(`): [_^Upp`:`:SshShell^ SshShell]_[* CreateShell](
-)&]
-[s2;%% Creates a ssh shell instance.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Connect`(const Upp`:`:String`&`,int`,const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b

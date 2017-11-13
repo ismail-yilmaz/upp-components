@@ -1,15 +1,17 @@
 class Ssh {
 public:
     bool                Do();
-    bool				Wait(int ms = 10);
+    bool                Wait(int ms = 10);
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
-
     int                 GetTimeout() const                      { return ssh->timeout; }
 
     bool                IsError() const                         { return ssh->status == FAILED; }
     int                 GetError() const                        { return ssh->error.Get<int>(); }
     String              GetErrorDesc() const                    { return ssh->error.Get<String>(); }
-    
+
+    void                AddTo(SocketWaitEvent& e)               { e.Add(*ssh->socket, GetWaitEvents()); }
+    dword               GetWaitEvents() const;
+
     int64               GetId() const                           { return ssh->oid;   }
     int                 GetType() const                         { return ssh->otype; }
     
@@ -31,20 +33,13 @@ public:
         Error(const String& reason) : Exc(reason), code(-1) {}
         Error(int rc, const String& reason) : Exc(reason), code(rc) {}
     };
-    enum Type  {
-        SESSION,
-        SFTP,
-        CHANNEL,
-        SCP,
-        EXEC,
-        SHELL
-    };
+    enum Type  { SESSION, SFTP, CHANNEL, SCP, EXEC, SHELL };
 
 protected:
     struct CoreData {
         BiVector<Tuple<int, Gate<>>> queue;
         LIBSSH2_SESSION*    session;
-        TcpSocket*			socket;
+        TcpSocket*          socket;
         Tuple<int, String>  error;
         Event<>             event_proxy;
         int                 ccmd;

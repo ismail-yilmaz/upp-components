@@ -16,15 +16,22 @@ Features and Highlights:
 Todo:
 --------------------
 - Add SshShell class for shell support.
+- Add Tcp-IP and port forwarding support.
 - Add more high level methods.
-- Better (preferably internal) multithreading support, using AsyncWork.
-- Documentation.
+- Improve documentation.
 
 History:
 --------------------
+2017-12-10:  Basic multithreading support added for SFtp, Scp, and Exec classes.
+
+2017-11-10:  GetWaitEvents() and AddTo() methods addet to Ssh class.
+             Scp, SshChannel, SshExec, SshHosts classes are added to the package.
+             Documentation added for Ssh, SshSession, SFtp, Scp, SshExec, and SshHosts classes.
+
 2017-10-21:  Ssh agents support added. A ToXml() method added to SFtp::DirEntry class.
              Timeouts error code is from now on -1000. This is to prevent unnecessary cleanup 
              rounds when the server is not responding.
+
 2017-10-20:  Known hosts support is re-added via SshHosts class. Docs are updated accordingly.
 
 2017-10-17:  Class names finalized:

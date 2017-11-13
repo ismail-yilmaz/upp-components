@@ -204,12 +204,6 @@ Scp SshSession::CreateScp()
 	return pick(Scp(*this));
 }
 
-SshShell SshSession::CreateShell()
-{
-	ASSERT(ssh && ssh->session);
-	return pick(SshShell(*this));
-}
-
 ValueMap SshSession::GetMethods()
 {
 	ValueMap methods;

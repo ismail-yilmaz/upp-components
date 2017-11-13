@@ -25,14 +25,6 @@ TTI], error management, and logging.&]
 in blocking mode. Returns true if the request is still in progress.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:Ssh`:`:Wait`(int`): [@(0.0.255) bool]_[* Wait]([@(0.0.255) int]_[*@3 ms]_`=_[@3 10])
-&]
-[s2;%% Encapsulates a POSIX select() call. Waits [%-*@3 ms] miliseconds 
-for read and write events for the associated session socket. 
-Returns true if an event is signalled. Intented to be used in 
-non`-blocking mode.&]
-[s3;%% &]
-[s4; &]
 [s5;:Upp`:`:Ssh`:`:Cancel`(`): [@(0.0.255) void]_[* Cancel]()&]
 [s2;%% Cancels the current request.&]
 [s3; &]
@@ -53,6 +45,19 @@ non`-blocking mode.&]
 [s5;:Upp`:`:Ssh`:`:GetErrorDesc`(`)const: [_^Upp`:`:String^ String]_[* GetErrorDesc]()_[@(0.0.255) c
 onst]&]
 [s2;%% Returns the last error message if any.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:AddTo`(Upp`:`:SocketWaitEvent`&`): [@(0.0.255) void]_[* AddTo]([_^Upp`:`:SocketWaitEvent^ S
+ocketWaitEvent][@(0.0.255) `&]_[*@3 e])&]
+[s2;%% Adds the Ssh object to [%-_^Upp`:`:SocketWaitEvent^ SocketWaitEvent] 
+for waiting on it.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:GetWaitEvents`(`)const: [_^Upp`:`:dword^ dword]_[* GetWaitEvents]()_[@(0.0.255) c
+onst]&]
+[s2;%% Returns a combination of WAIT`_READ and WAIT`_WRITE flags 
+to indicate what is blocking the operation of Ssh object. Can 
+be used with SocketWaitEvent.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Ssh`:`:GetId`(`)const: [_^Upp`:`:int64^ int64]_[* GetId]()_[@(0.0.255) const]&]
@@ -86,4 +91,33 @@ ool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s3; &]
 [s5;:Upp`:`:Ssh`:`:Ssh`(`): [* Ssh]()&]
 [s2;%% Default constructor.&]
+[s0; &]
+[ {{10000@(113.42.0) [s0;%% [*@7;4 Ssh`::Error]]}}&]
+[s3; &]
+[s1;:Upp`:`:Ssh`:`:Error`:`:struct: [@(0.0.255)3 struct][3 _][*3 Error][3 _:_][@(0.0.255)3 publi
+c][3 _][*@3;3 Exc]&]
+[s0;l288;%% Type used as Ssh exception. This helper struct is externally 
+used by Ssh worker threads to halt jobs, and report errors.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:Error`:`:code: [@(0.0.255) int]_[* code]&]
+[s2;%% Error code returned by the halted job.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:Error`:`:Error`(`): [* Error]()&]
+[s2;%% Default constructor. Sets the error code to `-1, and error 
+message to Null.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:Error`:`:Error`(const Upp`:`:String`&`): [* Error]([@(0.0.255) const]_
+[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 reason])&]
+[s2;%% Constructor overload. Sets error code to `-1, and error message 
+to [%-*@3 reason] .&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:Error`:`:Error`(int`,const Upp`:`:String`&`): [* Error]([@(0.0.255) in
+t]_[*@3 rc], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 reason])&]
+[s2;%% Constructor overload. Sets error code to [%-*@3 rc] and error 
+message to [%-*@3 reason] .&]
+[s3;%% &]
 [s0;%% ]]

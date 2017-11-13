@@ -30,14 +30,12 @@ class SFtp;
 class SshChannel;
 class Scp;
 class SshExec;
-class SshShell;
 class SshHosts;
 
 #include "Core.h"
 #include "Session.h"
 #include "SFtp.h"
 #include "Channels.h"
-#include "Shell.h"
 #include "Hosts.h"
 
 void ssh_keyboard_callback(const char *name, int name_len, const char *instruction,
