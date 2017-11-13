@@ -1,7 +1,7 @@
 SSH package for U++
 --------------------
 SSH package is a libssh2 wrapper for Ultimate++.
-Currently it is in beta stage.
+Currently it is in alpha stage.
 
 
 Features and Highlights:

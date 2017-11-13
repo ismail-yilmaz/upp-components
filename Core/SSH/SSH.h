@@ -2,8 +2,6 @@
 #define _SSH_SSH_h
 
 #include <Core/Core.h>
-#include <iostream>
-#include <termios.h>
 
 #include "libssh2/libssh2.h"
 #include "libssh2/libssh2_sftp.h"
