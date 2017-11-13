@@ -103,29 +103,6 @@ bool SshChannel::Request(const String& request, const String& params)
 
 bool SshChannel::Terminal(const String& term, int width, int height)
 {
-/*
-	byte terminalModes[] = {
-	33, 0,0,0,0,
-	34, 0,0,0,0,
-	35, 0,0,0,0,
-	36, 0,0,0,0,
-	38, 0,0,0,0,
-	39, 0,0,0,0,
-	40, 0,0,0,0,
-	70, 0,0,0,0,
-	50,	0,0,0,0,
-	51,	0,0,0,0,
-	53,	0,0,0,0,
-	59,	0,0,0,0,
-	60, 0,0,0,0,
-	61, 0,0,0,0,
-	91,	0,0,0,0,
-	0
-};
-*/
-//	String term_modes(&terminalModes[0], 76);
-	
-//	term_modes.Cat(0x00);
 	return ComplexCmd(CHREQUEST, [=]() mutable {
 		Cmd(CHREQUEST, [=]() mutable {
 			ASSERT(chdata->channel);
