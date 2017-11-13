@@ -22,7 +22,7 @@ Todo:
 
 History:
 --------------------
-2017-12-10:  Basic multithreading support added for SFtp, Scp, and Exec classes.
+2017-11-12:  Basic multithreading support added for SFtp, Scp, and Exec classes.
 
 2017-11-10:  GetWaitEvents() and AddTo() methods addet to Ssh class.
              Scp, SshChannel, SshExec, SshHosts classes are added to the package.
