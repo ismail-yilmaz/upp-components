@@ -189,4 +189,3 @@ private:
         SIZE, LASTMODIFIED, LASTACCESSED
     };
 };
-AsyncWork<void>     SFtpGet(SshSession& session, const String& source, const String& target, Gate<int64, int64> progress = Null);
