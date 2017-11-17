@@ -1,0 +1,12 @@
+description "A filesystem-agnostic file list ctrl for building transparent and uniform file browsers.\377";
+
+uses
+	CtrlLib;
+
+file
+	BrowserCtrl.h,
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
