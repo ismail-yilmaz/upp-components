@@ -1,36 +1,21 @@
 SSH package for U++
 --------------------
-SSH package is a libssh2 wrapper for Ultimate++
+SSH package is a libssh2 wrapper for Ultimate++.
 Currently it is in alpha stage.
 
-Classes:
-
-- Base (core) class  -> Ssh
-  - Ssh session         -> SshSession
-  - Sftp subsystem      -> SFtp
-  - Ssh channel         -> SshChannel
-    - Scp channel          -> Scp
-    - Exec channel         -> SshExec
-    - Shell channel        -> SshShell (to be added)
-- Known hosts manager -> SshHosts
 
 Features and Highlights:
 --------------------
 
-- Ssh-derived classes have pick semantics, based on RAII principle, support RTTI, and allow
-  polymorphism through a common interface. 
-- Uses U++ memory allocators (Native allocators is also a compile-time option)
-- Uses OpenSSL by default. 
-- Supports time-constrained blocking and and non-blocking operation modes.
-- Supoorts multithreaded file transfers and remote command execution (exec), using worker threads.
-- Supports 3rd-party network proxies. (Such as NetProxy)
-- Supports known hosts verification mechanism.
-- Supports password, public key, and keyboard interactive authentication methods.
-- Supports ssh-agents.
+- Tight integration with U++.
+- Support for both synchronous and asynchronous operations  with both high level and low level methods.
+- Allows using U++ style memory [de/re]allocators with libssh2.
+- Ssh subsystems support RTTI, and share a common interface for polymorphism. 
+- Supports password, public key, and keyboard interaction methods for client authorizaion.
 
 Todo:
 --------------------
-- Add SshShell class for console and GUI based secure shell support.
+- Add SshShell class for shell support.
 - Add Tcp-IP and port forwarding support.
 - Add more high level methods.
 - Improve documentation.

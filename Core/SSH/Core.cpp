@@ -76,10 +76,10 @@ bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 
 bool Ssh::_Do()
 {
+INTERLOCKED {
 	try {
 		if(ssh->start_time == 0)
 			ssh->start_time = msecs();
-INTERLOCKED {
 		if(!ssh->init) {
 			ssh->init = Init();
 		}
@@ -89,7 +89,6 @@ INTERLOCKED {
 			if(cmd())
 				ssh->queue.DropHead();
 		}
-}
 		if(ssh->queue.IsEmpty()) {
 			switch(ssh->status) {
 				case CLEANUP:
@@ -109,6 +108,7 @@ INTERLOCKED {
 	catch(Error& e) {
 		Cleanup(e);
 	}
+}
 	return ssh->status == WORKING || ssh->status == CLEANUP;
 }
 
