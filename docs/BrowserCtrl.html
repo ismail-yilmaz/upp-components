@@ -1,0 +1,235 @@
+<HTML>
+<HEAD>	
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">	
+<META NAME="Generator" CONTENT="U++ HTML Package">	
+<TITLE>BrowserCtrl</TITLE>
+<STYLE TYPE="text/css"><!--
+.A{border-collapse:collapse;table-layout:auto;border: 2px solid #000000;}
+.B{padding: 3px 5px 3px 5px;border-left: 1px solid #000000;border-top: 1px solid #000000;border-right: 1px solid #000000;border-bottom: 1px solid #000000;background-color:#712A00;vertical-align:middle;}
+.C{margin:0px 0px 0px 0px;text-indent:0px;text-align:left;color:#e0e0e0;font-family:sans-serif;font-size:16pt;font-weight:bold;font-style:normal;text-decoration:none;}
+.D{margin:0px 0px 5px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;}
+.E{margin:0px 0px 5px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:12pt;font-weight:normal;font-style:normal;text-decoration:none;}
+.F{color:#0000ff;}
+.G{font-weight:bold;}
+.H{color:#800000;font-weight:bold;}
+.I{text-decoration:underline;}
+.J{margin:0px 0px 0px 57px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;}
+.K{margin:0px 0px 0px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:6pt;font-weight:normal;font-style:normal;text-decoration:none;}
+.L{border-collapse:collapse;table-layout:auto;border: 2px solid #808080;}
+.M{padding: 3px 5px 3px 5px;border-left: 1px solid #808080;border-top: 1px solid #808080;border-right: 1px solid #808080;border-bottom: 1px solid #808080;background-color:#C0C0C0;vertical-align:middle;}
+.N{margin:0px 0px 0px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;}
+.O{margin:0px 0px 5px 0px;text-indent:0px;text-align:left;color:#0000ff;font-family:sans-serif;font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;}
+.P{color:#000000;text-decoration:underline;}
+.Q{color:#000000;}
+.R{color:#000000;font-weight:bold;}
+.S{margin:0px 0px 5px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;}
+.T{font-weight:normal;text-decoration:underline;}
+.U{font-weight:normal;}
+.V{color:#0000ff;font-weight:normal;}
+.W{margin:0px 0px 0px 0px;text-indent:0px;text-align:left;color:#000000;font-family:sans-serif;font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;}
+
+-->
+</STYLE>
+</HEAD><BODY><table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td width="100%"><table width="100%" class="A"><colgroup><col width="100%"></colgroup>
+<tr><td class="B"><p class="C">BrowserCtrl</p>
+</td>
+</tr>
+</table></td>
+</tr></table>
+<p class="D">&nbsp;</p>
+<p id="Upp::BrowserCtrl::class" class="E"><span class="F">class</span>&nbsp;<span class="G">BrowserCtrl</span>&nbsp;:&nbsp;<span class="F">public</span>&nbsp;<span class="H">WithFileSelLayout</span>&lt;<a href="Upp::ParentCtrl"><span class="I">ParentCtrl</span></a>&gt;&nbsp;</p>
+<p class="J">&nbsp;</p>
+<p class="J"><a href="L$_0.png"><img src="_0.png" border="0" alt=""></a></p>
+<p class="J">&nbsp;</p>
+<p class="J">A configurable and embeddable file selector widget similar to <a href="topic://CtrlLib/src/FileSel$en-us#FileSel::class">FileSel</a>. This class provides a callback based uniform interface for building file system transparent file selectors and browsers.</p>
+<p class="K">&nbsp;</p>
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td width="100%"><table width="100%" class="L"><colgroup><col width="100%"></colgroup>
+<tr><td class="M"><p class="N">Public Method List</p>
+</td>
+</tr>
+</table></td>
+</tr></table>
+<p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::BaseDir(const Upp::String&)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">BaseDir</span>(<span class="F">const</span>&nbsp;<a href="Upp::String"><span class="I">String</span></a><span class="F">&amp;</span>&nbsp;<span class="H">s</span>)</p>
+<p class="J">Sets the base directory (usually &quot;/&quot;) to <span class="H">s</span>. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::ActiveDir(const Upp::String&)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">ActiveDir</span>(<span class="F">const</span>&nbsp;<a href="Upp::String"><span class="I">String</span></a><span class="F">&amp;</span>&nbsp;<span class="H">s</span>)</p>
+<p class="J">Sets the active directory to <span class="H">s</span>. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::AddPath(const Upp::String&)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">AddPath</span>(<span class="F">const</span>&nbsp;<a href="Upp::String"><span class="I">String</span></a><span class="F">&amp;</span>&nbsp;<span class="H">s</span>)</p>
+<p class="J">Adds <span class="H">s</span> to the directory list. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Multi(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">Multi</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Sets the mode where multiple items can be selected. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::SortByExt(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">SortByExt</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Sorts the file list by extensions. By default the file list is sorted by names. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::DnD(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">DnD</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Toggles drag and drop. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Ask(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">Ask</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Toggles action confirmation dialogs. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::StdMenu(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">StdMenu</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Toggles the default context menu. The default context menu consists of the standard file browser actions (MkDir, Rename, Delete, Browse, Select etc.). Returns *this for method chaining. Note that standard menu is not mandatory and is independent of the user menu which can be constructed using the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenBar">WhenBar</a> callback. However, when the standard menu is enabled the user menu will be automatically appended to it</p>
+<p class="K">.</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::DirUpOption(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">DirUpOption</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Toggles the visibility of &quot;DirUp&quot; button. Enabled by default. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::MkDirOption(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">MkDirOption</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">Toggles the visibility of &quot;MkDir&quot; button. Enabled by default. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Columns(int)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">Columns</span>(<span class="F">int</span>&nbsp;<span class="H">n</span>)</p>
+<p class="J">Sets the number of columns. (User action can change the number of columns by dragging the column boundary too). Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Renaming(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">Renaming</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">In renaming mode, user is allowed to edit the name of item (by holding mouse button over the item). WhenRename callback is called when user accepts the new name. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::AccelKey(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">AccelKey</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">AccelKey activates searching for file starting on key press (first letter of filename is matched). Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::JustName(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">JustName</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>&nbsp;=&nbsp;<span class="F">true</span>)</p>
+<p class="J">In JustName mode, if filename contains \ or / characters, only the part after last such character is displayed as filename. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::ShowInfoPanel(bool)" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">ShowInfoPanel</span>(<span class="F">bool</span>&nbsp;<span class="H">b</span>)</p>
+<p class="J">Shows or hides the mini file information panel. Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::HideInfoPanel()" class="D"><a href="Upp::BrowserCtrl"><span class="I">BrowserCtrl</span></a><span class="F">&amp;</span>&nbsp;<span class="G">HideInfoPanel</span>()</p>
+<p class="J">Same as ShowInfoPanel(false). Returns *this for method chaining.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::GetBaseDir()const" class="O"><a href="Upp::String"><span class="P">String</span></a><span class="Q">&nbsp;</span><span class="R">GetBaseDir</span><span class="Q">()&nbsp;</span>const</p>
+<p class="J">Returns the base directory.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::IsBaseDir()" class="D"><span class="F">bool</span>&nbsp;<span class="G">IsBaseDir</span>()</p>
+<p class="J">Returns true if the active directory is also the base directory.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::GetActiveDir()const" class="O"><a href="Upp::String"><span class="P">String</span></a><span class="Q">&nbsp;</span><span class="R">GetActiveDir</span><span class="Q">()&nbsp;</span>const</p>
+<p class="J">Returns active directory.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::GetSelected()const" class="O">const<span class="Q">&nbsp;</span><a href="Upp::Vector"><span class="P">Vector</span></a><span class="Q">&lt;</span><a href="Upp::String"><span class="P">String</span></a><span class="Q">&gt;&amp;&nbsp;</span><span class="R">GetSelected</span><span class="Q">()&nbsp;</span>const</p>
+<p class="J">Returns a vector containing the selected files/paths.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::GetFileList()" class="D"><a href="Upp::FileList"><span class="I">FileList</span></a><span class="F">&amp;</span>&nbsp;<span class="G">GetFileList</span>()</p>
+<p class="J">Returns a non-const reference to FileList.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::GetFileInfo()const" class="O">const<span class="Q">&nbsp;</span><a href="Upp::FileList::File"><span class="P">FileList::File</span></a>&amp;<span class="Q">&nbsp;</span><span class="R">GetFileInfo</span><span class="Q">()&nbsp;</span>const</p>
+<p class="J">Returns a <a href="topic://CtrlLib/src/FileList$en-us#FileList::File::struct">File</a> structure containing the file information of the selected list item. Assumes implicit cursor. In multi mode this method returns the first selected item</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::KillCursor()" class="D"><span class="F">void</span>&nbsp;<span class="G">KillCursor</span>()</p>
+<p class="J">Cancels the cursor.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::IsCursor()const" class="O">bool<span class="Q">&nbsp;</span><span class="R">IsCursor</span><span class="Q">()&nbsp;</span>const</p>
+<p class="J">Tests whether the cursor is at any item.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Load()" class="D"><span class="F">bool</span>&nbsp;<span class="G">Load</span>()</p>
+<p class="J">Loads the file list with file items in a given path (a path to local or remote directory) by calling the user-supplied loader assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenLoad">WhenLoad</a> callback. Returns true on success, false on failure.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Action()" class="D"><span class="F">void</span>&nbsp;<span class="G">Action</span>()</p>
+<p class="J">Loads a directory, or selects file(s), calling the user-supplied selector method assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenSel">WhenSel </a>callback.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Rename()" class="D"><span class="F">void</span>&nbsp;<span class="G">Rename</span>()</p>
+<p class="J">Renames the selected item by calling the user-supplied renaming method assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenRename">WhenRename </a>callback. </p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::MkDir()" class="D"><span class="F">void</span>&nbsp;<span class="G">MkDir</span>()</p>
+<p class="J">Creates a new directory under the active directory by calling the user-supplied mkdir method assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenMkDir">WhenMkDir</a> callback.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Delete()" class="D"><span class="F">void</span>&nbsp;<span class="G">Delete</span>()</p>
+<p class="J">Deletes the selected item by calling the user-supplied deletion method assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenDelete">WhenDelete </a>callback.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::DirUp()" class="D"><span class="F">void</span>&nbsp;<span class="G">DirUp</span>()</p>
+<p class="J">Loads one directory up by calling the user-supplied dirup method assigned to the <a href="topic://BrowserCtrl/src/Upp_BrowserCtrl$en-us#Upp::BrowserCtrl::WhenDirUp">WhenDirUp</a> callback.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Select()" class="D"><span class="F">void</span>&nbsp;<span class="G">Select</span>()</p>
+<p class="J">Selects the file(s) </p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Clear()" class="D"><span class="F">void</span>&nbsp;<span class="G">Clear</span>()</p>
+<p class="J">Clears the browser.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenBar" class="S"><a href="Upp::Event"><span class="T">Event</span></a><span class="U">&lt;Bar</span><span class="V">&amp;</span><span class="U">&gt;&nbsp;</span>WhenBar</p>
+<p class="J">This event is triggered upon the right mouse button click on file list. Allows adding a user-menu to the browser. Note that when the standard menu is enabled user-supplied menu will be appended to it.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenSel" class="S"><a href="Upp::Event"><span class="T">Event</span></a><span class="U">&lt;&gt;&nbsp;</span>WhenSel</p>
+<p class="J">This event is triggered when an item or multiple items are selected.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenDirUp" class="S"><a href="Upp::Gate"><span class="T">Gate</span></a><span class="U">&lt;&gt;&nbsp;</span>WhenDirUp</p>
+<p class="J">This event is triggered when a dirup request is dispatched. </p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenLoad" class="S"><a href="Upp::Gate"><span class="T">Gate</span></a><span class="U">&lt;&gt;&nbsp;</span>WhenLoad</p>
+<p class="J">This event is triggered when the browser attempts to navigate (load) a directory.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenDrag" class="S"><a href="Upp::Event"><span class="T">Event</span></a><span class="U">&lt;&gt;&nbsp;</span>WhenDrag</p>
+<p class="J">This event is triggered when an item is dragged from the file list. Requires drag and drop to be enabled.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenDrop" class="S"><a href="Upp::Event"><span class="T">Event</span></a><span class="U">&lt;</span><a href="Upp::PasteClip"><span class="T">PasteClip</span></a><span class="U">&gt;&nbsp;</span>WhenDrop</p>
+<p class="J">This event is triggered whenever items are dropped onto the file list. It has the <a href="topic://CtrlCore/src/PasteClip$en-us#ClipData::struct">PasteClip</a> as its parameter.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenDropFiles" class="S"><a href="Upp::Event"><span class="T">Event</span></a><span class="U">&lt;&gt;&nbsp;</span>WhenDropFiles</p>
+<p class="J">This event is a specialization of WhenDrop. It is triggered whenever the dropped items are file(s)</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenDelete" class="S"><a href="Upp::Gate"><span class="T">Gate</span></a><span class="U">&lt;</span><span class="V">const</span><span class="U">&nbsp;String</span><span class="V">&amp;</span><span class="U">&gt;&nbsp;</span>WhenDelete</p>
+<p class="J">This event is triggered when an item deletion request is dispatched. It has the path to delete as its parameter.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenMkDir" class="S"><a href="Upp::Gate"><span class="T">Gate</span></a><span class="U">&lt;</span><span class="V">const</span><span class="U">&nbsp;String</span><span class="V">&amp;</span><span class="U">&gt;&nbsp;</span>WhenMkDir</p>
+<p class="J">This event is triggered when a new directory is being created. It has the path of the new directory to be created as its parameter.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::WhenRename" class="S"><a href="Upp::Gate"><span class="T">Gate</span></a><span class="U">&lt;</span><span class="V">const</span><span class="U">&nbsp;String</span><span class="V">&amp;</span><span class="U">, </span><span class="V">const</span><span class="U">&nbsp;String</span><span class="V">&amp;</span><span class="U">&gt;&nbsp;</span>WhenRename</p>
+<p class="J">This event is triggered when directory entry is to be renamed. It has the paths to the old name and the new name of the item to be renamed as its parameters.</p>
+<p class="K">&nbsp;</p>
+<hr><p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::Serialize(Upp::Stream&)" class="D"><span class="F">void</span>&nbsp;<span class="G">Serialize</span>(<a href="Upp::Stream"><span class="I">Stream</span></a><span class="F">&amp;</span>&nbsp;<span class="H">s</span>)</p>
+<p class="J"> Serializes the settings of BrowserCtrl.</p>
+<p class="K">&nbsp;</p>
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td width="100%"><table width="100%" class="L"><colgroup><col width="100%"></colgroup>
+<tr><td class="M"><p class="N">Constructor detail</p>
+</td>
+</tr>
+</table></td>
+</tr></table>
+<p class="K">&nbsp;</p>
+<p id="Upp::BrowserCtrl::BrowserCtrl()" class="D"><span class="G">BrowserCtrl</span>()</p>
+<p class="J">Default constructor</p>
+<p class="K">&nbsp;</p>
+<p class="W">&nbsp;</p>
+</BODY>
