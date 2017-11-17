@@ -26,7 +26,7 @@ This class provides a callback based uniform interface for building
 file system transparent file selectors and browsers.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
-[s4; &]
+[s3; &]
 [s5;:Upp`:`:BrowserCtrl`:`:BaseDir`(const Upp`:`:String`&`): [_^Upp`:`:BrowserCtrl^ Bro
 wserCtrl][@(0.0.255) `&]_[* BaseDir]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 s])&]
@@ -149,7 +149,7 @@ ir]()_[@(0.0.255) const]&]
 [s4; &]
 [s5;:Upp`:`:BrowserCtrl`:`:GetSelected`(`)const: [@(0.0.255) const]_[_^Upp`:`:Vector^ Vec
 tor]<[_^Upp`:`:String^ String]>`&_[* GetSelected]()_[@(0.0.255) const]&]
-[s2;%% Retruns a vector containing the selected files/paths.&]
+[s2;%% Returns a vector containing the selected files/paths.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:BrowserCtrl`:`:GetFileList`(`): [_^Upp`:`:FileList^ FileList][@(0.0.255) `&]_
