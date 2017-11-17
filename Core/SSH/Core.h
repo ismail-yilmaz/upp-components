@@ -1,6 +1,7 @@
 class Ssh {
 public:
     bool                Do();
+    bool                Wait(int ms = 10);
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
     int                 GetTimeout() const                      { return ssh->timeout; }
 
