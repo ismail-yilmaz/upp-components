@@ -1,0 +1,11 @@
+LAYOUT(FileSelLayout, 288, 212)
+	ITEM(Label, dv___0, SetLabel(t_("&Directory")).LeftPosZ(8, 72).TopPosZ(6, 15))
+	ITEM(DropList, dir, HSizePosZ(84, 60).TopPosZ(4, 19))
+	ITEM(Button, dirup, RightPosZ(32, 24).TopPosZ(4, 19))
+	ITEM(Button, mkdir, RightPosZ(8, 24).TopPosZ(4, 19))
+	ITEM(FileList, filelist, HSizePosZ(8, 8).VSizePosZ(28, 18))
+	ITEM(Label, filesize, SetAlign(ALIGN_CENTER).SetFrame(ThinInsetFrame()).RightPosZ(145, 87).BottomPosZ(0, 16))
+	ITEM(Label, filetime, SetAlign(ALIGN_CENTER).SetFrame(ThinInsetFrame()).RightPosZ(8, 136).BottomPosZ(0, 16))
+	ITEM(Label, filename, SetFrame(ThinInsetFrame()).HSizePosZ(8, 232).BottomPosZ(0, 16))
+END_LAYOUT
+
