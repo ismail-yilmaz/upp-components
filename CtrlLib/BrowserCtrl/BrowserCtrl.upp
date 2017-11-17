@@ -10,6 +10,8 @@ file
 	BrowserCtrl.lay,
 	Info readonly separator,
 	Copying,
+	ReadMe,
+	Docs readonly separator,
 	src.tpp;
 
 mainconfig
