@@ -1,0 +1,10 @@
+uses
+	Core,
+	SSH;
+
+file
+	SshTest.cpp;
+
+mainconfig
+	"" = "";
+

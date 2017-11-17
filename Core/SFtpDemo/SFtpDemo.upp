@@ -1,0 +1,12 @@
+description "Demonstrates the SFtp component of SSH package.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpDemo.cpp;
+
+mainconfig
+	"" = "";
+

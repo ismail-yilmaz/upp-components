@@ -1,0 +1,13 @@
+uses
+	CtrlLib,
+	SSH,
+	CodeEditor;
+
+file
+	ShellGUI.h,
+	main.cpp,
+	ShellGUI.lay;
+
+mainconfig
+	"" = "GUI";
+

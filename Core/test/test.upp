@@ -1,0 +1,9 @@
+library
+	ssh;
+
+link
+	ssh;
+
+file
+	test.c;
+
