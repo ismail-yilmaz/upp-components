@@ -1,5 +1,0 @@
-LAYOUT(ShellGUILayout, 563, 379)
-	ITEM(CodeEditor, cmd, HSizePosZ(1, 3).VSizePosZ(3, 38))
-	ITEM(EditString, input, HSizePosZ(2, 3).BottomPosZ(6, 27))
-END_LAYOUT
-
