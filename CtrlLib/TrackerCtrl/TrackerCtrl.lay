@@ -1,0 +1,4 @@
+LAYOUT(TrackerCtrlLayout, 440, 276)
+	ITEM(ArrayCtrl, itemlist, AutoHideSb(true).HorzGrid(false).HSizePosZ(0, 0).VSizePosZ(1, 1))
+END_LAYOUT
+
