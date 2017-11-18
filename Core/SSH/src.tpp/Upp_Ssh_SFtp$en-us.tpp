@@ -74,10 +74,12 @@ in write mode.&]
 file in append mode.&]
 [s7;i1440;a17;:Ctrl`:`:TOP:~~~.1728~1728;%% [%-*C@3 CREATE]-|Creates 
 file if it doesn`'t exist.&]
-[s7;i1440;~~~.1728~1728;%% [%-*C@3 EXCLUSIVE]-|Opens file in exclusive 
-access mode.&]
+[s7;i1440;~~~.1728~1728;%% [%-*C@3 EXCLUSIVE]-|Causes  the request to 
+fail if the named file already exists. CREATE flag must also 
+be specified if this flag is used.&]
 [s7;i1440;a17;:Ctrl`:`:BOTTOM:~~~.1728~1728;%% [%-*C@3 TRUNCATE]-|Opens 
-file and truncates it to zero (0).&]
+file and truncates it to zero (0) bytes. Must be used with CREATE 
+flag.&]
 [s3;%% &]
 [s2;%% Filesystem access [%-*@3 mode]s (permissions):&]
 [s2;%% &]
