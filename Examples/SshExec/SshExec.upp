@@ -1,0 +1,12 @@
+description "Demonstrates basic SSH remote command execution in blocking mode.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshExec.cpp;
+
+mainconfig
+	"" = "";
+

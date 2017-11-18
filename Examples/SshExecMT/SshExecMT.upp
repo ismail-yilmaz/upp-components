@@ -1,0 +1,12 @@
+description "Demonstrates basic SSH remote command execution, using worker threads.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshExecMT.cpp;
+
+mainconfig
+	"" = "";
+

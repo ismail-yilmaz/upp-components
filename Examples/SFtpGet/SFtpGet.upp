@@ -1,0 +1,12 @@
+description "Demonstrates basic SFtp file download in blocking mode.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpGet.cpp;
+
+mainconfig
+	"" = "";
+

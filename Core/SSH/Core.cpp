@@ -76,7 +76,7 @@ bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 
 bool Ssh::_Do()
 {
-	try {
+try {
 		if(ssh->start_time == 0)
 			ssh->start_time = msecs();
 INTERLOCKED {
