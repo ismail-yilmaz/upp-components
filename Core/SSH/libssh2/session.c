@@ -98,7 +98,7 @@ banner_receive(LIBSSH2_SESSION * session)
 {
     int ret;
     int banner_len;
-
+	memset(&session->banner_TxRx_banner, 0, 256);
     if (session->banner_TxRx_state == libssh2_NB_state_idle) {
         banner_len = 0;
 
@@ -169,6 +169,16 @@ banner_receive(LIBSSH2_SESSION * session)
     if (!banner_len)
         return LIBSSH2_ERROR_BANNER_RECV;
 
+    
+    /*
+     * 2017-11-19 (SSH package patch):
+     * This patch prevents a memory leak which is caused by accidentally
+     * trying to connect to a non-ssh2 server.
+     */
+
+    if(session->remote.banner != NULL)
+        return LIBSSH2_ERROR_NONE;
+  
     session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
     if (!session->remote.banner) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -176,8 +186,9 @@ banner_receive(LIBSSH2_SESSION * session)
     }
     memcpy(session->remote.banner, session->banner_TxRx_banner, banner_len);
     session->remote.banner[banner_len] = '\0';
-    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Received Banner: %s",
-                   session->remote.banner);
+    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Received Banner: %s, length: %d",
+                   session->remote.banner, banner_len);
+ 
     return LIBSSH2_ERROR_NONE;
 }
 
@@ -1074,6 +1085,7 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, (char *)session->err_msg);
     }
 
+	memcpy(&session->banner_TxRx_banner, "hello", 5);
     LIBSSH2_FREE(session, session);
 
     return 0;

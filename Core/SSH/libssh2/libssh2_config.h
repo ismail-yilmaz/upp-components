@@ -63,6 +63,9 @@
 #define HAVE_NTSTATUS_H 
 #endif
 
+/* DEBUG */
+//#define LIBSSH2DEBUG
+
 /* Libraries */
 #define HAVE_LIBZ
 

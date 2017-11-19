@@ -37,6 +37,11 @@ Todo:
 
 History:
 --------------------
+2017-11-19:  GetCurrentDir() and GetParentDir() methods are added to SFtp class.
+             libssh2, session.c (line: 177-8), banner_receive() method patched to 
+             prevent a  memory leak which is caused by accidentally trying to connect to a 
+             non-ssh2 server.
+
 2017-11-12:  Basic multithreading support added for SFtp, Scp, and Exec classes.
 
 2017-11-10:  GetWaitEvents() and AddTo() methods addet to Ssh class.

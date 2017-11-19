@@ -140,7 +140,7 @@ bool Ssh::Cleanup(Error& e)
 	if(b) return false;
 	ssh->error  = MakeTuple<int, String>(e.code, e);
 	LLOG("Failed." << " Code = " << e.code << ", " << e);
-	return !b && e.code  != 1000; // Make sure we don't loop on timeout errors.
+	return !b && e.code != -1000; // Make sure we don't loop on timeout errors.
 }
 
 void Ssh::SetError(int rc, const String& reason)

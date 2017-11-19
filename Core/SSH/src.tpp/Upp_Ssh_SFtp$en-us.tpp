@@ -184,6 +184,16 @@ true on success. This method will return true even when the remote
 directory is empty.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:SFtp`:`:GetCurrentDir`(`): [_^Upp`:`:String^ String]_[* GetCurrentDir]()&]
+[s2;%% Returns the current directory on success, and an empty string 
+on failure.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:GetParentDir`(`): [_^Upp`:`:String^ String]_[* GetParentDir]()&]
+[s2;%% Returns the parent directory on success, and an empty string 
+on failure.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:SFtp`:`:MakeLink`(const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b
 ool]_[* MakeLink]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 orig], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 link])&]

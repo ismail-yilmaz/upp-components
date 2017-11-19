@@ -75,5 +75,5 @@ private:
 
     enum AuthMethod     { PASSWORD, PUBLICKEY, KEYBOARD, SSHAGENT };
     enum HostkeyType    { RSAKEY, DSSKEY };
-    enum OpCodes        { CONNECT, DISCONNECT };
+    enum OpCodes        { CONNECT, LOGIN, DISCONNECT };
 };

@@ -394,11 +394,28 @@ bool SFtp::ListDir(const String& path, DirList& list)
 	});
 }
 
+String SFtp::GetCurrentDir()
+{
+	ComplexCmd(DGET, [=]() mutable {
+		SymLink(".", NULL, LIBSSH2_SFTP_REALPATH);
+	});
+	return ssh->async ? Null : pick(sftp->value);
+}
+
+String SFtp::GetParentDir()
+{
+	ComplexCmd(DGET, [=]() mutable {
+		SymLink("..", NULL, LIBSSH2_SFTP_REALPATH);
+	});
+	return ssh->async ? Null : pick(sftp->value);
+}
+
 bool SFtp::SymLink(const String& path, String* target, int type)
 {
 	if(type == LIBSSH2_SFTP_SYMLINK)
 		return Cmd(LINK, [=]() mutable {
 			ASSERT(sftp->session);
+			ASSERT(target);
 			int rc = libssh2_sftp_symlink_ex(
 						sftp->session,
 						path,
@@ -429,7 +446,10 @@ bool SFtp::SymLink(const String& path, String* target, int type)
 				SetError(rc);
 			if(rc > 0) {
 				LLOG("Symbolic link operation is successful.");
-				target->Set(buf, rc);
+				if(target)
+					target->Set(buf, rc);
+				else 
+					sftp->value = pick(String(buf, rc));
 			}
 			return rc > 0;
 		});

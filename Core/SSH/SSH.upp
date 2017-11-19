@@ -3,6 +3,8 @@ description "SSH protocol encapsulation., using libssh2.\377";
 acceptflags
 	USEMALLOC;
 
+flags(DEBUG) LIBSSH2DEBUG;
+
 uses
 	Core;
 

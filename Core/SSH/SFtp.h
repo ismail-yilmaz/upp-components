@@ -38,10 +38,10 @@ public:
             Time   GetLastModified() const          { return a->flags & LIBSSH2_SFTP_ATTR_ACMODTIME ? TimeFromUTC(a->mtime) : Null; }
             Time   GetLastAccessed() const          { return a->flags & LIBSSH2_SFTP_ATTR_ACMODTIME ? TimeFromUTC(a->atime) : Null; }
             SFtpAttrs& GetAttrs()                   { return *a; }
- 
+
             const SFtpAttrs& operator~() const      { return *a; }
             SFtpAttrs&  operator*()                 { return *a; }
-            
+
             bool IsFile() const                     { return LIBSSH2_SFTP_S_ISREG(a->permissions); }
             bool IsDirectory() const                { return LIBSSH2_SFTP_S_ISDIR(a->permissions); }
             bool IsSymLink() const                  { return LIBSSH2_SFTP_S_ISLNK(a->permissions); }
@@ -61,14 +61,14 @@ public:
             DirEntry(const String& path, const SFtpAttrs& attrs);
             DirEntry()                              { Zero();  }
             DirEntry(const Nuller&)                 { Zero();  }
-            
+
             DirEntry(DirEntry&& e) = default;
             DirEntry& operator=(DirEntry&& e) = default;
- 
+
         private:
             bool CanMode(dword u, dword g, dword o) const;
             void Zero();
-            
+
             bool valid;
             String filename;
             One<SFtpAttrs> a;
@@ -82,7 +82,7 @@ public:
 
     LIBSSH2_SFTP_HANDLE*    GetHandle() const                                       { return sftp->handle; };
     Value                   GetResult() const                                       { return sftp->value; }
-    
+
     // File
     SFtpHandle*             Open(const String& path, dword flags, long mode);
     SFtpHandle*             OpenRead(const String& path)                            { return Open(path, READ, IRALL); }
@@ -108,14 +108,16 @@ public:
     bool                    Append(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null);
     String                  Peek(const String& path, int64 offset, int64 length, Gate<int64, int64> progress = Null);
     bool                    Poke(const String& data, const String& path, int64 offset, int64 length, Gate<int64, int64> progress = Null);
-    
+
     // Directory
     SFtpHandle*             OpenDir(const String& path);
     bool                    MakeDir(const String& path, long mode);
     bool                    RemoveDir(const String& path);
     bool                    ListDir(SFtpHandle* handle, DirList& list);
     bool                    ListDir(const String& path, DirList& list);
-    
+    String                  GetCurrentDir();
+    String                  GetParentDir();
+
     // Symlink
     bool                    MakeLink(const String& orig, const String& link)        { return SymLink(orig, const_cast<String*>(&link), LIBSSH2_SFTP_SYMLINK); }
     bool                    ReadLink(const String& path, String& target)            { return SymLink(path, &target, LIBSSH2_SFTP_READLINK); }
@@ -149,13 +151,13 @@ public:
     static AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
-    
+
     SFtp(SshSession& session);
     virtual ~SFtp();
 
     SFtp(SFtp&&) = default;
     SFtp& operator=(SFtp&&) = default;
-    
+
 private:
     virtual bool            Init() override;
     virtual void            Exit() override;
@@ -169,7 +171,7 @@ private:
     bool                    SymLink(const String& path, String* target, int type);
     bool                    FRead(SFtpHandle* handle, Stream& out, int64 size,  Gate<int64, int64> progress = Null, bool str = false);
     bool                    FWrite(SFtpHandle* handle, Stream& out, int64 size, Gate<int64, int64> progress = Null);
-    
+
     struct SFtpData {
         LIBSSH2_SFTP*       session;
         SFtpHandle*         handle;
@@ -178,10 +180,10 @@ private:
         StringStream        stream;
     };
     One<SFtpData> sftp;
-    
+
     enum OpCodes{
         INIT, EXIT, START, FOPEN, FCLOSE, FSYNC, FRENAME, FDELETE, FGET, FPUT, FGETSTAT,
-        FSETSTAT, DOPEN, DMAKE, DDELETE, DLIST, LINK, FQUERY, FMODIFY, FSEEK, FTELL,
+        FSETSTAT, DOPEN, DMAKE, DDELETE, DLIST, DGET, LINK, FQUERY, FMODIFY, FSEEK, FTELL,
         FPEEK, FPOKE
     };
     enum FileAttributes {

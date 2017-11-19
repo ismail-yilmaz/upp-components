@@ -96,7 +96,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 		Cmd(CONNECT, [=]() mutable {
 #ifdef flagUSEMALLOC
 			LLOG("Using libssh2's memory managers.");
-			ssh->session = libssh2_session_init(NULL, NULL, NULL, this);
+			ssh->session = libssh2_session_init_ex(NULL, NULL, NULL, this);
 #else
 			LLOG("Using Upp's memory managers.");
 			ssh->session = libssh2_session_init_ex((*ssh_malloc), (*ssh_free), (*ssh_realloc), this);
