@@ -3,8 +3,8 @@
 
 using namespace Upp;
 
-// This example demonstrates getting a listing of directory,
-// and using the list to download multiple files from a SFTP server asynchronously.
+// This example demonstrates getting a directory listing, and using that list to download
+// multiple files from the designated SFTP server asynchronously.
 
 const char *host  = "test.rebex.net";	// A well known public (S)FTP test server.
 const char *user  = "demo";
@@ -59,6 +59,7 @@ void GetRemoteFiles(ArrayMap<String, SFtp>& dls)
 			break;
 		}
 }
+
 CONSOLE_APP_MAIN
 {
 	StdLogSetup(LOG_COUT | LOG_FILE);
