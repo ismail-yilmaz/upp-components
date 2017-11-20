@@ -1,4 +1,4 @@
-description "Demonstrates SSH interactive (challange/response) authentication method.\377";
+description "Demonstrates basic SSH interactive (challenge/response) authentication method.\377";
 
 uses
 	Core,
