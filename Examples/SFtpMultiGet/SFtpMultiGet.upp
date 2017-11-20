@@ -1,0 +1,12 @@
+description "Demonstrates SFTP dir listing and multiple file transfers using non-blocking mode.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpMultiGet.cpp;
+
+mainconfig
+	"" = "";
+
