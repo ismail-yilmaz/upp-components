@@ -24,7 +24,7 @@ void SetDownloaders(SshSession& ssh, const SFtp::DirList& ls, ArrayMap<String, S
 		sftp.NonBlocking()
 		    .Timeout(0)
 		    .Get(file);
-		DLOG("Dowloading " << file);
+		LOG("Downloading " << file);
 	}
 }
 
@@ -34,24 +34,24 @@ void GetRemoteFiles(ArrayMap<String, SFtp>& dls)
 	while(!dls.IsEmpty())
 		for(int i = 0; i < dls.GetCount(); i++) {
 			auto& sftp = dls[i];
-			auto  file = AppendFileName(GetTempPath(), GetFileName(dls.GetKey(i)));
 			SocketWaitEvent we;
 			sftp.AddTo(we);
 			we.Wait(10);
 			if(sftp.Do())
 				continue;
 			if(sftp.IsError()) {
-				DLOG("Unable to download " << dls.GetKey(i));
-				DLOG(sftp.GetErrorDesc());
+				LOG("Unable to download " << dls.GetKey(i));
+				LOG(sftp.GetErrorDesc());
 			}
 			else {
+				auto  file = AppendFileName(GetTempPath(), GetFileName(dls.GetKey(i)));
 				FileOut fout(file);
 				if(!fout) {
-					DLOG("Unable to write data to " << file);
-					DLOG(fout.GetErrorText());
+					LOG("Unable to write data to " << file);
+					LOG(fout.GetErrorText());
 				}
 				else {
-					DLOG("Writing transferred data to " << file);
+					LOG("Writing transferred data to " << file);
 					fout.Put(sftp.GetResult().To<String>());
 				}
 			}
@@ -71,12 +71,12 @@ CONSOLE_APP_MAIN
 		SFtp::DirList ls;
 		if(sftp.ListDir(dir, ls)) {
 			for(auto& e : ls)
-				Cout() << e << '\n';
+				LOG(e);
 			ArrayMap<String, SFtp> downloaders;
 			SetDownloaders(session, ls, downloaders);
 			GetRemoteFiles(downloaders);
 		}
-		else Cerr() << sftp.GetErrorDesc() << '\n';
+		else LOG(sftp.GetErrorDesc());
 	}
-	else Cerr() << session.GetErrorDesc() << '\n';
+	else LOG(session.GetErrorDesc());
 }
