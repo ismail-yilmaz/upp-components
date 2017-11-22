@@ -5,7 +5,7 @@ uses
 	SSH;
 
 file
-	SFtpMultiGet.cpp;
+	SFtpMultiGetNB.cpp;
 
 mainconfig
 	"" = "";
