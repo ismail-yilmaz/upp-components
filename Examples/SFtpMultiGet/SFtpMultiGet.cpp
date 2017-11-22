@@ -4,7 +4,7 @@
 using namespace Upp;
 
 // This example demonstrates getting a directory listing, and using that list to download
-// multiple files from the designated SFTP server asynchronously.
+// multiple files from the designated SFTP server asynchronously, using non-blocking mode.
 
 const char *host  = "test.rebex.net";	// A well known public (S)FTP test server.
 const char *user  = "demo";
@@ -14,18 +14,17 @@ const int  MAXDOWNLOADS  = 4;
 
 void SetDownloaders(SshSession& ssh, const SFtp::DirList& ls, ArrayMap<String, SFtp>& dls)
 {
-	for(auto i = 0; i < ls.GetCount(); i++) {
-		if(!ls[i].IsFile())
-			continue;
-		if(dls.GetCount() == MAXDOWNLOADS)
-			break;
-		auto  file = AppendFileName(dir, ls[i].GetName());
-		auto& sftp = dls.Add(file, new SFtp(ssh));
-		sftp.NonBlocking()
-		    .Timeout(0)
-		    .Get(file);
-		LOG("Downloading " << file);
-	}
+	for(auto& e : ls)
+		if(e.IsFile()) {
+			if(dls.GetCount() == MAXDOWNLOADS)
+				break;
+			auto  file = AppendFileName(dir, e.GetName());
+			auto& sftp = dls.Add(file, new SFtp(ssh));
+			sftp.NonBlocking()
+			    .Timeout(0)
+			    .Get(file);
+			LOG("Downloading " << file);
+		}
 }
 
 void GetRemoteFiles(ArrayMap<String, SFtp>& dls)
