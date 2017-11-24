@@ -38,6 +38,8 @@ Todo:
 History:
 --------------------
 2017-11-24:: Connect() method overload added. This variant takes a secure shell URL string.
+             Multithreaded functions are improved.
+             Documentation updated.
 
 2017-11-19:  GetCurrentDir() and GetParentDir() methods are added to SFtp class.
              libssh2, session.c (line: 177-8), banner_receive() method patched to 
