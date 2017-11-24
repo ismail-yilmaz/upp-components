@@ -36,6 +36,7 @@ public:
     SshExec             CreateExec();
     Scp                 CreateScp();
 
+    bool                Connect(const String& url);
     bool                Connect(const String& host, int port, const String& user, const String& password);
     void                Disconnect();
 

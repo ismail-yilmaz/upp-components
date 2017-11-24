@@ -6,48 +6,37 @@ using namespace Upp;
 // This example demonstrates getting a directory listing, and using that list to download
 // multiple files from the designated SFTP server asynchronously, using worker threads.
 
-const char *host  = "test.rebex.net";	// A well known public (S)FTP test server.
-const char *user  = "demo";
-const char *pass  = "password";
-const char *dir   = "/pub/example/";
+const char *dir = "/pub/example/";
 const int  MAXDOWNLOADS  = 4;
 
 void GetRemoteFiles(SshSession& session, const SFtp::DirList& ls)
 {
-	// Multithreaded downloader.
-	ArrayMap<String, AsyncWork<String>> workers;
+	ArrayMap<String, AsyncWork<void>> workers;
 	for(auto& e : ls) {
 		if(!e.IsFile())
 			continue;
 		if(workers.GetCount() == MAXDOWNLOADS)
 			break;
-		auto file = AppendFileName(dir, e.GetName());
-		workers.Add(file) = pick(SFtp::AsyncGet(session, file));
-		LOG("Downloading " << file);
+		auto source = AppendFileName(dir, e.GetName());
+		auto target = AppendFileName(GetTempPath(), e.GetName());
+		workers.Add(source) = pick(SFtp::AsyncGet(session, ~source, ~target));
+		LOG("Downloading " << source << " to " << target);
 	}
 	while(!workers.IsEmpty())
 		for(int i = 0; i < workers.GetCount(); i++) {
-			if(!workers[i].IsFinished()) {
-				Sleep(1);
-				continue;
-			}
-			auto file = AppendFileName(GetTempPath(), GetFileName(workers.GetKey(i)));
-			try {
-				FileOut fout(file);
-				if(fout) {
-					LOG("Writing data to " << file);
-					fout.Put(workers[i].Get());
+			auto& worker = workers[i];
+			if(worker.IsFinished()) {
+				try {
+					worker.Get();
+					LOG(workers.GetKey(i) << " successfully downloaded");
 				}
-				else {
-					LOG("Unable to open " << file);
-					LOG(fout.GetErrorText());
+				catch(Ssh::Error& e) {
+					LOG(e);
 				}
+				workers.Remove(i);
+				break;
 			}
-			catch(Ssh::Error& e) {
-				LOG(e);
-			}
-			workers.Remove(i);
-			break;
+			Sleep(1);
 		}
 }
 
@@ -57,7 +46,7 @@ CONSOLE_APP_MAIN
 //	Ssh::Trace();
 
 	SshSession session;
-	if(session.Timeout(30000).Connect(host, 22, user, pass)) {
+	if(session.Timeout(30000).Connect("sftp://demo:password@test.rebex.net:22")) {
 		auto sftp = session.CreateSFtp();
 		SFtp::DirList ls;
 		if(sftp.ListDir(dir, ls)) {

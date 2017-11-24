@@ -46,6 +46,26 @@ void SshSession::Exit()
 	});
 }
 
+bool SshSession::Connect(const String& url)
+{
+	UrlInfo u(url);
+	return ComplexCmd(CONNECT, [=, u = pick(u)]() mutable {
+		auto b = u.scheme == "ssh"   ||
+                 u.scheme == "scp"   ||
+                 u.scheme == "sftp"  ||
+                 u.scheme == "exec"  ||
+                 u.scheme.IsEmpty()  &&
+                 !u.host.IsEmpty();
+		int port = (u.port.IsEmpty() || !b) ? 22 : StrInt(u.port);
+		if(b)
+			Connect(u.host, port, u.username, u.password);
+		else
+			Cmd(CONNECT, [=]{
+				SetError(-1, "Malformed secure shell URL.");
+				return false; // Just to prevent compiler warnings.
+			});
+	});
+}
 
 bool SshSession::Connect(const String& host, int port, const String& user, const String& password)
 {

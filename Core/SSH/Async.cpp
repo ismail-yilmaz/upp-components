@@ -31,7 +31,7 @@ static void SFtpAsyncIO(int direction, SshSession& session, const String& path, 
 
 AsyncWork<String> SFtp::AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, path = String(path), &session]{
 		StringStream ss;
 		ss.Create();
 		SFtpAsyncIO(0, session, path, ss, pick(progress));
@@ -42,7 +42,7 @@ AsyncWork<String> SFtp::AsyncGet(SshSession& session, const String& path, Gate<i
 
 AsyncWork<void> SFtp::AsyncGet(SshSession& session,	const char* source, const char* target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, source = String(source), target = String(target), &session]{
 		FileOut fout(target);
 		if(!fout) {
 			auto error = Format("Unable to open local file '%s' for writing.", target);
@@ -55,7 +55,7 @@ AsyncWork<void> SFtp::AsyncGet(SshSession& session,	const char* source, const ch
 
 AsyncWork<void> SFtp::AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, data = pick(data), target = String(target), &session]{
 		StringStream ss(pick(data));
 		SFtpAsyncIO(1, session, target, ss, pick(progress));
 	});
@@ -64,7 +64,7 @@ AsyncWork<void> SFtp::AsyncPut(SshSession& session, String&& data, const String&
 
 AsyncWork<void> SFtp::AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, source = String(source), target = String(target), &session]{
 		FileIn fin(source);
 		if(fin.IsError()) {
 			auto error = Format("Unable to open local file '%s' for reading.", source);
@@ -99,7 +99,7 @@ static void ScpAsyncIO(int direction, SshSession& session, const String& path, S
 
 AsyncWork<String> Scp::AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, path = String(path), &session]{
 		StringStream ss;
 		ss.Create();
 		ScpAsyncIO(0, session, path, ss, pick(progress));
@@ -110,7 +110,7 @@ AsyncWork<String> Scp::AsyncGet(SshSession& session, const String& path, Gate<in
 
 AsyncWork<void> Scp::AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, source = String(source), target = String(target), &session]{
 		FileOut fout(target);
 		if(!fout) {
 			auto error = Format("Unable to open local file '%s' for writing.", target);
@@ -123,7 +123,7 @@ AsyncWork<void> Scp::AsyncGet(SshSession& session, const char* source, const cha
 
 AsyncWork<void> Scp::AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, data = pick(data), target = String(target), &session]{
 		StringStream ss(pick(data));
 		ScpAsyncIO(1, session, target, ss, pick(progress));
 	});
@@ -132,7 +132,7 @@ AsyncWork<void> Scp::AsyncPut(SshSession& session, String&& data, const String& 
 
 AsyncWork<void> Scp::AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress)
 {
-	auto work = Async([=, &session]{
+	auto work = Async([=, source = String(source), target = String(target), &session]{
 		FileIn fin(source);
 		if(!fin) {
 			auto error = Format("Unable to open local file '%s' for reading.", source);
@@ -145,7 +145,7 @@ AsyncWork<void> Scp::AsyncPut(SshSession& session, const char* source, const cha
 
 AsyncWork<Tuple<int, String, String>> SshExec::Async(SshSession& session, const String& cmd)
 {
-	auto work = Upp::Async([=, &session]{
+	auto work = Upp::Async([=, cmd = String(cmd), &session]{
 		SshExec worker(session);
 		LLOG("Starting remote  command execution... ");
 		worker.NonBlocking();

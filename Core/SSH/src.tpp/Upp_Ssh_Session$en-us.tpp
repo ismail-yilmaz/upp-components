@@ -145,6 +145,14 @@ hannel]()&]
 [s2;%% Creates an Scp channel instance.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:SshSession`:`:Connect`(const Upp`:`:String`&`): [@(0.0.255) bool]_[* Connect](
+[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 url])&]
+[s2;%% Connects to a SSH2 server specified by the [%-*@3 url]. Returns 
+true on success. &]
+[s2;%% Syntax of the URL is as follows: [C@3 `[ssh`|scp`|sftp`|exec`]://`[user:password`@`]
+host`[:port`]][C .]&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:SshSession`:`:Connect`(const Upp`:`:String`&`,int`,const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b
 ool]_[* Connect]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 host], 
 [@(0.0.255) int]_[*@3 port], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 u
