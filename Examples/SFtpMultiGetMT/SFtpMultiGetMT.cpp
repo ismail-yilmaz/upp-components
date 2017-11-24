@@ -36,7 +36,6 @@ void GetRemoteFiles(SshSession& session, const SFtp::DirList& ls)
 				workers.Remove(i);
 				break;
 			}
-			Sleep(1);
 		}
 }
 
