@@ -167,10 +167,20 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 					rc = libssh2_userauth_password(ssh->session, ~user, ~password);
 					break;
 				case PUBLICKEY:
-					rc = libssh2_userauth_publickey_fromfile(ssh->session, ~user,
-						~session->pubkey,
-						~session->prikey,
-						~session->phrase);
+					rc = session->keyfile
+					?	libssh2_userauth_publickey_fromfile(ssh->session,
+					        ~user,
+							~session->pubkey,
+							~session->prikey,
+							~session->phrase)
+					:	libssh2_userauth_publickey_frommemory(ssh->session,
+					         ~user,
+							 user.GetLength(),
+							~session->pubkey,
+							 session->pubkey.GetLength(),
+							~session->prikey,
+							 session->prikey.GetLength(),
+							~session->phrase);
 					break;
 				case KEYBOARD:
 					rc = libssh2_userauth_keyboard_interactive(ssh->session, ~user,
@@ -302,11 +312,12 @@ void SshSession::FreeAgent(SshAgent* agent)
 }
 
 
-SshSession& SshSession::Keys(const String& prikey, const String& pubkey, const String& phrase)
+SshSession& SshSession::Keys(const String& prikey, const String& pubkey, const String& phrase, bool fromfile)
 {
-	session->prikey = prikey;
-	session->pubkey = pubkey;
-	session->phrase = phrase;
+	session->prikey  = prikey;
+	session->pubkey  = pubkey;
+	session->phrase  = phrase;
+	session->keyfile = fromfile;
 	return *this;
 }
 
@@ -318,6 +329,7 @@ SshSession::SshSession()
 	ssh->event_proxy	= Proxy(WhenDo);
 	session->authmethod = PASSWORD;
 	session->connected	= false;
+	session->keyfile    = true;
 }
 
 SshSession::~SshSession()

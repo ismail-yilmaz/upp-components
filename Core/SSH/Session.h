@@ -15,7 +15,7 @@ public:
     SshSession&         Timeout(int ms)                         { ssh->timeout = ms; return *this; }
     SshSession&         NonBlocking(bool b = true)              { ssh->async = b; return *this ;}
 
-    SshSession&         Keys(const String& prikey, const String& pubkey, const String& phrase = Null);
+    SshSession&         Keys(const String& prikey, const String& pubkey, const String& phrase = Null, bool fromfile = true);
     SshSession&         Method(int type, Value method)          { session->iomethods(type) = pick(method); return *this; }
     SshSession&         Methods(ValueMap methods)               { session->iomethods = pick(methods); return *this; }
 
@@ -68,6 +68,7 @@ private:
         int             authmethod;
         String          prikey;
         String          pubkey;
+        bool            keyfile;
         String          phrase;
         ValueMap        iomethods;
         bool            connected;

@@ -37,14 +37,19 @@ session.&]
 mode. Returns `*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`): [_^Upp`:`:SshSession^ S
+[s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,bool`): [_^Upp`:`:SshSession^ S
 shSession][@(0.0.255) `&]_[* Keys]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 prikey], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 pubkey], 
-[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 phrase]_`=_Null)&]
-[s2;%% Sets paths to private and public key files stored on disk. 
-[%-*@3 phrase] can be used to decipher the private key. If [%-*@3 phrase] 
-is not specified, supplied password will be used instead. Returns 
-`*this for methods chaining.&]
+[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 phrase]_`=_Null, 
+[@(0.0.255) bool]_[*@3 fromfile]_`=_[@(0.0.255) true])&]
+[s2;%% Sets the asymmetric encryption keys to be used to authenticate 
+the session. [%-*@3 phrase] can be used to decipher the private 
+key. If phrase is not specified, supplied password will be used 
+instead. Returns `*this for methods chaining. Note that when 
+the [%-*@3 fromfile] parameter is true, [%-*@3 prikey] and [%-*@3 pubkey] 
+strings will be treated as file paths to the respective key files. 
+This is the default behaviour. Otherwise they will be treated 
+as memory buffers containing the actual keys.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Method`(int`,Upp`:`:Value`): [_^Upp`:`:SshSession^ SshSession

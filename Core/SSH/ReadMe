@@ -37,7 +37,9 @@ Todo:
 
 History:
 --------------------
-2017-11-24:: Connect() method overload added. This variant takes a secure shell URL string.
+2017-12-19:  It is now possible to use encryption keys loaded into memory.
+
+2017-11-24:  Connect() method overload added. This variant takes a secure shell URL string.
              Multithreaded functions are improved.
              Documentation updated.
 

@@ -134,9 +134,9 @@ void BrowserCtrl::Info()
 	if(IsCursor()) {
 		auto& f = GetFileInfo();
 		filename = " " + f.name;
-		filesize = f.isdir 
+		filesize = f.isdir
 			? String(t_("Directory"))
-		 	: FormatFileSize(f.length);
+			: FormatFileSize(f.length);
 		filetime = Format(f.time);
 	}
 	else Summary();
@@ -154,7 +154,7 @@ void BrowserCtrl::Summary()
 			nf++;
 		sz += f.length;
 	}
-	filename = Format(t_(" %d folders(s), %d file(s) "), nd, nf);
+	filename = Format(t_(" %d folder(s), %d file(s) "), nd, nf);
 	filesize = FormatFileSize(sz);
 	filetime = "";
 }
@@ -221,7 +221,9 @@ void BrowserCtrl::ContextMenu(Bar& bar)
 	if(IsCursor()) {
 		if(stdmenu) {
 			auto& f = GetFileInfo();
-			bar.Sub(t_("Sort list"), THISFN(SortMenu))
+			bar.Sub((bool) filelist.GetCount(),
+			    t_("Sort list"),
+			    THISFN(SortMenu))
 				.Image(CtrlImg::sort());
 			bar.Separator();
 			bar.Add(IsBaseDir(), t_("Dir up..."), THISFN(DirUp))
@@ -232,17 +234,18 @@ void BrowserCtrl::ContextMenu(Bar& bar)
 				.Key(K_F5)
 				.Image(CtrlImg::Toggle());
 			bar.Separator();
-			bar.Add(!f.isdir ? t_("Select") : t_("Browse..."), THISFN(Action))
+			bar.Add(WhenSel,
+			    !f.isdir ? t_("Select") : t_("Browse..."), THISFN(Action))
 				.Key(K_CTRL_S)
 				.Image(!f.isdir ? CtrlImg::selection() : CtrlImg::Dir());
 			bar.Separator();
-			bar.Add(t_("Create directory"), THISFN(MkDir))
+			bar.Add(WhenMkDir, t_("Create directory"), THISFN(MkDir))
 				.Key(K_CTRL_N)
 				.Image(CtrlImg::MkDir());
 			bar.Separator();
-			bar.Add(t_("Rename"), THISFN(Rename))
+			bar.Add(WhenRename, t_("Rename"), THISFN(Rename))
 				.Key(K_CTRL_R);
-			bar.Add(t_("Delete"), THISFN(Delete))
+			bar.Add(WhenDelete, t_("Delete"), THISFN(Delete))
 				.Key(K_CTRL_DELETE)
 				.Image(CtrlImg::Remove());
 			if(WhenBar)
