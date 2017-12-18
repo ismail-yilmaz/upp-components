@@ -4,7 +4,9 @@ namespace Upp {
 
 namespace SSH {
 bool sTrace = false;
-bool sTraceVerbose = false;
+int  sTraceVerbose = 0;
+
+// SSH diagnostic utilities.
 
 String GetName(int type, int64 id)
 {

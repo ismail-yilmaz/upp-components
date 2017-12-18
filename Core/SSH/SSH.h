@@ -18,7 +18,7 @@ typedef LIBSSH2_AGENT           SshAgent;
 
 namespace SSH {
     extern bool sTrace;
-    extern bool sTraceVerbose;
+    extern int  sTraceVerbose;
     extern String GetName(int type, int64 id);
 }
 
@@ -35,9 +35,5 @@ class SshHosts;
 #include "SFtp.h"
 #include "Channels.h"
 #include "Hosts.h"
-
-void ssh_keyboard_callback(const char *name, int name_len, const char *instruction,
-    int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
-    LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract);
 }
 #endif

@@ -64,7 +64,9 @@
 #endif
 
 /* DEBUG */
-//#define LIBSSH2DEBUG
+#ifdef flagLIBSSH2TRACE
+#define LIBSSH2DEBUG
+#endif
 
 /* Libraries */
 #define HAVE_LIBZ

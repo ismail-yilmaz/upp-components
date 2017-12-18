@@ -6,6 +6,44 @@ namespace Upp {
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)   do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
+// ssh_keyboard_callback: Authenticates a session, using keyboard-interactive authentication.
+
+static void ssh_keyboard_callback(const char *name, int name_len, const char *instruction, 
+	int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+	LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
+{
+	SshSession* session = static_cast<SshSession*>(*abstract);
+	for(auto i = 0; i < num_prompts; i++) {
+		auto response = session->WhenKeyboard(
+			String(name, name_len),
+			String(instruction, instruction_len),
+			String(prompts[i].text, prompts[i].length)
+		);
+#ifdef flagUSEMALLOC
+		auto *r = strdup(~response);
+#else
+		auto *r = (char*) ssh_malloc(response.GetLength(), abstract);
+		memcpy(r, response.Begin(), response.GetLength());
+#endif
+		if(r) {
+			responses[i].text   = r;
+			responses[i].length = response.GetLength();
+		}
+	}
+}
+
+// ssh_session_libtrace: Allows full-level logging (redirection) of libsssh2 diagnostic messages.
+
+#ifdef flagLIBSSH2TRACE
+static void ssh_session_libtrace(LIBSSH2_SESSION *session, void* context, const char*data, size_t length)
+{
+	if(!session  || !SSH::sTraceVerbose)
+		return;
+	auto* ssh_obj = static_cast<SshSession*>(context);
+	LOG(SSH::GetName(ssh_obj->GetType(), ssh_obj->GetId()) << String(data, int64(length)));
+}
+#endif
+
 void SshSession::Check()
 {
 	Ssh::Check();
@@ -123,6 +161,16 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 #endif
 			if(!ssh->session)
 				SetError(-1, "Failed to initalize libssh2 session.");
+#ifdef flagLIBSSH2TRACE
+			if(SSH::sTraceVerbose > 0) {
+				if(libssh2_trace_sethandler(ssh->session, this, &ssh_session_libtrace))
+					LLOG("Warning: Unable to set trace (debug) handler for libssh2.");
+				else {
+					libssh2_trace(ssh->session, SSH::sTraceVerbose);
+					LLOG("Verbose debugging mode enabled.");
+				}
+			}
+#endif
 			libssh2_session_set_blocking(ssh->session, 0);
 			LLOG(Format("Successfully connected to %s:%d", host, port));
 			ssh->socket = &session->socket;
@@ -169,12 +217,12 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 				case PUBLICKEY:
 					rc = session->keyfile
 					?	libssh2_userauth_publickey_fromfile(ssh->session,
-					        ~user,
+							~user,
 							~session->pubkey,
 							~session->prikey,
 							~session->phrase)
 					:	libssh2_userauth_publickey_frommemory(ssh->session,
-					         ~user,
+							~user,
 							 user.GetLength(),
 							~session->pubkey,
 							 session->pubkey.GetLength(),
@@ -337,32 +385,6 @@ SshSession::~SshSession()
 	if(session && ssh->session) { // Picked?
 		ssh->async = false;
 		Exit();
-	}
-}
-
-// ssh_keyboard_callback: Authenticates a session, using keyboard-interactive authentication.
-
-void ssh_keyboard_callback(const char *name, int name_len, const char *instruction, 
-	int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
-	LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
-{
-	SshSession* session = static_cast<SshSession*>(*abstract);
-	for(auto i = 0; i < num_prompts; i++) {
-		auto response = session->WhenKeyboard(
-			String(name, name_len),
-			String(instruction, instruction_len),
-			String(prompts[i].text, prompts[i].length)
-		);
-#ifdef flagUSEMALLOC
-		auto *r = strdup(~response);
-#else
-		auto *r = (char*) ssh_malloc(response.GetLength(), abstract);
-		memcpy(r, response.Begin(), response.GetLength());
-#endif
-		if(r) {
-			responses[i].text   = r;
-			responses[i].length = response.GetLength();
-		}
 	}
 }
 }

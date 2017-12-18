@@ -18,7 +18,7 @@ public:
     template <class T>  bool Is() const                         { return dynamic_cast<const T*>(this); }
 
     static void         Trace(bool b = true)                    { SSH::sTrace = b; }
-    static void         TraceVerbose(bool b = true)             { Trace(b); SSH::sTraceVerbose = b; }
+    static void         TraceVerbose(int level)                 { Trace((bool)level); SSH::sTraceVerbose = level; }
 
     Ssh();
     virtual ~Ssh();

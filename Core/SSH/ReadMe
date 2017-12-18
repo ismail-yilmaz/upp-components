@@ -38,6 +38,8 @@ Todo:
 History:
 --------------------
 2017-12-19:  It is now possible to use encryption keys loaded into memory.
+             ssh_session_libtrace() function added: This function allows full-level logging 
+             (redirection) of libsssh2 diagnostic messages.
 
 2017-11-24:  Connect() method overload added. This variant takes a secure shell URL string.
              Multithreaded functions are improved.
