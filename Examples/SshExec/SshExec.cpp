@@ -10,8 +10,7 @@ CONSOLE_APP_MAIN
 	const char *pass = "password";
 	const char *cmd  = "ls -l /pub/example/";
 	
-//	Ssh::Trace();
-	Ssh::TraceVerbose(LIBSSH2_TRACE_AUTH);
+	Ssh::Trace();
 	SshSession session;
 	if(session.Timeout(30000).Connect(host, 22, user, pass)) {
 		auto exec = session.CreateExec();
