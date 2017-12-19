@@ -228,6 +228,17 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 							 session->prikey.GetLength(),
 							~session->phrase);
 					break;
+				case HOSTBASED:
+					if(!session->keyfile)
+						SetError(-1, "Keys cannot be loaded from memory.");
+					else
+					rc = libssh2_userauth_hostbased_fromfile(ssh->session,
+							~user,
+							~session->pubkey,
+							~session->prikey,
+							~session->phrase,
+							~host);
+					break;
 				case KEYBOARD:
 					rc = libssh2_userauth_keyboard_interactive(ssh->session, ~user,
 						&ssh_keyboard_callback);
@@ -360,22 +371,22 @@ void SshSession::FreeAgent(SshAgent* agent)
 
 SshSession& SshSession::Keys(const String& prikey, const String& pubkey, const String& phrase, bool fromfile)
 {
-	session->prikey  = prikey;
-	session->pubkey  = pubkey;
-	session->phrase  = phrase;
-	session->keyfile = fromfile;
-	return *this;
+    session->prikey  = prikey;
+    session->pubkey  = pubkey;
+    session->phrase  = phrase;
+    session->keyfile = fromfile;
+    return *this;
 }
 
 SshSession::SshSession()
 : Ssh()
 {
-	session.Create();
-	ssh->otype			= SESSION;
-	ssh->event_proxy	= Proxy(WhenDo);
-	session->authmethod = PASSWORD;
-	session->connected	= false;
-	session->keyfile    = true;
+    session.Create();
+    ssh->otype          = SESSION;
+    ssh->event_proxy    = Proxy(WhenDo);
+    session->authmethod = PASSWORD;
+    session->connected  = false;
+    session->keyfile    = true;
 }
 
 SshSession::~SshSession()

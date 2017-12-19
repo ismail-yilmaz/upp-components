@@ -146,7 +146,7 @@ public:
     bool                    BlockExists(const String& path)                         { QueryAttr(path, BLOCK); return sftp->value; }
     bool                    SpecialFileExists(const String& path)                   { QueryAttr(path, SPECIAL); return sftp->value; }
 
-    // (Multithreaed I/O)
+    // (Multithreaded I/O)
     static AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);

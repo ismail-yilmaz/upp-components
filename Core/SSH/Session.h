@@ -21,6 +21,7 @@ public:
 
     SshSession&         PasswordAuth()                          { session->authmethod = PASSWORD;  return *this; }
     SshSession&         PublicKeyAuth()                         { session->authmethod = PUBLICKEY; return *this; }
+    SshSession&         HostBasedAuth()                         { session->authmethod = HOSTBASED; return *this; }
     SshSession&         KeyboardAuth()                          { session->authmethod = KEYBOARD;  return *this; }
     SshSession&         AgentAuth()                             { session->authmethod = SSHAGENT;  return *this; }
 
@@ -75,7 +76,7 @@ private:
     };
     One<SessionData> session;
 
-    enum AuthMethod     { PASSWORD, PUBLICKEY, KEYBOARD, SSHAGENT };
+    enum AuthMethod     { PASSWORD, PUBLICKEY, HOSTBASED, KEYBOARD, SSHAGENT };
     enum HostkeyType    { RSAKEY, DSSKEY };
     enum OpCodes        { CONNECT, LOGIN, DISCONNECT };
 };

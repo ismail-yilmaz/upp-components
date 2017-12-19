@@ -83,6 +83,12 @@ Returns `*this for methods chaining.&]
 Returns `*this for methods chaining.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:SshSession`:`:HostBasedAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
+]_[* HostBasedAuth]()&]
+[s2;%% Sets the authentication method to host based authentication. 
+Returns `*this for methods chaining.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:SshSession`:`:KeyboardAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* KeyboardAuth]()&]
 [s2;%% Sets the authentication method to keyboard`-interactive (challenge/response) 
@@ -128,9 +134,9 @@ all values are in lowercase letters.&]
 [s5;:Upp`:`:SshSession`:`:GetAuthMethods`(`): [_^Upp`:`:Vector^ Vector]<[_^Upp`:`:String^ S
 tring]>_[* GetAuthMethods]()&]
 [s0;l288;%% Returns a list of supported user authentication methods. 
-Returns an empty vector on failure. The following three authentication 
+Returns an empty vector on failure. The following four authentication 
 methods are currently supported: `"password`", `"publickey`", 
-`"keyboard`-interactive`".&]
+`"hostbased`", `"keyboard`-interactive`".&]
 [s3;^Upp`:`:SFtp^ &]
 [s4;^Upp`:`:SFtp^ &]
 [s5;:Upp`:`:SshSession`:`:CreateSFtp`(`): [_^Upp`:`:SFtp^ SFtp]_[* CreateSFtp]()&]

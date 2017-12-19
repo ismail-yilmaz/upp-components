@@ -40,6 +40,8 @@ String GetName(int type, int64 id)
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
+// Ssh: SSH objects core class.
+
 void Ssh::Check()
 {
 	if(IsTimeout())
