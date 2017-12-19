@@ -1,0 +1,12 @@
+description "Demostrates logging capabilities of SSH pakcage.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshLoggingExample.cpp;
+
+mainconfig
+	"" = ".LIBSSH2TRACE";
+
