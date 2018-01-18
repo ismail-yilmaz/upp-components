@@ -53,8 +53,7 @@ ocketWaitEvent][@(0.0.255) `&]_[*@3 e])&]
 for waiting on it.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:Ssh`:`:GetWaitEvents`(`)const: [_^Upp`:`:dword^ dword]_[* GetWaitEvents]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:Ssh`:`:GetWaitEvents`(`): [_^Upp`:`:dword^ dword]_[* GetWaitEvents]()&]
 [s2;%% Returns a combination of WAIT`_READ and WAIT`_WRITE flags 
 to indicate what is blocking the operation of Ssh object. Can 
 be used with SocketWaitEvent.&]
@@ -91,7 +90,7 @@ ool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s5;:Upp`:`:Ssh`:`:TraceVerbose`(int`): [@(0.0.255) static] [@(0.0.255) void]_[* TraceVerbo
 se]([@(0.0.255) int]_[*@3 level])&]
 [s2;%% Enables or disables verbose logging. This method allows full`-level 
-logging of libbssh2 diagnostic messages if [*@3 LIBSSH2TRACE] flag 
+logging of libssh2 diagnostic messages if [*@3 LIBSSH2TRACE] flag 
 is defined. It automatically calls [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Trace`(bool`)^ T
 race()] method. Log [%-*@3 level](s) can be selected using one 
 or a combination of the following constants:&]

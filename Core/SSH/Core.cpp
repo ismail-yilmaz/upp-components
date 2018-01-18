@@ -30,6 +30,9 @@ String GetName(int type, int64 id)
 		case Ssh::SHELL:
 			s = "Shell";
 			break;
+		case Ssh::TCPTUNNEL:
+			s = "TCP Tunnel";
+			break;
 		default:
 			return "";
 	}
@@ -42,13 +45,20 @@ String GetName(int type, int64 id)
 
 // Ssh: SSH objects core class.
 
+void Ssh::Exit()
+{
+	ssh->async = false;
+	ssh->ccmd  = -1;
+	ssh->queue.Clear();
+}
+
 void Ssh::Check()
 {
 	if(IsTimeout())
 		SetError(-1000, "Operation timed out.");
 	if(ssh->status == CANCELLED)
 		SetError(-1001, "Operation cancelled.");
-	ssh->event_proxy();
+	ssh->whendo();
 }
 
 // TODO: Merge Cmd & ComplexCmd.
@@ -60,7 +70,7 @@ bool Ssh::Cmd(int code, Function<bool()>&& fn)
 		ssh->queue.Clear();
 	ssh->queue.AddTail() = MakeTuple<int, Gate<>>(code, pick(fn));
 	if(!ssh->async && !IsComplexCmd())
-		while(_Do());
+		while(Do0());
 	return !IsError();
 }
 
@@ -74,13 +84,13 @@ bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 		ssh->queue.Clear();
 	fn();
 	if(!b && !ssh->async)
-		while(_Do());
+		while(Do0());
 	return !IsError();
 }
 
-bool Ssh::_Do()
+bool Ssh::Do0()
 {
-try {
+	try {
 		if(ssh->start_time == 0)
 			ssh->start_time = msecs();
 INTERLOCKED {
@@ -119,20 +129,19 @@ INTERLOCKED {
 bool Ssh::Do()
 {
 	ASSERT(ssh->async);
-	return _Do();
+	return Do0();
 }
 
-dword Ssh::GetWaitEvents() const
+dword Ssh::GetWaitEvents()
 {
-	dword event = 0;
 	if(ssh->socket  && ssh->session) {
 		auto e = libssh2_session_block_directions(ssh->session);
 		if(e & LIBSSH2_SESSION_BLOCK_INBOUND)
-			event |= WAIT_READ;
+			ssh->events |= WAIT_READ;
 		if(e & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-			event |= WAIT_WRITE;
+			ssh->events |= WAIT_WRITE;
 	}
-	return event;
+	return ssh->events;
 }
 
 bool Ssh::Cleanup(Error& e)
@@ -141,7 +150,8 @@ bool Ssh::Cleanup(Error& e)
 	ssh->start_time = 0;
 	auto b = ssh->status == CLEANUP;
 	ssh->status = FAILED;
-	if(b) return false;
+	if(b)
+		return false;
 	ssh->error  = MakeTuple<int, String>(e.code, e);
 	LLOG("Failed." << " Code = " << e.code << ", " << e);
 	return !b && e.code != -1000; // Make sure we don't loop on timeout errors.
@@ -151,7 +161,7 @@ void Ssh::SetError(int rc, const String& reason)
 {
 	if(IsNull(reason) && ssh && ssh->session) {
 		Buffer<char*> libmsg(256);
-		int rc = libssh2_session_last_error(ssh->session, libmsg, NULL, 0);
+		rc = libssh2_session_last_error(ssh->session, libmsg, NULL, 0);
 		throw Error(rc, *libmsg);
 	}
 	else
@@ -161,28 +171,25 @@ void Ssh::SetError(int rc, const String& reason)
 int64 Ssh::GetNewId()
 {
 	static int64 objectid;
-	if(objectid == INT64_MAX)
-		objectid = 1;
-	else
-		++objectid;
-	return objectid;
+	return objectid == INT64_MAX ? objectid = 1	: ++objectid;
 }
 
 Ssh::Ssh()
 {
-	ssh.Create();
-	ssh->session		= NULL;
-	ssh->socket			= NULL;
-	ssh->async			= false;
-	ssh->init			= false;
-	ssh->timeout		= 0;
-	ssh->start_time		= 0;
-	ssh->chunk_size		= 65536;
-	ssh->packet_length  = 0;
-	ssh->status			= FINISHED;
-	ssh->ccmd			= -1;
-	ssh->oid			= GetNewId();
-	ssh->otype          = 0;
+    ssh.Create();
+    ssh->session        = NULL;
+    ssh->socket         = NULL;
+    ssh->async          = false;
+    ssh->init           = false;
+    ssh->timeout        = 0;
+    ssh->start_time     = 0;
+    ssh->chunk_size     = CHUNKSIZE;
+    ssh->packet_length  = 0;
+    ssh->status         = FINISHED;
+    ssh->ccmd           = -1;
+    ssh->oid            = GetNewId();
+    ssh->otype          = 0;
+    ssh->events         = WAIT_READ | WAIT_WRITE;
 }
 
 Ssh::~Ssh()

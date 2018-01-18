@@ -170,4 +170,32 @@ AsyncWork<Tuple<int, String, String>> SshExec::Async(SshSession& session, const 
 	});
 	return pick(work);
 }
+
+AsyncWork<void> SshShell::AsyncRun(SshSession& session, String terminal, Size pagesize, Event<SshShell&> in, Event<const String&> out)
+{
+	auto work = Async([=, &session, in = pick(in), out = pick(out)]{
+		SshShell worker(session);
+		LLOG("Starting SSH shell (in generic mode)...");
+		worker.WhenInput = [&worker, &in]() {
+			in(worker);
+		};
+		worker.WhenOutput = [&out](const void* buf, int len) {
+			String s((const char*) buf, len);
+			out(s);
+		};
+		worker.NonBlocking();
+		worker.Run(terminal, pagesize);
+		auto cancelled = false;
+		while(worker.Do())
+			if(!cancelled && CoWork::IsCanceled()) {
+				LLOG("Shell session cancelled.");
+				worker.Cancel();
+				cancelled = true;
+			}
+		if(worker.IsError()) {
+			LLOG("Shell failed. " << worker.GetErrorDesc());
+			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
+		}
+	});
+}
 }

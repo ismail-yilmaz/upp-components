@@ -36,6 +36,8 @@ public:
     SshChannel          CreateChannel();
     SshExec             CreateExec();
     Scp                 CreateScp();
+    SshTunnel           CreateTcpTunnel();
+    SshShell            CreateShell();
 
     bool                Connect(const String& url);
     bool                Connect(const String& host, int port, const String& user, const String& password);

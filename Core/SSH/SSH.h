@@ -3,6 +3,12 @@
 
 #include <Core/Core.h>
 
+#ifdef PLATFORM_POSIX
+#include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+#endif
+
 #include "libssh2/libssh2.h"
 #include "libssh2/libssh2_sftp.h"
 #include "libssh2/libssh2_publickey.h"
@@ -28,6 +34,8 @@ class SFtp;
 class SshChannel;
 class Scp;
 class SshExec;
+class SshTunnel;
+class SshShell;
 class SshHosts;
 
 #include "Core.h"

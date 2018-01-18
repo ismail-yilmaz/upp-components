@@ -291,6 +291,18 @@ Scp SshSession::CreateScp()
 	return pick(Scp(*this));
 }
 
+SshTunnel SshSession::CreateTcpTunnel()
+{
+	ASSERT(ssh && ssh->session);
+	return pick(SshTunnel(*this));
+}
+
+SshShell SshSession::CreateShell()
+{
+	ASSERT(ssh && ssh->session);
+	return pick(SshShell(*this));
+}
+
 ValueMap SshSession::GetMethods()
 {
 	ValueMap methods;
@@ -383,7 +395,7 @@ SshSession::SshSession()
 {
     session.Create();
     ssh->otype          = SESSION;
-    ssh->event_proxy    = Proxy(WhenDo);
+    ssh->whendo         = WhenDo.Proxy();
     session->authmethod = PASSWORD;
     session->connected  = false;
     session->keyfile    = true;
@@ -392,7 +404,7 @@ SshSession::SshSession()
 SshSession::~SshSession()
 {
 	if(session && ssh->session) { // Picked?
-		ssh->async = false;
+		Ssh::Exit();
 		Exit();
 	}
 }

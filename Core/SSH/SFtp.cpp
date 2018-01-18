@@ -448,7 +448,7 @@ bool SFtp::SymLink(const String& path, String* target, int type)
 				LLOG("Symbolic link operation is successful.");
 				if(target)
 					target->Set(buf, rc);
-				else 
+				else
 					sftp->value = pick(String(buf, rc));
 			}
 			return rc > 0;
@@ -597,13 +597,13 @@ SFtp::SFtp(SshSession& session)
 	ssh->session	= session.GetHandle();
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
-	ssh->event_proxy = Proxy(session.WhenDo);
+	ssh->whendo     = session.WhenDo.Proxy();
 }
 
 SFtp::~SFtp()
 {
 	if(sftp && sftp->session) { // Picked?
-		ssh->async = false;
+		Ssh::Exit();
 		Exit();
 	}
 }

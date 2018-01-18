@@ -1,43 +1,58 @@
 SSH package for U++
 --------------------
-SSH package is a libssh2 wrapper for Ultimate++
+SSH package is a feautre-rich yet very easy to use libssh2 wrapper for Ultimate++
+It supports both console and GUI-based applications on POSIX and Windows.
 Currently it is in alpha stage.
 
 Classes:
 
-- Base (core) class  -> Ssh
-  - Ssh session         -> SshSession
-  - Sftp subsystem      -> SFtp
-  - Ssh channel         -> SshChannel
-    - Scp channel          -> Scp
-    - Exec channel         -> SshExec
-    - Shell channel        -> SshShell (to be added)
+- Base (core) class    -----> Ssh
+  - Ssh session        -----> SshSession
+  - Sftp subsystem     -----> SFtp
+  - Ssh channel        -----> SshChannel
+      - Scp channel                 -----> Scp
+      - Exec channel                -----> SshExec
+      - Real-time interactive shell -----> SshShell
+      - Tcp/IP and port forwarding  -----> SshTunnel
+      - X11 forwarding              -----> SshX11Tunnel (to be added)      
 - Known hosts manager -> SshHosts
 
 Features and Highlights:
 --------------------
 
 - Ssh-derived classes have pick semantics, based on RAII principle, support RTTI, and allow
-  polymorphism through a common interface. 
+  polymorphism (i.e. different classes can be stored in the same arrays, etc.) through a common
+  interface. 
 - Uses U++ memory allocators (Native allocators is also a compile-time option)
 - Uses OpenSSL by default. 
-- Supports time-constrained blocking and and non-blocking operation modes.
+- Supports time-constrained, blocking and and non-blocking operation modes.
 - Supoorts multithreaded file transfers and remote command execution (exec), using worker threads.
 - Supports 3rd-party network proxies. (Such as NetProxy)
 - Supports known hosts verification mechanism.
 - Supports password, public key, host-based, and keyboard-interactive authentication methods.
 - Supports ssh-agents.
+- Supports real-time interactive command line (shell) interface with console and GUI integration
+- Supports Tcp/IP and port forwarding.
 - Supports detailed (full) debug logging.
 
 Todo:
 --------------------
-- Add SshShell class for console and GUI based secure shell support.
-- Add Tcp-IP and port forwarding support.
+- Add X11 tunneling (SshX11Tunnel class).
 - Add more high level methods.
+- Refactor Ssh (core) class.
 - Improve documentation.
 
 History:
 --------------------
+2018-01-19:  Alpha version 2.
+             SshChannel reworked. It is now more flexible, and more analogous to a tcp socket. 
+             Scp class gained a new Put method (and its corresponding operator overload).
+             NEW: SShShell is added to the package. It allows GUI integration and  has a
+                  "console mode"  that supports both POSIX consoles and Windows command prompt.
+             NEW: SshTunnel class is added to the package. It allows TCP/IP and port forwarding
+                  over SSH protocol.
+             Various bug fixes, and improvements.  
+
 2017-12-19:  It is now possible to use encryption keys loaded into memory.
              ssh_session_libtrace() function added: This function allows full-level logging 
              (redirection) of libsssh2 diagnostic messages.
