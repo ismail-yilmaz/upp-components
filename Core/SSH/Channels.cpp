@@ -488,11 +488,11 @@ void SshChannel::ReadWrite(String& in, const void* out, int out_len)
 SshChannel::SshChannel(SshSession& session)
 : Ssh()
 {
-	ssh->otype	 = CHANNEL;
-	ssh->session = session.GetHandle();
-	ssh->socket	 = &session.GetSocket();
-	ssh->timeout = session.GetTimeout();
-	ssh->whendo  = session.WhenDo.Proxy();
+	ssh->otype		= CHANNEL;
+	ssh->session	= session.GetHandle();
+	ssh->socket		= &session.GetSocket();
+	ssh->timeout	= session.GetTimeout();
+	ssh->whendo		= session.WhenDo.Proxy();
 
 	channel.Create();
 	*channel = NULL;

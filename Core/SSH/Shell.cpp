@@ -5,33 +5,20 @@ namespace Upp {
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
-bool SshShell::Run(const String& terminal, Size pagesize)
+bool SshShell::Run0(int mode_, const String& terminal, Size pagesize)
 {
-	mode  = GENERIC;
+	mode  = mode_;
 	psize = pagesize;
 
 	return ComplexCmd(CHSHELL, [=]() mutable {
 		SshChannel::Clear();
 		SshChannel::Terminal(terminal, psize);
 		SshChannel::Shell();
+		if(mode == CONSOLE)
+			Cmd(CHSHELL, [=] { ConsoleInit(); return true; });
 		Cmd(CHSHELL, [=] { return ProcessEvents(queue); });
 	});
 }
-
-bool SshShell::Console(const String& terminal)
-{
-	mode  = CONSOLE;
-	psize = GetConsolePageSize();
-
-	return ComplexCmd(CHSHELL, [=]() mutable {
-		SshChannel::Clear();
-		SshChannel::Terminal(terminal, psize);
-		SshChannel::Shell();
-		Cmd(CHSHELL, [=] { ConsoleInit(); return true; });
-		Cmd(CHSHELL, [=] { return ProcessEvents(queue); });
-	});
-}
-
 
 void SshShell::ReadWrite(String& in, const void* out, int out_len)
 {
@@ -51,15 +38,15 @@ void SshShell::ReadWrite(String& in, const void* out, int out_len)
 			ConsoleRead();
 			
 			sigset_t set;
-		    sigemptyset(&set);
-		    sigaddset(&set, SIGWINCH);
-		    sigprocmask(SIG_BLOCK, &set, NULL);
+			sigemptyset(&set);
+			sigaddset(&set, SIGWINCH);
+			sigprocmask(SIG_BLOCK, &set, NULL);
 		
-		    struct timespec timeout;
-		    Zero(timeout); // Instead of waiting, we simply poll.
+			struct timespec timeout;
+			Zero(timeout); // Instead of waiting, we simply poll.
 		
-		    auto rc = sigtimedwait(&set, NULL, &timeout);
-		    if(rc < 0 && errno != EAGAIN)
+			auto rc = sigtimedwait(&set, NULL, &timeout);
+			if(rc < 0 && errno != EAGAIN)
 				SetError(-1, "sigtimedwait() failed.");
 			if(rc > 0)
 				LLOG("SIGWINCH received.");

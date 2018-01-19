@@ -176,10 +176,10 @@ private:
 
 class SshShell : public SshChannel {
 public:
-    bool        Run(const String& terminal, Size pagesize);
-    bool        Run(const String& terminal, int width, int height)                                      { return Run(terminal, {width, height}); }
+    bool        Run(const String& terminal, Size pagesize)												{ return Run0(GENERIC, terminal, pagesize); }
+    bool        Run(const String& terminal, int width, int height)                                      { return Run0(GENERIC, terminal, {width, height}); }
 
-    bool        Console(const String& terminal);
+    bool        Console(const String& terminal)															{ return Run0(CONSOLE, terminal, GetConsolePageSize()); }
     
     void        Send(int c)                     { queue.Cat(c);   }
     void        Send(const char* s)             { Send(String(s));}
@@ -208,6 +208,7 @@ protected:
     void    ConsoleWrite(const void* buffer, int len);
     void    ConsoleRawMode(bool b = true);
     void    ReadWrite(String& in, const void* out, int out_len);
+    bool	Run0(int mode_, const String& terminal, Size pagesize);
     
 private:
     String  queue;
