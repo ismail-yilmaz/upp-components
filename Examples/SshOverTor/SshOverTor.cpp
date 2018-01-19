@@ -7,7 +7,7 @@ using namespace Upp;
 CONSOLE_APP_MAIN
 {
 	// This example requires a running TOR daemon and NetProxy package.
-	// Change below strings to your prefer values.
+	// Change below strings to your preferred values.
 	
 	const char* ssh_host = "dummysshhostname";
 	const char* ssh_user = "dummysshusername";

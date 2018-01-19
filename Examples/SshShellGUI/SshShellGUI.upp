@@ -1,0 +1,13 @@
+description "Demonstrates a basic, real-time SSH terminal with gui\377";
+
+uses
+	CtrlLib,
+	SSH,
+	CodeEditor;
+
+file
+	SshShellGUI.cpp;
+
+mainconfig
+	"" = "GUI";
+
