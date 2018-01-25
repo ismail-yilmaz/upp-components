@@ -67,7 +67,7 @@ struct SshShellGUI : public TopWindow {
 	}
 
 	void Run() {
-		const char *url = "maldoror:succubus@localhost:22"; // A well-known public SSH test server.
+		const char *url = "demo:password@test.rebex.net:22"; // A well-known public SSH test server.
 		SshSession session;
 		if(session.Connect(url)) {
 			Array<SshConsole> consoles;
