@@ -8,7 +8,6 @@ namespace Upp {
 bool Scp::Open(int opcode, const String& path, int64 size, long mode)
 {
 	return Cmd(CHOPEN, [=] {
-		ASSERT(*channel);
 		if(path.IsEmpty())
 			SetError(-1, "Path is not set.");
 		switch(opcode) {

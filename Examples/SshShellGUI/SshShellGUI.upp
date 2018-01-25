@@ -9,5 +9,5 @@ file
 	SshShellGUI.cpp;
 
 mainconfig
-	"" = "GUI";
+	"" = "GUI .LIBSSH2TRACE";
 

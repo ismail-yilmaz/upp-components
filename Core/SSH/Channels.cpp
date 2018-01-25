@@ -280,7 +280,7 @@ bool SshChannel::ReadString(String& s, int64 len, int sid, bool nb)
 	auto n = Read(buffer, l, sid);
 	if(n > 0)
 		s.Cat(buffer, n);
-	return IsEof() || len == done || nb;
+	return IsEof() || len == done || n == 0 || nb;
 }
 
 bool SshChannel::ReadStream(Stream& s, int64 len, int sid, bool nb)
@@ -293,7 +293,7 @@ bool SshChannel::ReadStream(Stream& s, int64 len, int sid, bool nb)
 		s.Put(buffer, n);
 		result = done;
 	}
-	return IsEof() || len == done || nb;
+	return IsEof() || len == done || n == 0 || nb;
 }
 
 int SshChannel::Write(const void* buffer, int64 len, int sid)

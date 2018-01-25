@@ -1,10 +1,10 @@
 SSH package for U++
 --------------------
 SSH package is a feautre-rich yet very easy to use libssh2 wrapper for Ultimate++
-It supports both console and GUI-based applications on POSIX compliant operating systems and
-Windows.
+It supports both console and GUI-based applications on POSIX-compliant operating systems and
+Windows (tm).
 
-Currently it is in alpha stage.
+Currently it is in alpha (version 2) stage.
 
 Classes:
 --------------------
@@ -47,6 +47,8 @@ Todo:
 
 History:
 --------------------
+2018-01-25:  Stream close correctly handled in ReadString and ReadStream.
+
 2018-01-19:  Alpha version 2.
              SshChannel reworked. It is now more flexible, and more analogous to a tcp socket. 
              Scp class gained a new Put method (and its corresponding operator overload).
