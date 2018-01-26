@@ -1,6 +1,6 @@
 SSH package for U++
 --------------------
-SSH package is a feautre-rich, flexibla yet very easy to use libssh2 wrapper for Ultimate++.
+SSH package is a feautre-rich, flexible yet very easy to use libssh2 wrapper for Ultimate++.
 It supports both console and GUI-based applications on POSIX-compliant operating systems and
 MS Windows (tm).
 
