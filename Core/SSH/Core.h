@@ -55,7 +55,7 @@ protected:
         dword               events;
     };
     One<CoreData> ssh;
-    
+
     constexpr static int CHUNKSIZE = 1024 * 64;
 
     enum Status         { WORKING, FINISHED, CLEANUP, CANCELLED, FAILED };

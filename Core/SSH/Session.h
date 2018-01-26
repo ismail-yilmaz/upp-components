@@ -31,7 +31,8 @@ public:
     Vector<String>      GetAuthMethods()                        { return pick(Split(session->authmethods, ' ')); }
     TcpSocket&          GetSocket()                             { return session->socket;  }
     ValueMap            GetMethods();
-
+	int64*				GetLockPtr()							{ return &session->lock; }
+	
     SFtp                CreateSFtp();
     SshChannel          CreateChannel();
     SshExec             CreateExec();
@@ -75,6 +76,7 @@ private:
         String          phrase;
         ValueMap        iomethods;
         bool            connected;
+        int64			lock;
     };
     One<SessionData> session;
 

@@ -24,6 +24,7 @@ void SshChannel::Clear()
 
 bool SshChannel::Cleanup(Error& e)
 {
+	Unlock();
 	if(!Ssh::Cleanup(e) || !IsComplexCmd()) {
 		return false;
 	}
@@ -257,7 +258,7 @@ int SshChannel::Read(void *buffer, int64 len, int sid)
 		total += done;
 		if(WhenProgress(len, done))
 			SetError(-1, "Read aborted.");
-		VLOG("Read stream #" << sid << ": " << n << " bytes read.");
+		LLOG("Read stream #" << sid << ": " << n << " bytes read.");
 	}
 	if(IsEof())
 		LLOG("Read stream #" << sid << ": EOF.");
@@ -465,7 +466,7 @@ bool SshChannel::ProcessEvents(String& input)
 {
 	Buffer<char> buffer(ssh->chunk_size);
 	auto len = Read(buffer, ssh->chunk_size);
-	
+
 	ReadWrite(input, buffer, len);
 	
 	while(!input.IsEmpty()) {
@@ -485,6 +486,23 @@ void SshChannel::ReadWrite(String& in, const void* out, int out_len)
 {
 }
 
+bool SshChannel::Lock()
+{
+	if(*lock == 0) {
+		LLOG("Nonblocking lock acquired.");
+		*lock = ssh->oid;
+	}
+	return *lock == ssh->oid;
+}
+
+void SshChannel::Unlock()
+{
+	if(*lock == ssh->oid) {
+		*lock = 0;
+		LLOG("Nonblocking lock released.");
+	}
+}
+
 SshChannel::SshChannel(SshSession& session)
 : Ssh()
 {
@@ -493,11 +511,11 @@ SshChannel::SshChannel(SshSession& session)
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
 	ssh->whendo		= session.WhenDo.Proxy();
-
+	
 	channel.Create();
 	*channel = NULL;
 	listener = NULL;
-
+	lock     = session.GetLockPtr();
 	Clear();
 }
 
@@ -505,6 +523,7 @@ SshChannel::~SshChannel()
 {
 	if(channel) { // Picked?
 		Ssh::Exit();
+		Unlock();
 		Exit();
 	}
 }

@@ -22,8 +22,10 @@ bool Scp::Open(int opcode, const String& path, int64 size, long mode)
 		}
 		if(!*channel && !WouldBlock())
 			SetError(-1);
-		if(*channel)
+		if(*channel) {
 			LLOG("Scp channel obtained.");
+			Unlock();
+		}
 		return *channel != NULL;
 	});
 }

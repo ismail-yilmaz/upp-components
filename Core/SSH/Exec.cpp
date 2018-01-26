@@ -9,7 +9,9 @@ int SshExec::Execute(const String& cmd, Stream& out, Stream& err)
 {
 	ComplexCmd(CHEXEC, [=, &out, &err]() mutable {
 		SshChannel::Open();
+		Cmd(CHSHELL, [=] { return Lock(); });
 		SshChannel::Exec(cmd);
+		Cmd(CHSHELL, [=] { Unlock(); return true; });
 		SshChannel::Get(out, ssh->chunk_size);
 		SshChannel::GetStdErr(err);
 		SshChannel::SendRecvEof();

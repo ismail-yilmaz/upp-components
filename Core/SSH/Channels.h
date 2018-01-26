@@ -57,7 +57,7 @@ public:
 
     SshChannel(SshChannel&&) = default;
     SshChannel& operator=(SshChannel&&) = default;
-
+   
 protected:
     virtual bool        Init() override;
     void                Exit();
@@ -88,33 +88,23 @@ protected:
     bool                ProcessEvents(String& input);
     virtual void        ReadWrite(String& in, const void* out, int out_len);
 
-    One<LIBSSH2_CHANNEL*>   channel;
-    LIBSSH2_LISTENER*       listener;
-    libssh2_struct_stat     filestat;
-    Value                   result;
-    int                     exitcode;
-    String                  exitsignal;
-    int64                   done;
-    int64                   total;
+    bool                Lock();
+    void                Unlock();
+
+    One<LIBSSH2_CHANNEL*>    channel;
+    LIBSSH2_LISTENER*        listener;
+    libssh2_struct_stat      filestat;
+    Value                    result;
+    int                      exitcode;
+    String                   exitsignal;
+    int64                    done;
+    int64                    total;
+    int64*                   lock;
+ 
     
     enum OpCodes {
-        CHINIT,
-        CHEXIT,
-        CHOPEN,
-        CHREQUEST,
-        CHSETENV,
-        CHREAD,
-        CHWRITE,
-        CHCLOSE,
-        CHWAIT,
-        CHEOF,
-        CHSTDERR,
-        CHRC,
-        CHSIG,
-        CHWNDSZ,
-        CHTRMSZ,
-        CHEXEC,
-        CHSHELL
+        CHINIT, CHEXIT, CHOPEN, CHREQUEST, CHSETENV, CHREAD, CHWRITE, CHCLOSE,
+        CHWAIT, CHEOF, CHSTDERR, CHRC, CHSIG, CHWNDSZ, CHTRMSZ, CHEXEC, CHSHELL
     };
 };
 
@@ -138,7 +128,7 @@ public:
     Scp(SshSession& session) : SshChannel(session)                                                      { ssh->otype = SCP; }
 
 private:
-    virtual bool Init() override                                                                        { return true; }
+    virtual bool Init() override                                                                        { return Lock(); }
     bool Open(int opcode, const String& path, int64 size, long mode);
     enum OpCodes { FGET, FPUT };
 };
@@ -153,7 +143,7 @@ public:
     SshExec(SshSession& session) : SshChannel(session)                                                  { ssh->otype = EXEC; };
 
 private:
-    virtual bool Init() override                                                                        { return true; }
+    virtual bool Init() override                                                                        { return Lock(); }
 };
 
 class SshTunnel : public SshChannel {
@@ -176,10 +166,10 @@ private:
 
 class SshShell : public SshChannel {
 public:
-    bool        Run(const String& terminal, Size pagesize)												{ return Run0(GENERIC, terminal, pagesize); }
-    bool        Run(const String& terminal, int width, int height)                                      { return Run0(GENERIC, terminal, {width, height}); }
+    bool        Run(const String& terminal, Size pagesize)                                              { return Run(GENERIC, terminal, pagesize); }
+    bool        Run(const String& terminal, int width, int height)                                      { return Run(GENERIC, terminal, {width, height}); }
 
-    bool        Console(const String& terminal)															{ return Run0(CONSOLE, terminal, GetConsolePageSize()); }
+    bool        Console(const String& terminal)                                                         { return Run(CONSOLE, terminal, GetConsolePageSize()); }
     
     void        Send(int c)                     { queue.Cat(c);   }
     void        Send(const char* s)             { Send(String(s));}
@@ -202,15 +192,20 @@ public:
     SshShell& operator=(SshShell&&) = default;
 
 protected:
+    virtual void ReadWrite(String& in, const void* out, int out_len) override;
+    virtual bool Run(int mode_, const String& terminal, Size pagesize);
+
     void    Resize();
-    void    ConsoleInit();
+    bool    ConsoleInit();
     void    ConsoleRead();
     void    ConsoleWrite(const void* buffer, int len);
     void    ConsoleRawMode(bool b = true);
-    void    ReadWrite(String& in, const void* out, int out_len);
-    bool	Run0(int mode_, const String& terminal, Size pagesize);
-    
+
+    enum Modes { GENERIC, CONSOLE };
+
 private:
+    virtual bool Init() override                                                                        { return Lock(); }
+    
     String  queue;
     Size    psize;
     int     mode;
@@ -221,6 +216,5 @@ private:
     HANDLE  stdoutput;
 #elif  PLATFORM_POSIX
     termios tflags;
-#endif
-    enum Modes { GENERIC, CONSOLE };
+#endif 
 };

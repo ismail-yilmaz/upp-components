@@ -5,18 +5,20 @@ namespace Upp {
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
-bool SshShell::Run0(int mode_, const String& terminal, Size pagesize)
+bool SshShell::Run(int mode_, const String& terminal, Size pagesize)
 {
 	mode  = mode_;
 	psize = pagesize;
 
 	return ComplexCmd(CHSHELL, [=]() mutable {
-		SshChannel::Clear();
+		SshChannel::Open();
 		SshChannel::Terminal(terminal, psize);
 		SshChannel::Shell();
-		if(mode == CONSOLE)
-			Cmd(CHSHELL, [=] { ConsoleInit(); return true; });
-		Cmd(CHSHELL, [=] { return ProcessEvents(queue); });
+		Cmd(CHSHELL, [=] { Unlock(); return ConsoleInit(); });
+		Cmd(CHSHELL, [=] { return ProcessEvents(queue);  });
+		SshChannel::SendRecvEof();
+		SshChannel::Close();
+		SshChannel::CloseWait();
 	});
 }
 
@@ -33,10 +35,9 @@ void SshShell::ReadWrite(String& in, const void* out, int out_len)
 			if(out_len > 0)
 				ConsoleWrite(out, out_len);
 #ifdef PLATFORM_POSIX
+			ConsoleRead();
 			// We need to catch the WINCH signal. To this end we'll use a POSIX compliant kernel
 			// function: sigtimedwait. To speed up, we'll simply poll for the monitored event.
-			ConsoleRead();
-			
 			sigset_t set;
 			sigemptyset(&set);
 			sigaddset(&set, SIGWINCH);
@@ -123,17 +124,20 @@ void SshShell::Resize()
 	resized = false;
 }
 
-void SshShell::ConsoleInit()
+bool SshShell::ConsoleInit()
 {
+	if(mode == CONSOLE) {
 #ifdef PLATFORM_WIN32
-	stdinput = GetStdHandle(STD_INPUT_HANDLE);
-	if(!stdinput)
-		SetError(-1, "Unable to obtain a handle for stdin.");
-	stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	if(!stdoutput)
-		SetError(-1, "Unable to obtain a handle for stdout.");
+		stdinput = GetStdHandle(STD_INPUT_HANDLE);
+		if(!stdinput)
+			SetError(-1, "Unable to obtain a handle for stdin.");
+		stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		if(!stdoutput)
+			SetError(-1, "Unable to obtain a handle for stdout.");
 #endif
-	ConsoleRawMode();
+		ConsoleRawMode();
+	}
+	return true;
 }
 
 #ifdef PLATFORM_POSIX
@@ -254,5 +258,4 @@ SshShell::~SshShell()
 {
 	ConsoleRawMode(false);
 }
-
 }

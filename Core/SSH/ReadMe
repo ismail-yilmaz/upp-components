@@ -1,8 +1,8 @@
 SSH package for U++
 --------------------
-SSH package is a feautre-rich yet very easy to use libssh2 wrapper for Ultimate++
+SSH package is a feautre-rich, flexibla yet very easy to use libssh2 wrapper for Ultimate++.
 It supports both console and GUI-based applications on POSIX-compliant operating systems and
-Windows (tm).
+MS Windows (tm).
 
 Currently it is in alpha (version 2) stage.
 
@@ -47,6 +47,11 @@ Todo:
 
 History:
 --------------------
+2018-01-26:  SshChannel::Lock() and SShChannel::Unlock() methods are added.
+             These methods allow serialized access to desired SShChannel methods while keeping
+             their non-blocking state. That is, it is now possible to open multiple non-blocking
+             exec, and shell channels (per-session) concurrently in a single-threaded environment.
+             
 2018-01-25:  Stream close correctly handled in ReadString and ReadStream.
 
 2018-01-19:  Alpha version 2.

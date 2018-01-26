@@ -77,6 +77,7 @@ void SshSession::Exit()
 				return false;
 			ssh->socket = NULL;
 			ssh->session = NULL;
+			session->lock = 0;
 			session->connected = false;
 			LLOG("Session handles freed.");
 			return true;
@@ -399,6 +400,7 @@ SshSession::SshSession()
     session->authmethod = PASSWORD;
     session->connected  = false;
     session->keyfile    = true;
+    session->lock       = 0;
 }
 
 SshSession::~SshSession()
