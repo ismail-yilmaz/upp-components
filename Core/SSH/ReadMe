@@ -16,8 +16,9 @@ Classes:
       - Scp channel                 -----> Scp
       - Exec channel                -----> SshExec
       - Real-time interactive shell -----> SshShell
+      - X11 forwarding              -----> SshShell (as operation mode)      
       - Tcp/IP and port forwarding  -----> SshTunnel
-      - X11 forwarding              -----> SshX11Tunnel (to be added)      
+
 - Known hosts manager -> SshHosts
 
 Features and Highlights:
@@ -35,18 +36,22 @@ Features and Highlights:
 - Supports password, public key, host-based, and keyboard-interactive authentication methods.
 - Supports ssh-agents.
 - Supports real-time interactive command line (shell) interface with console and GUI integration
+- Supports multiple X11 connection forwarding.
 - Supports Tcp/IP and port forwarding.
 - Supports detailed (full) debug logging.
 
 Todo:
 --------------------
-- Add X11 tunneling (SshX11Tunnel class).
 - Add more high level methods.
 - Refactor Ssh (core) class.
 - Improve documentation.
 
 History:
 --------------------
+2018-02-28:  X11 forwarding support  added as an operation mode for shell.
+             From now a signle  SshShells can forward multiple X11 connections.
+             X11 examples (for both console and GUI) are added to the examples directory.
+
 2018-01-26:  SshChannel::Lock() and SShChannel::Unlock() methods are added.
              These methods allow serialized access to desired SShChannel methods while keeping
              their non-blocking state. That is, it is now possible to open multiple non-blocking
