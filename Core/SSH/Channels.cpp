@@ -258,7 +258,7 @@ int SshChannel::Read(void *buffer, int64 len, int sid)
 		total += done;
 		if(WhenProgress(len, done))
 			SetError(-1, "Read aborted.");
-		LLOG("Read stream #" << sid << ": " << n << " bytes read.");
+		VLOG("Read stream #" << sid << ": " << n << " bytes read.");
 	}
 	if(IsEof())
 		LLOG("Read stream #" << sid << ": EOF.");
@@ -313,7 +313,7 @@ int SshChannel::Write(const void* buffer, int64 len, int sid)
 		VLOG("Write stream #" << sid << ": " << n << " bytes written.");
 	}
 	if(IsEof())
-		LLOG("Write stream #" << sid << ": EOF.");
+	LLOG("Write stream #" << sid << ": EOF.");
 	return n;
 }
 
@@ -489,7 +489,7 @@ void SshChannel::ReadWrite(String& in, const void* out, int out_len)
 bool SshChannel::Lock()
 {
 	if(*lock == 0) {
-		LLOG("Nonblocking lock acquired.");
+		LLOG("Channel serialization lock acquired.");
 		*lock = ssh->oid;
 	}
 	return *lock == ssh->oid;
@@ -499,7 +499,7 @@ void SshChannel::Unlock()
 {
 	if(*lock == ssh->oid) {
 		*lock = 0;
-		LLOG("Nonblocking lock released.");
+		LLOG("Channel serialization lock released.");
 	}
 }
 

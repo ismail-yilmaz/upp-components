@@ -197,5 +197,6 @@ AsyncWork<void> SshShell::AsyncRun(SshSession& session, String terminal, Size pa
 			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
 		}
 	});
+	return pick(work);
 }
 }

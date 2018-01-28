@@ -24,6 +24,8 @@ types.&]
 [s2;i150;O9; -|[^topic`:`/`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ 4
 . Real`-time, interactive remote shell (command line interface) 
 channel.]&]
+[s2;i150;O9; -|[^topic`:`/`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ 5
+. Real`-time X11 forwarding channel (on machines running X server).]&]
 [s2;i150;O9; &]
 [s2; Below classes wrap the generic SshChannel class to provide easy`-to`-use 
 interfaces to these specialized channels.&]
@@ -257,10 +259,10 @@ shSession][@(0.0.255) `&]_[*@3 session])&]
 ][3 _][*@3;3 SshChannel]&]
 [s2;# This class encapsulates an SSH2 interactive shell channel, 
 providing a means for secure interaction with a remote command 
-line interface in real`-time. SshShell class is derived from 
-SshChannel class, and has pick semantics. If you need to execute 
-a single command with no interaction, you should consider using 
-SshExec class. &]
+line interface in real`-time with X11 forwarding support. SshShell 
+class is derived from SshChannel class, and has pick semantics. 
+If you need to execute a single command with no interaction, 
+you should consider using SshExec class.&]
 [s3;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Public Method List]]}}&]
 [s3;%- &]
@@ -287,6 +289,31 @@ mode SShShell automatically takes care of the local console page
 resizing.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:SshShell`:`:ForwardX11`(const Upp`:`:String`&`,int`,int`,int`):%- [_^Upp`:`:SshShell^ S
+shShell][@(0.0.255) `&]_[* ForwardX11]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 host]_`=_Null, [@(0.0.255) int]_[*@3 display]_`=_[@3 0], [@(0.0.255) int]_[*@3 screen]_
+`=_[@3 0], [@(0.0.255) int]_[*@3 bufsize]_`=_[@3 1024]_`*_[@3 1024])&]
+[s6;%- POSIX only. Requires a running X server.&]
+[s2; Enables X11 forwarding for the given shell instance. [%-*@3 host] 
+and [%-*@3 display] can be used to connect to local X server. (defaulted 
+values simply mean `"`[localhost`]:0`"). [%-*@3 screen] can be used 
+to select the X11 screen to forward. [%-*@3 bufsize] specifies 
+the size of read/write buffer for the associated UNIX sockets. 
+Default buffer size is 1 MB (increasing the read/write buffer 
+may result in smoother performance). Returns `*this for method 
+chaining.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:SshShell`:`:AcceptX11`(Upp`:`:SshX11Connection`*`):%- [@(0.0.255) bool]_[* Ac
+ceptX11]([_^Upp`:`:SshX11Connection^ SshX11Connection][@(0.0.255) `*]_[*@3 x11conn])&]
+[s6;%- POSIX only. Requires a running X server.&]
+[s2; Accepts an X11 connection. Return true on success. This method 
+requires X11 forwarding to be enabled, and is meant to be used 
+with [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:WhenX11^ S
+shSession:WhenX11] event. Note that each shell instance can forward 
+multiple X11 connections.&]
+[s3; &]
+[s4;%- &]
 [s5;:Upp`:`:SshShell`:`:Send`(int`):%- [@(0.0.255) void]_[* Send]([@(0.0.255) int]_[*@3 c])&]
 [s5;:Upp`:`:SshShell`:`:Send`(const char`*`):%- [@(0.0.255) void]_[* Send]([@(0.0.255) cons
 t]_[@(0.0.255) char`*]_[*@3 s])&]
@@ -299,7 +326,7 @@ queue.&]
 [s5;:Upp`:`:SshShell`:`:PageSize`(Upp`:`:Size`):%- [_^Upp`:`:SshShell^ SshShell][@(0.0.255) `&
 ]_[* PageSize]([_^Upp`:`:Size^ Size]_[*@3 sz])&]
 [s2; Sets the terminal view size as character cells to [%-*@3 sz]. 
-In console mode it also sets the local console`'s page size.&]
+Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:SshShell`:`:GetPageSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPageSize]()_[@(0.0.255) c

@@ -217,6 +217,14 @@ party `-`"plug`-in`" network proxy adapters on`-demand. Returning
 false halts the connection process.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:SshSession`:`:WhenX11: [_^Upp`:`:Event^ Event]<SshX11Request[@(0.0.255) `*]>_
+[* WhenX11]&]
+[s6; POSIX only. Requires a running X server.&]
+[s2;%% This event will forward the X11 connections to the SshShell 
+instances that accept X11 requests. See [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ S
+shShell].&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenKeyboard: [_^Upp`:`:Function^ Function]<[_^Upp`:`:String^ S
 tring]([_^Upp`:`:String^ String], [_^Upp`:`:String^ String], [_^Upp`:`:String^ String])
 >_[* WhenKeyboard]&]

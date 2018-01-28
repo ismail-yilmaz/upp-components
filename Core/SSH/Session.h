@@ -31,8 +31,8 @@ public:
     Vector<String>      GetAuthMethods()                        { return pick(Split(session->authmethods, ' ')); }
     TcpSocket&          GetSocket()                             { return session->socket;  }
     ValueMap            GetMethods();
-	int64*				GetLockPtr()							{ return &session->lock; }
-	
+    std::atomic<int64>* GetLockPtr()                            { return &session->lock; }
+
     SFtp                CreateSFtp();
     SshChannel          CreateChannel();
     SshExec             CreateExec();
@@ -49,6 +49,7 @@ public:
     Event<>             WhenAuth;
     Gate<>              WhenVerify;
     Gate<>              WhenProxy;
+    Event<SshX11Connection*> WhenX11;
     Function<String(String, String, String)>  WhenKeyboard;
 
     SshSession();
@@ -76,7 +77,7 @@ private:
         String          phrase;
         ValueMap        iomethods;
         bool            connected;
-        int64			lock;
+        std::atomic<int64>   lock;
     };
     One<SessionData> session;
 

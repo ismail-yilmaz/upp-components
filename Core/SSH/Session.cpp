@@ -32,6 +32,13 @@ static void ssh_keyboard_callback(const char *name, int name_len, const char *in
 	}
 }
 
+// ssh_x11_request: Dispatches incoming X11 requests.
+
+static void ssh_x11_request(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, char *shost, int sport, void **abstract)
+{
+	static_cast<SshSession*>(*abstract)->WhenX11((SshX11Connection*) channel);
+}
+
 // ssh_session_libtrace: Allows full-level logging (redirection) of libsssh2 diagnostic messages.
 
 #ifdef flagLIBSSH2TRACE
@@ -256,6 +263,10 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			}
 			if(rc == 0 && libssh2_userauth_authenticated(ssh->session)) {
 				LLOG("Client succesfully authenticated and connected.");
+#ifdef PLATFORM_POSIX
+			libssh2_session_callback_set(ssh->session, LIBSSH2_CALLBACK_X11, (void*) ssh_x11_request);
+			LLOG("X11 dispatcher is set.");
+#endif
 				session->connected = true;
 			}
 			return	session->connected;

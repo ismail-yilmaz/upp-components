@@ -18,7 +18,7 @@ public:
     bool                SetEnv(const String& variable, const String& value);
     bool                Terminal(const String& term, int width, int height);
     bool                Terminal(const String& term, Size sz)                       { return Terminal(term, sz.cx, sz.cy); }
-    
+
     String              Get(int64 size, int sid = 0);
     int64               Get(Stream& out, int64 size, int sid = 0);
     String              GetLine(int maxlen = 65536, int sid = 0);
@@ -57,7 +57,7 @@ public:
 
     SshChannel(SshChannel&&) = default;
     SshChannel& operator=(SshChannel&&) = default;
-   
+
 protected:
     virtual bool        Init() override;
     void                Exit();
@@ -70,7 +70,7 @@ protected:
     int                 Read(int sid = 0);
     bool                ReadString(String& s, int64 len, int sid = 0, bool nb = false);
     bool                ReadStream(Stream& s, int64 len, int sid = 0, bool nb = false);
-    
+
     int                 Write(const void* buffer, int64 len, int sid = 0);
     bool                Write(char c, int sid = 0);
     bool                WriteString(const String& s, int64 len, int sid = 0, bool nb = false);
@@ -83,7 +83,7 @@ protected:
 
     int                 SetPtySz(int w, int h);
     int                 SetPtySz(Size sz)                                           { return SetPtySz(sz.cx, sz.cy); }
-    
+
     dword               EventWait(int fd, dword events, int tv = 10);
     bool                ProcessEvents(String& input);
     virtual void        ReadWrite(String& in, const void* out, int out_len);
@@ -99,9 +99,9 @@ protected:
     String                   exitsignal;
     int64                    done;
     int64                    total;
-    int64*                   lock;
- 
-    
+    std::atomic<int64>*      lock;
+
+
     enum OpCodes {
         CHINIT, CHEXIT, CHOPEN, CHREQUEST, CHSETENV, CHREAD, CHWRITE, CHCLOSE,
         CHWAIT, CHEOF, CHSTDERR, CHRC, CHSIG, CHWNDSZ, CHTRMSZ, CHEXEC, CHSHELL
@@ -156,7 +156,7 @@ public:
 
     SshTunnel(SshSession& session) : SshChannel(session)                                                { ssh->otype = TCPTUNNEL; mode = -1; }
     SshTunnel() : SshChannel()                                                                          {}
-    
+
 private:
     virtual bool Init() override                                                                        { return true; }
     void         Validate();
@@ -170,24 +170,27 @@ public:
     bool        Run(const String& terminal, int width, int height)                                      { return Run(GENERIC, terminal, {width, height}); }
 
     bool        Console(const String& terminal)                                                         { return Run(CONSOLE, terminal, GetConsolePageSize()); }
-    
+
+    SshShell&	ForwardX11(const String& host = Null, int display = 0, int screen = 0, int bufsize = 1024 * 1024);
+    bool		AcceptX11(SshX11Connection* x11conn);
+
     void        Send(int c)                     { queue.Cat(c);   }
     void        Send(const char* s)             { Send(String(s));}
     void        Send(const String& s)           { queue.Cat(s);   }
-    
+
     SshShell&   PageSize(Size sz)               { if((resized = sz != psize)) psize = sz; return *this;}
     Size        GetPageSize() const             { return psize; }
     Size        GetConsolePageSize();
-    
+
     Event<>                  WhenInput;
     Event<const void*, int>  WhenOutput;
 
     static AsyncWork<void> AsyncRun(SshSession& session, String terminal, Size pagesize,
-                                                Event<SshShell&> in, Event<const String&> out);
-    
+										Event<SshShell&> in, Event<const String&> out);
+
     SshShell(SshSession& session);
     virtual ~SshShell();
-    
+
     SshShell(SshShell&&) = default;
     SshShell& operator=(SshShell&&) = default;
 
@@ -201,20 +204,30 @@ protected:
     void    ConsoleWrite(const void* buffer, int len);
     void    ConsoleRawMode(bool b = true);
 
+    bool    X11Init();
+    void    X11Loop();
+
     enum Modes { GENERIC, CONSOLE };
 
 private:
     virtual bool Init() override                                                                        { return Lock(); }
-    
+
     String  queue;
     Size    psize;
     int     mode;
     bool    resized;
+    bool    xenabled;
 #ifdef PLATFORM_WIN32
     DWORD   tflags;
     HANDLE  stdinput;
     HANDLE  stdoutput;
 #elif  PLATFORM_POSIX
     termios tflags;
-#endif 
+    byte	xdisplay;
+    byte	xscreen;
+    String  xhost;
+    Buffer<char> xbuffer;
+    int	         xbuflen;
+    Vector<Tuple<SshX11Connection*, SOCKET>> xrequests;
+#endif
 };

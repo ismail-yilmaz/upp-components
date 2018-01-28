@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <sys/un.h>
 #endif
 
 #include "libssh2/libssh2.h"
@@ -21,6 +22,7 @@ typedef LIBSSH2_SFTP_HANDLE     SFtpHandle;
 typedef LIBSSH2_SFTP_ATTRIBUTES SFtpAttrs;
 typedef libssh2_knownhost       SshHost;
 typedef LIBSSH2_AGENT           SshAgent;
+typedef LIBSSH2_CHANNEL         SshX11Connection;
 
 namespace SSH {
     extern bool sTrace;
