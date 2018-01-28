@@ -1,0 +1,12 @@
+description "Demonstrates basic X11 tunneling capabilities of SSH package.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshX11Shell.cpp;
+
+mainconfig
+	"" = "";
+

@@ -1,4 +1,4 @@
-description "Demonstrates a basic, real-time SSH terminal with gui\377";
+description "Demonstrates the basic GUI integration of SshShell class with X11 support\377";
 
 uses
 	CtrlLib,
@@ -6,7 +6,9 @@ uses
 	CodeEditor;
 
 file
-	SshShellGUI.cpp;
+	SshShellGUI.h,
+	main.cpp,
+	SshShellGUI.lay;
 
 mainconfig
 	"" = "GUI";
