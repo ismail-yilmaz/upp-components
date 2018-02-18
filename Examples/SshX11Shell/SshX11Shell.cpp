@@ -8,7 +8,7 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	const char *url = "username@password:localhost:22";
+	const char *url = "demo:password@test.rebex.net:22";
 
 	Ssh::Trace();
 	SshSession session;

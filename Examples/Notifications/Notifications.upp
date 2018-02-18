@@ -1,0 +1,12 @@
+description "A passive notifications widget and manager for U++\377";
+
+uses
+	CtrlLib,
+	Notification;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
