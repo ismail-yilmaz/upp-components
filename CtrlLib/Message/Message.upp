@@ -1,0 +1,15 @@
+description "A passive message ctrl and manager for U++\377";
+
+uses
+	Core,
+	CtrlLib;
+
+file
+	Message.h,
+	Message.cpp,
+	Docs readonly separator,
+	src.tpp,
+	Info readonly separator,
+	ReadMe,
+	Copying;
+
