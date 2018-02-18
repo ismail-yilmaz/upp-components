@@ -1,0 +1,17 @@
+description "A passive notification ctrl and manager for U++\377";
+
+uses
+	CtrlLib;
+
+file
+	Notification.h,
+	Notification.cpp,
+	Docs readonly separator,
+	src.tpp,
+	Info readonly separator,
+	ReadMe,
+	Copying;
+
+mainconfig
+	"" = "GUI";
+

@@ -1,0 +1,23 @@
+Notification package for U++
+-----------------------------
+This class implements a passive notifications manager. 
+Notifications are simple message boxes that are similar to prompts in that they can allow the 
+same basic user actions. However, notifications are not meant as a replacement for the traditional
+U++ dialogs. The main difference between the notifications and the prompts is that the notifications
+are implemented as frames instead of dialogs, and are meant to be less intrusive and non-blocking.
+
+There are several types of notifications:
+
+- Information: Should be used to displaying common information.
+- Warning:     Should be used to report not critical issue, but not everything is all right.
+- Success:     Should be used to display successful operations. Essentially this is an information notification.
+- Question:    Should be used to ask for some interaction.
+- Error:       Should be used to display critical application errors
+- Custom:      If the predefined notification types don't suit your needs, you can create one.
+
+Notifications use QTF texts. This allows for embedding hyperlinks in notifications. 
+It also means that in some cases the text messages should be de-qtf'd, using DeQtf() function.
+
+History:
+--------------------
+2018-02-18: Initial public release. 
