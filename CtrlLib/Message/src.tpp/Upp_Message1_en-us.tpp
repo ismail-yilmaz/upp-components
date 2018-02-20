@@ -147,6 +147,17 @@ nimation]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:Message`:`:Top`(`):%- [_^Upp`:`:Message^ Message][@(0.0.255) `&]_[* Top]()&]
+[s2; Add the message boxes to the top. Returns `*this for method 
+chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Message`:`:Bottom`(`):%- [_^Upp`:`:Message^ Message][@(0.0.255) `&]_[* Bottom](
+)&]
+[s2; Adds the message boxes to the bottom. Returns `*this for method 
+chaining &]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Message`:`:Clear`(`):%- [@(0.0.255) void]_[* Clear]()&]
 [s2; Clears the messages.&]
 [s3;%- &]

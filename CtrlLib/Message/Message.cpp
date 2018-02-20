@@ -2,58 +2,59 @@
 
 namespace Upp {
 
-void Message::Frame::Set(Ctrl& c, const String& s, const String& button1,const String& button2,
-	const String& button3, int id1, int id2, int id3, Image ico, Color color, bool anim, Message::Type ntype)
+void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 {
 	// Note: Color scheme is taken and modified from KMessageWidget.
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
-	
-	switch(ntype) {
-	case Message::Type::INFORMATION:
+
+	switch(msgtype) {
+	case MessageBox::Type::INFORMATION:
 		paper = Blend(Color(128, 128, 255), Color(255, 255, 255));
 		icon  = CtrlImg::information();
 		break;
-	case Message::Type::QUESTION:
+	case MessageBox::Type::QUESTION:
 		paper = Blend(LtGray(), Color(239, 240, 241));
 		icon  = CtrlImg::question();
 		break;
-	case Message::Type::WARNING:
+	case MessageBox::Type::WARNING:
 		paper = Blend(Color(246, 180, 0), Color(239, 240, 241));
 		icon  = CtrlImg::exclamation();
 		break;
-	case Message::Type::SUCCESS:
+	case MessageBox::Type::SUCCESS:
 		paper = Blend(Color(39, 170, 96), Color(239, 240, 241));
 		icon  = CtrlImg::information();
 		break;
-	case Message::Type::ERROR:
+	case MessageBox::Type::ERROR:
 		paper = Blend(Color(218, 68, 83), Color(239, 240, 241));
 		icon  = CtrlImg::error();
 		break;
 	default:
-		paper = color;
-		icon  = ico;
 		break;
 	}
-	
-	ctrl.parent = &c;
-	c.AddFrame(*this);
+
 	SetFrame(FieldFrame());
-	
+
+	discarded   = false;
+	ctrl.parent = &c;
+
+	c.AddFrame(*this);
+
+
 	qtf.NoSb();
 	qtf.VCenter();
-	qtf.SetQTF(String("[G1 ") + s);
+	qtf.SetQTF(String("[G1 ") + msg);
 	qtf.WhenLink = Proxy(WhenLink);
-	
+
 	int rpos = 4;
 	int bcx  = Ctrl::HorzLayoutZoom(24);
 
-	SetButtonLayout(bt1, button1, rpos, bcx, id1);
-	SetButtonLayout(bt2, button2, rpos, bcx, id2);
-	SetButtonLayout(bt3, button3, rpos, bcx, id3);
+	SetButtonLayout(bt1, id1, rpos, bcx);
+	SetButtonLayout(bt2, id2, rpos, bcx);
+	SetButtonLayout(bt3, id3, rpos, bcx);
 
 	Add(qtf.HSizePosZ(36, rpos).VSizePosZ());
-	
-	if((animated = anim)) {
+
+	if((animate = animate)) {
 		Animate(ctrl, Rect(0, 0, c.GetSize().cx, GetHeight()), GUIEFFECT_SLIDE);
 		animated = false;
 	}
@@ -61,7 +62,44 @@ void Message::Frame::Set(Ctrl& c, const String& s, const String& button1,const S
 		ctrl.SetRect(0, 0, c.GetSize().cx, GetHeight());
 }
 
-void Message::Frame::FramePaint(Draw& w, const Rect& r)
+void MessageBox::SetButtonLayout(Button& b, int id, int& rpos, int& cx)
+{
+	if(IsNull(b.GetLabel()))
+		return;
+
+	int fcy  = Draw::GetStdFontCy();
+	int gap  = fcy / 4;
+	int bcy  = Ctrl::VertLayoutZoom(fcy);
+
+	cx = max(2 * fcy + GetTextSize(b.GetLabel(), Draw::GetStdFont()).cx, cx);
+	Add(b.RightPosZ(rpos, cx).VCenterPosZ(bcy));
+	b << [=] { WhenAction(id); Discard(); };
+	rpos += cx + gap;
+}
+
+void MessageBox::Discard()
+{
+	if(GetParent())
+		GetParent()->RemoveFrame(*this);
+	ctrl.SetRect(Null);
+	ctrl.parent = nullptr;
+	discarded   = true;
+}
+
+void MessageBox::FrameLayout(Rect& r)
+{
+	switch(place) {
+	case Place::TOP:
+		LayoutFrameTop(r, this, animated ? ctrl.GetSize().cy : GetHeight());
+		break;
+	case Place::BOTTOM:
+		LayoutFrameBottom(r, this, animated ? ctrl.GetSize().cy : GetHeight());
+		break;
+	}
+		
+}
+
+void MessageBox::FramePaint(Draw& w, const Rect& r)
 {
 	Size  sz = GetSize();
 	w.DrawRect(r, paper);
@@ -69,163 +107,206 @@ void Message::Frame::FramePaint(Draw& w, const Rect& r)
 	w.DrawImage(4, r.top + (sz.cy / 2) - (fcy / 2), fcy, fcy, icon);
 }
 
-void Message::Frame::SetButtonLayout(Button& c, const String& s, int& pos, int& cx, int id)
+void MessageBox::Dummy::Layout()
 {
-	if(IsNull(s))
-		return;
-
-	int fcy  = Draw::GetStdFontCy();
-	int gap  = fcy / 4;
-	int bcy  = Ctrl::VertLayoutZoom(fcy);
-	
-	cx = max(2 * fcy + GetTextSize(s, Draw::GetStdFont()).cx, cx);
-	Add(c.RightPosZ(pos, cx).VCenterPosZ(bcy));
-	c.SetLabel(s);
-	c << [=] { WhenAction(id); Discard(); };
-	pos += cx + gap;
-}
-
-void Message::Frame::Discard()
-{
-	if(GetParent())
-		GetParent()->RemoveFrame(*this);
-	ctrl.SetRect(Null);
-	ctrl.parent = NULL;
-	discarded = true;
+	if(parent) {
+		parent->RefreshLayout();
+		parent->Sync();
+	}
 }
 
 Message& Message::Information(Ctrl& c, const String& s, Event<const String&> link)
 {
-	auto& fr = Create();
-	fr.Set(c, s, t_("OK"), NULL, NULL,  IDOK, 0, 0, Null, Null, animate, Message::Type::INFORMATION);
-	fr.WhenLink = link;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::INFORMATION);
+	msg.Placement(place);
+	msg.ButtonR(IDOK, t_("OK"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
 	return *this;
 }
 
 Message& Message::Warning(Ctrl& c, const String& s, Event<const String&> link)
 {
-	auto& fr = Create();
-	fr.Set(c, s, t_("OK"), NULL, NULL,  IDOK, 0, 0, Null, Null, animate, Message::Type::WARNING);
-	fr.WhenLink = link;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::WARNING);
+	msg.Placement(place);
+	msg.ButtonR(IDOK, t_("OK"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
 	return *this;
 }
 
 Message& Message::Success(Ctrl& c, const String& s, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("OK"), NULL, NULL,  IDOK, 0, 0, Null, Null, animate, Message::Type::SUCCESS);
-	n.WhenLink = link;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::SUCCESS);
+	msg.Placement(place);
+	msg.ButtonR(IDOK, t_("OK"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
 	return *this;
 }
 
 Message& Message::AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("No"), t_("Yes"), NULL,  IDNO, IDYES, 0, Null, Null, animate, Message::Type::QUESTION);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::QUESTION);
+	msg.Placement(place);
+	msg.ButtonR(IDNO, t_("No"));
+	msg.ButtonL(IDYES, t_("Yes"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Cancel"), t_("No"), t_("Yes"), IDCANCEL, IDNO, IDYES, Null, Null, animate, Message::Type::QUESTION);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::QUESTION);
+	msg.Placement(place);
+	msg.ButtonR(IDCANCEL, t_("Cancel"));
+	msg.ButtonM(IDNO, t_("No"));
+	msg.ButtonL(IDYES,t_("Yes"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Cancel"), t_("Retry"), NULL,  IDCANCEL, IDRETRY, 0, Null, Null, animate, Message::Type::QUESTION);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::QUESTION);
+	msg.Placement(place);
+	msg.ButtonR(IDCANCEL, t_("Cancel"));
+	msg.ButtonL(IDRETRY,t_("Retry"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Retry"), t_("Abort"), NULL,  IDRETRY, IDABORT, 0, Null, Null, animate, Message::Type::QUESTION);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::QUESTION);
+	msg.Placement(place);
+	msg.ButtonR(IDRETRY, t_("Retry"));
+	msg.ButtonL(IDABORT, t_("Abort"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Ignore"), t_("Retry"), t_("Abort"),  IDIGNORE, IDRETRY, IDABORT, Null, Null, animate, Message::Type::QUESTION);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::QUESTION);
+	msg.Placement(place);
+	msg.ButtonR(IDIGNORE, t_("Ignore"));
+	msg.ButtonM(IDRETRY, t_("Retry"));
+	msg.ButtonL(IDABORT,t_("Abort"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::Error(Ctrl& c, const String& s, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("OK"), NULL, NULL,  IDOK, 0, 0, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDOK, t_("OK"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
 	return *this;
 }
 
 Message& Message::ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Cancel"), t_("OK"), NULL,  IDCANCEL, IDOK, 0, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDCANCEL, t_("Cancel"));
+	msg.ButtonL(IDOK, t_("OK"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("No"), t_("Yes"), NULL,  IDNO, IDYES, 0, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDNO, t_("No"));
+	msg.ButtonL(IDYES, t_("Yes"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Cancel"), t_("No"), t_("Yes"),  IDCANCEL, IDNO, IDYES, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDCANCEL, t_("Cancel"));
+	msg.ButtonM(IDNO, t_("No"));
+	msg.ButtonL(IDYES,t_("Yes"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Cancel"), t_("Retry"), NULL, IDCANCEL, IDRETRY, 0, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDCANCEL, t_("Cancel"));
+	msg.ButtonL(IDRETRY,t_("Retry"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Retry"), t_("Abort"), NULL,  IDRETRY, IDABORT, 0, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDRETRY, t_("Retry"));
+	msg.ButtonL(IDABORT, t_("Abort"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
 Message& Message::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
-	auto& n = Create();
-	n.Set(c, s, t_("Ignore"), t_("Retry"), t_("Abort"),  IDIGNORE, IDRETRY, IDABORT, Null, Null, animate, Message::Type::ERROR);
-	n.WhenLink = link;
-	n.WhenAction = action;
+	auto& msg = Create();
+	msg.MessageType(MessageBox::Type::ERROR);
+	msg.Placement(place);
+	msg.ButtonR(IDIGNORE, t_("Ignore"));
+	msg.ButtonM(IDRETRY, t_("Retry"));
+	msg.ButtonL(IDABORT,t_("Abort"));
+	msg.Set(c, s, animate);
+	msg.WhenLink = link;
+	msg.WhenAction = action;
 	return *this;
 }
 
-Message::Frame& Message::Create()
+MessageBox& Message::Create()
 {
 	for(int i = 0; i < messages.GetCount(); i++) {
 		auto& msg = messages[i];
