@@ -13,8 +13,8 @@ public:
     MessageBox()                                    { place = Place::TOP; }
     MessageBox& Placement(Place pl)                 { place = pl; return *this; }
     MessageBox& MessageType(Type t)                 { msgtype = t; return *this; }
-    MessageBox& Icon(Image& img)                    { icon  = img; return *this; }
-    MessageBox& Background(Color& c)                { paper = c;   return *this; }
+    MessageBox& Icon(Image img)                     { icon  = img; return *this; }
+    MessageBox& Background(Color c)                 { paper = c;   return *this; }
     MessageBox& ButtonR(int id, const String& s)    { id1 = id; bt1.SetLabel(s); return *this; }
     MessageBox& ButtonM(int id, const String& s)    { id2 = id; bt2.SetLabel(s); return *this; }
     MessageBox& ButtonL(int id, const String& s)    { id3 = id; bt3.SetLabel(s); return *this; }
@@ -55,6 +55,13 @@ private:
 class Message {
 public:
     Message() { animate = false; place = MessageBox::Place::TOP; }
+    
+    Message&    Animation(bool b = true)    { animate = b; return *this;}
+    Message&    Top()                       { place = MessageBox::Place::TOP; return *this; }
+    Message&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
+    
+    MessageBox& Create();
+    void        Clear()                     { messages.Clear(); }
 
     Message&    Information(Ctrl& c, const String& s, Event<const String&> link = Null);
     Message&    Warning(Ctrl& c, const String& s, Event<const String&> link = Null);
@@ -73,12 +80,6 @@ public:
     Message&    ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
     Message&    ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
     Message&    ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    
-    Message&    Animation(bool b = true)    { animate = b; return *this;}
-    MessageBox& Create();
-    Message&    Top()                       { place = MessageBox::Place::TOP; return *this; }
-    Message&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
-    void        Clear()                     { messages.Clear(); }
 
 private:
     Array<MessageBox> messages;

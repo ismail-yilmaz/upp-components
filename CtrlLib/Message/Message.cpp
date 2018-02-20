@@ -8,19 +8,19 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
 
 	switch(msgtype) {
-	case MessageBox::Type::INFORMATION:
+	case Type::INFORMATION:
 		paper = Blend(Color(128, 128, 255), Color(255, 255, 255));
 		icon  = CtrlImg::information();
 		break;
-	case MessageBox::Type::QUESTION:
+	case Type::QUESTION:
 		paper = Blend(LtGray(), Color(239, 240, 241));
 		icon  = CtrlImg::question();
 		break;
-	case MessageBox::Type::WARNING:
+	case Type::WARNING:
 		paper = Blend(Color(246, 180, 0), Color(239, 240, 241));
 		icon  = CtrlImg::exclamation();
 		break;
-	case MessageBox::Type::SUCCESS:
+	case Type::SUCCESS:
 		paper = Blend(Color(39, 170, 96), Color(239, 240, 241));
 		icon  = CtrlImg::information();
 		break;
@@ -54,7 +54,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 
 	Add(qtf.HSizePosZ(36, rpos).VSizePosZ());
 
-	if((animate = animate)) {
+	if((animated = animate)) {
 		Animate(ctrl, Rect(0, 0, c.GetSize().cx, GetHeight()), GUIEFFECT_SLIDE);
 		animated = false;
 	}
