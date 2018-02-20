@@ -25,7 +25,7 @@ public:
 			  .Information(*this, "This is an information message.")
 			  .Success(*this, "This is a success message.")
 			  .Warning(*this, "This is a warning message.")
-			 .Bottom().Error(editor, "This is an error message.");
+			  .Error(*this, "This is an error message.");
 			
 			auto action = [=](int id) {
 				switch(id) {
@@ -33,7 +33,7 @@ public:
 				case IDNO:  PromptOK("You've chosen 'no'"); break;
 				}
 			};
-			msg //Bottom()
+			msg.Bottom()
 			   .AskYesNo(editor, "This is a question message 'in' the text editor with "
 			                   "[^https:www`.ultimatepp`.org^ l`i`n`k]"
 			                   " support. Would you like to continue?",
