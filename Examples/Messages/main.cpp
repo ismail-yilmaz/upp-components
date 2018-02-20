@@ -4,14 +4,14 @@
 using namespace Upp;
 
 class Messages : public TopWindow {
-	Message nf;
+	Message msg;
 	DocEdit editor;
 	Button  button;
 	
 public:
 	Messages()
 	{
-		Title("U++ Passive Notifications");
+		Title("U++ Message Boxes (Passive Notifications)");
 		SetRect(0,0, 640, 480);
 		Sizeable().Zoomable().CenterScreen();
 		SetMinSize({100, 100});
@@ -20,7 +20,8 @@ public:
 		Add(button.RightPos(4).BottomPos(4));
 		button.SetLabel("Test");
 		button <<  [=] {
-			nf.Animation()
+			msg.Animation()
+			  .Top()
 			  .Information(*this, "This is an information message.")
 			  .Success(*this, "This is a success message.")
 			  .Warning(*this, "This is a warning message.")
@@ -32,8 +33,9 @@ public:
 				case IDNO:  PromptOK("You've chosen 'no'"); break;
 				}
 			};
-			nf.AskYesNo(editor, "This is a question message 'in' the text editor with "
-			                   "[^https://www`.ultimatepp`.org^ l`i`n`k]"
+			msg.Bottom()
+			   .AskYesNo(editor, "This is a question message 'in' the text editor with "
+			                   "[^https:www`.ultimatepp`.org^ l`i`n`k]"
 			                   " support. Would you like to continue?",
 			                   action,
 			                   callback(LaunchWebBrowser)
