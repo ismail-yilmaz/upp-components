@@ -104,7 +104,9 @@ void MessageBox::FramePaint(Draw& w, const Rect& r)
 	Size  sz = GetSize();
 	w.DrawRect(r, paper);
 	auto fcy = Ctrl::VertLayoutZoom(Draw::GetStdFontCy());
-	w.DrawImage(4, r.top + (sz.cy / 2) - (fcy / 2), fcy, fcy, icon);
+	w.DrawImage(4,
+		(place == Place::TOP ? (r.top + (sz.cy / 2)) : r.bottom - (sz.cy /2)) - (fcy / 2),
+		fcy, fcy, icon);
 }
 
 void MessageBox::Dummy::Layout()
