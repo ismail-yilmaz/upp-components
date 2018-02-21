@@ -52,34 +52,36 @@ private:
     Place   place;
 };
 
-class Message {
+class MessageCtrl {
 public:
-    Message() { animate = false; place = MessageBox::Place::TOP; }
+    MessageCtrl() { animate = false; place = MessageBox::Place::TOP; }
     
-    Message&    Animation(bool b = true)    { animate = b; return *this;}
-    Message&    Top()                       { place = MessageBox::Place::TOP; return *this; }
-    Message&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
+    MessageCtrl&    Animation(bool b = true)    { animate = b; return *this;}
+    MessageCtrl&    Top()                       { place = MessageBox::Place::TOP; return *this; }
+    MessageCtrl&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
     
-    MessageBox& Create();
-    void        Clear()                     { messages.Clear(); }
+    MessageBox&     Create();
+    void            Clear()                     { messages.Clear(); }
 
-    Message&    Information(Ctrl& c, const String& s, Event<const String&> link = Null);
-    Message&    Warning(Ctrl& c, const String& s, Event<const String&> link = Null);
-    Message&    Success(Ctrl& c, const String& s, Event<const String&> link = Null);
+    // Informative messages.
+    MessageCtrl&    Information(Ctrl& c, const String& s, Event<const String&> link = Null);
+    MessageCtrl&    Warning(Ctrl& c, const String& s, Event<const String&> link = Null);
+    MessageCtrl&    Success(Ctrl& c, const String& s, Event<const String&> link = Null);
+    MessageCtrl&    Error(Ctrl& c, const String& s, Event<const String&> link = Null);
     
-    Message&    AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    // Interactive messages.
+    MessageCtrl&    AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
 
-    Message&    Error(Ctrl& c, const String& s, Event<const String&> link = Null);
-    Message&    ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
-    Message&    ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
+    MessageCtrl&    ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
 
 private:
     Array<MessageBox> messages;

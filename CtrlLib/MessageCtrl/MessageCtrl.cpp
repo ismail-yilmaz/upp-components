@@ -1,4 +1,4 @@
-#include "Message.h"
+#include "MessageCtrl.h"
 
 namespace Upp {
 
@@ -6,7 +6,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 {
 	// Note: Color scheme is taken and modified from KMessageWidget.
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
-
+	
 	switch(msgtype) {
 	case Type::INFORMATION:
 		paper = Blend(Color(128, 128, 255), Color(255, 255, 255));
@@ -24,7 +24,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 		paper = Blend(Color(39, 170, 96), Color(239, 240, 241));
 		icon  = CtrlImg::information();
 		break;
-	case MessageBox::Type::ERROR:
+	case Type::ERROR:
 		paper = Blend(Color(218, 68, 83), Color(239, 240, 241));
 		icon  = CtrlImg::error();
 		break;
@@ -33,12 +33,11 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 	}
 
 	SetFrame(FieldFrame());
-
+	
 	discarded   = false;
 	ctrl.parent = &c;
 
 	c.AddFrame(*this);
-
 
 	qtf.NoSb();
 	qtf.VCenter();
@@ -52,7 +51,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 	SetButtonLayout(bt2, id2, rpos, bcx);
 	SetButtonLayout(bt3, id3, rpos, bcx);
 
-	Add(qtf.HSizePosZ(36, rpos).VSizePosZ());
+	Add(qtf.HSizePosZ(IsNull(icon) ? 4 : 36, rpos).VSizePosZ());
 
 	if((animated = animate)) {
 		Animate(ctrl, Rect(0, 0, c.GetSize().cx, GetHeight()), GUIEFFECT_SLIDE);
@@ -96,7 +95,6 @@ void MessageBox::FrameLayout(Rect& r)
 		LayoutFrameBottom(r, this, animated ? ctrl.GetSize().cy : GetHeight());
 		break;
 	}
-		
 }
 
 void MessageBox::FramePaint(Draw& w, const Rect& r)
@@ -117,7 +115,7 @@ void MessageBox::Dummy::Layout()
 	}
 }
 
-Message& Message::Information(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::Information(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::INFORMATION);
@@ -128,7 +126,7 @@ Message& Message::Information(Ctrl& c, const String& s, Event<const String&> lin
 	return *this;
 }
 
-Message& Message::Warning(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::Warning(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::WARNING);
@@ -139,7 +137,7 @@ Message& Message::Warning(Ctrl& c, const String& s, Event<const String&> link)
 	return *this;
 }
 
-Message& Message::Success(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::Success(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::SUCCESS);
@@ -150,7 +148,7 @@ Message& Message::Success(Ctrl& c, const String& s, Event<const String&> link)
 	return *this;
 }
 
-Message& Message::AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::QUESTION);
@@ -163,7 +161,7 @@ Message& Message::AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<co
 	return *this;
 }
 
-Message& Message::AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::QUESTION);
@@ -177,7 +175,7 @@ Message& Message::AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Ev
 	return *this;
 }
 
-Message& Message::AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::QUESTION);
@@ -190,7 +188,7 @@ Message& Message::AskRetryCancel(Ctrl& c, const String& s, Event<int> action, Ev
 	return *this;
 }
 
-Message& Message::AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::QUESTION);
@@ -203,7 +201,7 @@ Message& Message::AskAbortRetry(Ctrl& c, const String& s, Event<int> action, Eve
 	return *this;
 }
 
-Message& Message::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::QUESTION);
@@ -217,7 +215,7 @@ Message& Message::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<int> actio
 	return *this;
 }
 
-Message& Message::Error(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::Error(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -228,7 +226,7 @@ Message& Message::Error(Ctrl& c, const String& s, Event<const String&> link)
 	return *this;
 }
 
-Message& Message::ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -241,7 +239,7 @@ Message& Message::ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Eve
 	return *this;
 }
 
-Message& Message::ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -254,7 +252,7 @@ Message& Message::ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<
 	return *this;
 }
 
-Message& Message::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -268,7 +266,7 @@ Message& Message::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, 
 	return *this;
 }
 
-Message& Message::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -281,7 +279,7 @@ Message& Message::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, 
 	return *this;
 }
 
-Message& Message::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -294,7 +292,7 @@ Message& Message::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, E
 	return *this;
 }
 
-Message& Message::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
+MessageCtrl& MessageCtrl::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::ERROR);
@@ -308,7 +306,7 @@ Message& Message::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> act
 	return *this;
 }
 
-MessageBox& Message::Create()
+MessageBox& MessageCtrl::Create()
 {
 	for(int i = 0; i < messages.GetCount(); i++) {
 		auto& msg = messages[i];

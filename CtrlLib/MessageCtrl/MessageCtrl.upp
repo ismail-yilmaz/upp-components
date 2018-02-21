@@ -5,8 +5,8 @@ uses
 	CtrlLib;
 
 file
-	Message.h,
-	Message.cpp,
+	MessageCtrl.h,
+	MessageCtrl.cpp,
 	Docs readonly separator,
 	src.tpp,
 	Info readonly separator,

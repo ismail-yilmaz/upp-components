@@ -1,10 +1,11 @@
-Message package for U++
+MessageCtrl package for U++
 -----------------------------
-This class implements a passive messages manager. 
-Messages are simple message boxes that are similar to prompts in that they can allow the 
-same basic user actions. However, messages are not meant as a replacement for the traditional
-U++ dialogs. The main difference between the messages and the prompts is that the messages
-are implemented as frames instead of dialogs, and are meant to be less intrusive and non-blocking.
+
+This class implements a messages manager. 
+Messages are simple message boxes similar to prompts in that they can allow the same basic user
+actions. However, message boxes are not meant as a replacement for the traditional U++ dialogs.
+The main difference between the messages and the prompts is that the message boxes are implemented
+as frames instead of dialogs, and are meant to be less intrusive, and non-blocking.
 
 There are several types of messages:
 
@@ -16,11 +17,13 @@ There are several types of messages:
 - Custom:      If the predefined notification types don't suit your needs, you can create one.
 
 Message boxes use QTF texts. This allows for embedding hyperlinks in messages. 
-It also means that in some cases the text messages should be de-qtf'd, using DeQtf() function.
+It also means that in some cases the text messages should be escaped, using DeQtf() function.
 
 History:
 --------------------
-2918-02-20: It is now possible to add mesasges as both top and bottom frames.
+2018-02-21: Widget renames as MessageCtrl. (Final)
+
+2018-02-20: It is now possible to add mesasges as both top and bottom frames.
             It is now possible to add single message box without using the manager.
             Message framework further refactored.
 
