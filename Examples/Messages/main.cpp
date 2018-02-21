@@ -1,10 +1,10 @@
 #include <CtrlLib/CtrlLib.h>
-#include <Message/Message.h>
+#include <MessageCtrl/MessageCtrl.h>
 
 using namespace Upp;
 
 class Messages : public TopWindow {
-	Message msg;
+	MessageCtrl msg;
 	DocEdit editor;
 	Button  button;
 	

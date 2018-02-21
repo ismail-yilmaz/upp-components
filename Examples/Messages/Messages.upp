@@ -2,7 +2,7 @@ description "Demonstrates the basic usage of Message manager.\377";
 
 uses
 	CtrlLib,
-	Message;
+	MessageCtrl;
 
 file
 	main.cpp;
