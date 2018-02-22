@@ -182,8 +182,9 @@ void SshShell::ConsoleRawMode(bool b)
 		cfmakeraw(&nflags);
 		tcsetattr(STDIN_FILENO, TCSANOW, &nflags);
 	}
-	else
+	else {
 		tcsetattr(STDIN_FILENO, TCSANOW, &tflags);
+	}
 }
 
 Size SshShell::GetConsolePageSize()
@@ -230,7 +231,9 @@ void SshShell::ConsoleRawMode(bool b)
 		SetConsoleMode(stdinput, nflags);
 	}
 	else
+	if(rawmode)
 		SetConsoleMode(stdinput, tflags);
+	rawmode = b;
 }
 
 Size SshShell::GetConsolePageSize()
@@ -346,6 +349,7 @@ SshShell::SshShell(SshSession& session)
 {
 	ssh->otype	= SHELL;
 	mode		= GENERIC;
+	rawmode     = false;
 	resized		= false;
 	xenabled    = false;
 #ifdef PLATFORM_POSIX

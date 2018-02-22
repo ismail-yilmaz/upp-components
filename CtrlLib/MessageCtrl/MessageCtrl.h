@@ -32,7 +32,7 @@ public:
     
 private:
     int  GetHeight() const                          { return clamp(qtf.GetHeight() + 8, Ctrl::VertLayoutZoom(28), 1080); }
-    void SetButtonLayout(Button& b, int id, int& rpos, int& cx);
+    void SetButtonLayout(Button& b, int id, int& rpos);
     void Discard();
 
     struct Dummy : public Ctrl { // Redirects layout synchronization.

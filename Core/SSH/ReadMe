@@ -48,7 +48,9 @@ Todo:
 
 History:
 --------------------
-2018-02-28:  X11 forwarding support  added as an operation mode for shell.
+2018-02-23:  SshShell: Console mode is now properly restored on failure.
+
+2018-01-28:  X11 forwarding support  added as an operation mode for shell.
              From now a signle  SshShells can forward multiple X11 connections.
              X11 examples (for both console and GUI) are added to the examples directory.
 

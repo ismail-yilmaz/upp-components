@@ -5,7 +5,7 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	const char *url = "demo:password@test.rebex.net: 22"; // A well-known public SSH test server.
+	const char *url = "demo:password@test.rebex.net:22"; // A well-known public SSH test server.
 
 	Ssh::Trace();
 

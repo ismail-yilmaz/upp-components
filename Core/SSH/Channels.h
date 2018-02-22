@@ -215,6 +215,7 @@ private:
     String  queue;
     Size    psize;
     int     mode;
+    bool    rawmode;
     bool    resized;
     bool    xenabled;
 #ifdef PLATFORM_WIN32

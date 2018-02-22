@@ -45,13 +45,12 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 	qtf.WhenLink = Proxy(WhenLink);
 
 	int rpos = 4;
-	int bcx  = Ctrl::HorzLayoutZoom(24);
 
-	SetButtonLayout(bt1, id1, rpos, bcx);
-	SetButtonLayout(bt2, id2, rpos, bcx);
-	SetButtonLayout(bt3, id3, rpos, bcx);
+	SetButtonLayout(bt1, id1, rpos);
+	SetButtonLayout(bt2, id2, rpos);
+	SetButtonLayout(bt3, id3, rpos);
 
-	Add(qtf.HSizePosZ(IsNull(icon) ? 4 : 36, rpos).VSizePosZ());
+	Add(qtf.HSizePosZ(IsNull(icon) ? 4 : 24, rpos).VSizePosZ());
 
 	if((animated = animate)) {
 		Animate(ctrl, Rect(0, 0, c.GetSize().cx, GetHeight()), GUIEFFECT_SLIDE);
@@ -61,17 +60,17 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 		ctrl.SetRect(0, 0, c.GetSize().cx, GetHeight());
 }
 
-void MessageBox::SetButtonLayout(Button& b, int id, int& rpos, int& cx)
+void MessageBox::SetButtonLayout(Button& b, int id, int& rpos)
 {
 	if(IsNull(b.GetLabel()))
 		return;
 
 	int fcy  = Draw::GetStdFontCy();
 	int gap  = fcy / 4;
-	int bcy  = Ctrl::VertLayoutZoom(fcy);
-
+	int cx   = 28;
+	
 	cx = max(2 * fcy + GetTextSize(b.GetLabel(), Draw::GetStdFont()).cx, cx);
-	Add(b.RightPosZ(rpos, cx).VCenterPosZ(bcy));
+	Add(b.RightPosZ(rpos, cx).VCenterPosZ(24));
 	b << [=] { WhenAction(id); Discard(); };
 	rpos += cx + gap;
 }
@@ -101,10 +100,14 @@ void MessageBox::FramePaint(Draw& w, const Rect& r)
 {
 	Size  sz = GetSize();
 	w.DrawRect(r, paper);
-	auto fcy = Ctrl::VertLayoutZoom(Draw::GetStdFontCy());
-	w.DrawImage(4,
-		(place == Place::TOP ? (r.top + (sz.cy / 2)) : r.bottom - (sz.cy /2)) - (fcy / 2),
-		fcy, fcy, icon);
+	
+	auto cy = Ctrl::VertLayoutZoom(16);
+	w.DrawImage(
+		4,
+		(place == Place::TOP ? (r.top + (sz.cy / 2)) : r.bottom - (sz.cy /2)) - (cy / 2),
+		cy, cy,
+		icon
+	);
 }
 
 void MessageBox::Dummy::Layout()
