@@ -182,9 +182,10 @@ void SshShell::ConsoleRawMode(bool b)
 		cfmakeraw(&nflags);
 		tcsetattr(STDIN_FILENO, TCSANOW, &nflags);
 	}
-	else {
+	else
+	if(rawmode)
 		tcsetattr(STDIN_FILENO, TCSANOW, &tflags);
-	}
+	rawmode = b;
 }
 
 Size SshShell::GetConsolePageSize()
