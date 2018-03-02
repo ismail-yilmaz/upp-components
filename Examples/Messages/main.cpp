@@ -29,12 +29,12 @@ public:
 		button <<  [=] {
 			msg.Animation()
 			  .Top()
-			  .Information(*this, "This is an information message.")
+			  .Information(*this, "This is a time-constrained information message. It will disappear in 5 seconds.", Null, 5)
 			  .Success(*this, "This is a success message.")
 			  .Warning(*this, "This is a warning message.")
 			  .Error(*this, "This is an error message.")
 			  .Bottom()
-			  .AskYesNo(editor, "This is a question message 'in' the text editor with "
+			  .AskYesNo(editor, "This is a question box 'in' the text editor with "
 			                   "[^https:www`.ultimatepp`.org^ l`i`n`k]"
 			                   " support. Would you like to continue?",
 			                   action,
