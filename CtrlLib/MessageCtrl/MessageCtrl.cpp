@@ -66,7 +66,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
 	else
 		ctrl.SetRect(0, 0, c.GetSize().cx, GetHeight());
 	
-	if((Type::INFORMATION || Type::CUSTOM) && duration)
+	if((msgtype == Type::INFORMATION || msgtype == Type::CUSTOM) && duration)
 		tcb.Set(duration, [=] { Discard(); });
 }
 
