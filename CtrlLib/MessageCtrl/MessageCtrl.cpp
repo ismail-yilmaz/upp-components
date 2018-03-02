@@ -2,10 +2,17 @@
 
 namespace Upp {
 
-void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
+static bool operator||(MessageBox::Type a, MessageBox::Type b) 
+{
+	return (int)a || int(b);
+}
+
+void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
 {
 	// Note: Color scheme is taken and modified from KMessageWidget.
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
+	
+	int duration = clamp(secs, 0, 24 * 60) * 1000;
 	
 	switch(msgtype) {
 	case Type::INFORMATION:
@@ -58,6 +65,9 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate)
 	}
 	else
 		ctrl.SetRect(0, 0, c.GetSize().cx, GetHeight());
+	
+	if((Type::INFORMATION || Type::CUSTOM) && duration)
+		tcb.Set(duration, [=] { Discard(); });
 }
 
 void MessageBox::SetButtonLayout(Button& b, int id, int& rpos)
@@ -77,6 +87,7 @@ void MessageBox::SetButtonLayout(Button& b, int id, int& rpos)
 
 void MessageBox::Discard()
 {
+	tcb.Kill();
 	if(GetParent())
 		GetParent()->RemoveFrame(*this);
 	ctrl.SetRect(Null);
@@ -118,13 +129,13 @@ void MessageBox::Dummy::Layout()
 	}
 }
 
-MessageCtrl& MessageCtrl::Information(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::Information(Ctrl& c, const String& s, Event<const String&> link, int sec)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::INFORMATION);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, sec);
 	msg.WhenLink = link;
 	return *this;
 }

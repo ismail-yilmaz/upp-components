@@ -7,7 +7,7 @@ namespace Upp {
 
 class MessageBox : public FrameCtrl<ParentCtrl> {
 public:
-    enum class Type  { INFORMATION, WARNING, QUESTION, SUCCESS, ERROR, CUSTON };
+    enum class Type  { INFORMATION, WARNING, QUESTION, SUCCESS, ERROR, CUSTOM };
     enum class Place { TOP, BOTTOM };
 
     MessageBox()                                    { place = Place::TOP; }
@@ -18,18 +18,18 @@ public:
     MessageBox& ButtonR(int id, const String& s)    { id1 = id; bt1.SetLabel(s); return *this; }
     MessageBox& ButtonM(int id, const String& s)    { id2 = id; bt2.SetLabel(s); return *this; }
     MessageBox& ButtonL(int id, const String& s)    { id3 = id; bt3.SetLabel(s); return *this; }
-    
-    void        Set(Ctrl& c, const String& msg, bool animate = false);
+
+    void        Set(Ctrl& c, const String& msg, bool animate = false, int secs = 0);
 
     bool        IsDiscarded() const                 { return discarded; }
-    
+
     Event<int> WhenAction;
     Event<const String&> WhenLink;
 
     virtual void FrameLayout(Rect& r) override;
     virtual void FrameAddSize(Size& sz) override    { sz.cy += animated ? ctrl.GetSize().cy : GetHeight(); }
     virtual void FramePaint(Draw& w, const Rect& r) override;
-    
+
 private:
     int  GetHeight() const                          { return clamp(qtf.GetHeight() + 8, Ctrl::VertLayoutZoom(28), 1080); }
     void SetButtonLayout(Button& b, int id, int& rpos);
@@ -39,8 +39,9 @@ private:
         Ctrl* parent;
         void  Layout() final;
     };
-    
+
     RichTextCtrl qtf;
+    TimeCallback tcb;
     Button  bt1, bt2, bt3;
     int     id1, id2, id3;
     Dummy   ctrl;
@@ -55,20 +56,20 @@ private:
 class MessageCtrl {
 public:
     MessageCtrl() { animate = false; place = MessageBox::Place::TOP; }
-    
+
     MessageCtrl&    Animation(bool b = true)    { animate = b; return *this;}
     MessageCtrl&    Top()                       { place = MessageBox::Place::TOP; return *this; }
     MessageCtrl&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
-    
+
     MessageBox&     Create();
     void            Clear()                     { messages.Clear(); }
 
     // Informative messages.
-    MessageCtrl&    Information(Ctrl& c, const String& s, Event<const String&> link = Null);
+    MessageCtrl&    Information(Ctrl& c, const String& s, Event<const String&> link = Null, int secs = 0);
     MessageCtrl&    Warning(Ctrl& c, const String& s, Event<const String&> link = Null);
     MessageCtrl&    Success(Ctrl& c, const String& s, Event<const String&> link = Null);
     MessageCtrl&    Error(Ctrl& c, const String& s, Event<const String&> link = Null);
-    
+
     // Interactive messages.
     MessageCtrl&    AskYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
     MessageCtrl&    AskYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link = Null);
@@ -86,6 +87,7 @@ public:
 private:
     Array<MessageBox> messages;
     bool animate;
+    int  duration;
     MessageBox::Place place;
 };
 }

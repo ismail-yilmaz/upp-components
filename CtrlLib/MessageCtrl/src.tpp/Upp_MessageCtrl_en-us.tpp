@@ -1,4 +1,4 @@
-topic "";
+topic "MessageCtrl";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
@@ -67,11 +67,12 @@ ottom]()&]
 chaining. &]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:MessageCtrl`:`:Information`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`):%- [_^Upp`:`:Message^ M
+[s4;%- &]
+[s5;:Upp`:`:MessageCtrl`:`:Information`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`,int`):%- [_^Upp`:`:MessageCtrl^ M
 essageCtrl][@(0.0.255) `&]_[* Information]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
 [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 l
-ink])&]
+ink], [@(0.0.255) int]_[*@3 secs])&]
 [s5;:Upp`:`:MessageCtrl`:`:Warning`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`):%- [_^Upp`:`:Message^ M
 essageCtrl][@(0.0.255) `&]_[* Warning]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
@@ -88,8 +89,10 @@ essageCtrl][@(0.0.255) `&]_[* Error]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c
 [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 l
 ink])&]
 [s2; Adds an informative message to [%-*@3 c] with the text [%-*@3 s]. 
-[%-*@3 link] can be used to set a setup an hyperlink action. Returns 
-`*this for method chaining.&]
+[%-*@3 link] can be used to set a setup an hyperlink action. [%-*@3 secs] 
+parameter is only available with the plain information message 
+type, and can be used to specify the duration of display (in 
+seconds). Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:MessageCtrl`:`:AskYesNo`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<int`>`,Upp`:`:Event`<const Upp`:`:String`&`>`):%- [_^Upp`:`:Message^ M
@@ -166,5 +169,5 @@ chaining.&]
 [s3;%- &]
 [s5;:Upp`:`:MessageCtrl`:`:MessageCtrl`(`):%- [* MessageCtrl]()&]
 [s2; Default constructor.&]
-[s3;%- &]
-[s0; ]]
+[s2; &]
+[s3; ]]
