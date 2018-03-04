@@ -11,6 +11,8 @@ public:
     enum class Place { TOP, BOTTOM };
 
     MessageBox()                                    { place = Place::TOP; }
+    virtual ~MessageBox()                           { if(!IsDiscarded()) Discard(); }
+    
     MessageBox& Placement(Place pl)                 { place = pl; return *this; }
     MessageBox& MessageType(Type t)                 { msgtype = t; return *this; }
     MessageBox& Icon(Image img)                     { icon  = img; return *this; }
@@ -19,7 +21,7 @@ public:
     MessageBox& ButtonM(int id, const String& s)    { id2 = id; bt2.SetLabel(s); return *this; }
     MessageBox& ButtonL(int id, const String& s)    { id3 = id; bt3.SetLabel(s); return *this; }
 
-    void        Set(Ctrl& c, const String& msg, bool animate = false, int secs = 0);
+    void        Set(Ctrl& c, const String& msg, bool animate = false, bool append = false, int secs = 0);
 
     bool        IsDiscarded() const                 { return discarded; }
 
@@ -55,14 +57,15 @@ private:
 
 class MessageCtrl {
 public:
-    MessageCtrl() { animate = false; place = MessageBox::Place::TOP; }
+    MessageCtrl();
 
     MessageCtrl&    Animation(bool b = true)    { animate = b; return *this;}
     MessageCtrl&    Top()                       { place = MessageBox::Place::TOP; return *this; }
     MessageCtrl&    Bottom()                    { place = MessageBox::Place::BOTTOM; return *this; }
+    MessageCtrl&    Append(bool b = true)       { append = b; return *this; }
 
     MessageBox&     Create();
-    void            Clear()                     { messages.Clear(); }
+    void            Clear(const Ctrl* c = nullptr);
 
     // Informative messages.
     MessageCtrl&    Information(Ctrl& c, const String& s, Event<const String&> link = Null, int secs = 0);
@@ -87,6 +90,7 @@ public:
 private:
     Array<MessageBox> messages;
     bool animate;
+    bool append;
     MessageBox::Place place;
 };
 }

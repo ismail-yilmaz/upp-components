@@ -25,6 +25,7 @@ History:
             MessageBox::Type::ERROR  -> MessageBox::Type::FAILURE
             Message dsiplay order changed. New messages will be inserted
             as the the topmost/bottom-most frame (depending on orientation)
+			"Selective" clearing added. 
 
 2018-03-01: Information and custom message boxes can now have timeouts.
 

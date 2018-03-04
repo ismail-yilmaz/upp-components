@@ -7,12 +7,12 @@ static bool operator||(MessageBox::Type a, MessageBox::Type b)
 	return (int)a || int(b);
 }
 
-void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
+void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int secs)
 {
 	// Note: Color scheme is taken and modified from KMessageWidget.
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
 	
-	int duration = clamp(secs, 0, 24 * 60) * 1000;
+	int duration = clamp(secs, 0, 24 * 3600) * 1000;
 	
 	switch(msgtype) {
 	case Type::INFORMATION:
@@ -44,7 +44,8 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
 	discarded   = false;
 	ctrl.parent = &c;
 
-	c.InsertFrame(0, *this);
+	if(append)  c.AddFrame(*this);
+	else		c.InsertFrame(0, *this);
 
 	qtf.NoSb();
 	qtf.VCenter();
@@ -135,7 +136,7 @@ MessageCtrl& MessageCtrl::Information(Ctrl& c, const String& s, Event<const Stri
 	msg.MessageType(MessageBox::Type::INFORMATION);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
-	msg.Set(c, s, animate, sec);
+	msg.Set(c, s, animate, append, sec);
 	msg.WhenLink = link;
 	return *this;
 }
@@ -146,7 +147,7 @@ MessageCtrl& MessageCtrl::Warning(Ctrl& c, const String& s, Event<const String&>
 	msg.MessageType(MessageBox::Type::WARNING);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
 }
@@ -157,7 +158,7 @@ MessageCtrl& MessageCtrl::Success(Ctrl& c, const String& s, Event<const String&>
 	msg.MessageType(MessageBox::Type::SUCCESS);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
 }
@@ -169,7 +170,7 @@ MessageCtrl& MessageCtrl::AskYesNo(Ctrl& c, const String& s, Event<int> action, 
 	msg.Placement(place);
 	msg.ButtonR(IDNO, t_("No"));
 	msg.ButtonL(IDYES, t_("Yes"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -183,7 +184,7 @@ MessageCtrl& MessageCtrl::AskYesNoCancel(Ctrl& c, const String& s, Event<int> ac
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonM(IDNO, t_("No"));
 	msg.ButtonL(IDYES,t_("Yes"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -196,7 +197,7 @@ MessageCtrl& MessageCtrl::AskRetryCancel(Ctrl& c, const String& s, Event<int> ac
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonL(IDRETRY,t_("Retry"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -209,7 +210,7 @@ MessageCtrl& MessageCtrl::AskAbortRetry(Ctrl& c, const String& s, Event<int> act
 	msg.Placement(place);
 	msg.ButtonR(IDRETRY, t_("Retry"));
 	msg.ButtonL(IDABORT, t_("Abort"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -223,7 +224,7 @@ MessageCtrl& MessageCtrl::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<in
 	msg.ButtonR(IDIGNORE, t_("Ignore"));
 	msg.ButtonM(IDRETRY, t_("Retry"));
 	msg.ButtonL(IDABORT,t_("Abort"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -235,7 +236,7 @@ MessageCtrl& MessageCtrl::Error(Ctrl& c, const String& s, Event<const String&> l
 	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
 }
@@ -247,7 +248,7 @@ MessageCtrl& MessageCtrl::ErrorOKCancel(Ctrl& c, const String& s, Event<int> act
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonL(IDOK, t_("OK"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -260,7 +261,7 @@ MessageCtrl& MessageCtrl::ErrorYesNo(Ctrl& c, const String& s, Event<int> action
 	msg.Placement(place);
 	msg.ButtonR(IDNO, t_("No"));
 	msg.ButtonL(IDYES, t_("Yes"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -274,7 +275,7 @@ MessageCtrl& MessageCtrl::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> 
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonM(IDNO, t_("No"));
 	msg.ButtonL(IDYES,t_("Yes"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -287,7 +288,7 @@ MessageCtrl& MessageCtrl::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> 
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonL(IDRETRY,t_("Retry"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -300,7 +301,7 @@ MessageCtrl& MessageCtrl::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> a
 	msg.Placement(place);
 	msg.ButtonR(IDRETRY, t_("Retry"));
 	msg.ButtonL(IDABORT, t_("Abort"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -314,7 +315,7 @@ MessageCtrl& MessageCtrl::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<
 	msg.ButtonR(IDIGNORE, t_("Ignore"));
 	msg.ButtonM(IDRETRY, t_("Retry"));
 	msg.ButtonL(IDABORT,t_("Abort"));
-	msg.Set(c, s, animate);
+	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	msg.WhenAction = action;
 	return *this;
@@ -330,5 +331,26 @@ MessageBox& MessageCtrl::Create()
 		i--;
 	}
 	return messages.Add();
+}
+
+void MessageCtrl::Clear(const Ctrl* c)
+{
+	if(!c)
+		messages.Clear();
+	else
+		for(int i = 0; i < messages.GetCount(); i++) {
+			auto& msg = messages[i];
+			if(msg.GetParent() != c)
+				continue;
+			messages.Remove(i);
+			i--;
+		}
+}
+
+MessageCtrl::MessageCtrl()
+{
+	animate  = false;
+	append   = false;
+	place    = MessageBox::Place::TOP;
 }
 }

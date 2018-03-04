@@ -67,6 +67,13 @@ ottom]()&]
 chaining. &]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:MessageCtrl`:`:Append`(bool`):%- [_^Upp`:`:MessageCtrl^ MessageCtrl][@(0.0.255) `&
+]_[* Append]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2; By default, new messages are insterted as the top`-most or bottom`-most 
+frames (depending on their alignment). This method changes the 
+direction and appends the new messages at the `"end`" of message 
+frames. Returns `*this for method chaining.&]
+[s3; &]
 [s4;%- &]
 [s5;:Upp`:`:MessageCtrl`:`:Information`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`,int`):%- [_^Upp`:`:MessageCtrl^ M
 essageCtrl][@(0.0.255) `&]_[* Information]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c], 
@@ -162,8 +169,11 @@ used to set a setup an hyperlink action. Returns `*this for method
 chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:MessageCtrl`:`:Clear`(`):%- [@(0.0.255) void]_[* Clear]()&]
-[s2; Clears the messages.&]
+[s5;:Upp`:`:MessageCtrl`:`:Clear`(const Upp`:`:Ctrl`*`):%- [@(0.0.255) void]_[* Clear]([@(0.0.255) c
+onst]_[_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `*]_[*@3 c]_`=_nullptr)&]
+[s2; Clears the messages attached to [%-*@3 c]. Passing a nullptr will 
+clear all the messages.&]
+[s3; &]
 [s3;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor detail]]}}&]
 [s3;%- &]
