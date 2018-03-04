@@ -44,7 +44,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
 	discarded   = false;
 	ctrl.parent = &c;
 
-	c.AddFrame(*this);
+	c.InsertFrame(0, *this);
 
 	qtf.NoSb();
 	qtf.VCenter();
