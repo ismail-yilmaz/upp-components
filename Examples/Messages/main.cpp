@@ -6,7 +6,7 @@ using namespace Upp;
 class Messages : public TopWindow {
 	MessageCtrl msg;
 	DocEdit editor;
-	Button  button;
+	Button  button1,  button2;
 	
 public:
 	Messages()
@@ -24,9 +24,11 @@ public:
 		};
 		
 		Add(editor.HSizePosZ().VSizePos(0, 24));
-		Add(button.RightPos(4).BottomPos(4));
-		button.SetLabel("Test");
-		button <<  [=] {
+		Add(button1.SetLabel("Test").RightPos(4).BottomPos(4));
+		Add(button2.SetLabel("Clear").LeftPos(4).BottomPos(4));
+
+		button2 << [=] { msg.Clear(this); }; // Selective clearing.
+		button1 << [=] {
 			msg.Animation()
 			  .Top()
 			  .Information(*this, "This is a time-constrained information message. It will disappear in 5 seconds.", Null, 5)
