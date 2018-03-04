@@ -7,7 +7,7 @@ namespace Upp {
 
 class MessageBox : public FrameCtrl<ParentCtrl> {
 public:
-    enum class Type  { INFORMATION, WARNING, QUESTION, SUCCESS, ERROR, CUSTOM };
+    enum class Type  { INFORMATION, WARNING, QUESTION, SUCCESS, FAILURE, CUSTOM };
     enum class Place { TOP, BOTTOM };
 
     MessageBox()                                    { place = Place::TOP; }

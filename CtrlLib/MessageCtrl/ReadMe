@@ -21,6 +21,9 @@ It also means that in some cases the text messages should be escaped, using DeQt
 
 History:
 --------------------
+2018-03-03: Name clash on Windows fixed.
+            MessageBox::Type::ERROR  -> MessageBox::Type::FAILURE
+
 2018-03-01: Information and custom message boxes can now have timeouts.
 
 2018-02-21: Widget renames as MessageCtrl. (Final)

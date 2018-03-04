@@ -31,7 +31,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, int secs)
 		paper = Blend(Color(39, 170, 96), Color(239, 240, 241));
 		icon  = CtrlImg::information();
 		break;
-	case Type::ERROR:
+	case Type::FAILURE:
 		paper = Blend(Color(218, 68, 83), Color(239, 240, 241));
 		icon  = CtrlImg::error();
 		break;
@@ -232,7 +232,7 @@ MessageCtrl& MessageCtrl::AskAbortRetryIgnore(Ctrl& c, const String& s, Event<in
 MessageCtrl& MessageCtrl::Error(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDOK, t_("OK"));
 	msg.Set(c, s, animate);
@@ -243,7 +243,7 @@ MessageCtrl& MessageCtrl::Error(Ctrl& c, const String& s, Event<const String&> l
 MessageCtrl& MessageCtrl::ErrorOKCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonL(IDOK, t_("OK"));
@@ -256,7 +256,7 @@ MessageCtrl& MessageCtrl::ErrorOKCancel(Ctrl& c, const String& s, Event<int> act
 MessageCtrl& MessageCtrl::ErrorYesNo(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDNO, t_("No"));
 	msg.ButtonL(IDYES, t_("Yes"));
@@ -269,7 +269,7 @@ MessageCtrl& MessageCtrl::ErrorYesNo(Ctrl& c, const String& s, Event<int> action
 MessageCtrl& MessageCtrl::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonM(IDNO, t_("No"));
@@ -283,7 +283,7 @@ MessageCtrl& MessageCtrl::ErrorYesNoCancel(Ctrl& c, const String& s, Event<int> 
 MessageCtrl& MessageCtrl::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDCANCEL, t_("Cancel"));
 	msg.ButtonL(IDRETRY,t_("Retry"));
@@ -296,7 +296,7 @@ MessageCtrl& MessageCtrl::ErrorRetryCancel(Ctrl& c, const String& s, Event<int> 
 MessageCtrl& MessageCtrl::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDRETRY, t_("Retry"));
 	msg.ButtonL(IDABORT, t_("Abort"));
@@ -309,7 +309,7 @@ MessageCtrl& MessageCtrl::ErrorAbortRetry(Ctrl& c, const String& s, Event<int> a
 MessageCtrl& MessageCtrl::ErrorAbortRetryIgnore(Ctrl& c, const String& s, Event<int> action, Event<const String&> link)
 {
 	auto& msg = Create();
-	msg.MessageType(MessageBox::Type::ERROR);
+	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
 	msg.ButtonR(IDIGNORE, t_("Ignore"));
 	msg.ButtonM(IDRETRY, t_("Retry"));
