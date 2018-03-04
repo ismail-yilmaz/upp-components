@@ -87,7 +87,6 @@ public:
 private:
     Array<MessageBox> messages;
     bool animate;
-    int  duration;
     MessageBox::Place place;
 };
 }
