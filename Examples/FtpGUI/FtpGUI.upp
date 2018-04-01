@@ -1,0 +1,15 @@
+description "Demonstrates a basic FTP browser with GUI\377";
+
+uses
+	CtrlLib,
+	FTP;
+
+file
+	FtpGUI.h,
+	main.cpp,
+	FtpGui.t,
+	FtpGUI.lay;
+
+mainconfig
+	"" = "GUI MT";
+

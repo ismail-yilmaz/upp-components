@@ -44,7 +44,6 @@ String GetName(int type, int64 id)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
 // Ssh: SSH objects core class.
-
 void Ssh::Exit()
 {
 	ssh->async = false;

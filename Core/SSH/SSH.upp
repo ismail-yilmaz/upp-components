@@ -28,6 +28,7 @@ link(WIN32 MSC SO) /nodefaultlib:libc;
 file
 	SSH.h,
 	Core.h,
+	Core.hpp,
 	Core.cpp,
 	Session.h,
 	Session.cpp,

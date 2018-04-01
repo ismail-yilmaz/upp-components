@@ -217,7 +217,7 @@ String SFtp::Get(SFtpHandle* handle, Gate<int64, int64> progress)
 			if(FStat(HANDLE(handle), *sftp->finfo, false) <= 0) OpCode() = FGET;
 			else return false;
 		}
-		return FRead(HANDLE(handle), sftp->stream, 0, pick(progress), true);
+		return FRead(HANDLE(handle), sftp->stream, 0, progress, true);
 	});
 	return ssh->async ? Null : pick(sftp->value);
 }

@@ -41,6 +41,7 @@ class SshShell;
 class SshHosts;
 
 #include "Core.h"
+#include "Core.hpp"
 #include "Session.h"
 #include "SFtp.h"
 #include "Channels.h"

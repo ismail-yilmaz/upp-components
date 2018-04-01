@@ -1,0 +1,12 @@
+description "Demonstrates FTP dir listing and concurrent file transfers, using worker threads\377";
+
+uses
+	Core,
+	FTP;
+
+file
+	FtpMultiGetMT.cpp;
+
+mainconfig
+	"" = "";
+

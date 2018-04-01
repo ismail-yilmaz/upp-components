@@ -74,6 +74,9 @@ protected:
     int&                OpCode()                                { return ssh->queue.Head().Get<int>(); }
     void                SetError(int rc, const String& reason = Null);
 
+    template<class F, class... Args>
+    bool Call(F&& fn, Args... args);
+
 private:
     bool                 Do0();
     static int64         GetNewId();

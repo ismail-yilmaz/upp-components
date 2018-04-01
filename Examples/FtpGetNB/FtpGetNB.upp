@@ -1,0 +1,12 @@
+description "Demonstrates basic FTP file download in non-blocking mode.\377";
+
+uses
+	Core,
+	FTP;
+
+file
+	FtpGetNB.cpp;
+
+mainconfig
+	"" = "";
+

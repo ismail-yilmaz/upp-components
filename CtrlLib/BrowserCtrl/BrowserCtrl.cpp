@@ -121,7 +121,7 @@ void BrowserCtrl::Select()
 	if(IsCursor()) {
 		selected.Clear();
 		for(auto i = 0; i < filelist.GetCount(); i++) {
-			if(filelist.IsSelected(i))
+			if(filelist.IsSel(i))
 				selected.Add(GetFullPath(filelist[i].name));
 		}
 		if(!selected.IsEmpty())

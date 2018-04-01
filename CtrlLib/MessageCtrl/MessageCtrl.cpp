@@ -52,13 +52,13 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int 
 	qtf.SetQTF(String("[G1 ") + msg);
 	qtf.WhenLink = Proxy(WhenLink);
 
-	int rpos = 4;
+	int rpos = Zx(4);
 
 	SetButtonLayout(bt1, id1, rpos);
 	SetButtonLayout(bt2, id2, rpos);
 	SetButtonLayout(bt3, id3, rpos);
 
-	Add(qtf.HSizePosZ(IsNull(icon) ? 4 : 24, rpos).VSizePosZ());
+	Add(qtf.HSizePosZ(Zx(IsNull(icon) ? 4 : 24), rpos).VSizePosZ());
 
 	if((animated = animate)) {
 		Animate(ctrl, Rect(0, 0, c.GetSize().cx, GetHeight()), GUIEFFECT_SLIDE);
@@ -77,11 +77,11 @@ void MessageBox::SetButtonLayout(Button& b, int id, int& rpos)
 		return;
 
 	int fcy  = Draw::GetStdFontCy();
-	int gap  = fcy / 4;
-	int cx   = 28;
+	int gap  = Zx(fcy / 4);
+	int cx   = Zx(24);
 	
 	cx = max(2 * fcy + GetTextSize(b.GetLabel(), Draw::GetStdFont()).cx, cx);
-	Add(b.RightPosZ(rpos, cx).VCenterPosZ(24));
+	Add(b.RightPosZ(rpos, cx).VCenterPosZ(20));
 	b << [=] { WhenAction(id); Discard(); };
 	rpos += cx + gap;
 }

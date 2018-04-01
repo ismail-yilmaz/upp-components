@@ -10,7 +10,7 @@ namespace Upp {
 
 class NetProxy {
 
-    enum status         { IDLE, WORKING, FINISHED, FAILED };
+    enum State          { IDLE, WORKING, FINISHED, FAILED };
     enum ProxyCommands  { CONNECT = 0x01, BIND = 0x02 };
     enum Socks5Packets  { SOCKS5_HELO, SOCKS5_AUTH, SOCKS5_REQUEST };
 
@@ -62,7 +62,6 @@ class NetProxy {
             byte    status;
             uint16  port;
             uint32  address;
-
         };
         struct Socks5 {
             byte    version;

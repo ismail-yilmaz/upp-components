@@ -1,0 +1,9 @@
+LAYOUT(FtpGUILayout, 330, 278)
+	ITEM(EditString, url, HSizePosZ(27, 132).TopPosZ(4, 20))
+	ITEM(FileList, list, HSizePosZ(1, 1).VSizePosZ(28, 3))
+	ITEM(Button, dirup, RightPosZ(106, 24).TopPosZ(4, 20))
+	ITEM(Button, upload, RightPosZ(80, 24).TopPosZ(4, 20))
+	ITEM(Button, connect, SetLabel(t_("Connect")).RightPosZ(2, 75).TopPosZ(4, 20))
+	ITEM(Label, dv___5, SetLabel(t_("Url")).SetAlign(ALIGN_RIGHT).LeftPosZ(4, 20).TopPosZ(4, 20))
+END_LAYOUT
+

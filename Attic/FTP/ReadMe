@@ -1,51 +1,20 @@
-FTP package for U++ 
--------------------
+Ftp class is a U++ client side implementation of the File Transfer Protocol (FTP) as specified in RFC 959, with several advanced capabilities: 
 
-This package provides an easy-to-use interface to the client side of the File Transfer Protocol
-as specified in RFC 959, with support for a number of advanced capabilities.
-Ftp class supports:
+- Support for IPv6 and NATs, as specified in RFC 2428.
+- Support for ftp over TLS/SSL (FTPS), as specified in RFC 2228.
+- Support for feature negotiation mechanism as specifien in RFC 2389.
+- Support for multithreading, using worker threads. 
+- Support for parsing UNIX and DOS style directory listings.
+- Support for extending the functionality of Ftp class, using the low-level SendCommand() method.
+- Support for transfer restart (resume) mechanism, as specified in RFC 3959.
 
-- Time-constrained blocking, and non blocking operation modes.
-- Multithreaded file transfers, using worker threads.
-- IPv6 connections and NATs, as specified in RFC 2428.
-- Ftp over TLS/SSL (FTPS), as specified in RFC 2228.
-- Feature negotiation mechanism as specifien in RFC 2389.
-- Parsing of UNIX and DOS style directory listings.
-- Extending the existing functionality of Ftp class.
-- Transfer restart/resume mechanism, as specified in RFC 3959.
-- UTF-8 encoded path names.
+ToDo:
+--------
+- Proxy support (using NetworkProxy).
+- Refactoring and optimization of FtpAsyncIO.
 
-Reference examples:
--------------------
-
-- FtpGet:           Demonstrates basic FTP file download in blocking mode.
-- FtpGetNB:         Demonstrates basic FTP file download in non-blocking mode.
-- FtpGetMT:         Demonstrates basic Ftp file download, using worker threads.
-- FtpGUI:           Demonstrates a basic FTP browser with GUI (with upload, download, mkdir, rename, delete commands).
-- FtpMultiGetMT:    Demonstrates FTP dir listing and concurrent file transfers, using worker threads.
-- FtpOverTLS:       Demonstrates the secure connection capability of FTP package in blocking mode.
-- FtpQueryFeatures: Demonstrates the feature query mechanism, as defined in RFC 2389
-
-Note: FtpGUI's interface is inspired by qt's (v4.8) FtpExample. (http://doc.qt.io/archives/qt-4.8/qt-network-qftp-example.html)
-       
 History:
 --------
-
-(01-04-2018):   MAJOR RELEASE: Ftp package, version 2.0.0
-                Necessary API breakage.
-                Ftp is redesigned, using an effective, and simple queue-model similar to the SSH package's.             
-                Old multithreading code completely ditched in favor of the new AsyncWork based ftp workers.
-                This resulted in noticable performance gain, and simplicity.
-                Non-blocking mode is finally implemented. Ftp class can do non-blocking calls easily.
-                FTPS mode improved. It is now possible to inspect the SSL information after handshake.
-                Support for user-defined consumer functions (for incoming data) is added.
-                A simple ftp URL scheme is implemented. This scheme replaces (partially) the old Ftp::Request class.
-                UTF-8 path name encoding support is added.
-                Optional Connect/Login() methods pair added. It is now possible to execute commands before login.
-                Ftp::DirEntry now uses pcre to parse listing strings.
-                Logging is improved.
-                Reference examples are added to the package.
-
 (13-07-2017):   Ftp package, version 1.2.1.
                 Transfer restart mechanism fixed. It now properly handles failed or aborted transfer.
 (02-06-2017):   REST and APPE commands are implemented. See RFC 3659 for more informations.

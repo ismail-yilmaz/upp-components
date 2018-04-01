@@ -165,8 +165,7 @@ essageCtrl][@(0.0.255) `&]_[* ErrorAbortRetryIgnore]([_^Upp`:`:Ctrl^ Ctrl][@(0.0
 onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 link])&]
 [s2; Adds an error message to [%-*@3 c] with the text [%-*@3 s]. [%-*@3 action] 
 should be used to handle the user response. [%-*@3 link] can be 
-used to set a setup an hyperlink action. Returns `*this for method 
-chaining.&]
+used to set a hyperlink action. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:MessageCtrl`:`:Clear`(const Upp`:`:Ctrl`*`):%- [@(0.0.255) void]_[* Clear]([@(0.0.255) c

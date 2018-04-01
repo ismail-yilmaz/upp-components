@@ -1,0 +1,12 @@
+description "Demonstrates the secure connection capability of FTP package in blocking mode.\377";
+
+uses
+	Core,
+	FTP;
+
+file
+	FtpOverTLS.cpp;
+
+mainconfig
+	"" = "";
+
