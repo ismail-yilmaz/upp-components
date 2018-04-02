@@ -11,8 +11,10 @@ CONSOLE_APP_MAIN
 	Ftp ftpclient;
 	if(ftpclient.Timeout(30000).Connect("demo:password@test.rebex.net:21")) {
 		ftpclient.SendCommand("HELP");
-		if(!ftpclient.IsError())
-			Cout() << ftpclient.GetReply();
+		if(!ftpclient.IsError()) {
+			LOG(ftpclient.GetReply());
+			return;
+		}
 	}
 	LOG(ftpclient.GetErrorDesc());
 }
