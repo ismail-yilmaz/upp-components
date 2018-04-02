@@ -1,0 +1,12 @@
+description "Demonstrates FTP raw command execution in blocking mode.\377";
+
+uses
+	Core,
+	FTP;
+
+file
+	FtpRawCommand.cpp;
+
+mainconfig
+	"" = "";
+
