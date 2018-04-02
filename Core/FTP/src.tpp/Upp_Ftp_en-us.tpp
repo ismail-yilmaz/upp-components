@@ -240,10 +240,12 @@ command is accepted. Useful for keeping connections alive.&]
 [s5;%- &]
 [s3;:Ftp`:`:SendCommand`(const String`&`):%- [@(0.0.255) int]_[* SendCommand]([@(0.0.255) c
 onst]_[_^String^ String][@(0.0.255) `&]_[*@3 cmd])&]
-[s2; Sends a raw command to the ftp server. Returns `-1 for internal 
-errors, and other values for protocol specific error and success 
-messages. A CRLF (`"`\r`\n`") is automatically appended to every 
-command.This is a low level method to simplify extending the 
+[s2; Sends a raw command to the ftp server. A CRLF (`"`\r`\n`") is 
+automatically appended to every command. Returns protocol specific 
+reply codes. Note that this method will not fail on ftp protocol 
+errors. In case of internal errors, IsError(), GetError() and 
+GetErrorDesc() methods should be used to determine the cause 
+of error. This is a low level method to simplify extending the 
 functionality of the Ftp class. Server replies and/or internal 
 error codes and messages can be obtained using the relevant methods.&]
 [s4; &]

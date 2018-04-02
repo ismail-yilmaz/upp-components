@@ -497,7 +497,7 @@ void Ftp::StartCommand(const OpCode& code, const Value& req)
 				break;
 			}
 			case OpCode::RAW:
-				b = PutGet(req, Reply::SUCCESS | Reply::PENDING | Reply::WAIT);
+				b = PutGet(req, Reply::ANY);
 				break;
 			case OpCode::NONE:
 				opcode = code;
