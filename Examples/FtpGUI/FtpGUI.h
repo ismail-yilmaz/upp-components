@@ -10,8 +10,8 @@ using namespace Upp;
 #include <CtrlCore/lay.h>
 
 class FtpGUI : public WithFtpGUILayout<TopWindow> {
-	enum    OpCode { GET, PUT };
-	MenuBar menu;
+    enum    OpCode { GET, PUT };
+    MenuBar menu;
     Ftp     browser;
     String  workdir;
     String  basedir;

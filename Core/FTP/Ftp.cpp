@@ -497,7 +497,7 @@ void Ftp::StartCommand(const OpCode& code, const Value& req)
 				break;
 			}
 			case OpCode::RAW:
-				b = PutGet(req, Reply::WAIT|Reply::SUCCESS|Reply::PENDING);
+				b = PutGet(req, Reply::SUCCESS | Reply::PENDING | Reply::WAIT);
 				break;
 			case OpCode::NONE:
 				opcode = code;
@@ -740,23 +740,26 @@ bool Ftp::PutGet(const String& s, byte r)
 					if(!reply.IsMultiline() && packet[3] == '-')
 						reply.multiline = true;
 					else
-					if(reply.IsMultiline() && packet[3] == ' ')
-						reply.multiline = false;
+					if(reply.IsMultiline()) {
+						auto n = GetReplyCode(packet);
+						if(n == reply.code && packet[3] == ' ')
+							reply.multiline = false;
+					}
 				}
 				if(packet.EndsWith("\r\n")) {
 					LLOG("[Recv] " << TrimRight(packet));
 					reply << packet;
 					packet.Clear();
 					if(!reply.IsMultiline()) {
-						auto b = false;
-						if(r & Reply::ANY)            b = true;
-						if(!b && r & Reply::WAIT)	  b = reply.IsWait();
-						if(!b && r & Reply::SUCCESS)  b = reply.IsSuccess();
-						if(!b && r & Reply::PENDING)  b = reply.IsPending();
-						if(!b && r & Reply::FAILURE)  b = reply.IsFailure();
-						if(!b && r & Reply::HALT)     b = reply.IsError();
+						auto bb = false;
+						if(r & Reply::ANY)             bb = true;
+						if(!bb && r & Reply::WAIT)	   bb = reply.IsWait();
+						if(!bb && r & Reply::SUCCESS)  bb = reply.IsSuccess();
+						if(!bb && r & Reply::PENDING)  bb = reply.IsPending();
+						if(!bb && r & Reply::FAILURE)  bb = reply.IsFailure();
+						if(!bb && r & Reply::HALT)     bb = reply.IsError();
 						WhenReply();
-						if(!b)
+						if(!bb)
 							throw Error(reply);
 						events = 0;
 						opcode = OpCode::NONE;
@@ -772,9 +775,7 @@ bool Ftp::PutGet(const String& s, byte r)
 				if(!s.IsEmpty()) {
 					if(!s.EndsWith("\r\n"))
 						packet = s + "\r\n";
-					LLOG("[Send] " << (!s.StartsWith("PASS")
-											? TrimRight(s)
-											: "PASS ****"));
+					LLOG("[Send] " << (!s.StartsWith("PASS") ?  TrimRight(s) : "PASS ****"));
 					events = WAIT_WRITE;
 				}
 				else
@@ -1205,20 +1206,20 @@ Ftp::Ftp()
 	mode        = PASSIVE;
 	opcode      = OpCode::NONE;
 	done        = 0;
-	total		= 0;
+	total       = 0;
 	events      = 0;
-	position	= 0;
+	position    = 0;
 	reply       = Null;
 	utf         = false;
 	ssl         = false;
 	restart     = false;
-	connected	= false;
-	aborted		= false;
+	connected   = false;
+	aborted     = false;
 	data_error  = false;
 	data_socket.WhenWait = WhenWait;
 	control_socket.WhenWait = WhenWait;
 	static int64 id; // Unique ID for each instance.
-	uid         = (id = (id == INT64_MAX ? 1 : ++id));
+	uid = (id = (id == INT64_MAX ? 1 : ++id));
 }
 
 Ftp::~Ftp()

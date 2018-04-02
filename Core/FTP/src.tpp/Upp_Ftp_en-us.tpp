@@ -162,7 +162,9 @@ attempt anonymous login when user name or password is not specified.&]
 [s5;%- &]
 [s3;:Ftp`:`:GetDir`(`):%- [_^String^ String]_[* GetDir]()&]
 [s2; Returns the remote working directory. Returns String`::GetVoid() 
-on failure.&]
+on failure. In non`-blocking mode, the result of this operation 
+can be obtained using [^topic`:`/`/FTP`/src`/Upp`_Ftp`_en`-us`#Upp`:`:Ftp`:`:GetResult`(`)const^ G
+etResult()] method.&]
 [s4;%- &]
 [s5;%- &]
 [s3;:Ftp`:`:SetDir`(const String`&`):%- [@(0.0.255) bool]_[* SetDir]([@(0.0.255) const]_[_^String^ S
@@ -293,17 +295,16 @@ nst]&]
 [s4;%- &]
 [s5;%- &]
 [s3;:Ftp`:`:GetCode`(`)const:%- [@(0.0.255) int]_[* GetCode]()_[@(0.0.255) const]&]
-[s2; Returns last server reply code and returns `-1 for internal 
-errors.&]
+[s2; Returns last server reply code.&]
 [s4; &]
 [s5;%- &]
 [s3;:Ftp`:`:GetReply`(`)const:%- [_^String^ String]_[* GetReply]()_[@(0.0.255) const]&]
-[s2; Returns last server reply message, or internal error message.&]
+[s2; Returns last server reply message.&]
 [s4;%- &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:GetReplyAsXml`(`):%- [_^Upp`:`:String^ String]_[* GetReplyAsXml]()&]
-[s2; Returns the last server reply message, or internal error message 
-in a simple XML format. The XML format is as follows:&]
+[s2; Returns the last server reply message in a simple XML format. 
+The XML format is as follows:&]
 [s2; &]
 [ {{1765:8235h1;l/26r/26t/14b/14@1 [s2; [* XML Tag]]
 :: [s2; [* Description]]

@@ -239,7 +239,7 @@ FtpGUI::FtpGUI()
 
 GUI_APP_MAIN
 {
-	SetLanguage(GetSystemLNG());
+//	SetLanguage(GetSystemLNG());
 	Ftp::Trace();
 	FtpGUI ftpbrowser;
 	LoadFromFile(ftpbrowser);
