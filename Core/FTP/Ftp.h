@@ -88,7 +88,7 @@ public:
     ValueMap                 GetFeatures()                                          { Run([=]{ StartCommand(OpCode::FEAT); }); return pick(result); }
     void                     Abort()                                                { aborted = true; }
     bool                     Noop()                                                 { return Run([=]{ StartCommand(OpCode::NOOP); }); }
-    int                      SendCommand(const String& cmd)                         { return Run([=]{ StartCommand(OpCode::RAW, cmd); }); return reply.code; }
+    int                      SendCommand(const String& cmd)                         { Run([=]{ StartCommand(OpCode::RAW, cmd); }); return reply.code; }
 
     String                   Get(const String& path, bool ascii = false);
     bool                     Get(const String& path, Stream& s, bool ascii = false);
