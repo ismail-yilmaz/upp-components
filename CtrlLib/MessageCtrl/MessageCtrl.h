@@ -2,6 +2,9 @@
 #define _Message_Message_h_
 
 #include <CtrlLib/CtrlLib.h>
+#define IMAGECLASS MessageCtrlImg
+#define IMAGEFILE <MessageCtrl/MessageCtrl.iml>
+#include <Draw/iml_header.h>
 
 namespace Upp {
 
@@ -10,9 +13,10 @@ public:
     enum class Type  { INFORMATION, WARNING, QUESTION, SUCCESS, FAILURE, CUSTOM };
     enum class Place { TOP, BOTTOM };
 
-    MessageBox()                                    { place = Place::TOP; }
+    MessageBox()                                    { place = Place::TOP; cross = false; }
     virtual ~MessageBox()                           { if(!IsDiscarded()) Discard(); }
     
+    MessageBox& UseCross(bool b = true)             { cross = true; return *this; }
     MessageBox& Placement(Place pl)                 { place = pl; return *this; }
     MessageBox& MessageType(Type t)                 { msgtype = t; return *this; }
     MessageBox& Icon(Image img)                     { icon  = img; return *this; }
@@ -35,6 +39,7 @@ public:
 private:
     int  GetHeight() const                          { return clamp(qtf.GetHeight() + 8, Ctrl::VertLayoutZoom(28), 1080); }
     void SetButtonLayout(Button& b, int id, int& rpos);
+    void SetCross(int& rpos);
     void Discard();
 
     struct Dummy : public Ctrl { // Redirects layout synchronization.
@@ -46,9 +51,11 @@ private:
     TimeCallback tcb;
     Button  bt1, bt2, bt3;
     int     id1, id2, id3;
+    Button::Style btstyle;
     Dummy   ctrl;
     Image   icon;
     Color   paper;
+    bool    cross;
     bool    animated;
     bool    discarded;
     Type    msgtype;

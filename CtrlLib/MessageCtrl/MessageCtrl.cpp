@@ -1,19 +1,32 @@
 #include "MessageCtrl.h"
 
+#define IMAGECLASS MessageCtrlImg
+#define IMAGEFILE <MessageCtrl/MessageCtrl.iml>
+#include <Draw/iml_source.h>
+
 namespace Upp {
 
-static bool operator||(MessageBox::Type a, MessageBox::Type b) 
+static bool operator||(MessageBox::Type a, MessageBox::Type b)
 {
 	return (int)a || int(b);
+}
+
+Button::Style CrossStyle()
+{
+	Button::Style s = Button::StyleNormal();
+	for(int i = 0; i < 4; i++)
+		s.look[i] = MessageCtrlImg::Get(i);
+	s.pressoffset = Point(1, -1);
+	return s;
 }
 
 void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int secs)
 {
 	// Note: Color scheme is taken and modified from KMessageWidget.
 	// See: https://api.kde.org/frameworks/kwidgetsaddons/html/kmessagewidget_8cpp_source.html
-	
+
 	int duration = clamp(secs, 0, 24 * 3600) * 1000;
-	
+
 	switch(msgtype) {
 	case Type::INFORMATION:
 		paper = Blend(Color(128, 128, 255), Color(255, 255, 255));
@@ -40,7 +53,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int 
 	}
 
 	SetFrame(FieldFrame());
-	
+
 	discarded   = false;
 	ctrl.parent = &c;
 
@@ -54,10 +67,13 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int 
 
 	int rpos = Zx(4);
 
-	SetButtonLayout(bt1, id1, rpos);
-	SetButtonLayout(bt2, id2, rpos);
-	SetButtonLayout(bt3, id3, rpos);
-
+	if(cross)
+		SetCross(rpos);
+	else {
+		SetButtonLayout(bt1, id1, rpos);
+		SetButtonLayout(bt2, id2, rpos);
+		SetButtonLayout(bt3, id3, rpos);
+	}
 	Add(qtf.HSizePosZ(Zx(IsNull(icon) ? 4 : 24), rpos).VSizePosZ());
 
 	if((animated = animate)) {
@@ -66,7 +82,7 @@ void MessageBox::Set(Ctrl& c, const String& msg, bool animate, bool append, int 
 	}
 	else
 		ctrl.SetRect(0, 0, c.GetSize().cx, GetHeight());
-	
+
 	if((msgtype == Type::INFORMATION || msgtype == Type::CUSTOM) && duration)
 		tcb.Set(duration, [=] { Discard(); });
 }
@@ -79,10 +95,21 @@ void MessageBox::SetButtonLayout(Button& b, int id, int& rpos)
 	int fcy  = Draw::GetStdFontCy();
 	int gap  = Zx(fcy / 4);
 	int cx   = Zx(24);
-	
+
 	cx = max(2 * fcy + GetTextSize(b.GetLabel(), Draw::GetStdFont()).cx, cx);
 	Add(b.RightPosZ(rpos, cx).VCenterPosZ(20));
 	b << [=] { WhenAction(id); Discard(); };
+	rpos += cx + gap;
+}
+
+void MessageBox::SetCross(int& rpos)
+{
+	int gap  = Zx(10 / 4);
+	int cx   = Zx(10);
+	btstyle  = CrossStyle();
+	bt1.SetStyle(btstyle);
+	Add(bt1.RightPosZ(rpos, cx).VCenterPosZ(cx));
+	bt1 << [=] { WhenAction(IDOK); Discard(); };
 	rpos += cx + gap;
 }
 
@@ -112,7 +139,7 @@ void MessageBox::FramePaint(Draw& w, const Rect& r)
 {
 	Size  sz = GetSize();
 	w.DrawRect(r, paper);
-	
+
 	auto cy = Ctrl::VertLayoutZoom(16);
 	w.DrawImage(
 		4,
@@ -135,7 +162,7 @@ MessageCtrl& MessageCtrl::Information(Ctrl& c, const String& s, Event<const Stri
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::INFORMATION);
 	msg.Placement(place);
-	msg.ButtonR(IDOK, t_("OK"));
+	msg.UseCross();
 	msg.Set(c, s, animate, append, sec);
 	msg.WhenLink = link;
 	return *this;
@@ -146,7 +173,7 @@ MessageCtrl& MessageCtrl::Warning(Ctrl& c, const String& s, Event<const String&>
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::WARNING);
 	msg.Placement(place);
-	msg.ButtonR(IDOK, t_("OK"));
+	msg.UseCross();
 	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
@@ -157,7 +184,7 @@ MessageCtrl& MessageCtrl::Success(Ctrl& c, const String& s, Event<const String&>
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::SUCCESS);
 	msg.Placement(place);
-	msg.ButtonR(IDOK, t_("OK"));
+	msg.UseCross();
 	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
@@ -235,7 +262,7 @@ MessageCtrl& MessageCtrl::Error(Ctrl& c, const String& s, Event<const String&> l
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::FAILURE);
 	msg.Placement(place);
-	msg.ButtonR(IDOK, t_("OK"));
+	msg.UseCross();
 	msg.Set(c, s, animate, append);
 	msg.WhenLink = link;
 	return *this;
