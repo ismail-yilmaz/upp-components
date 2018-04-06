@@ -23,6 +23,7 @@ History:
 --------------------
 2018-04-07: UseCross() method added. It is now possible to use a
             small image button with cross instead of OK button.
+            Informative message boxes use crosses by default.
 
 2018-03-03: Name clash on Windows fixed.
             MessageBox::Type::ERROR  -> MessageBox::Type::FAILURE
