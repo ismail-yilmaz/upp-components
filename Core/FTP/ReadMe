@@ -20,17 +20,21 @@ Reference examples:
 
 - FtpGet:           Demonstrates basic FTP file download in blocking mode.
 - FtpGetNB:         Demonstrates basic FTP file download in non-blocking mode.
-- FtpGetMT:         Demonstrates basic Ftp file download, using worker threads.
+- FtpGetMT:         Demonstrates basic Ftp file download, using a worker thread.
 - FtpGUI:           Demonstrates a basic FTP browser with GUI (with upload, download, mkdir, rename, delete commands).
 - FtpMultiGetMT:    Demonstrates FTP dir listing and concurrent file transfers, using worker threads.
 - FtpOverTLS:       Demonstrates the secure connection capability of FTP package in blocking mode.
 - FtpQueryFeatures: Demonstrates the feature query mechanism, as defined in RFC 2389
+- FtpRawCommand:    Demonstrates FTP raw command execution in blocking mode.
 
 Note: FtpGUI's interface is inspired by qt's (v4.8) FtpExample. (http://doc.qt.io/archives/qt-4.8/qt-network-qftp-example.html)
        
 History:
 --------
-
+(05-04-2018):   ConnectionInfo is now properly cleared in SetActiveMode().
+                Documentation updated.
+                Minor fixes & cosmetics.
+                 
 (01-04-2018):   MAJOR RELEASE: Ftp package, version 2.0.0
                 Necessary API breakage.
                 Ftp is redesigned, using an effective, and simple queue-model similar to the SSH package's.             

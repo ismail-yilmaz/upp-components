@@ -753,7 +753,7 @@ bool Ftp::PutGet(const String& s, byte r)
 					if(!reply.IsMultiline()) {
 						auto bb = false;
 						if(r & Reply::ANY)             bb = true;
-						if(!bb && r & Reply::WAIT)	   bb = reply.IsWait();
+						if(!bb && r & Reply::WAIT)     bb = reply.IsWait();
 						if(!bb && r & Reply::SUCCESS)  bb = reply.IsSuccess();
 						if(!bb && r & Reply::PENDING)  bb = reply.IsPending();
 						if(!bb && r & Reply::FAILURE)  bb = reply.IsFailure();
@@ -795,7 +795,7 @@ bool Ftp::Run(const Event<>& cmd)
 	queue.Clear();
 	data_error = false;
 	cmd();
-	if(control_socket.GetTimeout() != 0)
+	if(IsBlocking())
 		while(Do0());
 	else
 		return true;
@@ -1011,7 +1011,8 @@ void Ftp::SetActiveMode(const OpCode& code)
 {
 	String addr;
 	ConnectionInfo ci;
-
+	connection.Clear();
+	
 	switch(code) {
 		case OpCode::PORT: {
 			ci = GetConnectionInfo(ConnectionInfo::Type::LOCAL);
@@ -1098,7 +1099,7 @@ void Ftp::GetSSLInfo(TcpSocket& s)
 {
 	if(WhenSSLInfo && WhenSSLInfo(s.GetSSLInfo())) {
 		CloseSockets();
-		throw Error("SSL credentials are rejeceted. Bailing out!..");
+		throw Error("SSL credentials are rejeceted.");
 	}
 }
 

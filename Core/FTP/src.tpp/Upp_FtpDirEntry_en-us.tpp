@@ -153,8 +153,7 @@ onst]&]
 onst]&]
 [s3;%% Returns the directory listing style. Currently [^topic`:`/`/trunk`/FTP`/src`/Ftp`$en`-us`#Upp`:`:Ftp`:`:DirEntry`:`:Style`:`:UNIX^ U
 NIX]  and [^topic`:`/`/trunk`/FTP`/src`/Ftp`$en`-us`#Upp`:`:Ftp`:`:DirEntry`:`:Style`:`:DOS^ D
-OS] style directory listings are supported. Returns UNDEFINED 
-for unsupported directory listing styles.&]
+OS] style directory listings are supported.&]
 [s1;%% &]
 [s4; &]
 [s5;:Upp`:`:Ftp`:`:DirEntry`:`:Style`:`:UNIX: [@(0.0.255) enum]_DirEntry`::Style`::[*@3 UNI

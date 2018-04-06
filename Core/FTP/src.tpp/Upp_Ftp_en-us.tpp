@@ -61,7 +61,11 @@ transfer methods.&]
 [s1;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Public Method List]]}}&]
 [s4;%- &]
-[s0;%- &]
+[s3;:Ftp`:`:Trace`(bool`):%- [@(0.0.255) static] [@(0.0.255) void]_[* Trace]([@(0.0.255) bool
+]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2; Enables logging of Ftp client&]
+[s4; &]
+[s5;%- &]
 [s3;:Upp`:`:Ftp`:`:Active`(bool`,int`):%- [_^Upp`:`:Ftp^ Ftp][@(0.0.255) `&]_[* Active]([@(0.0.255) b
 ool]_[*@3 b]_`=_[@(0.0.255) true], [@(0.0.255) int]_[*@3 port]_`=_[@3 0])&]
 [s2; Enables or disables the FTP active data transfer mode, using 
@@ -247,7 +251,10 @@ errors. In case of internal errors, IsError(), GetError() and
 GetErrorDesc() methods should be used to determine the cause 
 of error. This is a low level method to simplify extending the 
 functionality of the Ftp class. Server replies and/or internal 
-error codes and messages can be obtained using the relevant methods.&]
+error codes and messages can be obtained using the relevant methods. 
+In non`-blocking mode, the result of this operation can be obtained 
+using [^topic`:`/`/FTP`/src`/Upp`_Ftp`_en`-us`#Upp`:`:Ftp`:`:GetResult`(`)const^ Ge
+tResult()] method.&]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:SetPos`(Upp`:`:int64`):%- [_^Upp`:`:Ftp^ Ftp][@(0.0.255) `&]_[* SetPos](
@@ -423,19 +430,26 @@ ool]_[* Append]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3
 [s2; Appends the content of [%-*@3 s] to the remote [%-*@3 path]. Data 
 can be transferred as [%-*@3 ascii] or binary.&]
 [s4; &]
-[s5;%- F&]
+[ {{10000F(128)G(128)@1 [s0; [* Multithreaded Transfer Methods]]}}&]
+[s2;%- &]
+[s2;#%- The following convenience methods comply to the url specification 
+listed above, and use high performance worker threads to transfer 
+data. They all throw [^topic`:`/`/FTP`/src`/Upp`_Ftp`_en`-us`#Upp`:`:Ftp`:`:Error`:`:struct^ F
+tp`::Error] on failure. In all of these methods, [*@3 progress][%%  
+gate can be used to track the progress of the transfer: The first 
+parameter of this gate indicates a unique id. The second parameter 
+provides the amount of data that has already been transferred. 
+The third parameter may provide the total amount of data to be 
+transferred, but is allowed to be 0. Returning true will abort 
+the current data transfer.] &]
+[s4;%- &]
+[s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncGet`(const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
 tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[_^Upp`:`:String^ String]>_[* AsyncGet]([@(0.0.255) c
 onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
 nt64], [_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Downloads the remote file pointed by the ftp [%-*@3 url] as string. 
-Throws Ftp`::Error on failure. [%-*@3 progress] function can be 
-used to track the progress of the download. The first parameter 
-of this gate indicates a unique id. The second parameter provides 
-the amount of data that has already been transferred. The third 
-parameter may provide the total amount of data to be transferred, 
-but is allowed to be 0. Returning true will abort the current 
-data transfer.&]
+&]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncGet`(const Upp`:`:String`&`,Upp`:`:Stream`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
@@ -444,13 +458,7 @@ tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncGet]([@(0.0.25
 ]_[*@3 out], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Downloads the remote file pointed by the ftp [%-*@3 url] to [%-*@3 out]. 
-Throws Ftp`::Error on failure. [%-*@3 progress] function can be 
-used to track the progress of the download. The first parameter 
-of this gate indicates a unique id. The second parameter provides 
-the amount of data that has already been transferred. The third 
-parameter may provide the total amount of data to be transferred, 
-but is allowed to be 0. Returning true will abort the current 
-data transfer.&]
+&]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncPut`(Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
@@ -463,13 +471,7 @@ tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`
 tream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_
 [*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
-[s2; Uploads [%-*@3 in] to the path pointed by the ftp [%-*@3 url]. Throws 
-Ftp`::Error on failure. [%-*@3 progress] function can be used to 
-track the progress of the download. The first parameter of this 
-gate indicates a unique id. The second parameter provides the 
-amount of data that has already been transferred. The third parameter 
-may provide the total amount of data to be transferred, but is 
-allowed to be 0. Returning true will abort the current data transfer.&]
+[s2; Uploads [%-*@3 in] to the path pointed by the ftp [%-*@3 url]. &]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncAppend`(Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
@@ -483,13 +485,7 @@ tream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0
 [*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Appends [%-*@3 in] to the object pointed by the ftp [%-*@3 url]. 
-Throws Ftp`::Error on failure. [%-*@3 progress] function can be 
-used to track the progress of the download. The first parameter 
-of this gate indicates a unique id. The second parameter provides 
-the amount of data that has already been transferred. The third 
-parameter may provide the total amount of data to be transferred, 
-but is allowed to be 0. Returning true will abort the current 
-data transfer.&]
+&]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncGetToFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
@@ -498,16 +494,9 @@ ng][@(0.0.255) `&]_[*@3 url], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0
 est], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Downloads the remote file pointed by [%-*@3 url] to local file 
-pointed by [%-*@3 dest]. Throws Ftp`::Error on failure. [/ Note that, 
-in case of failure this method does not automatically delete 
-the partially downloaded file]. [%-*@3 progress] function can be 
-used to track the progress of the download. The first parameter 
-of this gate indicates a unique id. The second parameter provides 
-the amount of data that has already been transferred. The third 
-parameter may provide the total amount of data to be transferred, 
-but is allowed to be 0. Returning true will abort the current 
-data transfer.&]
-[s4; &]
+pointed by [%-*@3 dest]. Note that, in case of failure this method 
+[/ does not] automatically delete the partially downloaded file.&]
+[s4;  &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncPutFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
 syncWork]<[@(0.0.255) void]>_[* AsyncPutFromFile]([@(0.0.255) const]_[_^Upp`:`:String^ St
@@ -515,13 +504,7 @@ ring][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0
 [*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Uploads the local file pointed by [%-*@3 src] to  the remote path 
-pointed by [%-*@3 url]. Throws Ftp`::Error on failure. [%-*@3 progress] 
-function can be used to track the progress of the download. The 
-first parameter of this gate indicates a unique id. The second 
-parameter provides the amount of data that has already been transferred. 
-The third parameter may provide the total amount of data to be 
-transferred, but is allowed to be 0. Returning true will abort 
-the current data transfer.&]
+pointed by [%-*@3 url]. &]
 [s4; &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncAppendFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
@@ -530,27 +513,7 @@ tring][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(
 ]_[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
 [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Appends the local file pointed by [%-*@3 src] to the remote path 
-pointed by [%-*@3 url]. Throws Ftp`::Error on failure. [%-*@3 progress] 
-function can be used to track the progress of the download. The 
-first parameter of this gate indicates a unique id. The second 
-parameter provides the amount of data that has already been transferred. 
-The third parameter may provide the total amount of data to be 
-transferred, but is allowed to be 0. Returning true will abort 
-the current data transfer.&]
-[s4; &]
-[s5;%- &]
-[s3;:Upp`:`:Ftp`:`:ParseDirList`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Ftp`:`:DirList`&`):%- [@(0.0.255) s
-tatic] [@(0.0.255) bool]_[* ParseDirList]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
-]_[*@3 user], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 in], 
-[_^Upp`:`:Ftp`:`:DirList^ Ftp`::DirList][@(0.0.255) `&]_[*@3 out])&]
-[s2; This helper function parses a UNIX or DOS style directory list 
-into a [^topic`:`/`/FTP`/src`/FtpDirEntry`$en`-us`#Ftp`:`:DirList`:`:typedef^ Ftp`:
-:DirList] structure. Returns true on success.&]
-[s4; &]
-[s5;%- &]
-[s3;:Ftp`:`:Trace`(bool`):%- [@(0.0.255) static] [@(0.0.255) void]_[* Trace]([@(0.0.255) bool
-]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2; Enables logging of Ftp client&]
+pointed by [%-*@3 url].&]
 [s4; &]
 [s4; &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor Detail]]}}&]
