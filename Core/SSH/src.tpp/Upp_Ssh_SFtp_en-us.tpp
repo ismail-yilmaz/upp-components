@@ -24,9 +24,9 @@ and has pick semantics.&]
 [s3; &]
 [s5;:Upp`:`:SFtp`:`:Timeout`(int`): [_^Upp`:`:SFtp^ SFtp][@(0.0.255) `&]_[* Timeout]([@(0.0.255) i
 nt]_[*@3 ms])&]
-[s2;%% Sets timeout value in miliseconds. SFtp class inherits its 
-default timeout value from its session. Setting the timeout value 
-to 0 disables timeout. Returns `*this for methods chaining.&]
+[s2;%% Sets timeout value in miliseconds. Setting the timeout value 
+to 0 puts the SFtp object into non`-blocking mode (same as NonBlocking(true)). 
+Returns `*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SFtp`:`:NonBlocking`(bool`): [_^Upp`:`:SFtp^ SFtp][@(0.0.255) `&]_[* NonBlockin
