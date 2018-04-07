@@ -5,16 +5,16 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	const char *url = "demo:password@test.rebex.net:22"; // A well-known public SSH test server.
-
-	Ssh::Trace();
+	StdLogSetup(LOG_FILE|LOG_COUT);
+//	Ssh::Trace();
 
 	SshSession session;
-	if(session.Connect(url)) {
+	if(session.Timeout(30000).Connect("demo:password@test.rebex.net:22")) {
 		auto shell = session.CreateShell();
 		if(!shell.Console("vt100"))
 			LOG(shell.GetErrorDesc());
 	}
-	else LOG(session.GetErrorDesc());
+	else
+		LOG(session.GetErrorDesc());
 	
 }

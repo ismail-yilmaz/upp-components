@@ -176,10 +176,14 @@ void FtpGUI::Rename()
 
 void FtpGUI::Delete()
 {
-	auto filename = list.GetCurrentName();
-	if(IsNull(filename) || PromptYesNo(DeQtf(Format(t_("Do yo really want to delete '%s'?"), filename))) == IDNO)
+	auto f = list.Get(list.GetCursor());
+	auto path = f.name;
+	if(IsNull(path) || PromptYesNo(DeQtf(Format(t_("Do yo really want to delete '%s'?"), path))) == IDNO)
 		return;
-	if(!browser.Delete(filename))
+	f.isdir
+		? browser.RemoveDir(path)
+		: browser.Delete(path);
+	if(browser.IsError())
 		Error();
 	else
 		LoadDirectory();
@@ -229,7 +233,7 @@ FtpGUI::FtpGUI()
 	upload.Tip(t_("Upload a file"));
 	url.WhenAction      = [=]{ Sync(); };
 	dirup.WhenAction    = [=]{ Dirup(); };
-	upload.WhenAction	= [=]{ if(connected) Upload(); };
+	upload.WhenAction   = [=]{ if(connected) Upload(); };
 	list.WhenLeftDouble = [=]{ if(list.IsCursor()) Action(); };
 	list.WhenBar        = THISFN(Menu);
 	connect.WhenAction  = [=]{ !connected ? Connect() : Disconnect(); };

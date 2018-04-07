@@ -8,15 +8,18 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	const char *url = "username@password:localhost:22";
+	const char *url = "username:password@host:22";
+	
+	StdLogSetup(LOG_COUT|LOG_FILE);
+//	Ssh::Trace();
 
-	Ssh::Trace();
 	SshSession session;
 	if(session.Connect(url)) {
 		auto shell = session.CreateShell();
 		session.WhenX11 = [&](SshX11Connection* x11conn) { shell.AcceptX11(x11conn); };
 		if(!shell.ForwardX11().Console("xterm"))
-			Cerr() << shell.GetErrorDesc() << '\n';
+			LOG(shell.GetErrorDesc());
 	}
-	else Cerr() << session.GetErrorDesc() << '\n';
+	else
+		LOG(session.GetErrorDesc());
 }

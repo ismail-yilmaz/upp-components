@@ -41,7 +41,7 @@ void SFtpGUI::Action()
 
 void SFtpGUI::Connect()
 {
-	session.Timeout(0);
+	session.Timeout(60000);
 	connected = session.Connect(~url);
 	if(connected) {
 		browser.Attach(new SFtp(session));
@@ -177,10 +177,14 @@ void SFtpGUI::Rename()
 
 void SFtpGUI::Delete()
 {
-	auto filename = list.Get(list.GetCursor()).data;
-	if(IsNull(filename) || PromptYesNo(DeQtf(Format(t_("Do yo really want to delete '%s'?"), filename))) == IDNO)
+	auto f = list.Get(list.GetCursor());
+	auto path = f.data;
+	if(IsNull(path) || PromptYesNo(DeQtf(Format(t_("Do yo really want to delete '%s'?"), path))) == IDNO)
 		return;
-	if(!browser->Delete(filename))
+	f.isdir
+		? browser->RemoveDir(path)
+		: browser->Delete(path);
+	if(browser->IsError())
 		Error();
 	else
 		LoadDirectory();
@@ -191,7 +195,7 @@ void SFtpGUI::MakeDir()
 	String newdir;
 	if(!EditTextNotNull(newdir, t_("New Directory"), t_("Name")))
 		return;
-	if(!browser->MakeDir(UnixPath(AppendFileName(workdir, newdir)), 755))
+	if(!browser->MakeDir(UnixPath(AppendFileName(workdir, newdir)), SFtp::IRWXU))
 		Error();
 	else
 		LoadDirectory();
@@ -234,7 +238,7 @@ SFtpGUI::SFtpGUI()
 	list.WhenLeftDouble = [=]{ if(list.IsCursor()) Action(); };
 	list.WhenBar        = THISFN(Menu);
 	connect.WhenAction  = [=]{ !connected ? Connect() : Disconnect(); };
-	session.WhenDo      = [=]{ ProcessEvents(); };
+	session.WhenWait    = [=]{ ProcessEvents(); };
 	Sync();
 }
 

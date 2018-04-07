@@ -50,7 +50,7 @@ SshConsole::SshConsole(SshSession& session,  bool x11) : SshShell(session)
 	NonBlocking();
 	if(x11)
 		ForwardX11();
-	Run("ansi", Size(80, 24));
+	Run("xterm", Size(80, 24));
 }
 
 void SshShellGUI::OpenShell(bool x11)
@@ -116,7 +116,7 @@ void SshShellGUI::Run()
 	String url;
 	if(!EditText(url, "Enter the URL to connect to [Format: user:password@host:port]", "URL"))
 		return;
-	if((connected = session.Connect(url))) {
+	if((connected = session.Timeout(60000).Connect(url))) {
 		OpenMain();
 		while(IsOpen()) {
 			ProcessEvents();
@@ -144,8 +144,8 @@ SshShellGUI::SshShellGUI()
 	AddFrame(mainmenu);
 	mainmenu.Set(THISFN(MainMenu));
 	Add(tabs.SizePos());
-	tabs.WhenSet   = [=] { X11ShellFocus(); };
-	session.WhenDo = [=] { ProcessEvents(); };
+	tabs.WhenSet     = [=] { X11ShellFocus(); };
+	session.WhenWait = [=] { ProcessEvents(); };
 	connected = false;
 }
 

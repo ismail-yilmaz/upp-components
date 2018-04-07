@@ -7,32 +7,32 @@ void PrintOut(AsyncWork<Tuple<int, String, String>>& worker)
 {
 	try {
 		auto result = worker.Get();
-		Cout() << result.Get<1>();
-		Cerr() << result.Get<2>();
+		LOG(result.Get<1>());
+		LOG(result.Get<2>());
 	}
-	catch(Ssh::Error& e) {
-		Cerr() << e << '\n';
+	catch(const Ssh::Error& e) {
+		LOG(e);
 	}
 }
 
 CONSOLE_APP_MAIN
 {
-	const char *host = "test.rebex.net";  // A well known public (S)FTP test server.
-	const char *user = "demo";
-	const char *pass = "password";
+	StdLogSetup(LOG_COUT|LOG_FILE);
+//	Ssh::Trace();
+
 	const char *cmd1 = "ls -l /";
 	const char *cmd2 = "ls -l /pub/example";
 	
-	Ssh::Trace();
 	SshSession session;
-	if(session.Timeout(30000).Connect(host, 22, user, pass)) {
+	if(session.Timeout(30000).Connect("demo:password@test.rebex.net:22")) {
 		auto worker1 = SshExec::Async(session, cmd1);
 		auto worker2 = SshExec::Async(session, cmd2);
 		while(!worker1.IsFinished() || !worker2.IsFinished())
 			; // do something here...
 		PrintOut(worker1);
-		Cout() << "----\n";
+		LOG("----");
 		PrintOut(worker2);
 	}
-	else Cerr() << session.GetErrorDesc() << '\n';
+	else
+		LOG(session.GetErrorDesc());
 }

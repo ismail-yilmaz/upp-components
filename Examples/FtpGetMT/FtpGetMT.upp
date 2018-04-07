@@ -1,4 +1,4 @@
-description "Demonstrates basic Ftp file download,  using worker threads.\377";
+description "Demonstrates basic Ftp file download,  using worker a thread.\377";
 
 uses
 	Core,

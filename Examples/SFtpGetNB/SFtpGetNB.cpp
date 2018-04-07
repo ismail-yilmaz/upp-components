@@ -5,14 +5,13 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	const char *host = "test.rebex.net"; // A well known public (S)FTP test server.
-	const char *user = "demo";
-	const char *pass = "password";
-	const char *file  = "/pub/example/readme.txt";
+	const char *file  = "/readme.txt";
 	
-	Ssh::Trace();
+	StdLogSetup(LOG_COUT|LOG_FILE);
+//	Ssh::Trace();
+
 	SshSession session;
-	if(session.Timeout(30000).Connect(host, 22, user, pass)) {
+	if(session.Timeout(30000).Connect("demo:password@test.rebex.net:22")) {
 		auto sftp = session.CreateSFtp();
 		sftp.NonBlocking();
 		sftp.Get(file);
@@ -21,10 +20,8 @@ CONSOLE_APP_MAIN
 			sftp.AddTo(we);
 			we.Wait(10);
 		}
-		if(!sftp.IsError())
-			Cout() << sftp.GetResult();
-		else
-			Cerr() << sftp.GetErrorDesc() << '\n';
+		LOG((!sftp.IsError() ? sftp.GetResult().To<String>() : sftp.GetErrorDesc()));
 	}
-	else Cerr() << session.GetErrorDesc() << '\n';
+	else
+		LOG(session.GetErrorDesc());
 }
