@@ -18,11 +18,11 @@ namespace Upp {
 
 INITIALIZE(SSH);
 
-typedef LIBSSH2_SFTP_HANDLE     SFtpHandle;
-typedef LIBSSH2_SFTP_ATTRIBUTES SFtpAttrs;
-typedef libssh2_knownhost       SshHost;
-typedef LIBSSH2_AGENT           SshAgent;
-typedef LIBSSH2_CHANNEL         SshX11Connection;
+using SFtpHandle = LIBSSH2_SFTP_HANDLE;
+using SFtpAttrs  = LIBSSH2_SFTP_ATTRIBUTES;
+using SshHost    = libssh2_knownhost;
+using SshAgent   = LIBSSH2_AGENT;
+using SshX11Connection = LIBSSH2_CHANNEL;
 
 namespace SSH {
     extern bool sTrace;
@@ -41,7 +41,6 @@ class SshShell;
 class SshHosts;
 
 #include "Core.h"
-#include "Core.hpp"
 #include "Session.h"
 #include "SFtp.h"
 #include "Channels.h"

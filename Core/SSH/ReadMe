@@ -48,6 +48,9 @@ Todo:
 
 History:
 --------------------
+2018-04-06:  Blocking and non-blocking behaviour is aligned with TcpSocket.
+             WhenDo replaced with WhenWait, and WaitStep() method is added.
+
 2018-02-23:  SshShell: Console mode is now properly restored on failure.
 
 2018-01-28:  X11 forwarding support  added as an operation mode for shell.

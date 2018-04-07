@@ -124,6 +124,7 @@ void SshShell::Resize()
 	int n = 0;
 	do {
 		n = SetPtySz(psize);
+		Wait();
 	}
 	while(!IsTimeout() && !IsEof() && n < 0);
 	resized = false;

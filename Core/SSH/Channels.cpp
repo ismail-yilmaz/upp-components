@@ -166,14 +166,14 @@ String SshChannel::Get(int64 size, int sid)
 {
 	Clear();
 	Cmd(CHREAD, [=]() mutable { return ReadString((String&)result, size, sid); });
-	return ssh->async ? Null : (String) result;
+	return !IsBlocking() ? Null : (String) result;
 }
 
 int64 SshChannel::Get(Stream& out, int64 size, int sid)
 {
 	Clear();
 	Cmd(CHREAD, [=, &out]() mutable { return ReadStream(out, size, sid); });
-	return ssh->async ? 0 : (int64) result;
+	return !IsBlocking() ? 0 : (int64) result;
 }
 
 String SshChannel::GetLine(int maxlen, int sid)
@@ -194,10 +194,10 @@ String SshChannel::GetLine(int maxlen, int sid)
 			if(!is_eol)
 				s.Cat(c);
 		}
-		while(!is_eol && !IsEof() && !IsTimeout() && !ssh->async);
+		while(!is_eol && !IsEof() && !IsTimeout() && IsBlocking());
 		return is_eol || IsEof();
 	});
-	return ssh->async ? Null : (String) result;
+	return !IsBlocking() ? Null : (String) result;
 }
 
 int SshChannel::GetNow(int sid)
@@ -207,7 +207,7 @@ int SshChannel::GetNow(int sid)
 		if(c >= 0) result = c;
 		return c >= 0;
 	});
-	return ssh->async ? -1 : (int) result;
+	return !IsBlocking() ? -1 : (int) result;
 }
 
 int SshChannel::GetNow(void* buffer, int sid)
@@ -217,21 +217,21 @@ int SshChannel::GetNow(void* buffer, int sid)
 		result = Read(buffer, ssh->chunk_size, sid);
 		return true;
 	});
-	return ssh->async ? -1 : (int) result;
+	return !IsBlocking() ? -1 : (int) result;
 }
 
 int64 SshChannel::Put(const String& s, int sid)
 {
 	Clear();
 	Cmd(CHWRITE, [=, &s]() mutable { return WriteString(s, s.GetLength(), sid); });
-	return ssh->async ? Null : (int64) result;
+	return !IsBlocking() ? Null : (int64) result;
 }
 
 int64 SshChannel::Put(Stream& in, int64 size, int sid)
 {
 	Clear();
 	Cmd(CHWRITE, [=, &in]() mutable { return WriteStream(in, size, sid); });
-	return ssh->async ? 0 : (int64) result;
+	return !IsBlocking() ? 0 : (int64) result;
 }
 
 bool SshChannel::PutNow(char c, int sid)
@@ -245,7 +245,7 @@ int SshChannel::PutNow(const void* buffer, int64 size, int sid)
 		result = Write(buffer, size, sid);
 		return true;
 	});
-	return ssh->async ? -1 : (int) result;
+	return !IsBlocking() ? -1 : (int) result;
 }
 
 int SshChannel::Read(void *buffer, int64 len, int sid)
@@ -256,7 +256,7 @@ int SshChannel::Read(void *buffer, int64 len, int sid)
 	if(n > 0) {
 		done += n;
 		total += done;
-		if(WhenProgress(len, done))
+		if(WhenProgress(done, len))
 			SetError(-1, "Read aborted.");
 		VLOG("Read stream #" << sid << ": " << n << " bytes read.");
 	}
@@ -308,7 +308,7 @@ int SshChannel::Write(const void* buffer, int64 len, int sid)
 	if(n > 0) {
 		done += n;
 		total += done;
-		if(WhenProgress(len, done))
+		if(WhenProgress(done, len))
 			SetError(-1, "Write aborted.");
 		VLOG("Write stream #" << sid << ": " << n << " bytes written.");
 	}
@@ -510,7 +510,7 @@ SshChannel::SshChannel(SshSession& session)
 	ssh->session	= session.GetHandle();
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
-	ssh->whendo		= session.WhenDo.Proxy();
+	ssh->wait		= Proxy(session.WhenWait);
 	
 	channel.Create();
 	*channel = NULL;

@@ -1,5 +1,4 @@
 topic "Base";
-[2 $$0,0#00000000000000000000000000000000:Default]
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
@@ -9,6 +8,7 @@ topic "Base";
 [l288;i1121;b17;O9;~~~.1408;2 $$7,0#10431211400427159095818037425705:param]
 [i448;b42;O9;2 $$8,8#61672508125594000341940100500538:tparam]
 [b42;2 $$9,9#13035079074754324216151401829390:normal]
+[2 $$0,0#00000000000000000000000000000000:Default]
 [{_} 
 [ {{10000@(113.42.0) [s0;%% [*@7;4 Ssh]]}}&]
 [s3; &]
@@ -32,6 +32,16 @@ in blocking mode. Returns true if the request is still in progress.&]
 [s5;:Upp`:`:Ssh`:`:GetTimeout`(`)const: [@(0.0.255) int]_[* GetTimeout]()_[@(0.0.255) const
 ]&]
 [s2;%% Returns the timeout value.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:IsWorking`(`)const: [@(0.0.255) bool]_[* IsWorking]()_[@(0.0.255) const]&]
+[s2;%% Returns true if a command or data transfer is currently in 
+progress.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Ssh`:`:IsBlocking`(`)const: [@(0.0.255) bool]_[* IsBlocking]()_[@(0.0.255) cons
+t]&]
+[s2;%% Returns true if the ssh object is in blocking mode.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Ssh`:`:IsError`(`)const: [@(0.0.255) bool]_[* IsError]()_[@(0.0.255) const]&]

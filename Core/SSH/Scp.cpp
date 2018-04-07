@@ -54,7 +54,7 @@ String Scp::Get(const String& path, Gate<int64, int64> progress)
 		SshChannel::Close();
 		SshChannel::CloseWait();
 	});
-	return ssh->async ? Null : GetResult();
+	return !IsBlocking() ? Null : GetResult();
 }
 
 bool Scp::Put(Stream& in, const String& path, long mode, Gate<int64, int64> progress)

@@ -46,8 +46,9 @@ String GetName(int type, int64 id)
 // Ssh: SSH objects core class.
 void Ssh::Exit()
 {
-	ssh->async = false;
-	ssh->ccmd  = -1;
+//	ssh->async = false;
+	ssh->timeout = 5000;
+	ssh->ccmd    = -1;
 	ssh->queue.Clear();
 }
 
@@ -57,7 +58,6 @@ void Ssh::Check()
 		SetError(-1000, "Operation timed out.");
 	if(ssh->status == CANCELLED)
 		SetError(-1001, "Operation cancelled.");
-	ssh->whendo();
 }
 
 // TODO: Merge Cmd & ComplexCmd.
@@ -68,7 +68,7 @@ bool Ssh::Cmd(int code, Function<bool()>&& fn)
 	if(!IsComplexCmd())
 		ssh->queue.Clear();
 	ssh->queue.AddTail() = MakeTuple<int, Gate<>>(code, pick(fn));
-	if(!ssh->async && !IsComplexCmd())
+	if(IsBlocking() && !IsComplexCmd())
 		while(Do0());
 	return !IsError();
 }
@@ -82,7 +82,7 @@ bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
 	if(!b)
 		ssh->queue.Clear();
 	fn();
-	if(!b && !ssh->async)
+	if(!b && IsBlocking())
 		while(Do0());
 	return !IsError();
 }
@@ -101,6 +101,8 @@ INTERLOCKED {
 			auto cmd = ssh->queue.Head().Get<Gate<>>();
 			if(cmd())
 				ssh->queue.DropHead();
+			else
+				Wait();
 		}
 }
 		if(ssh->queue.IsEmpty()) {
@@ -122,12 +124,12 @@ INTERLOCKED {
 	catch(Error& e) {
 		Cleanup(e);
 	}
-	return ssh->status == WORKING || ssh->status == CLEANUP;
+	return IsWorking();
 }
 
 bool Ssh::Do()
 {
-	ASSERT(ssh->async);
+	ASSERT(!IsBlocking());
 	return Do0();
 }
 
@@ -156,6 +158,19 @@ bool Ssh::Cleanup(Error& e)
 	return !b && e.code != -1000; // Make sure we don't loop on timeout errors.
 }
 
+void Ssh::Wait()
+{
+	while(!IsTimeout()) {
+		ssh->wait();
+		if(!IsBlocking() || !ssh->socket)
+			return;
+		SocketWaitEvent we;
+		AddTo(we);
+		if(we.Wait(ssh->waitstep))
+			return;
+	}
+}
+
 void Ssh::SetError(int rc, const String& reason)
 {
 	if(IsNull(reason) && ssh && ssh->session) {
@@ -178,10 +193,10 @@ Ssh::Ssh()
     ssh.Create();
     ssh->session        = NULL;
     ssh->socket         = NULL;
-    ssh->async          = false;
     ssh->init           = false;
-    ssh->timeout        = 0;
+    ssh->timeout        = Null;
     ssh->start_time     = 0;
+    ssh->waitstep       = 10;
     ssh->chunk_size     = CHUNKSIZE;
     ssh->packet_length  = 0;
     ssh->status         = FINISHED;
@@ -196,11 +211,11 @@ Ssh::~Ssh()
 }
 
 INITIALIZER(SSH) {
-	LOG("Initializing libssh2...");
+	RLOG("Initializing libssh2...");
 	libssh2_init(0);
 }
 EXITBLOCK {
-	LOG("Deinitializing libssh2...");
+	RLOG("Deinitializing libssh2...");
 	libssh2_exit();
 }
 }

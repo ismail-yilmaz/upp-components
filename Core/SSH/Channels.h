@@ -1,7 +1,8 @@
 class SshChannel : public Ssh {
 public:
-    SshChannel&         Timeout(int ms)                                             { ssh->timeout = ms; return *this; }
-    SshChannel&         NonBlocking(bool b = true)                                  { ssh->async = b; return *this ;}
+    SshChannel&         Timeout(int ms)                                             { ssh->timeout = clamp(ms, 0, INT_MAX); return *this;  }
+    SshChannel&         NonBlocking(bool b = true)                                  { return Timeout(b ? 0 : Null); }
+    SshChannel&         WaitStep(int ms)                                            { ssh->waitstep = clamp(ms, 0, INT_MAX); }
     SshChannel&         ChunkSize(int sz)                                           { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }
 
 
@@ -171,8 +172,8 @@ public:
 
     bool        Console(const String& terminal)                                                         { return Run(CONSOLE, terminal, GetConsolePageSize()); }
 
-    SshShell&	ForwardX11(const String& host = Null, int display = 0, int screen = 0, int bufsize = 1024 * 1024);
-    bool		AcceptX11(SshX11Connection* x11conn);
+    SshShell&   ForwardX11(const String& host = Null, int display = 0, int screen = 0, int bufsize = 1024 * 1024);
+    bool        AcceptX11(SshX11Connection* x11conn);
 
     void        Send(int c)                     { queue.Cat(c);   }
     void        Send(const char* s)             { Send(String(s));}
@@ -186,7 +187,7 @@ public:
     Event<const void*, int>  WhenOutput;
 
     static AsyncWork<void> AsyncRun(SshSession& session, String terminal, Size pagesize,
-										Event<SshShell&> in, Event<const String&> out);
+                                        Event<SshShell&> in, Event<const String&> out);
 
     SshShell(SshSession& session);
     virtual ~SshShell();
@@ -224,11 +225,11 @@ private:
     HANDLE  stdoutput;
 #elif  PLATFORM_POSIX
     termios tflags;
-    byte	xdisplay;
-    byte	xscreen;
+    byte    xdisplay;
+    byte    xscreen;
     String  xhost;
     Buffer<char> xbuffer;
-    int	         xbuflen;
+    int          xbuflen;
     Vector<Tuple<SshX11Connection*, SOCKET>> xrequests;
 #endif
 };

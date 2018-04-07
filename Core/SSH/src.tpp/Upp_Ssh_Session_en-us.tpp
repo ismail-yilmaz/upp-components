@@ -24,17 +24,24 @@ class, and has pick semantics.&]
 [s3; &]
 [s5;:Upp`:`:SshSession`:`:Timeout`(int`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* Timeout]([@(0.0.255) int]_[*@3 ms])&]
-[s2;%% Sets timeout value in miliseconds. Default value is 60000 
-milliseconds (one minute).  Setting the timeout value to 0 disables 
-timeout. Returns `*this for methods chaining. Note that ssh subsystems 
-and channels inherit their default timeout values from their 
-session.&]
+[s2;%% Sets timeout value in miliseconds. Setting the timeout value 
+to 0 puts the SshSession object into non`-blocking mode (same 
+as NonBlocking(true)). Returns `*this for methods chaining. Note 
+that ssh subsystems and channels inherit their default timeout 
+values from their session.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:NonBlocking`(bool`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* NonBlocking]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2;%% Activates or deactivates non`-blocking mode. Default is blocking 
 mode. Returns `*this for methods chaining.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SshSession`:`:WaitStep`(int`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
+]_[* WaitStep]([@(0.0.255) int]_[*@3 ms])&]
+[s2;%% Sets the periodicity of calling [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:WhenWait^ W
+henWait] in millisecond between calls. Default value is 10ms 
+(100hz). Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,bool`): [_^Upp`:`:SshSession^ S
@@ -186,11 +193,13 @@ Returns true on success.&]
 [s2;%% Disconnects from the SSH2 server.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:WhenDo: [_^Upp`:`:Event^ Event]<>_[* WhenDo]&]
-[s2;%% This event is emitted at the end of Do() loop. Useful for 
-updating GUIs. Note that all ssh channels privately has a similar 
+[s5;:Upp`:`:SshSession`:`:WhenWait: [_^Upp`:`:Event^ Event]<>_[* WhenWait]&]
+[s2;%% If this event is defined, it is invoked periodically while 
+the ftp client performs any socket operations, with the frequency 
+of 100Hz. This is intended to give user feedback in interactive 
+applications. Note that all ssh channels privately has a similar 
 callback defined and redirect their calls to their session`'s 
-WhenDo callback.&]
+WhenWait callback.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenConfig: [_^Upp`:`:Event^ Event]<>_[* WhenConfig]&]

@@ -77,7 +77,8 @@ public:
 
 public:
     SFtp&                   Timeout(int ms)                                         { ssh->timeout = ms; return *this; }
-    SFtp&                   NonBlocking(bool b = true)                              { ssh->async = b; return *this ;}
+    SFtp&                   NonBlocking(bool b = true)                              { return Timeout(b ? 0 : Null) ;}
+    SFtp&                   WaitStep(int ms)                                        { ssh->waitstep = clamp(ms, 0, INT_MAX); }
     SFtp&                   ChunkSize(int sz)                                       { if(sz >= 1024) ssh->chunk_size = sz; return *this; }
 
     LIBSSH2_SFTP_HANDLE*    GetHandle() const                                       { return sftp->handle; };
@@ -151,7 +152,7 @@ public:
     static AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
-
+	
     SFtp(SshSession& session);
     virtual ~SFtp();
 

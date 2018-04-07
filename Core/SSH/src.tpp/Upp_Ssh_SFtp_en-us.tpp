@@ -35,6 +35,13 @@ g]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 mode. Returns `*this for methods chaining.&]
 [s3;%% &]
 [s4; &]
+[s5;:Upp`:`:SFtp`:`:WaitStep`(int`): [_^Upp`:`:SFtp^ SFtp][@(0.0.255) `&]_[* WaitStep]([@(0.0.255) i
+nt]_[*@3 ms])&]
+[s2;%% Sets the periodicity of calling [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:WhenWait^ W
+henWait] in millisecond between calls. Default value is 10ms 
+(100hz). Returns `*this for method chaining.&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:SFtp`:`:ChunkSize`(int`): [_^Upp`:`:SFtp^ SFtp][@(0.0.255) `&]_[* ChunkSize]([@(0.0.255) i
 nt]_[*@3 sz])&]
 [s2;%% Sets the chunk size to [%-*@3 sz] for data reads and writes. 

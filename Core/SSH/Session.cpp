@@ -47,7 +47,7 @@ static void ssh_session_libtrace(LIBSSH2_SESSION *session, void* context, const 
 	if(!session  || !SSH::sTraceVerbose)
 		return;
 	auto* ssh_obj = static_cast<SshSession*>(context);
-	LOG(SSH::GetName(ssh_obj->GetType(), ssh_obj->GetId()) << String(data, int64(length)));
+	RLOG(SSH::GetName(ssh_obj->GetType(), ssh_obj->GetId()) << String(data, int64(length)));
 }
 #endif
 
@@ -59,7 +59,6 @@ void SshSession::Check()
 	if(session->socket.IsError()) {
 		SetError(-1, "Socket error. " << session->socket.GetErrorDesc());
 	}
-	WhenDo();
 }
 
 void SshSession::Exit()
@@ -371,7 +370,7 @@ int SshSession::TryAgent(const String& username)
 							username, id->comment));
 			}
 			else {
-				LLOG(Format("Authentication with username %s and public key % s succeeded.",
+				LLOG(Format("Authentication with username %s and public key %s succeeded.",
 							username, id->comment));
 				break;
 			}
@@ -407,7 +406,7 @@ SshSession::SshSession()
 {
     session.Create();
     ssh->otype          = SESSION;
-    ssh->whendo         = WhenDo.Proxy();
+    ssh->wait           = Proxy(WhenWait);
     session->authmethod = PASSWORD;
     session->connected  = false;
     session->keyfile    = true;

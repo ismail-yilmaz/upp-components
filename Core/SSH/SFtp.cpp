@@ -143,7 +143,7 @@ int64 SFtp::GetPos(SFtpHandle* handle)
 		LLOG("File position: " << sftp->value);
 		return true;
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 bool SFtp::FRead(SFtpHandle* handle, Stream& out, int64 size, Gate<int64, int64> progress, bool str)
@@ -162,7 +162,7 @@ bool SFtp::FRead(SFtpHandle* handle, Stream& out, int64 size, Gate<int64, int64>
 		if(!peek) {
 			out.Put64(buffer, rc);
 		}
-		if(progress(peek ? size : sftp->finfo.GetSize(), out.GetSize()))
+		if(progress(out.GetSize(), peek ? size : sftp->finfo.GetSize()))
 			SetError(-1, "File read aborted.");
 	}
 	auto b = rc == 0 || (peek && out.GetSize() == size);
@@ -185,7 +185,7 @@ bool SFtp::FWrite(SFtpHandle* handle, Stream& in, int64 size, Gate<int64, int64>
 		return false;
 	}
 	ssh->packet_length += rc;
-	if(progress(write_size, ssh->packet_length))
+	if(progress(ssh->packet_length, write_size))
 		SetError(-1, "File write aborted");
 	auto b = rc == 0 && remaining == 0;
 	if(b) {
@@ -219,7 +219,7 @@ String SFtp::Get(SFtpHandle* handle, Gate<int64, int64> progress)
 		}
 		return FRead(HANDLE(handle), sftp->stream, 0, progress, true);
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 bool SFtp::Get(const String& path, Stream& out, Gate<int64, int64> progress)
@@ -248,7 +248,7 @@ String SFtp::Get(const String& path, Gate<int64, int64> progress)
 		Get(NULL, pick(progress));
 		Close(NULL);
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 bool SFtp::Put(SFtpHandle* handle, Stream& in, Gate<int64, int64> progress)
@@ -302,7 +302,7 @@ String SFtp::Peek(const String& path, int64 offset, int64 length, Gate<int64, in
 		Cmd(FGET, [=]{ return FRead(HANDLE(NULL), sftp->stream, length, pick(progress)); });
 		Close(NULL);
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 bool SFtp::Poke(const String& data, const String& path, int64 offset, int64 length, Gate<int64, int64> progress)
@@ -399,7 +399,7 @@ String SFtp::GetCurrentDir()
 	ComplexCmd(DGET, [=]() mutable {
 		SymLink(".", NULL, LIBSSH2_SFTP_REALPATH);
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 String SFtp::GetParentDir()
@@ -407,7 +407,7 @@ String SFtp::GetParentDir()
 	ComplexCmd(DGET, [=]() mutable {
 		SymLink("..", NULL, LIBSSH2_SFTP_REALPATH);
 	});
-	return ssh->async ? Null : pick(sftp->value);
+	return !IsBlocking() ? Null : pick(sftp->value);
 }
 
 bool SFtp::SymLink(const String& path, String* target, int type)
@@ -579,7 +579,7 @@ bool SFtp::ModifyAttr(const String& path, int attr, const Value& v)
 SFtp::DirEntry SFtp::GetInfo(const String& path)
 {
 	QueryAttr(path, INFO);
-	if(!ssh->async && !IsError()) {
+	if(IsBlocking()&& !IsError()) {
 		auto& e = const_cast<DirEntry&>(sftp->value.To<DirEntry>());
 		return pick(e);
 	}
@@ -597,7 +597,7 @@ SFtp::SFtp(SshSession& session)
 	ssh->session	= session.GetHandle();
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
-	ssh->whendo     = session.WhenDo.Proxy();
+	ssh->wait       = Proxy(session.WhenWait);
 }
 
 SFtp::~SFtp()
