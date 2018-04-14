@@ -45,7 +45,7 @@ void SFtpGUI::Connect()
 	connected = session.Connect(~url);
 	if(connected) {
 		browser.Attach(new SFtp(session));
-		basedir = browser->GetCurrentDir();
+		basedir = browser->GetWorkDir();
 		if(!browser->IsError()) {
 			workdir = basedir;
 			LoadDirectory();
@@ -128,7 +128,7 @@ void SFtpGUI::Transfer(OpCode cmd, const String& src, const String& dest)
 	Progress pi(this, src);
 	pi.Create();
 
-	auto progress = [&pi] (int64 done, int64 total) {
+	browser->WhenProgress = [&pi] (int64 done, int64 total) {
 		pi.SetText(Format(t_("%1:s of %2:s is transferred"),
 			FormatFileSize(done),
 			FormatFileSize(total)));
@@ -138,7 +138,7 @@ void SFtpGUI::Transfer(OpCode cmd, const String& src, const String& dest)
 	switch(cmd) {
 		case GET: {
 			pi.Title(t_("Downloading ") << GetFileName(src));
-			auto data = browser->Get(src, pick(progress));
+			auto data = browser->Get(src);
 			if(browser->IsError())
 				Error();
 			else
@@ -151,7 +151,7 @@ void SFtpGUI::Transfer(OpCode cmd, const String& src, const String& dest)
 			if(!fi)
 				ErrorOK(t_("Unable to load file."));
 			pi.Title(t_("Uploading ") << GetFileName(src));
-			if(!browser->Put(fi, dest, pick(progress)))
+			if(!browser->Put(fi, dest))
 				Error();
 			break;
 		}

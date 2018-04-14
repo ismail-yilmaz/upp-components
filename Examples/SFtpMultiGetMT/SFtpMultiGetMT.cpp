@@ -19,7 +19,7 @@ void GetRemoteFiles(SshSession& session, const SFtp::DirList& ls)
 			break;
 		auto source = AppendFileName(dir, e.GetName());
 		auto target = AppendFileName(GetTempPath(), e.GetName());
-		workers.Add(source) = pick(SFtp::AsyncGet(session, ~source, ~target));
+		workers.Add(source) = pick(SFtp::AsyncGetToFile(session, ~source, ~target));
 		LOG("Downloading " << source << " to " << target);
 	}
 	while(!workers.IsEmpty())
@@ -42,7 +42,7 @@ void GetRemoteFiles(SshSession& session, const SFtp::DirList& ls)
 CONSOLE_APP_MAIN
 {
 	StdLogSetup(LOG_COUT | LOG_FILE);
-//	Ssh::Trace();
+	Ssh::Trace();
 
 	SshSession session;
 	if(session.Timeout(30000).Connect("sftp://demo:password@test.rebex.net:22")) {
