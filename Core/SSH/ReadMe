@@ -46,8 +46,33 @@ Todo:
 - Refactor Ssh (core) class.
 - Improve documentation.
 
+Reference examples:
+-------------------
+
+- SFtpGet:           Demonstrates basic SFtp file download in blocking mode.
+- SFtpGetNB:         Demonstrates basic SFtp file download in non-blocking mode.
+- SFtpGetMT:         Demonstrates basic SFtp file download, using a worker thread.
+- SFtpGUI:           Demonstrates a basic SFtp browser with GUI (with upload, download, mkdir, rename, delete commands).
+- SFtpMultiGetMT:    Demonstrates SFtp dir listing and concurrent file transfers, using worker threads.
+- SFtpConsumerGet:   Demonstrates the usage of a consumer function for SFtp download in blocking mode.
+- SshExec:           Demonstrates basic Ssh remote command execution in blocking mode.
+- SshExecNB:         Demonstrates basic Ssh remote command execution in non-blocking mode.
+- SshExecMT:         Demonstrates basic Ssh remote command execution, using a worker thread.
+- SshKeyboardAuth:   Demonstrates basic Ssh interactive (challenge-response) authentication method in blocking mode.
+- SshLoggingExample: Demonstrates the logging capabilities of SSH package.
+- SshOverTor:        Demonstrates a basic Ssh connection over TOR, using a third-party network proxy adapter.
+- SshShell:          Demonstrates a basic, real-time SSH shell console in blocking mode.
+- SshShellNB:        Demonstrates a basic, real-time SSH shell console in non-blocking mode.    
+- SshShellX11:       Demonstrates a basic, real-time SSH shell console with multiple X11 forwarding.
+- SshShellGUI:       Demonstrates the basic GUI integration of SshShell class with multiple X11 forwarding, in non-blocking mode.
+
+
 History:
 --------------------
+2018-04-15:  Consumer function support added to SFtp and SshChannel classes.
+             GetWaitStep() method is added to Ssh class.
+             Multithreaded methods rewritten.
+
 2018-04-06:  Blocking and non-blocking behaviour is aligned with TcpSocket.
              WhenDo replaced with WhenWait, and WaitStep() method is added.
 

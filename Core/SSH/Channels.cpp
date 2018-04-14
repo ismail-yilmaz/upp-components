@@ -13,7 +13,6 @@ int SshChannel::AdjustChunkSize(int64 sz)
 
 void SshChannel::Clear()
 {
-	ssh->packet_length = 0;
 	result     = Null;
 	exitcode   = 0;
 	exitsignal = Null;
@@ -49,8 +48,8 @@ bool SshChannel::Init()
 
 void SshChannel::Exit()
 {
-	ComplexCmd(CHEXIT, [=] {
-		Cmd(CHEXIT, [=]() mutable {
+	ComplexCmd(CHANNEL_EXIT, [=] {
+		Cmd(CHANNEL_EXIT, [=]() mutable {
 			if(!listener)
 				return true;
 			auto rc = libssh2_channel_forward_cancel(listener);
@@ -60,7 +59,7 @@ void SshChannel::Exit()
 				listener = NULL;
 			return rc == 0;
 		});
-		Cmd(CHEXIT, [=]() mutable {
+		Cmd(CHANNEL_EXIT, [=]() mutable {
 			if(!channel || *channel == NULL)
 				return true;
 			auto rc = libssh2_channel_free(*channel);
@@ -77,14 +76,14 @@ void SshChannel::Exit()
 
 bool SshChannel::Open()
 {
-	return Cmd(CHOPEN, [=]() mutable {
+	return Cmd(CHANNEL_OPEN, [=]() mutable {
 		return SshChannel::Init();
 	});
 }
 
 bool SshChannel::Close()
 {
-	return Cmd(CHCLOSE, [=]() mutable {
+	return Cmd(CHANNEL_CLOSE, [=]() mutable {
 		if(!channel || !*channel)
 			return true;
 		auto rc = libssh2_channel_close(*channel);
@@ -98,7 +97,7 @@ bool SshChannel::Close()
 
 bool SshChannel::CloseWait()
 {
-	return Cmd(CHWAIT, [=]() mutable {
+	return Cmd(CHANNEL_WAIT, [=]() mutable {
 		auto rc = libssh2_channel_wait_closed(*channel);
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
@@ -110,7 +109,7 @@ bool SshChannel::CloseWait()
 
 bool SshChannel::Request(const String& request, const String& params)
 {
-	return Cmd(CHREQUEST, [=]() mutable {
+	return Cmd(CHANNEL_REQUEST, [=]() mutable {
 		auto rc = libssh2_channel_process_startup(
 			*channel,
 			request,
@@ -129,7 +128,7 @@ bool SshChannel::Request(const String& request, const String& params)
 
 bool SshChannel::Terminal(const String& term, int width, int height)
 {
-	return Cmd(CHREQUEST, [=]() mutable {
+	return Cmd(CHANNEL_REQUEST, [=]() mutable {
 		auto rc = libssh2_channel_request_pty_ex(
 			*channel,
 			~term,
@@ -152,7 +151,7 @@ bool SshChannel::Terminal(const String& term, int width, int height)
 
 bool SshChannel::SetEnv(const String& variable, const String& value)
 {
-	return Cmd(CHSETENV, [=]() mutable {
+	return Cmd(CHANNEL_SET_ENV, [=]() mutable {
 		auto rc = libssh2_channel_setenv(*channel, variable, value);
 		if(!WouldBlock(rc) && rc < 0)
 			SetError(rc);
@@ -165,21 +164,21 @@ bool SshChannel::SetEnv(const String& variable, const String& value)
 String SshChannel::Get(int64 size, int sid)
 {
 	Clear();
-	Cmd(CHREAD, [=]() mutable { return ReadString((String&)result, size, sid); });
+	Cmd(CHANNEL_READ, [=]() mutable { return ReadString((String&)result, size, sid); });
 	return !IsBlocking() ? Null : (String) result;
 }
 
 int64 SshChannel::Get(Stream& out, int64 size, int sid)
 {
 	Clear();
-	Cmd(CHREAD, [=, &out]() mutable { return ReadStream(out, size, sid); });
+	Cmd(CHANNEL_READ, [=, &out]() mutable { return ReadStream(out, size, sid); });
 	return !IsBlocking() ? 0 : (int64) result;
 }
 
 String SshChannel::GetLine(int maxlen, int sid)
 {
 	Clear();
-	Cmd(CHREAD, [=]{
+	Cmd(CHANNEL_READ, [=]{
 		bool is_eol = false;
 		String& s = (String&) result;
 		do {
@@ -202,7 +201,7 @@ String SshChannel::GetLine(int maxlen, int sid)
 
 int SshChannel::GetNow(int sid)
 {
-	Cmd(CHREAD, [=]() mutable {
+	Cmd(CHANNEL_READ, [=]() mutable {
 		int c = Read(sid);
 		if(c >= 0) result = c;
 		return c >= 0;
@@ -213,7 +212,7 @@ int SshChannel::GetNow(int sid)
 int SshChannel::GetNow(void* buffer, int sid)
 {
 	Clear();
-	Cmd(CHREAD, [=]() mutable {
+	Cmd(CHANNEL_READ, [=]() mutable {
 		result = Read(buffer, ssh->chunk_size, sid);
 		return true;
 	});
@@ -223,25 +222,25 @@ int SshChannel::GetNow(void* buffer, int sid)
 int64 SshChannel::Put(const String& s, int sid)
 {
 	Clear();
-	Cmd(CHWRITE, [=, &s]() mutable { return WriteString(s, s.GetLength(), sid); });
+	Cmd(CHANNEL_WRITE, [=, &s]() mutable { return WriteString(s, s.GetLength(), sid); });
 	return !IsBlocking() ? Null : (int64) result;
 }
 
 int64 SshChannel::Put(Stream& in, int64 size, int sid)
 {
 	Clear();
-	Cmd(CHWRITE, [=, &in]() mutable { return WriteStream(in, size, sid); });
+	Cmd(CHANNEL_WRITE, [=, &in]() mutable { return WriteStream(in, size, sid); });
 	return !IsBlocking() ? 0 : (int64) result;
 }
 
 bool SshChannel::PutNow(char c, int sid)
 {
-	return Cmd(CHREAD, [=]() mutable { return Write(c, sid); });
+	return Cmd(CHANNEL_READ, [=]() mutable { return Write(c, sid); });
 }
 
 int SshChannel::PutNow(const void* buffer, int64 size, int sid)
 {
-	Cmd(CHWRITE, [=]() mutable {
+	Cmd(CHANNEL_WRITE, [=]() mutable {
 		result = Write(buffer, size, sid);
 		return true;
 	});
@@ -275,24 +274,40 @@ int SshChannel::Read(int sid)
 
 bool SshChannel::ReadString(String& s, int64 len, int sid, bool nb)
 {
-	auto l = AdjustChunkSize(len - done);
-	Buffer<char> buffer(l);
-
-	auto n = Read(buffer, l, sid);
-	if(n > 0)
-		s.Cat(buffer, n);
-	return IsEof() || len == done || n == 0 || nb;
+	return ReadContent(
+		[&s](const void* buf, int len){
+			s.Cat((const char*) buf, len);
+		},
+		len,
+		sid,
+		nb
+	);
 }
 
 bool SshChannel::ReadStream(Stream& s, int64 len, int sid, bool nb)
 {
+	return ReadContent(
+		[=, &s](const void* buf, int len){
+			s.Put(buf, len);
+			result = done;
+		},
+		len,
+		sid,
+		nb
+	);
+}
+
+bool SshChannel::ReadContent(Event<const void*,int>&& consumer, int64 len, int sid, bool nb)
+{
 	auto l = AdjustChunkSize(len - done);
 	Buffer<char> buffer(l);
-	
+
 	auto n = Read(buffer, l, sid);
 	if(n > 0) {
-		s.Put(buffer, n);
-		result = done;
+		if(WhenContent)
+			WhenContent(buffer, n);
+		else
+			consumer(buffer, n);
 	}
 	return IsEof() || len == done || n == 0 || nb;
 }
@@ -385,21 +400,21 @@ int SshChannel::SetPtySz(int w, int h)
 
 bool SshChannel::SendEof()
 {
-	return Cmd(CHEOF, [=]() mutable {
+	return Cmd(CHANNEL_EOF, [=]() mutable {
 		return SendEof0();
 	});
 }
 
 bool SshChannel::RecvEof()
 {
-	return Cmd(CHEOF, [=]() mutable {
+	return Cmd(CHANNEL_EOF, [=]() mutable {
 		return RecvEof0();
 	});
 }
 
 bool SshChannel::SendRecvEof()
 {
-	return ComplexCmd(CHEOF, [=]() mutable {
+	return ComplexCmd(CHANNEL_EOF, [=]() mutable {
 		SendEof();
 		RecvEof();
 	});
@@ -413,14 +428,14 @@ bool SshChannel::IsEof()
 
 bool SshChannel::SetTerminalSize(int width, int height)
 {
-	return Cmd(CHTRMSZ, [=]() mutable {
+	return Cmd(CHANNEL_PTY_SIZE, [=]() mutable {
 		return SetPtySz(width, height);
 	});
 }
 
 bool SshChannel::SetReadWindowSize(int64 size, bool force)
 {
-	return Cmd(CHWNDSZ, [=]() mutable {
+	return Cmd(CHANNEL_WIN_SIZE, [=]() mutable {
 		return SetWndSz(size, force);
 	});
 }
@@ -510,6 +525,7 @@ SshChannel::SshChannel(SshSession& session)
 	ssh->session	= session.GetHandle();
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
+	ssh->waitstep   = session.GetWaitStep();
 	ssh->wait		= Proxy(session.WhenWait);
 	
 	channel.Create();

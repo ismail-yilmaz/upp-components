@@ -41,7 +41,9 @@ mode. Returns `*this for methods chaining.&]
 ]_[* WaitStep]([@(0.0.255) int]_[*@3 ms])&]
 [s2;%% Sets the periodicity of calling [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:WhenWait^ W
 henWait] in millisecond between calls. Default value is 10ms 
-(100hz). Returns `*this for method chaining.&]
+(100hz). Returns `*this for method chaining. Note that ssh subsystems 
+and channels inherit their default waitstep values from their 
+session.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,bool`): [_^Upp`:`:SshSession^ S
@@ -195,7 +197,7 @@ Returns true on success.&]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenWait: [_^Upp`:`:Event^ Event]<>_[* WhenWait]&]
 [s2;%% If this event is defined, it is invoked periodically while 
-the ftp client performs any socket operations, with the frequency 
+the ssh client performs any socket operations, with the frequency 
 of 100Hz. This is intended to give user feedback in interactive 
 applications. Note that all ssh channels privately has a similar 
 callback defined and redirect their calls to their session`'s 
@@ -240,12 +242,12 @@ tring]([_^Upp`:`:String^ String], [_^Upp`:`:String^ String], [_^Upp`:`:String^ S
 [s0;l288;%% This callback is required by the keyboard`-interactive 
 (challenge/response) authentication method. The host will issue 
 one or more challenges and require a response for each challenge. 
-Therefore this callback, responsible for obtaining responses, 
+Therefore this callback, responsible for obtaining user responses, 
 may be invoked more than once, and has 3 additional parameters 
 (as strings): [*@3 title], [*@3 instructions], and [*@3 prompt]. Title 
 and instructions may be empty strings. Returned responses will 
-be evaluated by the designated host. Returning an empty string 
-will halt the connection.&]
+be evaluated by the host. Returning an empty string will halt 
+the connection attempt.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]

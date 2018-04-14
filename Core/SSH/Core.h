@@ -3,6 +3,7 @@ public:
     bool                Do();
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
     int                 GetTimeout() const                      { return ssh->timeout; }
+    int					GetWaitStep() const						{ return ssh->waitstep; }
     bool                IsWorking() const                       { return ssh->status == WORKING || ssh->status == CLEANUP; }
     bool                IsBlocking() const                      { return ssh->timeout != 0; }
     bool                IsError() const                         { return ssh->status == FAILED; }
@@ -47,7 +48,6 @@ protected:
         int                 start_time;
         int                 waitstep;
         int                 chunk_size;
-        size_t              packet_length;
         int                 status;
         dword               events;
     };

@@ -198,7 +198,6 @@ Ssh::Ssh()
     ssh->start_time     = 0;
     ssh->waitstep       = 10;
     ssh->chunk_size     = CHUNKSIZE;
-    ssh->packet_length  = 0;
     ssh->status         = FINISHED;
     ssh->ccmd           = -1;
     ssh->oid            = GetNewId();
@@ -211,11 +210,11 @@ Ssh::~Ssh()
 }
 
 INITIALIZER(SSH) {
-	RLOG("Initializing libssh2...");
+	LOG("Initializing libssh2...");
 	libssh2_init(0);
 }
 EXITBLOCK {
-	RLOG("Deinitializing libssh2...");
+	LOG("Deinitializing libssh2...");
 	libssh2_exit();
 }
 }
