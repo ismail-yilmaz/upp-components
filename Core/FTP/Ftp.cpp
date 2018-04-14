@@ -107,7 +107,7 @@ bool Ftp::ListDir(const String& path, DirList& list)
 	return RecvData(
 		OpCode::LIST,
 		EncodePath(s),
-		[=, &list](void *data, int len){
+		[=, &list](const void *data, int len){
 			ParseDirList(uname, String((const char*) data, len), list);
 		},
 		true,
@@ -120,7 +120,7 @@ String Ftp::Get(const String& path, bool ascii)
 	RecvData(
 		OpCode::RETR,
 		EncodePath(path),
-		[=](void *data, int len){
+		[=](const void *data, int len){
 			auto& s = (String&) result;
 			s.Cat((const char*) data, len);
 		},
@@ -134,7 +134,7 @@ bool Ftp::Get(const String& path, Stream& s, bool ascii)
 	return RecvData(
 		OpCode::RETR,
 		EncodePath(path),
-		[&s](void *data, int len){
+		[&s](const void *data, int len){
 			s.Put(data, len);
 		},
 		ascii
@@ -859,7 +859,7 @@ bool Ftp::WriteData(Stream& s)
 	return IsDataEof();
 }
 
-bool Ftp::ReadAscii(const Event<void*, int>& fn, bool log)
+bool Ftp::ReadAscii(const Event<const void*, int>& fn, bool log)
 {
 	sock = &data_socket;
 
@@ -880,8 +880,8 @@ bool Ftp::ReadAscii(const Event<void*, int>& fn, bool log)
 #endif
 			packet.Cat('\n');
 			WhenContent
-				? WhenContent((void*)packet.Begin(), packet.GetLength())
-				: fn((void*)packet.Begin(), packet.GetLength());
+				? WhenContent((const void*)packet.Begin(), packet.GetLength())
+				: fn((const void*)packet.Begin(), packet.GetLength());
 			packet = Null;
 			continue;
 		}
@@ -894,7 +894,7 @@ bool Ftp::ReadAscii(const Event<void*, int>& fn, bool log)
 	return IsDataEof();
 }
 
-bool Ftp::ReadBinary(const Event<void*, int>& fn)
+bool Ftp::ReadBinary(const Event<const void*, int>& fn)
 {
 	sock = &data_socket;
 	Buffer<char> buffer(chunk_size);
@@ -926,7 +926,7 @@ bool Ftp::SendData(const OpCode& code, const Value& req, Stream& s, bool ascii)
 	});
 }
 
-bool Ftp::RecvData(const OpCode& code, const Value& req, const Event<void*, int>&& fn, bool ascii, bool log)
+bool Ftp::RecvData(const OpCode& code, const Value& req, const Event<const void*, int>&& fn, bool ascii, bool log)
 {
 	return Run([=,&fn]{
 		StartTransfer(code, req, ascii);

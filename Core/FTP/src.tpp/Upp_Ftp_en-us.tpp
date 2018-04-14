@@ -374,8 +374,8 @@ is not available. Returning true will halt the attempted connection.&]
 [s6; Requires Core/SSL package.&]
 [s4;%- &]
 [s5;%- &]
-[s3;:Upp`:`:Ftp`:`:WhenContent:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) void`*], 
-[@(0.0.255) int]>_[* WhenContent]&]
+[s3;:Upp`:`:Ftp`:`:WhenContent:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) const 
+void`*], [@(0.0.255) int]>_[* WhenContent]&]
 [s2; Defines a consumer function for Ftp data content. If defined, 
 Ftp class uses this output event instead of storing the output 
 content in the String or stream that is provided with the data 

@@ -120,7 +120,7 @@ public:
     Event<>                  WhenWait;
     Event<>                  WhenReply;
     Gate<const SSLInfo*>     WhenSSLInfo;
-    Event<void*, int>        WhenContent;
+    Event<const void*, int>  WhenContent;
     Gate<int64, int64>       WhenProgress;
 
     // Multithreaded transfer methods.
@@ -246,10 +246,10 @@ private:
     bool                Run(const Event<>& cmd);
     bool                Do0();
     bool                WriteData(Stream& s);
-    bool                ReadAscii(const Event<void*, int>& fn = Null, bool log = false);
-    bool                ReadBinary(const Event<void*, int>& fn = Null);
+    bool                ReadAscii(const Event<const void*, int>& fn = Null, bool log = false);
+    bool                ReadBinary(const Event<const void*, int>& fn = Null);
     bool                SendData(const OpCode& code, const Value& req, Stream& s, bool ascii = false);
-    bool                RecvData(const OpCode& code, const Value& req, const Event<void*, int>&& fn, bool ascii = false, bool log = false);
+    bool                RecvData(const OpCode& code, const Value& req, const Event<const void*, int>&& fn, bool ascii = false, bool log = false);
     bool                IsDataEof();
     void                ScanFileSize();
     void                ParseFeatureList();
