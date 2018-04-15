@@ -4,7 +4,7 @@ SSH package is a feautre-rich, flexible yet very easy to use libssh2 wrapper for
 It supports both console and GUI-based applications on POSIX-compliant operating systems and
 MS Windows (tm).
 
-Currently it is in alpha (version 2) stage.
+Currently it is in beta (version 1) stage.
 
 Classes:
 --------------------
@@ -35,7 +35,7 @@ Features and Highlights:
 - Supports known hosts verification mechanism.
 - Supports password, public key, host-based, and keyboard-interactive authentication methods.
 - Supports ssh-agents.
-- Supports real-time interactive command line (shell) interface with console and GUI integration
+- Supports real-time interactive command line (shell) interface with both console and GUI integration (works on Windows and Posix-compliant OS'es)
 - Supports multiple X11 connection forwarding.
 - Supports Tcp/IP and port forwarding.
 - Supports detailed (full) debug logging.
