@@ -454,14 +454,15 @@ of it.&]
 [s2;#%% [%- The following convenience methods use high performance 
 worker threads to transfer data. They all require a valid ssh 
 ][%-*@3 session][%-  during the operation, and throw ][%-^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`_en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
-Sh`::Error][%-  on failures. In all of these methods, ][%-*@3 progress] 
-gate can be used to track the progress of the transfer: The first 
-parameter of this gate indicates a unique id. The second parameter 
-provides the amount of data that has already been transferred. 
-The third parameter may provide the total amount of data to be 
-transferred, but is allowed to be 0. Returning true will abort 
-the current data transfer. Note that these worker threads will 
-use their session`'s waitstep value to wait.&]
+Sh`::Error][%-  on failures. In all of these methods, except AsyncConsumerGet(), 
+][%-*@3 progress] gate can be used to track the progress of the 
+transfer: The first parameter of this gate indicates a unique 
+id. The second parameter provides the amount of data that has 
+already been transferred. The third parameter may provide the 
+total amount of data to be transferred, but is allowed to be 
+0. Returning true will abort the current data transfer. Note 
+that these worker threads will use their session`'s waitstep 
+value to wait.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
@@ -539,6 +540,16 @@ shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ St
 [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
 [s2;%% Appends the local file pointed by [%-*@3 src] to the remote 
 path pointed by [%-*@3 dest].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncConsumerGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Event`<Upp`:`:int64`,const void`*`,int`>`): [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncConsumerGet]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 path], [_^Upp`:`:Event^ Event]<[_^Upp`:`:int64^ int64], [@(0.0.255) const]_[@(0.0.255) v
+oid`*], [@(0.0.255) int]>_[*@3 consumer])&]
+[s2;%% Downloads the remote file pointed by [%-*@3 path], using a user`-defined 
+[%-*@3 consumer] function. The first parameter of the consumer 
+function is the unique id of the given sftp worker.&]
 [s3;%% &]
 [s3;%% &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]

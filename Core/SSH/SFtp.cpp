@@ -585,14 +585,22 @@ SFtp::DirEntry SFtp::GetInfo(const String& path)
 	return Null;
 }
 
-void SFtp::StartAsync(int cmd, SshSession& session, const String& path, Stream& io, Gate<int64, int64, int64> progress)
+void SFtp::StartAsync(int cmd, SshSession& session, const String& path, Stream& io,
+						Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer)
 {
 	SFtp worker(session);
 	worker.NonBlocking();
-
-	worker.WhenProgress = [=, &progress, id = worker.GetId()](int64 d, int64 t) {
-		return progress(id, d, t);
-	};
+	
+	auto wid = worker.GetId();
+	
+	if(consumer)
+		worker.WhenContent = [=, &consumer](const void* b, int l) {
+			consumer(wid, b, l);
+		};
+	if(progress)
+		worker.WhenProgress = [=, &progress](int64 d, int64 t) {
+			return progress(wid, d, t);
+		};
 
 	switch(cmd) {
 	case SFtp::SFTP_GET:
@@ -695,6 +703,13 @@ AsyncWork<void> SFtp::AsyncAppendFromFile(SshSession& session, const String& src
 		if(!fi)
 			throw Ssh::Error(Format("Unable to open file '%s' to append.", src));
 		SFtp::StartAsync(SFtp::SFTP_APPEND, session, dest, fi, progress);
+	});
+}
+
+AsyncWork<void> SFtp::AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer)
+{
+	return Async([=, &session, consumer = pick(consumer)]{
+		SFtp::StartAsync(SFtp::SFTP_GET, session, path, NilStream(), Null, consumer);
 	});
 }
 

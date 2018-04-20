@@ -117,7 +117,7 @@ public:
     bool                    ListDir(SFtpHandle* handle, DirList& list);
     bool                    ListDir(const String& path, DirList& list);
     String                  GetWorkDir();
- 
+
     // Symlink
     bool                    MakeLink(const String& orig, const String& link)        { return SymLink(orig, const_cast<String*>(&link), LIBSSH2_SFTP_SYMLINK); }
     bool                    ReadLink(const String& path, String& target)            { return SymLink(path, &target, LIBSSH2_SFTP_READLINK); }
@@ -156,6 +156,7 @@ public:
     static AsyncWork<void>   AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPutFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
     static AsyncWork<void>   AsyncAppendFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer);
 
     Event<const void*, int> WhenContent;
     Gate<int64, int64>      WhenProgress;
@@ -179,7 +180,8 @@ private:
     bool                    SymLink(const String& path, String* target, int type);
     bool                    DataRead(SFtpHandle* handle, int64 size, Event<const void*, int>&& fn, bool str = false);
     bool                    DataWrite(SFtpHandle* handle, Stream& out, int64 size);
-    static void             StartAsync(int cmd, SshSession& session, const String& path, Stream& io, Gate<int64, int64, int64> progress);
+    static void             StartAsync(int cmd, SshSession& session, const String& path, Stream& io,
+                                        Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer = Null);
 
     struct SFtpData {
         LIBSSH2_SFTP*       session;

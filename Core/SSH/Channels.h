@@ -148,15 +148,17 @@ public:
     static  AsyncWork<void>   AsyncGet(SshSession& session, const String& path, Stream& out, Gate<int64, int64, int64> progress = Null);
     static  AsyncWork<void>   AsyncPut(SshSession& session, String& in, const String& path, long mode = 755, Gate<int64, int64, int64> progress = Null);
     static  AsyncWork<void>   AsyncPut(SshSession& session, Stream& in, const String& path, long mode = 755, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncGetToFile(SshSession& session, const char* src, const char* dest, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPutToFile(SshSession& session, const char* src, const char* dest, long mode = 755, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPutToFile(SshSession& session, const String& src, const String& dest, long mode = 755, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer);
 
     Scp(SshSession& session) : SshChannel(session)                                                      { ssh->otype = SCP; }
 
 private:
     virtual bool Init() override                                                                        { return Lock(); }
     bool Open(int opcode, const String& path, int64 size, long mode);
-    static void StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode, Gate<int64, int64, int64> progress);
+    static void StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode,
+                            Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer = Null);
 };
 
 class SshExec : public SshChannel {

@@ -79,14 +79,22 @@ bool Scp::Put(const String& in, const String& path, long mode)
 	});
 }
 
-void Scp::StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode, Gate<int64, int64, int64> progress)
+void Scp::StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode,
+						Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer)
 {
 	Scp worker(session);
 	worker.NonBlocking();
+	
+	auto wid = worker.GetId();
 
-	worker.WhenProgress = [=, &progress, id = worker.GetId()](int64 d, int64 t) {
-		return progress(id, d, t);
-	};
+	if(consumer)
+		worker.WhenContent = [=, &consumer](const void* b, int l) {
+			consumer(wid, b, l);
+		};
+	if(progress)
+		worker.WhenProgress = [=, &progress](int64 d, int64 t) {
+			return progress(wid, d, t);
+		};
 		
 	switch(cmd) {
 	case SshChannel::CHANNEL_SCP_GET:
@@ -144,7 +152,7 @@ AsyncWork<void> Scp::AsyncPut(SshSession& session, Stream& in, const String& pat
 	});
 }
 
-AsyncWork<void> Scp::AsyncGetToFile(SshSession& session, const char* src, const char* dest, Gate<int64, int64, int64> progress)
+AsyncWork<void> Scp::AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress)
 {
 	return Async([=, &session, progress = pick(progress)]{
 		FileOut fo(dest);
@@ -154,7 +162,7 @@ AsyncWork<void> Scp::AsyncGetToFile(SshSession& session, const char* src, const 
 	});
 }
 
-AsyncWork<void> Scp::AsyncPutToFile(SshSession& session, const char* src, const char* dest, long mode, Gate<int64, int64, int64> progress)
+AsyncWork<void> Scp::AsyncPutToFile(SshSession& session, const String& src, const String& dest, long mode, Gate<int64, int64, int64> progress)
 {
 	return Async([=, &session, progress = pick(progress)]{
 		FileIn fi(src);
@@ -163,4 +171,12 @@ AsyncWork<void> Scp::AsyncPutToFile(SshSession& session, const char* src, const 
 		Scp::StartAsync(SshChannel::CHANNEL_SCP_PUT, session, dest, fi, mode, progress);
 	});
 }
+
+AsyncWork<void> Scp::AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer)
+{
+	return Async([=, &session, consumer = pick(consumer)]{
+		Scp::StartAsync(SshChannel::CHANNEL_SCP_GET, session, path, NilStream(), 0, Null, consumer);
+	});
+}
+
 }

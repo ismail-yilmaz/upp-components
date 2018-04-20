@@ -84,14 +84,15 @@ access [%-*@3 mode]. Returns true on success.&]
 [s2;# [%- The following convenience methods use high performance worker 
 threads to transfer data. They all require a valid ssh ][%-*@3 session][%-  
 during the operation, and throw ][%-^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`_en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
-Sh`::Error][%-  on failures. In all of these methods, ][%-*@3 progress] 
-gate can be used to track the progress of the transfer: The first 
-parameter of this gate indicates a unique id. The second parameter 
-provides the amount of data that has already been transferred. 
-The third parameter may provide the total amount of data to be 
-transferred, but is allowed to be 0. Returning true will abort 
-the current data transfer. Note that these worker threads will 
-use their session`'s waitstep value to wait.&]
+Sh`::Error][%-  on failures. In all of these methods, except AsyncConsumerGet(), 
+][%-*@3 progress] gate can be used to track the progress of the 
+transfer: The first parameter of this gate indicates a unique 
+id. The second parameter provides the amount of data that has 
+already been transferred. The third parameter may provide the 
+total amount of data to be transferred, but is allowed to be 
+0. Returning true will abort the current data transfer. Note 
+that these worker threads will use their session`'s waitstep 
+value to wait.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Scp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
@@ -125,33 +126,45 @@ shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:Stream^ Stream][@(0.0.255) `&
 [s2;  Uploads [%-*@3 in] to the [%-*@3 path].with access [%-*@3 mode].&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Scp`:`:AsyncGetToFile`(Upp`:`:SshSession`&`,const char`*`,const char`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
+[s5;:Upp`:`:Scp`:`:AsyncGetToFile`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
 tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncGetToFile]([_^Upp`:`:SshSession^ S
-shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 src], 
-[@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 dest], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 dest], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Downloads the remote file pointed by [%-*@3 src ]to local file 
 pointed by [%-*@3 dest]. Note that, in case of failure this method 
 [/ does not] automatically delete the partially downloaded file. 
 &]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Scp`:`:AsyncPutToFile`(Upp`:`:SshSession`&`,const char`*`,const char`*`,long`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
+[s5;:Upp`:`:Scp`:`:AsyncPutToFile`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,long`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
 tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPutToFile]([_^Upp`:`:SshSession^ S
-shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 src], 
-[@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 dest], [@(0.0.255) long]_[*@3 mode], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 dest], 
+[@(0.0.255) long]_[*@3 mode], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Uploads the local file pointed by [%-*@3 src] to the remote path 
 pointed by [%-*@3 dest].with access [%-*@3 mode].&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Scp`:`:AsyncConsumerGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Event`<Upp`:`:int64`,const void`*`,int`>`):%- [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncConsumerGet]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 path], [_^Upp`:`:Event^ Event]<[_^Upp`:`:int64^ int64], [@(0.0.255) const]_[@(0.0.255) v
+oid`*], [@(0.0.255) int]>_[*@3 consumer])&]
+[s2; Downloads the remote file pointed by [%-*@3 path], using a user`-defined 
+[%-*@3 consumer] function. The first parameter of the consumer 
+function is the unique id of the given scp worker.&]
+[s3; &]
+[s0; &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor detail]]}}&]
 [s3;%- &]
 [s5;:Upp`:`:Scp`:`:Scp`(Upp`:`:SshSession`&`):%- [* Scp]([_^Upp`:`:SshSession^ SshSession
 ][@(0.0.255) `&]_[*@3 session])&]
 [s2; Constructor. Binds the Scp instance to [%-*@3 session].&]
 [s3; &]
-[s0;%- &]
+[s3;%- &]
 [ {{10000@(113.42.0) [s0; [*@7;4 SshExec]]}}&]
 [s3;%- &]
 [s1;:Upp`:`:SshExec`:`:class:%- [@(0.0.255)3 class][3 _][*3 SshExec][3 _:_][@(0.0.255)3 public][3 _
