@@ -1,0 +1,12 @@
+description "Demonstrates the usage of a consumer function for SFtp download, using a worker thread.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpConsumerGetMT.cpp;
+
+mainconfig
+	"" = "";
+
