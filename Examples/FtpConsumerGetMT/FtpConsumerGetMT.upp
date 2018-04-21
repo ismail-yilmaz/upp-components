@@ -1,0 +1,12 @@
+description "Demonstrates the usage of a consumer function for Ftp download, using a worker thread.\377";
+
+uses
+	Core,
+	FTP;
+
+file
+	FtpConsumerGetMT.cpp;
+
+mainconfig
+	"" = "";
+

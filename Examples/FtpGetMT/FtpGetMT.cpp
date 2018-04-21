@@ -5,11 +5,13 @@ using namespace Upp;
 
 CONSOLE_APP_MAIN
 {
-	Ftp::Trace();
+	StdLogSetup(LOG_COUT|LOG_FILE);
+//	Ftp::Trace();
+
 	try {
-		Cout() << Ftp::AsyncGet("ftp://demo:password@test.rebex.net:21/readme.txt").Get();
+		LOG(Ftp::AsyncGet("ftp://demo:password@test.rebex.net:21/readme.txt?type=ascii").Get());
 	}
-	catch(Ftp::Error& e) {
-		Cerr() << e << '\n';
+	catch(const Ftp::Error& e) {
+		LOG(e);
 	}
 }
