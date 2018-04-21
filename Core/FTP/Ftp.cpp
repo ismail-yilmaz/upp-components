@@ -175,7 +175,7 @@ AsyncWork<String> Ftp::AsyncGet(const String& url, Gate<int64, int64, int64> pro
 AsyncWork<void> Ftp::AsyncGet(const String& url, Stream& out, Gate<int64, int64, int64> progress)
 {
 	return Async([=, &out, progress = pick(progress)]{
-		Ftp::StartAsync(OpCode::RETR, url, out, pick(progress));
+		Ftp::StartAsync(OpCode::RETR, url, out, progress);
 	});
 }
 
@@ -183,14 +183,14 @@ AsyncWork<void> Ftp::AsyncPut(String& in, const String& url, Gate<int64, int64, 
 {
 	return Async([=, &in]{
 		StringStream data(in);
-		Ftp::StartAsync(OpCode::STOR, url, data, pick(progress));
+		Ftp::StartAsync(OpCode::STOR, url, data, progress);
 	});
 }
 
 AsyncWork<void> Ftp::AsyncPut(Stream& in, const String& url, Gate<int64, int64, int64> progress)
 {
 	return Async([=, &in]{
-		Ftp::StartAsync(OpCode::STOR, url, in, pick(progress));
+		Ftp::StartAsync(OpCode::STOR, url, in, progress);
 	});
 }
 
@@ -198,14 +198,14 @@ AsyncWork<void> Ftp::AsyncAppend(String& in, const String& url, Gate<int64, int6
 {
 	return Async([=, &in]{
 		StringStream data(in);
-		Ftp::StartAsync(OpCode::APPE, url, data, pick(progress));
+		Ftp::StartAsync(OpCode::APPE, url, data, progress);
 	});
 }
 
 AsyncWork<void> Ftp::AsyncAppend(Stream& in, const String& url, Gate<int64, int64, int64> progress)
 {
 	return Async([=, &in]{
-		Ftp::StartAsync(OpCode::APPE, url, in, pick(progress));
+		Ftp::StartAsync(OpCode::APPE, url, in, progress);
 	});
 }
 
@@ -237,6 +237,13 @@ AsyncWork<void> Ftp::AsyncAppendFromFile(const String& src, const String& url, G
 		if(!fi)
 			throw Ftp::Error(Format("Unable to open file '%s' to append.", src));
 		Ftp::StartAsync(OpCode::APPE, url, fi, progress);
+	});
+}
+
+AsyncWork<void> Ftp::AsyncConsumerGet(const String& url, Event<int64, const void*, int> consumer)
+{
+	return Async([=, consumer = pick(consumer)]{
+		Ftp::StartAsync(OpCode::RETR, url, NilStream(), Null, consumer);
 	});
 }
 
@@ -581,33 +588,46 @@ void Ftp::StartTransfer(const OpCode& code, const Value& req, bool ascii)
 	}
 }
 
-void Ftp::StartAsync(const OpCode& code, const String& url, Stream& io, Gate<int64, int64, int64> progress)
+void Ftp::StartAsync(const OpCode& code, const String& url, Stream& io, Gate<int64, int64, int64> progress,
+																	Event<int64, const void*, int> consumer)
 {
 	Ftp worker;
 
+	auto wid   = worker.GetId();
+	bool ascii = false;
+	
 	worker.WhenWait = [=, &worker]{
 		if(CoWork::IsCanceled()) {
 			worker.Abort();
 		}
 	};
 
-	worker.WhenProgress = [=, &progress, id = worker.GetId()](int64 d, int64 t) {
-		return progress(id, d, t);
-	};
+	if(consumer)
+		worker.WhenContent = [=, &progress](const void* b, int l) {
+			consumer(wid, b, l);
+		};
+	if(progress)
+		worker.WhenProgress = [=, &progress](int64 d, int64 t) {
+			return progress(wid, d, t);
+		};
 
 	UrlInfo info(url);
+	
+	auto q = info["type"];
+	if(!IsNull(q))
+		ascii = q == "ascii";
 
 	auto b = worker.Timeout(60000).Connect(url);
 	if(b){
 		switch(code) {
 		case OpCode::RETR:
-			b = worker.Get(info.path, io);
+			b = worker.Get(info.path, io, ascii);
 			break;
 		case OpCode::STOR:
-			b = worker.Put(io, info.path);
+			b = worker.Put(io, info.path, ascii);
 			break;
 		case OpCode::APPE:
-			b = worker.Append(io, info.path);
+			b = worker.Append(io, info.path, ascii);
 			break;
 		default:
 			NEVER();
@@ -880,8 +900,8 @@ bool Ftp::ReadAscii(const Event<const void*, int>& fn, bool log)
 #endif
 			packet.Cat('\n');
 			WhenContent
-				? WhenContent((const void*)packet.Begin(), packet.GetLength())
-				: fn((const void*)packet.Begin(), packet.GetLength());
+				? WhenContent(static_cast<const void*>(packet.Begin()), packet.GetLength())
+				: fn(static_cast<const void*>(packet.Begin()), packet.GetLength());
 			packet = Null;
 			continue;
 		}

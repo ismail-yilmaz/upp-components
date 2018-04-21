@@ -27,11 +27,15 @@ Reference examples:
 - FtpQueryFeatures: Demonstrates the feature query mechanism, as defined in RFC 2389
 - FtpRawCommand:    Demonstrates FTP raw command execution in blocking mode.
 - FtpConsumerGet:   Demonstrates the usage of a consumer function for Ftp download in blocking mode.
+- FtpConsumerGetMT: Demonstrates the usage of a consumer function for Ftp download, using a worker thread.
 
 Note: FtpGUI's interface is inspired by qt's (v4.8) FtpExample. (http://doc.qt.io/archives/qt-4.8/qt-network-qftp-example.html)
        
 History:
 --------
+(21-04-2018):   AsyncConsumerGet() method is added.
+                Optional "type" argument added to the ftp url specification.
+ 
 (15-04-2018):   Const correctness.
 
 (05-04-2018):   ConnectionInfo is now properly cleared in SetActiveMode().

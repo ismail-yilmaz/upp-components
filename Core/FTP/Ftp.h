@@ -133,6 +133,8 @@ public:
     static AsyncWork<void>   AsyncGetToFile(const String& url, const String& dest, Gate<int64, int64, int64> progress = Null);
     static AsyncWork<void>   AsyncPutFromFile(const String& src, const String& url, Gate<int64, int64, int64> progress = Null);
     static AsyncWork<void>   AsyncAppendFromFile(const String& src, const String& url, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncConsumerGet(const String& url, Event<int64, const void*, int> consumer);
+    
     Ftp();
     virtual ~Ftp();
 
@@ -235,8 +237,10 @@ private:
     void                StartAccept(const OpCode& code, const Value& req);
     void                StartTransfer(const OpCode& code, const Value& req, bool ascii = false);
     void                StartRestart(const OpCode& code, int64 pos);
-    static void         StartAsync(const OpCode& code, const String& url, Stream& io, Gate<int64, int64, int64> progress);
     void                StartAbort();
+    static void         StartAsync(const OpCode& code, const String& url, Stream& io, Gate<int64,
+                                    int64, int64> progress, Event<int64, const void*, int> consumer = Null);
+
 
     void                CheckAbort()                                                { if(aborted) throw Error(""); }
     void                Check(TcpSocket& s);

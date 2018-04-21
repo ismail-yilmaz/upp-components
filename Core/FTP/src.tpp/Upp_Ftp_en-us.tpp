@@ -48,6 +48,8 @@ follows:&]
 :: [s0;= [*C2 chunksize]]
 :: [s0; [C2 A string representing the chunk size for binary data transfers 
 (int)]]
+:: [s0;= [*C2 type]]
+:: [s0; [C2 ascii, binary]]
 :: [s0;= [*C2 mode]]
 :: [s0; [C2 active, passive]]
 :: [s0;= [*C2 utf8]]
@@ -56,8 +58,8 @@ follows:&]
 :: [s0; [C2 A string representing the restart position of the data transfer 
 (int64)]]}}&]
 [s0;%- &]
-[s2;%- Note that the [C@3 path] variable is only used with the multithreaded 
-transfer methods.&]
+[s2;%- Note that the [C@3 path] variable and [%%*C type ]argument are 
+only used with the multithreaded transfer methods.&]
 [s1;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Public Method List]]}}&]
 [s4;%- &]
@@ -435,13 +437,13 @@ can be transferred as [%-*@3 ascii] or binary.&]
 [s2;#%- The following convenience methods comply to the url specification 
 listed above, and use high performance worker threads to transfer 
 data. They all throw [^topic`:`/`/FTP`/src`/Upp`_Ftp`_en`-us`#Upp`:`:Ftp`:`:Error`:`:struct^ F
-tp`::Error] on failure. In all of these methods, [*@3 progress][%%  
-gate can be used to track the progress of the transfer: The first 
-parameter of this gate indicates a unique id. The second parameter 
-provides the amount of data that has already been transferred. 
-The third parameter may provide the total amount of data to be 
-transferred, but is allowed to be 0. Returning true will abort 
-the current data transfer.] &]
+tp`::Error] on failure. In all of these methods, except AsyncConsumerGet(), 
+[*@3 progress][%%  gate can be used to track the progress of the 
+transfer: The first parameter of this gate indicates a unique 
+id. The second parameter provides the amount of data that has 
+already been transferred. The third parameter may provide the 
+total amount of data to be transferred, but is allowed to be 
+0. Returning true will abort the current data transfer.] &]
 [s4;%- &]
 [s5;%- &]
 [s3;:Upp`:`:Ftp`:`:AsyncGet`(const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
@@ -488,32 +490,41 @@ tream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0
 &]
 [s4; &]
 [s5;%- &]
-[s3;:Upp`:`:Ftp`:`:AsyncGetToFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
-syncWork]<[@(0.0.255) void]>_[* AsyncGetToFile]([@(0.0.255) const]_[_^Upp`:`:String^ Stri
-ng][@(0.0.255) `&]_[*@3 url], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 d
-est], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+[s3;:Upp`:`:Ftp`:`:AsyncGetToFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncGetToFile]([@(0.0.255) c
+onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 url], [@(0.0.255) const]_[_^Upp`:`:String^ S
+tring][@(0.0.255) `&]_[*@3 dest], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Downloads the remote file pointed by [%-*@3 url] to local file 
 pointed by [%-*@3 dest]. Note that, in case of failure this method 
 [/ does not] automatically delete the partially downloaded file.&]
 [s4;  &]
 [s5;%- &]
-[s3;:Upp`:`:Ftp`:`:AsyncPutFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
-syncWork]<[@(0.0.255) void]>_[* AsyncPutFromFile]([@(0.0.255) const]_[_^Upp`:`:String^ St
-ring][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_
-[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+[s3;:Upp`:`:Ftp`:`:AsyncPutFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPutFromFile]([@(0.0.255) c
+onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ S
+tring][@(0.0.255) `&]_[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Uploads the local file pointed by [%-*@3 src] to  the remote path 
 pointed by [%-*@3 url]. &]
 [s4; &]
 [s5;%- &]
-[s3;:Upp`:`:Ftp`:`:AsyncAppendFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [_^Upp`:`:AsyncWork^ A
-syncWork]<[@(0.0.255) void]>_[* AsyncAppendFromFile]([@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
-]_[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress])&]
+[s3;:Upp`:`:Ftp`:`:AsyncAppendFromFile`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`):%- [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncAppendFromFile]([@(0.0.255) c
+onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ S
+tring][@(0.0.255) `&]_[*@3 url], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
 [s2; Appends the local file pointed by [%-*@3 src] to the remote path 
 pointed by [%-*@3 url].&]
+[s4; &]
+[s5;%- &]
+[s3;:Upp`:`:Ftp`:`:AsyncConsumerGet`(const Upp`:`:String`&`,Upp`:`:Event`<Upp`:`:int64`,const void`*`,int`>`):%- [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncConsumerGet]([@(0.0.255) c
+onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 url], [_^Upp`:`:Event^ Event]<[_^Upp`:`:int64^ i
+nt64], [@(0.0.255) const]_[@(0.0.255) void`*], [@(0.0.255) int]>_[*@3 consumer])&]
+[s2; Downloads the remote file pointed by the ftp [%-*@3 url], using 
+a user`-defined [%-*@3 consumer ]function. The first parameter 
+of the consumer function is the unique id of the given ftp worker.&]
 [s4; &]
 [s4; &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor Detail]]}}&]
