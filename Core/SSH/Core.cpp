@@ -46,9 +46,9 @@ String GetName(int type, int64 id)
 // Ssh: SSH objects core class.
 void Ssh::Exit()
 {
-//	ssh->async = false;
 	ssh->timeout = 5000;
-	ssh->ccmd    = -1;
+	ssh->start_time = 0;
+	ssh->ccmd = -1;
 	ssh->queue.Clear();
 }
 

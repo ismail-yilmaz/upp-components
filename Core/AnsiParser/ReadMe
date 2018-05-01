@@ -1,0 +1,23 @@
+AnsiParser package for Ultimate++
+---------------------------------
+This class implements a simple yet flexible parser and filter for the ANSI escape and control sequences. 
+It is also a suitable tool for building more complex parsers.
+
+AnsiParser class supports:
+
+- Both ASCII and UTF-8 character sets.
+- Parsing of escape and control sequences.
+- Parsing of operating system commands (OSC, xterm extension).
+- Working directly with streams
+
+AnsiParser is modal and moveable.
+
+Reference examples:
+-------------------
+
+- AnsiParserExample: Demonstrates the basic capabilities of AnsiParser package.
+
+History:
+--------
+
+2018-05-01:   Initial release.

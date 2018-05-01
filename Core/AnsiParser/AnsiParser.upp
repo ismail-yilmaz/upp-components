@@ -1,0 +1,12 @@
+description "A simple parser of ANSI escape sequences for U++\377";
+
+uses
+	Core;
+
+file
+	AnsiParser.h,
+	AnsiParser.cpp,
+	src.tpp,
+	ReadMe,
+	Copying;
+
