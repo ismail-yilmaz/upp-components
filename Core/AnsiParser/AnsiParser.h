@@ -3,7 +3,7 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
+namespace Upp {
 
 class AnsiParser : Moveable<AnsiParser> {
 public:
@@ -57,5 +57,5 @@ protected:
     virtual void    ParseEsc(int c);
     virtual void    ParseOsc(int c);
 };
-
+}
 #endif

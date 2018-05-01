@@ -1,5 +1,6 @@
 #include "AnsiParser.h"
 
+namespace Upp {
 void AnsiParser::Reset()
 {
 	ctl   = -1;
@@ -137,4 +138,5 @@ void AnsiParser::ParseEsc(int c)
 		Reset();
 		throw Error("Malformed escape sequence");
 	}
+}
 }
