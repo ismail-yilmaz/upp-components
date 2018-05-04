@@ -67,10 +67,15 @@ Reference examples:
 - SshShellNB:        Demonstrates a basic, real-time SSH shell console in non-blocking mode.    
 - SshShellX11:       Demonstrates a basic, real-time SSH shell console with multiple X11 forwarding.
 - SshShellGUI:       Demonstrates the basic GUI integration of SshShell class with multiple X11 forwarding, in non-blocking mode.
+- SshTunnelExample:  Demonstrates the basic SSH tunneling (as tunnel/server) in blocking mode.
 
 
 History:
 --------------------
+2018-05-04:  Ssh::GetWaitEvents() fixed.
+             SshTunnel::Validate() fixed.
+             SshTunnelExample is added to the reference examples.
+
 2018-04-21:  AsyncConsumerGet() methods are added to SFtp and Scp classes. 
              License file udated.
 

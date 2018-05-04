@@ -7,7 +7,6 @@ namespace Upp {
 
 void SshTunnel::Validate()
 {
-	ASSERT(*channel);
 	bool b = false;
 	switch(mode) {
 		case CHANNEL_TUNNEL_CONNECT:
@@ -17,17 +16,18 @@ void SshTunnel::Validate()
 			b = *channel || listener;
 			break;
 		case CHANNEL_TUNNEL_ACCEPT:
-			b = *channel || !listener;
+			b = *channel;
 			break;
 		default:
 			NEVER();
 	}
 	if(b)
-		SetError(-1, "Proxy channel is already allocated.");
+		SetError(-1, "Proxy channel allocation failed.");
 }
 
 bool SshTunnel::Connect(const String& host, int port)
 {
+	mode = CHANNEL_TUNNEL_CONNECT;
 	return Cmd(CHANNEL_TUNNEL_CONNECT, [=]() mutable {
 		Validate();
 		*channel = libssh2_channel_direct_tcpip(ssh->session, host, port);
@@ -35,7 +35,6 @@ bool SshTunnel::Connect(const String& host, int port)
 			SetError(-1);
 		if(*channel) {
 			LLOG("Direct tcp-ip connection to " << host << ":" << port << " is established.");
-			mode = CHANNEL_TUNNEL_CONNECT;
 		}
 		return *channel != NULL;
 	});
@@ -55,6 +54,7 @@ bool SshTunnel::Connect(const String& url)
 
 bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen_count)
 {
+	mode = CHANNEL_TUNNEL_LISTEN;
 	return Cmd(CHANNEL_TUNNEL_LISTEN, [=]() mutable {
 		Validate();
 		listener =libssh2_channel_forward_listen_ex(
@@ -67,7 +67,6 @@ bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen
 		if(!listener && !WouldBlock())
 			SetError(-1);
 		if(listener) {
-			mode = CHANNEL_TUNNEL_LISTEN;
 			LLOG("Started listening on port #" << port);
 		}
 		return listener != NULL;
@@ -76,6 +75,7 @@ bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen
 
 bool SshTunnel::Accept(SshTunnel& listener)
 {
+	mode = CHANNEL_TUNNEL_ACCEPT;
 	return Cmd(CHANNEL_TUNNEL_ACCEPT, [=, &listener]() mutable {
 		if(IsNull(listener))
 			SetError(-1, "Invalid listener.");
@@ -84,7 +84,6 @@ bool SshTunnel::Accept(SshTunnel& listener)
 		if(!*channel && !WouldBlock())
 			SetError(-1);
 		if(*channel) {
-			mode = CHANNEL_TUNNEL_ACCEPT;
 			LLOG("Connection accepted.");
 		}
 		return *channel != NULL;

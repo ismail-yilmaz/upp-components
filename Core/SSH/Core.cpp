@@ -136,6 +136,7 @@ bool Ssh::Do()
 dword Ssh::GetWaitEvents()
 {
 	if(ssh->socket  && ssh->session) {
+		ssh->events = 0;
 		auto e = libssh2_session_block_directions(ssh->session);
 		if(e & LIBSSH2_SESSION_BLOCK_INBOUND)
 			ssh->events |= WAIT_READ;
