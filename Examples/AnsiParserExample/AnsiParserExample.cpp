@@ -26,6 +26,6 @@ CONSOLE_APP_MAIN
 		p.Parse(s, [](int c){ Cout().Put(c); });
 	}
 	catch(const AnsiParser::Error& e) {
-		Cout() << "Parser error :" << e;
+		Cout() << "Parser error: " << e;
 	}
 }
