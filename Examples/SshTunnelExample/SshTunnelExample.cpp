@@ -36,14 +36,11 @@ void StartTunnel(SshSession& session)
 			LOG("StartTunnel(): " << tunnel.GetErrorDesc());
 			return;
 		}
-		while(!tunnel.IsEof()) {
-			auto data = tunnel.GetLine();
-			LOG("Tunneled Request: " << data);
-			if(!data.IsEmpty() && SocketSendRecv(data)) {
-				LOG("Tunneled Response: " << data);
-				tunnel.Put(data + '\n');
-			}
-			break;
+		auto data = tunnel.GetLine();
+		LOG("Tunneled Request: " << data);
+		if(!data.IsEmpty() && SocketSendRecv(data)) {
+			LOG("Tunneled Response: " << data);
+			tunnel.Put(data + '\n');
 		}
 	}
 }
