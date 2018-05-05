@@ -1,4 +1,4 @@
-description "Demonstrates the basic SSH tunneling (as tunnel/server) in blocking mode.\377";
+description "Demonstrates basic SSH tunneling (as tunnel/server) in blocking mode.\377";
 
 uses
 	Core,

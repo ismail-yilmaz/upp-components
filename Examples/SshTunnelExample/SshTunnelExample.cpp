@@ -8,22 +8,21 @@ using namespace Upp;
 //
 // |SocketClient (client)|<---> |SshTunnelExample (tunnel/server)| <---> |SocketClient (server)|
 
-bool SocketSendRecv(String& packet)
+bool ServerSendRecv(SshSession& session, String& data)
 {
-	TcpSocket s;
-	if(!s.Connect("127.0.0.1", 3214)) {
-		LOG("SocketSend(): " << s.GetErrorDesc());
+	// SshTunnel <-> SocketServer
+	SshTunnel tunnel(session);
+	if(!tunnel.Connect("127.0.0.1", 3214)) {
+		LOG("ServerSendRecv(): " << tunnel.GetErrorDesc());
 		return false;
 	}
-	if(!s.PutAll(packet + '\n'))
-		return false;
-	packet = s.GetLine();
-	return !packet.IsEmpty();
+	tunnel.Put(data + '\n');
+	data = tunnel.GetLine();
+	return !data.IsEmpty();
 }
 
 void StartTunnel(SshSession& session)
 {
-	TcpSocket outgoing;
 	SshTunnel listener(session);
 	if(!listener.Listen(3215, 5)) {
 		LOG("StartTunnel(): " << listener.GetErrorDesc());
@@ -36,9 +35,10 @@ void StartTunnel(SshSession& session)
 			LOG("StartTunnel(): " << tunnel.GetErrorDesc());
 			return;
 		}
+		// SocketClient <-> SshTunnel
 		auto data = tunnel.GetLine();
 		LOG("Tunneled Request: " << data);
-		if(!data.IsEmpty() && SocketSendRecv(data)) {
+		if(!data.IsEmpty() && ServerSendRecv(session, data)) {
 			LOG("Tunneled Response: " << data);
 			tunnel.Put(data + '\n');
 		}
