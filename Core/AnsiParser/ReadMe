@@ -16,8 +16,10 @@ Reference examples:
 -------------------
 
 - AnsiParserExample: Demonstrates the basic capabilities of AnsiParser package.
+- AnsiParserGUI:     Demonstrates a simple passive display with ANSI SGR (Select Graphic Rendition) parsing.
 
 History:
 --------
 
+2018-05-23:   ParseUtf8() method added.
 2018-05-01:   Initial release.

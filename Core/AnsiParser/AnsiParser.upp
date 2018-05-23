@@ -1,7 +1,8 @@
 description "A simple parser of ANSI escape sequences for U++\377";
 
 uses
-	Core;
+	Core,
+	AnsiParser;
 
 file
 	AnsiParser.h,

@@ -78,7 +78,7 @@ public:
 public:
     SFtp&                   Timeout(int ms)                                         { ssh->timeout = ms; return *this; }
     SFtp&                   NonBlocking(bool b = true)                              { return Timeout(b ? 0 : Null) ;}
-    SFtp&                   WaitStep(int ms)                                        { ssh->waitstep = clamp(ms, 0, INT_MAX); }
+    SFtp&                   WaitStep(int ms)                                        { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
     SFtp&                   ChunkSize(int sz)                                       { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }
 
     LIBSSH2_SFTP_HANDLE*    GetHandle() const                                       { return sftp->handle; };

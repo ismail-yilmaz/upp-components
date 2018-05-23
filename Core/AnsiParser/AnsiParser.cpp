@@ -24,10 +24,10 @@ auto AnsiParser::GetType(int c) -> Type
 					: Type::INVALID;
 }
 
-void AnsiParser::Parse(Stream& in, Event<int> out)
+void AnsiParser::Parse0(Stream& in, Event<int>&& out, bool utf8)
 {
 	while(!in.IsEof()) {
-		auto c = in.Get();
+		auto c = utf8 ? in.GetUtf8() : in.Get();
 		if(c < 0)
 			break;
 		c = Parse(c);
@@ -42,8 +42,10 @@ int AnsiParser::Parse(int c)
 {
 	switch(mode) {
 		case Mode::PLAIN:
-			if(!IsEsc(c))
+			if(!IsEsc(c)) {
+			
 				return c;
+			}
 			mode = Mode::ESCAPE;
 			break;
 		case Mode::ESCAPE:

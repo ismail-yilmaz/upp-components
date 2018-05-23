@@ -603,7 +603,7 @@ void Ftp::StartAsync(const OpCode& code, const String& url, Stream& io, Gate<int
 	};
 
 	if(consumer)
-		worker.WhenContent = [=, &progress](const void* b, int l) {
+		worker.WhenContent = [=](const void* b, int l) {
 			consumer(wid, b, l);
 		};
 	if(progress)

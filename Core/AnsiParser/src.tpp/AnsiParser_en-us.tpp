@@ -128,12 +128,20 @@ a plain character). Throws [^topic`:`/`/AnsiParser`/src`/AnsiParser`_en`-us`#Ans
 nsiParser`::Error] on errors.&]
 [s3;%% &]
 [s4; &]
-[s5;:AnsiParser`:`:Parse`(Upp`:`:Stream`&`,Upp`:`:Event`<int`>`): [@(0.0.255) void]_[* Pa
-rse]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [_^Upp`:`:Event^ Event]<[@(0.0.255) i
+[s5;:Upp`:`:AnsiParser`:`:Parse`(Upp`:`:Stream`&`,Upp`:`:Event`<int`>`): [@(0.0.255) vo
+id]_[* Parse]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [_^Upp`:`:Event^ Event]<[@(0.0.255) i
 nt]>_[*@3 out])&]
 [s2;%% This method will process the [%-*@3 in] stream and then output 
 the plain characters to [%-*@3 out]. Throws [^topic`:`/`/AnsiParser`/src`/AnsiParser`_en`-us`#AnsiParser`:`:Error`:`:struct^ A
 nsiParser`::Error] on errors.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:AnsiParser`:`:ParseUtf8`(Upp`:`:Stream`&`,Upp`:`:Event`<int`>`): [@(0.0.255) v
+oid]_[* ParseUtf8]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], 
+[_^Upp`:`:Event^ Event]<[@(0.0.255) int]>_[*@3 out])&]
+[s2;%% This method will process the [%-*@3 in] stream with Utf8 encoding, 
+and then output the plain characters to [%-*@3 out]. Throws [^topic`:`/`/AnsiParser`/src`/AnsiParser`_en`-us`#AnsiParser`:`:Error`:`:struct^ A
+nsiParser`::Error] on errors..&]
 [s3;%% &]
 [s4; &]
 [s5;:AnsiParser`:`:Reset`(`): [@(0.0.255) void]_[* Reset]()&]
