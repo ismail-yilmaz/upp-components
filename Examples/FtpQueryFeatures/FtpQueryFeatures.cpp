@@ -13,7 +13,7 @@ CONSOLE_APP_MAIN
 		
 		auto features = ftpclient.GetFeatures(); // We are not logged in yet.
 		if(!ftpclient.IsError()) {
-			LOG("Available server wxtensions, and their parameters, if any:");
+			LOG("Available server extensions, and their parameters, if any:");
 			DUMP(features);
 	
 			// Now let's see if the server supports explicit TLS connections with private (full)

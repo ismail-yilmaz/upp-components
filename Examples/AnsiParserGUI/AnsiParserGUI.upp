@@ -1,0 +1,13 @@
+description "Demonstrates a simple passive display with ANSI SGR (Select Graphic Rendition) parsing.\377";
+
+uses
+	CtrlLib,
+	AnsiParser;
+
+file
+	AnsiParserGUI.h,
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
