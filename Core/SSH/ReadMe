@@ -72,6 +72,8 @@ Reference examples:
 
 History:
 --------------------
+2018-06-06:  SshShell: Console loop fixed.
+
 2018-05-04:  Ssh::GetWaitEvents() fixed.
              SshTunnel::Validate() fixed.
              SshTunnelExample is added to the reference examples.

@@ -1,6 +1,6 @@
 class SshChannel : public Ssh {
 public:
-    SshChannel&         Timeout(int ms)                                             { ssh->timeout = clamp(ms, 0, INT_MAX); return *this;  }
+    SshChannel&         Timeout(int ms)                                             { ssh->timeout = ms; return *this;  }
     SshChannel&         NonBlocking(bool b = true)                                  { return Timeout(b ? 0 : Null); }
     SshChannel&         WaitStep(int ms)                                            { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
     SshChannel&         ChunkSize(int sz)                                           { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }

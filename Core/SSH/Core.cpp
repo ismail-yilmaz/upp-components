@@ -167,7 +167,7 @@ void Ssh::Wait()
 			return;
 		SocketWaitEvent we;
 		AddTo(we);
-		if(we.Wait(ssh->waitstep))
+		if(we.Wait(ssh->waitstep) || ssh->noloop)
 			return;
 	}
 }
@@ -195,6 +195,7 @@ Ssh::Ssh()
     ssh->session        = NULL;
     ssh->socket         = NULL;
     ssh->init           = false;
+    ssh->noloop			= false;
     ssh->timeout        = Null;
     ssh->start_time     = 0;
     ssh->waitstep       = 10;
@@ -211,11 +212,11 @@ Ssh::~Ssh()
 }
 
 INITIALIZER(SSH) {
-	LOG("Initializing libssh2...");
+	RLOG("Initializing libssh2...");
 	libssh2_init(0);
 }
 EXITBLOCK {
-	LOG("Deinitializing libssh2...");
+	RLOG("Deinitializing libssh2...");
 	libssh2_exit();
 }
 }

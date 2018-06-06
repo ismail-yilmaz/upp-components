@@ -50,6 +50,7 @@ protected:
         int                 chunk_size;
         int                 status;
         dword               events;
+        bool				noloop;
     };
     One<CoreData> ssh;
 
@@ -61,7 +62,7 @@ protected:
     virtual void        Exit();
     virtual bool        Cmd(int code, Function<bool()>&& fn);
     virtual bool        ComplexCmd(int code, Function<void()>&& fn);
-    inline bool         IsComplexCmd() const                    { return ssh->ccmd != -1; }
+    inline  bool        IsComplexCmd() const                    { return ssh->ccmd != -1; }
     virtual void        Check();
     virtual bool        Cleanup(Error& e);
     void                Wait();

@@ -9,7 +9,8 @@ bool SshShell::Run(int mode_, const String& terminal, Size pagesize)
 {
 	mode  = mode_;
 	psize = pagesize;
-
+	ssh->noloop = mode == CONSOLE; // FIXME: Not very pretty, but currently required for console i/o to work.
+	
 	return ComplexCmd(CHANNEL_SHELL, [=]() mutable {
 		SshChannel::Open();
 		SshChannel::Terminal(terminal, psize);
