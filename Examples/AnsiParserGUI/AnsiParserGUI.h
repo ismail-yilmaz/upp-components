@@ -21,7 +21,7 @@ class AnsiParserGUI : public TopWindow {
     AnsiParser parser;
     BiVector<BiVector<Cell>> lines;
     
-    int     GetCellWidth() const            { return active_cell.font.Info().GetMaxWidth(); }
+    int     GetCellWidth() const            { return active_cell.font.Info().GetAveWidth(); }
     int     GetCellHeight() const           { return active_cell.font.Info().GetHeight();   }
     
     void    SetCellAttrs();
