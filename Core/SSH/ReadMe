@@ -72,6 +72,10 @@ Reference examples:
 
 History:
 --------------------
+2018-06-15:  Critical fix: SshChannel and SFtp data read and write methods fixed: The recently introduced
+             socket wait mechanism was causing a constant I/O blocking. This is now fixed.   
+             Cosmetics & cleanup.
+
 2018-06-06:  SshShell: Console loop fixed.
 
 2018-05-04:  Ssh::GetWaitEvents() fixed.

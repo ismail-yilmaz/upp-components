@@ -185,9 +185,11 @@ String SshChannel::GetLine(int maxlen, int sid)
 			int c = Read(sid);
 			if(c == -1)
 				break;
+			else
+				ssh->start_time = msecs();
 			if(c == '\r')
 				continue;
-			if(IsTimeout() || s.GetLength() >= maxlen)
+			if(s.GetLength() >= maxlen)
 				s = Null;
 			is_eol = c == '\n';
 			if(!is_eol)
@@ -257,6 +259,7 @@ int SshChannel::Read(void *buffer, int64 len, int sid)
 		total += done;
 		if(WhenProgress(done, len))
 			SetError(-1, "Read aborted.");
+		ssh->start_time = msecs();
 		VLOG("Read stream #" << sid << ": " << n << " bytes read.");
 	}
 	if(IsEof())
@@ -302,14 +305,20 @@ bool SshChannel::ReadContent(Event<const void*,int>&& consumer, int64 len, int s
 	auto l = AdjustChunkSize(len - done);
 	Buffer<char> buffer(l);
 
-	auto n = Read(buffer, l, sid);
-	if(n > 0) {
-		if(WhenContent)
-			WhenContent(buffer, n);
-		else
-			consumer(buffer, n);
+	int n = 0;
+	do {
+		n = Read(buffer, l, sid);
+		if(n < 0)
+			return false;
+		if(n > 0) {
+			if(WhenContent)
+				WhenContent(buffer, n);
+			else
+				consumer(buffer, n);
+		}
 	}
-	return IsEof() || len == done || n == 0 || nb;
+	while(!IsEof() && done < len && !nb);
+	return true;
 }
 
 int SshChannel::Write(const void* buffer, int64 len, int sid)
@@ -325,10 +334,11 @@ int SshChannel::Write(const void* buffer, int64 len, int sid)
 		total += done;
 		if(WhenProgress(done, len))
 			SetError(-1, "Write aborted.");
+		ssh->start_time = msecs();
 		VLOG("Write stream #" << sid << ": " << n << " bytes written.");
 	}
 	if(IsEof())
-	LLOG("Write stream #" << sid << ": EOF.");
+		LLOG("Write stream #" << sid << ": EOF.");
 	return n;
 }
 
@@ -341,22 +351,34 @@ bool SshChannel::Write(char c, int sid)
 
 bool SshChannel::WriteString(const String& s, int64 len, int sid, bool nb)
 {
-	auto n = Write(s.Begin() + total, len - total, sid);
-	if(n > 0)
-		result = done;
-	return IsEof() || len == total || nb;
+	int n = 0;
+	do {
+		n = Write(s.Begin() + total, len - total, sid);
+		if(n > 0)
+			result = done;
+		if(n == 0)
+			return false;
+	}
+	while(!IsEof() && total < len && !nb);
+	return true;
 }
 
 bool SshChannel::WriteStream(Stream& s, int64 len, int sid, bool nb)
 {
-	auto l = AdjustChunkSize(len - done);
-	String ss = s.Get(l);
-	auto n = Write(ss.Begin(), ss.GetLength(), sid);
-	if(n > 0 && n < ss.GetLength()) {
-		s.SeekCur(-(ss.GetLength() - n));
-		result = (int64) s.GetPos();
+	int n = 0;
+	do {
+		auto l = AdjustChunkSize(len - done);
+		String ss = s.Get(l);
+		n = Write(ss.Begin(), ss.GetLength(), sid);
+		if(n > 0 && n < ss.GetLength()) {
+			s.SeekCur(-(ss.GetLength() - n));
+			result = (int64) s.GetPos();
+		}
+		if(!n)
+			return false;
 	}
-	return s.IsEof() || nb;
+	while(!s.IsEof() && done < len && !nb);
+	return true;
 }
 
 bool SshChannel::SendEof0()

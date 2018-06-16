@@ -155,54 +155,61 @@ bool SFtp::DataRead(SFtpHandle* handle, int64 size, Event<const void*, int>&& fn
 
 	auto peek = size > 0;
 	auto csz = peek ? min(size, int64(ssh->chunk_size)) : ssh->chunk_size;
-
-	Buffer<char> buffer(csz);
-
-	auto rc = libssh2_sftp_read(HANDLE(handle), buffer, csz);
-	if(!WouldBlock(rc) && rc < 0)
-		SetError(rc);
-	if(rc > 0) {
-		const auto& fn_ = WhenContent ? WhenContent : fn;
-		if(peek && sftp->done < size)
-			fn_(buffer, sftp->done + rc > size ? size : rc);
-		else
-		if(!peek)
-			fn_(buffer, rc);
-		sftp->done += rc;
-		if(WhenProgress(sftp->done, sftp->finfo.GetSize()))
-			SetError(-1, "Read aborted.");
+	int  rc = 0;
+	do {
+		Buffer<char> buffer(csz);
+		rc = libssh2_sftp_read(HANDLE(handle), buffer, csz);
+		if(rc < 0) {
+			if(!WouldBlock(rc))
+				SetError(rc);
+			return false;
+		}
+		if(rc > 0) {
+			const auto& fn_ = WhenContent ? WhenContent : fn;
+			if(peek && sftp->done < size)
+				fn_(buffer, sftp->done + rc > size ? size : rc);
+			else
+			if(!peek)
+				fn_(buffer, rc);
+			sftp->done += rc;
+			if(peek && sftp->done == size)
+				break;
+			if(WhenProgress(sftp->done, sftp->finfo.GetSize()))
+				SetError(-1, "Read aborted.");
+			ssh->start_time = msecs();
+		}
 	}
-	auto b = rc == 0 || (peek && sftp->done == size);
-	if(b) {
-		LLOG(Format("%d of %d bytes successfully read.", sftp->done, peek ? size : sftp->finfo.GetSize()));
-		if(peek || str)
-			sftp->value = WhenContent ? Null : pick(sftp->stream.GetResult());
-	}
-	return b;
+	while(rc > 0);
+	LLOG(Format("%d of %d bytes successfully read.", sftp->done, peek ? size : sftp->finfo.GetSize()));
+	if(peek || str)
+		sftp->value = WhenContent ? Null : pick(sftp->stream.GetResult());
+	return true;
 }
-
 
 bool SFtp::DataWrite(SFtpHandle* handle, Stream& in, int64 size)
 {
 	auto poke = size > 0;
 	ssize_t write_size = poke ? size : in.GetSize();
-	auto remaining = static_cast<ssize_t>(write_size - sftp->done);
-	auto rc = libssh2_sftp_write(HANDLE(handle), in.Get(remaining), remaining);
-	if(rc < 0) {
-		if(!WouldBlock(rc))
+	int rc = 0;
+	do {
+		auto s = in.Get(ssh->chunk_size);
+		rc = libssh2_sftp_write(HANDLE(handle), s.Begin(), s.GetLength());
+		if(rc < 0 && !WouldBlock(rc))
 			SetError(rc);
-		return false;
+		if(rc != 0) {
+			if(rc < s.GetLength())
+				in.SeekCur(-(s.GetLength() - (rc > 0 ? rc : 0)));
+			if(rc < 0)
+				return false;
+			sftp->done += rc;
+			if(WhenProgress(sftp->done, write_size))
+				SetError(-1, "File write aborted");
+			ssh->start_time = msecs();
+		}
 	}
-	sftp->done += rc;
-	if(WhenProgress(sftp->done, write_size))
-		SetError(-1, "File write aborted");
-	auto b = rc == 0 && remaining == 0;
-	if(b) {
-		LLOG(Format("%ld of %ld bytes successfully written.",
-				(int64) sftp->done, (int64) write_size));
-		sftp->done = 0;
-	}
-	return b;
+	while(sftp->done < write_size);
+	LLOG(Format("%ld of %ld bytes successfully written.", (int64) sftp->done, (int64) write_size));
+	return true;
 }
 
 bool SFtp::Get(SFtpHandle* handle, Stream& out)
@@ -369,26 +376,30 @@ bool SFtp::ListDir(SFtpHandle* handle, DirList& list)
 		char label[512];
 		char longentry[512];
 		SFtpAttrs attrs;
-		int rc = libssh2_sftp_readdir_ex(
-				HANDLE(handle),
-				label, sizeof(label),
-				longentry, sizeof(longentry),
-				&attrs);
-		if(rc > 0) {
-			DirEntry& entry	= list.Add();
-			entry.filename	= label;
-			*entry.a		= attrs;
-			entry.valid		= true;
-//			DDUMP(entry);
-			return false;
+		int rc = 0;
+		do {
+			rc = libssh2_sftp_readdir_ex(
+					HANDLE(handle),
+					label, sizeof(label),
+					longentry, sizeof(longentry),
+					&attrs
+			);
+			if(rc < 0) {
+				if(!WouldBlock(rc))
+					SetError(rc);
+				return false;
+			}
+			if(rc > 0) {
+				DirEntry& entry	= list.Add();
+				entry.filename	= label;
+				*entry.a		= attrs;
+				entry.valid		= true;
+//				DUMP(entry)
+			}
 		}
-		if(rc == 0) {
-			LLOG(Format("Directory listing is successful. (%d entries)", list.GetCount()));
-		}
-		else
-		if(!WouldBlock(rc))
-			SetError(rc);
-		return rc == 0;
+		while(rc > 0);
+		LLOG(Format("Directory listing is successful. (%d entries)", list.GetCount()));
+		return true;
 	});
 }
 

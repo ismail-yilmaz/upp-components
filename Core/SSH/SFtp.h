@@ -13,15 +13,15 @@ public:
         IRUSR = LIBSSH2_SFTP_S_IRUSR,
         IWUSR = LIBSSH2_SFTP_S_IWUSR,
         IXUSR = LIBSSH2_SFTP_S_IXUSR,
-        IRWXU = IRUSR | IWUSR | IXUSR,
+        IRWXU = LIBSSH2_SFTP_S_IRWXU,
         IRGRP = LIBSSH2_SFTP_S_IRGRP,
         IWGRP = LIBSSH2_SFTP_S_IWGRP,
         IXGRP = LIBSSH2_SFTP_S_IXGRP,
-        IRWXG = IRGRP | IWGRP | IXGRP,
+        IRWXG = LIBSSH2_SFTP_S_IRWXG,
         IROTH = LIBSSH2_SFTP_S_IROTH,
         IWOTH = LIBSSH2_SFTP_S_IWOTH,
         IXOTH = LIBSSH2_SFTP_S_IXOTH,
-        IRWXO = IROTH | IWOTH | IXOTH,
+        IRWXO = LIBSSH2_SFTP_S_IRWXO,
         IRALL = IRUSR | IRGRP | IROTH,
         IWALL = IWUSR | IWGRP | IWOTH,
         IXALL = IXUSR | IXGRP | IXOTH,
@@ -168,9 +168,9 @@ public:
     SFtp& operator=(SFtp&&) = default;
 
 private:
-    virtual bool            Init() override;
-    virtual void            Exit() override;
-    virtual bool            Cleanup(Error& e) override;
+    bool                    Init() override;
+    void                    Exit() override;
+    bool                    Cleanup(Error& e) override;
 
     inline SFtpHandle*      HANDLE(SFtpHandle* h)                                   { return h ? h : sftp->handle; }
     int                     FStat(SFtpHandle* handle, SFtpAttrs& a, bool set);

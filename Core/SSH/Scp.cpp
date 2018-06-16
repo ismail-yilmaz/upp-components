@@ -20,8 +20,10 @@ bool Scp::Open(int opcode, const String& path, int64 size, long mode)
 			default:
 				NEVER();
 		}
-		if(!*channel && !WouldBlock())
+		if(!*channel && !WouldBlock()) {
+			LLOG("Unable to obtain a channel.");
 			SetError(-1);
+		}
 		if(*channel) {
 			LLOG("Scp channel obtained.");
 			Unlock();

@@ -63,19 +63,19 @@ using GetResult() method.&]
 [s4;%- &]
 [s5;:Upp`:`:Scp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,long`):%- [@(0.0.255) b
 ool]_[* Put]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 path], [@(0.0.255) long]_[*@3 mode ]`=_[@3 755])&]
+tring][@(0.0.255) `&]_[*@3 path], [@(0.0.255) long]_[*@3 mode ]`=_[@3 0744])&]
 [s5;:Upp`:`:Scp`:`:Put`(const Upp`:`:String`&`,const Upp`:`:String`&`,long`):%- [@(0.0.255) b
 ool]_[* Put]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 in], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[@(0.0.255) long]_[*@3 mode ]`=_[@3 755])&]
+[@(0.0.255) long]_[*@3 mode ]`=_[@3 0744])&]
 [s5;:Upp`:`:Scp`:`:operator`(`)`(Upp`:`:Stream`&`,const Upp`:`:String`&`,long`):%- [@(0.0.255) b
 ool]_[* operator()]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[@(0.0.255) long]_[*@3 mode]_`=_[@3 755])&]
+[@(0.0.255) long]_[*@3 mode]_`=_[@3 0744])&]
 [s5;:Upp`:`:Scp`:`:operator`(`)`(const Upp`:`:String`&`,const Upp`:`:String`&`,long`):%- [@(0.0.255) b
 ool]_[* operator()]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 in], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[@(0.0.255) long]_[*@3 mode]_`=_[@3 755])&]
+[@(0.0.255) long]_[*@3 mode]_`=_[@3 0744])&]
 [s2; Uploads [%-*@3 in] to remote file pointed by [%-*@3 path], with 
 access [%-*@3 mode]. Returns true on success.&]
 [s3; &]

@@ -61,8 +61,8 @@ public:
     SshSession& operator=(SshSession&&) = default;
 
 private:
-    virtual void        Exit() override;
-    virtual void        Check() override;
+    void                Exit() override;
+    void                Check() override;
     String              GetMethodNames(int type);
     int                 TryAgent(const String& username);
     void                FreeAgent(SshAgent* agent);
