@@ -1,11 +1,11 @@
 #include "AnsiParserGUI.h"
 
 String ansistr = "Hello world!\n"
-				"\x1b\[7mHello world! (Inverted)\n\x1b\[0m"
-				"\x1b\[31mRed \x1b\[32mGreen \x1b\[33mYellow\n\x1b\[0m"
-				"\x1b\[1;31mBold \x1b\[0m\x1b\[3;32mItalic \x1b\[0m\x1b\[4;33mUnderlined\x1b\[0m "
-				"\x1b\[33;105mHighlighted\x1b\[0m \x1b\[1;3;4;33;105mCombined\n\x1b\[0m"
-				"\x1b\]0;This is a window title\x07";
+                "\x1b\[7mHello world! (Inverted)\n\x1b\[0m"
+                "\x1b\[31mRed \x1b\[32mGreen \x1b\[33mYellow\n\x1b\[0m"
+                "\x1b\[1;31mBold \x1b\[0m\x1b\[3;32mItalic \x1b\[0m\x1b\[4;33mUnderlined\x1b\[0m "
+                "\x1b\[33;105mHighlighted\x1b\[0m \x1b\[1;3;4;33;105mCombined\n\x1b\[0m"
+                "\x1b\]0;This is a window title\x07";
 
 void AnsiParserGUI::Paint(Draw& w)
 {

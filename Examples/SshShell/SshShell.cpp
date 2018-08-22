@@ -11,6 +11,7 @@ CONSOLE_APP_MAIN
 	SshSession session;
 	if(session.Timeout(30000).Connect("demo:password@test.rebex.net:22")) {
 		auto shell = session.CreateShell();
+		shell.NonBlocking(false);
 		if(!shell.Console("vt100"))
 			LOG(shell.GetErrorDesc());
 	}

@@ -8,5 +8,5 @@ file
 	SshExecNB.cpp;
 
 mainconfig
-	"" = "";
+	"" = ".LIBSSH2TRACE";
 

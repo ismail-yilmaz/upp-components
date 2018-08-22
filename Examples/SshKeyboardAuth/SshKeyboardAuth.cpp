@@ -9,9 +9,10 @@ CONSOLE_APP_MAIN
 //	Ssh::Trace();
 
 	SshSession session;
-	session.WhenKeyboard = [=](String title, String instructions, String prompt) mutable {
-        Cout() << prompt;       // Ignore title and instructions.
-        return ReadSecret();    // Rebex does not provide them anyway.
+	session.WhenKeyboard = [=](String title, String instructions, String prompt) mutable
+	{
+		Cout() << prompt;       // Ignore title and instructions.
+		return ReadSecret();    // Rebex does not provide them anyway.
 	};
 	if(session.Timeout(30000).KeyboardAuth().Connect("demo@test.rebex.net:22"))
 		LOG("Successfully connected to server, using keyboard-interactive method.");

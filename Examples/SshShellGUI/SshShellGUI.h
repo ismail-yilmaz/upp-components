@@ -25,10 +25,12 @@ class SshShellGUI : public TopWindow {
     MenuBar           mainmenu;
     TabCtrl           tabs;
     bool              connected;
-   
+
+    void ShellFocus();
+    SshConsole* GetFocusedShell();
+       
 public:
     void OpenShell(bool x11 = false);
-    void X11ShellFocus();
     void RemoveTab(Ctrl& c);
     void MainMenu(Bar& bar);
     void FileMenu(Bar& bar);

@@ -10,8 +10,8 @@ public:
     AnsiParser()                                    { Reset(); }
     
     virtual int     Parse(int c);
-    void            Parse(Stream& in, Event<int> out)		{ Parse0(in, pick(out), false); }
-    void			ParseUtf8(Stream& in, Event<int> out)	{ Parse0(in, pick(out), true);  }
+    void            Parse(Stream& in, Event<int> out)       { Parse0(in, pick(out), false); }
+    void            ParseUtf8(Stream& in, Event<int> out)   { Parse0(in, pick(out), true);  }
     void            Reset();
     
     int             GetControl() const              { return ctl; }
@@ -59,7 +59,7 @@ protected:
     virtual void    ParseOsc(int c);
     
 private:
-    void			Parse0(Stream& in, Event<int>&& out, bool utf8 = false);
+    void            Parse0(Stream& in, Event<int>&& out, bool utf8 = false);
 };
 }
 #endif

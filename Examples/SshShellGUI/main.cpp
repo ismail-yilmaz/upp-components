@@ -5,8 +5,8 @@
 
 bool SshConsole::Key(dword key, int count)
 {
-	auto* gui = static_cast<SshShellGUI*>(GetTopCtrl());
-	
+	auto gui = static_cast<SshShellGUI*>(GetTopCtrl());
+
 	switch(key) {
 		case K_BACKSPACE:
 				Send(0x08 & 0xff);
@@ -65,13 +65,18 @@ void SshShellGUI::OpenShell(bool x11)
 		tabs.Set(n);
 }
 
-void SshShellGUI::X11ShellFocus()
+void SshShellGUI::ShellFocus()
 {
-	session.WhenX11 = [=](SshX11Connection* x11conn) {
-		if(!tabs.GetCount())
-			return;
-		static_cast<SshConsole*>(tabs.GetItem(tabs.Get()).GetSlave())->AcceptX11(x11conn);
-	};
+	auto* c = GetFocusedShell();
+	if(c) c->SetFocus();
+}
+
+SshConsole* SshShellGUI::GetFocusedShell()
+{
+	SshConsole* c = nullptr;
+	if(tabs.GetCount())
+		c = dynamic_cast<SshConsole*>(tabs.GetItem(~tabs).GetSlave());
+	return c;
 }
 
 void SshShellGUI::RemoveTab(Ctrl& c)
@@ -144,8 +149,14 @@ SshShellGUI::SshShellGUI()
 	AddFrame(mainmenu);
 	mainmenu.Set(THISFN(MainMenu));
 	Add(tabs.SizePos());
-	tabs.WhenSet     = [=] { X11ShellFocus(); };
+	tabs.WhenSet     = [=] { ShellFocus(); };
 	session.WhenWait = [=] { ProcessEvents(); };
+	session.WhenX11  = [=](SshX11Connection* x11conn)
+	{
+		auto c = GetFocusedShell();
+		if(c) c->AcceptX11(x11conn);
+	};
+
 	connected = false;
 }
 

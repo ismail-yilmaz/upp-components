@@ -53,8 +53,9 @@ void SFtpGUI::Connect()
 		else
 			Error();
 	}
-	else
+	else {
 		ErrorOK(DeQtf(session.GetErrorDesc()));
+	}
 }
 
 void SFtpGUI::Disconnect()

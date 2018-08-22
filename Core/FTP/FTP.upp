@@ -3,7 +3,8 @@ description "File Transfer Protocol encapsulation with advanced capabilities.\37
 uses
 	Core,
 	Core/SSL,
-	plugin/pcre;
+	plugin/pcre,
+	Core/SSL;
 
 file
 	Ftp.h,
