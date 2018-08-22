@@ -28,6 +28,7 @@ CONSOLE_APP_MAIN
 		DUMP(auth_code);
 		if(oauth2.GetAccessToken(OAuth2TokenRequest(TOKEN_ENDPOINT, auth_code), token_response))
 			DUMP(token_response);
+		return;
 	}
-	else LOG(oauth2.GetErrorDesc());
+	LOG(oauth2.GetErrorDesc());
 }
