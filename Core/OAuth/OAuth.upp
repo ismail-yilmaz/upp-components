@@ -1,0 +1,15 @@
+description "OAuth authentication pacakge\377";
+
+uses
+	Core,
+	Core/SSL;
+
+file
+	OAuth.h,
+	OAuth.cpp,
+	Docs readonly separator,
+	src.tpp,
+	Info readonly separator,
+	ReadMe,
+	Copying;
+

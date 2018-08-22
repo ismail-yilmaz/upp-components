@@ -1,0 +1,15 @@
+OAuth package for Ultimate++
+----------------------------
+This package encapsulates the authorization code grant flow of OAuth2 authorization protocol.
+It provides the native clients (such as desktop applications) with a means for safely accessing
+protected resources.
+
+Reference examples:
+-------------------
+
+- OAuth2Example: Demonstrates a OAuth2-based Google Drive access.
+
+History:
+--------
+
+2018-08-22:   Initial release.
