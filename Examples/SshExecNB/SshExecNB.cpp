@@ -12,7 +12,7 @@ CONSOLE_APP_MAIN
 	const char *cmd  = "ls -l";
 	
 	SshSession session;
-	if(session.Timeout(30000).Connect("maldoror:succubus@localhost:22")) {
+	if(session.Timeout(30000).Connect("demo:password@test.rebex.net:22")) {
 		Array<SshExec> execs;
 		Array<StringStream> s;
 		
