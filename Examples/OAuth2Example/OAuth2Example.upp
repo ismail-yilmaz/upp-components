@@ -1,0 +1,12 @@
+description "Demonstrates a OAuth2-based Google Drive access.\377";
+
+uses
+	Core,
+	OAuth;
+
+file
+	OAuth2Example.cpp;
+
+mainconfig
+	"" = "";
+
