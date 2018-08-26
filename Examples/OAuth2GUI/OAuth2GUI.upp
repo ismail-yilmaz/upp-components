@@ -1,0 +1,22 @@
+description "Demonstrates the GUI integration of OAuth2 package, using U++/CEF wrapper.\377";
+
+noblitz;
+
+uses
+	CtrlLib,
+	OAuth,
+	ChromiumBrowser;
+
+options
+	-std=c++11;
+
+link(GCC) "-Wl,-rpath .";
+
+file
+	OAuth2GUI.cpp,
+	OAuth2GUI.lay;
+
+mainconfig
+	"" = "GUI MT .NOGTK",
+	"" = "GUI MT .NOGTK .USEMALLOC";
+

@@ -1,0 +1,5 @@
+LAYOUT(MainLayout, 276, 80)
+	ITEM(Button, auth, SetLabel(t_("Authorize")).HSizePosZ(6, 6).BottomPosZ(5, 27))
+	ITEM(Label, dv___1, SetLabel(t_("This example demonstrates the GUI integration\nof OAuth package, using the U++/CEF wrapper.")).SetAlign(ALIGN_CENTER).HSizePosZ(8, 8).TopPosZ(8, 27))
+END_LAYOUT
+
