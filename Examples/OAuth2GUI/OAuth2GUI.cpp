@@ -26,8 +26,8 @@ public:
 
 	bool Authorize(int port = 3245)
 	{
-		const char *CLIENT_ID      = "464598234891-8n18175koiqfjkpmm7bp11aukstn8rc1.apps.googleusercontent.com";
-		const char *CLIENT_SECRET  = "gVUutg7282BSzDg7dFYGyopV";
+		const char *CLIENT_ID      = "client-id";
+		const char *CLIENT_SECRET  = "client-secret";
 		const char *CLIENT_SCOPE   = "https://www.googleapis.com/auth/drive";
 		const char *AUTH_ENDPOINT  = "https://accounts.google.com/o/oauth2/auth";
 		const char *TOKEN_ENDPOINT = "https://www.googleapis.com/oauth2/v4/token";
