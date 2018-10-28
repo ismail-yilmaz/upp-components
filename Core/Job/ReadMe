@@ -1,28 +1,25 @@
 Job package for Ultimate++
 ---------------------------
 
-This template class implements a scope bound, single worker thread based on RAII principle. 
-It provides a return semantics for result gathering, functionally similar to promise/future 
-pattern (including void type specialization). Also it provides a convenient error management 
-and exception propagation mechanisms for worker threads, and it is compatible with U++ 
-single-threaded mode.
+This template class implements a scope-bound, lightweight, single worker thread based on RAII 
+principle. It provides a return semantic for result gathering, functionally similar to the
+promise-future pattern, including void type specialization, and exception propagation. 
 
-Note that while Job is a general purpose multithreading tool, for high performance loop 
-parallelization scenarios CoWork would be a more suitable option. This class is mainly designed 
-to allow applications and libraries to gain an easily managable, optional non-blocking behavior 
-where high latency is expected such as network operations and file I/O, and a safe, 
-container-style access to the data processed by the worker threads is preferred.
+Note that Job class is meant to be a hybrid between the so-called "dedicated thread" and 
+"worker thread" models. While Job is a decent general-purpose multithreading tool, for high
+performance parallelization scenarios CoWork would be a more suitable option. This class is
+mainly designed to allow applications and libraries to gain an easily managable, optional
+non-blocking behavior where high latency is expected such as network operations and file I/O,
+and a safe, container-style access to the data processed by the worker threads is preferred. 
 
 Features and Highlights
 -----------------------
 
+- Uses RAII: All Job instances are scope-bound and will forced to finish job when they get out of scope.
+- Smaller overhead. (Does not rely on a pre-allocated thread pool). 
 - A safe way to gather results from worker threads.
 - Simple and easy-to-use thread halting, and error reporting mechanism.
 - Exception propagation.
-- External blocking is possible.
-- Optional constant reference access to job results.
-- Compatible with U++ single-threaded environment.
-- All Job instances are scope bound and will forced to finish job when they get out of scope.
 
 Known Issues
 -----------------------
@@ -32,6 +29,14 @@ Known Issues
 History
 -----------------------
 
+- 2018-10-29: New version.
+              Job heavily refactored.
+              Class interface trimmed down.
+              Proper waiting mechanism added.
+              Improved performance.
+              Documents updated.
+              Reference example added.
+            
 - 2017-10-07: Compatibility with U++ single-threaded mode is added.
 
 - 2017-10-01: Global variables moved into JobGlobal namespace in order to avoid multiple

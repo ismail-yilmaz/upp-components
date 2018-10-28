@@ -1,105 +1,69 @@
-#ifndef _Job_Job_h
-#define _Job_Job_h
+#ifndef _Job_Job_h_
+#define _Job_Job_h_
 
 #include <Core/Core.h>
 
 namespace Upp {
 
-template<class T> struct JobResult {
-    One<T>  data;
-    T&      Get()                           { return *data; }
-    void    Set(Function<T()>&  fn)         { *data = pick(fn()); }
-    void    New()                           { data = MakeOne<T>(); }
-};
-
-template<> struct JobResult<void> {
-    void    Get()                           { return void(); }
-    void    Set(Function<void()>&  fn)      { fn(); }
-    void    New()                           {}
-};
-
-template<class T>
-class JobBase : public Pte<JobBase<T>>, NoCopy {
+class JobWorker : NoCopy {
 public:
-    bool    Start(Function<T()>&& fn);
-    bool    operator&(Function<T()>&& fn)   { return Start(pick(fn)); }
-    void    Finish();
-    bool    IsFinished();
-    void    Cancel();
-
-    void    Clear()                         { result.New(); exc = NULL; }
-    void    operator=(const Nuller&)        { Clear(); }
-
-#ifdef _MULTITHREADED
-    Thread  GetWorker()                     { return worker; }
-#endif
-    int64   GetWorkerId()                   { return wid; }
-
-    bool    IsError()                       { Rethrow(); return status == FAILED; }
-    int     GetError() const                { return error.Get<int>(); }
-    String  GetErrorDesc() const            { return error.Get<String>(); }
-
-    JobBase()                               { Init(); }
-    JobBase(Function<T()>&& fn) : JobBase() { Start(pick(fn)); }
-    virtual ~JobBase()                      { Exit(); }
-
-protected:
-    JobResult<T>	result;
-    Mutex		lock;
-    inline void		Rethrow();
-
+    JobWorker();
+    ~JobWorker();
+    bool                Start(Event<>&& fn);
+    void                Stop();
+    void                Loop();
+    void                Wait();
+    void                Cancel()                    { cancel = true; Wait();  Rethrow(); }
+    static bool         IsCanceled()                { return ptr && ptr->cancel; }
+    void                Rethrow()                   { Mutex::Lock __(lock); if(exc) std::rethrow_exception(exc); }
+    inline bool         Is(int stat) const          { return status == stat; }
+    
+    enum State : int { IDLE, WORKING, SHUTDOWN };
+    
 private:
-#ifdef _MULTITHREADED
-    Thread              worker;
-    ConditionVariable   cv;
-#endif
-    Function<T()>       work;
-    int64               wid;
-    volatile Atomic     status;
-    Tuple<int, String>  error;
+    Thread              work;
+    Event<>             cb;
+    Mutex               lock;
+    ConditionVariable   cv, wv;
     std::exception_ptr  exc;
-
-    enum Status         { IDLE, WORKING, FINISHED, FAILED, EXIT };
-
-    void Init();
-    void Exit();
-    void Work();
+    std::atomic<int>    status;
+    std::atomic<bool>   cancel;
+    static thread_local JobWorker *ptr;
 };
 
 template<class T>
-class Job : public JobBase<T> {
+class Job {
+private:
+    template<class R>
+    struct Result {
+        JobWorker v;
+        R ret;
+        template<class Function, class... Args>
+        bool       Start(Function&& f, Args&&... args)  { return v.Start([=]{ ret = f(args...);}); }
+        const R&   Get()                                { v.Wait(); v.Rethrow(); return ret; }
+    };
+
+    struct VoidResult {
+        JobWorker v;
+        template<class Function, class... Args>
+        bool       Start(Function&& f, Args&&... args)  { return v.Start([=]{ f(args...); }); }
+        void       Get()                                { v.Wait(); v.Rethrow(); }
+    };
+
+    using ResType = typename std::conditional<std::is_void<T>::value, VoidResult, Result<T>>::type;
+    One<ResType> worker;
+    
 public:
-    T        GetResult();
-    const T& operator~();
-    Job()                                   {}
-    Job(Function<T()>&& fn) : Job()         { Start(fn); }
-    virtual ~Job()                          {}
+    template<class Function, class... Args>
+    bool    Do(Function&& f, Args&&... args)            { return worker && worker->Start(f, args...); }
+    void    Finish()                                    { ASSERT(worker); worker->v.Wait(); }
+    bool    IsFinished() const                          { return !worker || !worker->v.Is(JobWorker::WORKING);  }
+    void    Cancel()                                    { ASSERT(worker); worker->v.Cancel(); }
+    static bool IsCancelled()                           { return JobWorker::IsCanceled(); }
+    T       Get()                                       { ASSERT(worker); return worker->Get(); }
+    T       operator~()                                 { return Get(); }
+    Job()                                               { worker.Create(); }
+    ~Job()                                              { worker.Clear();  }
 };
-
-// Void specialization
-template<>
-class Job<void> : public JobBase<void> {
-public:
-    void    GetResult()                     { Rethrow(); return void(); }
-    void    operator~()                     { return GetResult(); }
-    Job()                                   {}
-    Job(Function<void()>&& fn) : Job()      { Start(pick(fn)); }
-    virtual ~ Job()							{}
-};
-
-struct JobError : Exc {
-    int code;
-    JobError() : Exc(Null), code(-1) {}
-    JobError(const String& reason) : Exc(reason), code(-1) {}
-    JobError(int rc, const String& reason) : Exc(reason), code(rc) {}
-};
-
-extern int64   GetWorkerId();
-extern int64   GetJobCount();
-extern void    WaitForJobs();
-extern void    CancelJobs();
-extern bool    IsJobCancelled();
-
-#include "Job.hpp"
 }
 #endif
