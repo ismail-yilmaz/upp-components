@@ -1,0 +1,12 @@
+description "Demonstrates Job, a lightweight worker thread implementation.\377";
+
+uses
+	Core,
+	Job;
+
+file
+	JobExample.cpp;
+
+mainconfig
+	"" = "";
+
