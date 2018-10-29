@@ -25,12 +25,12 @@ CONSOLE_APP_MAIN
 	}
 	{
 		job1.Do([=]{
-			while(!Job<String>::IsCancelled())
+			while(!Job<void>::IsCancelled())
 				Sleep(1);
 			LOG("Worker canceled.");
 		});
 		Sleep(1000);
-		// job2.Cancel(); // Worker will automatically cancel the job when it goes out of scope.
+		//job1.Cancel(); // Worker will automatically cancel the job when it goes out of scope.
 	}
 	{
 		job2.Do([=]{ return "Hello again!"; });
