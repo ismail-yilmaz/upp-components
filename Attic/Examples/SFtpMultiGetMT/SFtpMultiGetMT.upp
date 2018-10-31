@@ -1,0 +1,12 @@
+description "Demonstrates SFTP dir listing and multiple file transfers, using worker threads\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpMultiGetMT.cpp;
+
+mainconfig
+	"" = "";
+

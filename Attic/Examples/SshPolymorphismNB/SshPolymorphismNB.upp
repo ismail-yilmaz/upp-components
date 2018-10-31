@@ -1,0 +1,12 @@
+description "Demonstrates the polymorphism capability of SSH channels in non-blocking mode.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshPolymorphismNB.cpp;
+
+mainconfig
+	"" = "";
+

@@ -1,0 +1,12 @@
+description "Demonstrates basic SFtp file download, using worker threads.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SFtpGetMT.cpp;
+
+mainconfig
+	"" = "";
+

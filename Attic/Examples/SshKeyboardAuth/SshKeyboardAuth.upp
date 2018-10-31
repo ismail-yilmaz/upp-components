@@ -1,0 +1,12 @@
+description "Demonstrates basic SSH interactive (challenge/response) authentication method.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshKeyboardAuth.cpp;
+
+mainconfig
+	"" = "";
+

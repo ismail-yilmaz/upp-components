@@ -1,0 +1,12 @@
+description "Demonstrates a basic, real-time SSH console in non-blocking mode.\377";
+
+uses
+	Core,
+	SSH;
+
+file
+	SshShellNB.cpp;
+
+mainconfig
+	"" = "";
+
