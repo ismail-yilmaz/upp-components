@@ -7,35 +7,34 @@ namespace Upp {
 
 void SshTunnel::Validate()
 {
-	ASSERT(*channel);
 	bool b = false;
 	switch(mode) {
-		case CONNECT:
+		case CHANNEL_TUNNEL_CONNECT:
 			b = *channel || listener;
 			break;
-		case LISTEN:
+		case CHANNEL_TUNNEL_LISTEN:
 			b = *channel || listener;
 			break;
-		case ACCEPT:
-			b = *channel || !listener;
+		case CHANNEL_TUNNEL_ACCEPT:
+			b = *channel;
 			break;
 		default:
 			NEVER();
 	}
 	if(b)
-		SetError(-1, "Proxy channel is already allocated.");
+		SetError(-1, "Proxy channel allocation failed.");
 }
 
 bool SshTunnel::Connect(const String& host, int port)
 {
-	return Cmd(CONNECT, [=]() mutable {
+	mode = CHANNEL_TUNNEL_CONNECT;
+	return Cmd(CHANNEL_TUNNEL_CONNECT, [=]() mutable {
 		Validate();
 		*channel = libssh2_channel_direct_tcpip(ssh->session, host, port);
 		if(!*channel && !WouldBlock())
 			SetError(-1);
 		if(*channel) {
 			LLOG("Direct tcp-ip connection to " << host << ":" << port << " is established.");
-			mode = CONNECT;
 		}
 		return *channel != NULL;
 	});
@@ -47,7 +46,7 @@ bool SshTunnel::Connect(const String& url)
 	if(!u.host.IsEmpty() && u.port.IsEmpty())
 		return Connect(u.host, StrInt(u.port));
 	else
-		return Cmd(CONNECT, [=]{
+		return Cmd(CHANNEL_TUNNEL_CONNECT, [=]{
 			SetError(-1, "Malformed proxy connection URL.");
 			return false; // Just to prevent compiler warnings.
 		});
@@ -55,7 +54,8 @@ bool SshTunnel::Connect(const String& url)
 
 bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen_count)
 {
-	return Cmd(LISTEN, [=]() mutable {
+	mode = CHANNEL_TUNNEL_LISTEN;
+	return Cmd(CHANNEL_TUNNEL_LISTEN, [=]() mutable {
 		Validate();
 		listener =libssh2_channel_forward_listen_ex(
 			ssh->session,
@@ -67,7 +67,6 @@ bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen
 		if(!listener && !WouldBlock())
 			SetError(-1);
 		if(listener) {
-			mode = LISTEN;
 			LLOG("Started listening on port #" << port);
 		}
 		return listener != NULL;
@@ -76,7 +75,8 @@ bool SshTunnel::Listen(const String& host, int port, int* bound_port, int listen
 
 bool SshTunnel::Accept(SshTunnel& listener)
 {
-	return Cmd(ACCEPT, [=, &listener]() mutable {
+	mode = CHANNEL_TUNNEL_ACCEPT;
+	return Cmd(CHANNEL_TUNNEL_ACCEPT, [=, &listener]() mutable {
 		if(IsNull(listener))
 			SetError(-1, "Invalid listener.");
 		Validate();
@@ -84,7 +84,6 @@ bool SshTunnel::Accept(SshTunnel& listener)
 		if(!*channel && !WouldBlock())
 			SetError(-1);
 		if(*channel) {
-			mode = ACCEPT;
 			LLOG("Connection accepted.");
 		}
 		return *channel != NULL;

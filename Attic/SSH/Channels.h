@@ -1,8 +1,8 @@
 class SshChannel : public Ssh {
 public:
-    SshChannel&         Timeout(int ms)                                             { ssh->timeout = clamp(ms, 0, INT_MAX); return *this;  }
+    SshChannel&         Timeout(int ms)                                             { ssh->timeout = ms; return *this;  }
     SshChannel&         NonBlocking(bool b = true)                                  { return Timeout(b ? 0 : Null); }
-    SshChannel&         WaitStep(int ms)                                            { ssh->waitstep = clamp(ms, 0, INT_MAX); }
+    SshChannel&         WaitStep(int ms)                                            { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
     SshChannel&         ChunkSize(int sz)                                           { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }
 
 
@@ -50,6 +50,7 @@ public:
     bool                IsNullInstance() const                                      { return !channel || !ssh; }
     inline operator     bool() const                                                { return IsNullInstance();}
 
+    Event<const void*, int> WhenContent;
     Gate<int64, int64>      WhenProgress;
 
     SshChannel() : Ssh(false) {}
@@ -60,9 +61,9 @@ public:
     SshChannel& operator=(SshChannel&&) = default;
 
 protected:
-    virtual bool        Init() override;
-    void                Exit();
-    virtual bool        Cleanup(Error& e) override;
+    bool                Init() override;
+    void                Exit() override;
+    bool                Cleanup(Error& e) override;
 
     int                 AdjustChunkSize(int64 sz);
     void                Clear();
@@ -71,6 +72,7 @@ protected:
     int                 Read(int sid = 0);
     bool                ReadString(String& s, int64 len, int sid = 0, bool nb = false);
     bool                ReadStream(Stream& s, int64 len, int sid = 0, bool nb = false);
+    bool                ReadContent(Event<const void*,int>&& consumer, int64 len, int sid = 0, bool nb =  false);
 
     int                 Write(const void* buffer, int64 len, int sid = 0);
     bool                Write(char c, int sid = 0);
@@ -102,36 +104,61 @@ protected:
     int64                    total;
     std::atomic<int64>*      lock;
 
-
     enum OpCodes {
-        CHINIT, CHEXIT, CHOPEN, CHREQUEST, CHSETENV, CHREAD, CHWRITE, CHCLOSE,
-        CHWAIT, CHEOF, CHSTDERR, CHRC, CHSIG, CHWNDSZ, CHTRMSZ, CHEXEC, CHSHELL
+        CHANNEL_INIT,
+        CHANNEL_EXIT,
+        CHANNEL_OPEN,
+        CHANNEL_CLOSE,
+        CHANNEL_REQUEST,
+        CHANNEL_SET_ENV,
+        CHANNEL_READ,
+        CHANNEL_WRITE,
+        CHANNEL_WAIT,
+        CHANNEL_EOF,
+        CHANNEL_STDERR,
+        CHANNEL_RC,
+        CHANNEL_SIGNAL,
+        CHANNEL_WIN_SIZE,
+        CHANNEL_PTY_SIZE,
+        CHANNEL_SCP,
+        CHANNEL_SCP_GET,
+        CHANNEL_SCP_PUT,
+        CHANNEL_EXEC,
+        CHANNEL_SHELL,
+        CHANNEL_TUNNEL,
+        CHANNEL_TUNNEL_CONNECT,
+        CHANNEL_TUNNEL_LISTEN,
+        CHANNEL_TUNNEL_ACCEPT
     };
 };
 
 // Channels.
 class Scp : public SshChannel {
 public:
-    bool    Get(Stream& out, const String& path, Gate<int64, int64> progress = Null);
-    bool    operator()(Stream& out, const String& path, Gate<int64, int64> progress = Null)                 { return Get(out, path, progress); }
-    String  Get(const String& path, Gate<int64, int64> progress = Null);
-    String  operator()(const String& path, Gate<int64, int64> progress = Null)                              { return Get(path, progress); }
-    bool    Put(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null);
-    bool    operator()(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null)       { return Put(in, path, mode, progress); }
-    bool    Put(const String& in, const String& path, long mode, Gate<int64, int64> progress = Null);
-    bool    operator()(const String& in, const String& path, long mode, Gate<int64, int64> progress = Null) { return Put(in, path, mode, progress); }
+    bool    Get(const String& path, Stream& out);
+    bool    operator()(const String& path, Stream& out)                                                 { return Get(path, out); }
+    String  Get(const String& path);
+    String  operator()(const String& path)                                                              { return Get(path); }
+    bool    Put(Stream& in, const String& path, long mode = 0744);
+    bool    Put(const String& in, const String& path, long mode = 0744);
+    bool    operator()(Stream& in, const String& path, long mode = 0744)                                 { return Put(in, path, mode); }
+    bool    operator()(const String& in, const String& path, long mode = 0744)                           { return Put(in, path, mode); }
 
-    static  AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
+    static  AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncGet(SshSession& session, const String& path, Stream& out, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPut(SshSession& session, String& in, const String& path, long mode = 0744, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPut(SshSession& session, Stream& in, const String& path, long mode = 0744, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncPutToFile(SshSession& session, const String& src, const String& dest, long mode = 0744, Gate<int64, int64, int64> progress = Null);
+    static  AsyncWork<void>   AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer);
 
     Scp(SshSession& session) : SshChannel(session)                                                      { ssh->otype = SCP; }
 
 private:
-    virtual bool Init() override                                                                        { return Lock(); }
+    bool Init() override                                                                        { return Lock(); }
     bool Open(int opcode, const String& path, int64 size, long mode);
-    enum OpCodes { FGET, FPUT };
+    static void StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode,
+                            Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer = Null);
 };
 
 class SshExec : public SshChannel {
@@ -139,12 +166,12 @@ public:
     int         Execute(const String& cmd, Stream& out, Stream& err);
     int         operator()(const String& cmd, Stream& out, Stream& err)                                 { return Execute(cmd, out, err); }
 
-    static      AsyncWork<Tuple<int, String, String>> Async(SshSession& session, const String& cmd);
+    static      AsyncWork<Tuple<int, String, String>> AsyncRun(SshSession& session, const String& cmd);
 
     SshExec(SshSession& session) : SshChannel(session)                                                  { ssh->otype = EXEC; };
 
 private:
-    virtual bool Init() override                                                                        { return Lock(); }
+    bool        Init() override                                                                        { return Lock(); }
 };
 
 class SshTunnel : public SshChannel {
@@ -159,10 +186,9 @@ public:
     SshTunnel() : SshChannel()                                                                          {}
 
 private:
-    virtual bool Init() override                                                                        { return true; }
+    bool         Init() override                                                                        { return true; }
     void         Validate();
     int mode;
-    enum OpCodes { CONNECT, LISTEN, ACCEPT };
 };
 
 class SshShell : public SshChannel {
@@ -196,7 +222,7 @@ public:
     SshShell& operator=(SshShell&&) = default;
 
 protected:
-    virtual void ReadWrite(String& in, const void* out, int out_len) override;
+    void    ReadWrite(String& in, const void* out, int out_len) override;
     virtual bool Run(int mode_, const String& terminal, Size pagesize);
 
     void    Resize();
@@ -211,7 +237,7 @@ protected:
     enum Modes { GENERIC, CONSOLE };
 
 private:
-    virtual bool Init() override                                                                        { return Lock(); }
+    bool    Init() override                                                                        { return Lock(); }
 
     String  queue;
     Size    psize;

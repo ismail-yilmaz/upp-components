@@ -9,14 +9,15 @@ bool SshShell::Run(int mode_, const String& terminal, Size pagesize)
 {
 	mode  = mode_;
 	psize = pagesize;
-
-	return ComplexCmd(CHSHELL, [=]() mutable {
+	ssh->noloop = mode == CONSOLE; // FIXME: Not very pretty, but currently required for console i/o to work.
+	
+	return ComplexCmd(CHANNEL_SHELL, [=]() mutable {
 		SshChannel::Open();
 		SshChannel::Terminal(terminal, psize);
-		Cmd(CHSHELL, [=] { return X11Init(); });
+		Cmd(CHANNEL_SHELL, [=] { return X11Init(); });
 		SshChannel::Shell();
-		Cmd(CHSHELL, [=] { Unlock(); return ConsoleInit(); });
-		Cmd(CHSHELL, [=] { return ProcessEvents(queue);  });
+		Cmd(CHANNEL_SHELL, [=] { Unlock(); return ConsoleInit(); });
+		Cmd(CHANNEL_SHELL, [=] { return ProcessEvents(queue);  });
 		SshChannel::SendRecvEof();
 		SshChannel::Close();
 		SshChannel::CloseWait();
@@ -344,6 +345,38 @@ bool SshShell::AcceptX11(SshX11Connection* x11conn)
 	}
 #endif
 	return false;
+}
+
+AsyncWork<void> SshShell::AsyncRun(SshSession& session, String terminal, Size pagesize, Event<SshShell&> in, Event<const String&> out)
+{
+	auto work = Async([=, &session, in = pick(in), out = pick(out)]{
+		SshShell worker(session);
+		worker.NonBlocking();
+	
+		bool cancelled = false;
+		int  waitstep  = worker.GetWaitStep();
+		
+		worker.WhenInput = [&worker, &in]() {
+			in(worker);
+		};
+		worker.WhenOutput = [&out](const void* buf, int len) {
+			String s((const char*) buf, len);
+			out(s);
+		};
+
+		worker.Run(terminal, pagesize);
+		
+		while(worker.Do()) {
+			if(!cancelled && CoWork::IsCanceled()) {
+				worker.Cancel();
+				cancelled = true;
+			}
+			Sleep(waitstep);
+		}
+		if(worker.IsError())
+			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
+	});
+	return pick(work);
 }
 
 SshShell::SshShell(SshSession& session)

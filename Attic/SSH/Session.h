@@ -14,7 +14,7 @@ public:
 public:
     SshSession&         Timeout(int ms)                         { ssh->timeout = ms; return *this; }
     SshSession&         NonBlocking(bool b = true)              { return Timeout(b ? 0 : Null);}
-    SshSession&			WaitStep(int ms)						{ ssh->waitstep = clamp(ms, 0, INT_MAX); }
+    SshSession&         WaitStep(int ms)                        { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
 
     SshSession&         Keys(const String& prikey, const String& pubkey, const String& phrase = Null, bool fromfile = true);
     SshSession&         Method(int type, Value method)          { session->iomethods(type) = pick(method); return *this; }
@@ -46,7 +46,7 @@ public:
     void                Disconnect();
     
 //    Event<>             WhenDo;
-    Event<>				WhenWait;
+    Event<>             WhenWait;
     Event<>             WhenConfig;
     Event<>             WhenAuth;
     Gate<>              WhenVerify;
@@ -61,12 +61,12 @@ public:
     SshSession& operator=(SshSession&&) = default;
 
 private:
-    virtual void        Exit() override;
-    virtual void        Check() override;
+    void                Exit() override;
+    void                Check() override;
     String              GetMethodNames(int type);
     int                 TryAgent(const String& username);
     void                FreeAgent(SshAgent* agent);
-	
+    
     struct SessionData {
         TcpSocket       socket;
         IpAddrInfo      ipinfo;

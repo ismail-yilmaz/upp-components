@@ -191,14 +191,8 @@ true on success. This method will return true even when the remote
 directory is empty.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:GetCurrentDir`(`): [_^Upp`:`:String^ String]_[* GetCurrentDir]()&]
-[s2;%% Returns the current directory on success, and an empty string 
-on failure.&]
-[s3; &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:GetParentDir`(`): [_^Upp`:`:String^ String]_[* GetParentDir]()&]
-[s2;%% Returns the parent directory on success, and an empty string 
-on failure.&]
+[s5;:Upp`:`:SFtp`:`:GetWorkDir`(`): [_^Upp`:`:String^ String]_[* GetWorkDir]()&]
+[s2;%% Returns the working directory on success.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SFtp`:`:MakeLink`(const Upp`:`:String`&`,const Upp`:`:String`&`): [@(0.0.255) b
@@ -359,203 +353,204 @@ ialFileExists]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 
 file.&]
 [s2;%% In non`-blocking mode, the result of this operation can be 
 obtained using GetResult() method.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:WhenContent: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[@(0.0.255) voi
+d`*], [@(0.0.255) int]>_[* WhenContent]&]
+[s2;%% Defines a consumer function for SFtp data content. If defined, 
+SFtp class uses this output event instead of storing the output 
+content into the string or stream that is provided with the data 
+transfer methods.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:WhenProgress: [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[* WhenProgress]&]
+[s2;%% If defined, this gate allows tracking of data transfers. The 
+first parameter provides the amount of data that has already 
+been transferred. The second parameter may provide the total 
+amount of data to be transferred, but is allowed to be 0. Returning 
+true will abort the current data transfer.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Transfer Methods]]}}&]
 [s3;  &]
-[s5;:Upp`:`:SFtp`:`:Get`(Upp`:`:SFtpHandle`*`,Upp`:`:Stream`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
-ool]_[* Get]([_^Upp`:`:SFtpHandle^ SFtpHandle][@(0.0.255) `*]_[*@3 handle], 
-[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Downloads the remote file pointed by [%-*@3 handle] to [%-*@3 out]. 
-Returns true on success. [%-*@3 progress ]function can be used 
-to track the progress of the download; returning true will abort 
-the operation.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Get`(Upp`:`:SFtpHandle`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [_^Upp`:`:String^ S
-tring]_[* Get]([_^Upp`:`:SFtpHandle^ SFtpHandle][@(0.0.255) `*]_[*@3 handle], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
-[s2;%% Overload. Returns the content of remote file pointed by [%-*@3 handle] 
-as string. Returns an empty string on failure. [%-*@3 progress 
-]function can be used to track the progress of the download; 
-returning true will abort the operation. In non`-blocking mode, 
-the result of this operation can be obtained using GetResult() 
-method.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`,Upp`:`:Stream`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
+[s5;:Upp`:`:SFtp`:`:Get`(Upp`:`:SFtpHandle`*`,Upp`:`:Stream`&`): [@(0.0.255) bool]_[* Get
+]([_^Upp`:`:SFtpHandle^ SFtpHandle][@(0.0.255) `*]_[*@3 handle], [_^Upp`:`:Stream^ Stream
+][@(0.0.255) `&]_[*@3 out])&]
+[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`,Upp`:`:Stream`&`): [@(0.0.255) bool]_[* G
+et]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
+[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out])&]
+[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`,Upp`:`:Stream`&`,Upp`:`:int64`): [@(0.0.255) b
 ool]_[* Get]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Overload. Downloads the remote file at [%-*@3 path] to [%-*@3 out] 
-. Returns true on success. [%-*@3 progress ]function can be used 
-to track the progress of the download; returning true will abort 
-the operation.&]
+[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out], [_^Upp`:`:int64^ int64]_[*@3 offset])&]
+[s2;%% Downloads the content of remote file pointed by  [%-*@3 handle] 
+or [%-*@3 path] to [%-*@3 out]. Returns true on success. [%-*@3 offset] 
+can be used to start or restart a partial download. Setting [%-*@3 offset] 
+to zero or a negative value will result in full download.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [_^Upp`:`:String^ S
-tring]_[* Get]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
-[s2;%% Overload. Returns the content of remote file at [%-*@3 path] 
-as string. Returns an empty string on failure. [%-*@3 progress 
-]function can be used to track the progress of the download; 
-returning true will abort the operation. In non`-blocking mode, 
-the result of this operation can be obtained using GetResult() 
-method.&]
+[s5;:Upp`:`:SFtp`:`:Get`(Upp`:`:SFtpHandle`*`): [_^Upp`:`:String^ String]_[* Get]([_^Upp`:`:SFtpHandle^ S
+FtpHandle][@(0.0.255) `*]_[*@3 handle])&]
+[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`): [_^Upp`:`:String^ String]_[* Get]([@(0.0.255) c
+onst]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path])&]
+[s2;%% Downloads the content of remote file pointed by [%-*@3 handle] 
+or [%-*@3 path ]as string. Returns an empty string on failure.&]
+[s2;%% In non`-blocking mode, the result of this operation can be 
+obtained using GetResult() method.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:Get`(const Upp`:`:String`&`,Upp`:`:Stream`&`,Upp`:`:int64`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
-ool]_[* Get]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out], [_^Upp`:`:int64^ int64]_[*@3 offset], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
-[s2;%% Overload. Downloads the content of remote file at [%-*@3 path] 
-to [%-*@3 out]. Returns true on success. [%-*@3 offset] can be used 
-to start or restart a partial download. Setting [%-*@3 offset] 
-to zero or a negative value will result in full download. [%-*@3 progress 
-]function can be used to track the progress of the download; 
-returning true will abort the operation. &]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:SFtpHandle`*`,Upp`:`:Stream`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
-ool]_[* Put]([_^Upp`:`:SFtpHandle^ SFtpHandle][@(0.0.255) `*]_[*@3 handle], 
-[_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Uploads [%-*@3 in] to remote file pointed by [%-*@3 handle]. Returns 
-true on success. [%-*@3 progress ]function can be used to track 
-the progress of the upload; returning true will abort the operation&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
-ool]_[* Put]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 path], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Overload. Uploads [%-*@3 in] to remote [%-*@3 path]. Returns true 
-on success. [%-*@3 progress ]function can be used to track the 
-progress of the upload; returning true will abort the operation&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:dword`,long`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
+[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:SFtpHandle`*`,Upp`:`:Stream`&`): [@(0.0.255) bool]_[* Put
+]([_^Upp`:`:SFtpHandle^ SFtpHandle][@(0.0.255) `*]_[*@3 handle], [_^Upp`:`:Stream^ Stream
+][@(0.0.255) `&]_[*@3 in])&]
+[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`): [@(0.0.255) bool]_[* P
+ut]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
+tring][@(0.0.255) `&]_[*@3 path])&]
+[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:dword`,long`): [@(0.0.255) b
 ool]_[* Put]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
 tring][@(0.0.255) `&]_[*@3 path], [_^Upp`:`:dword^ dword]_[*@3 flags], 
-[@(0.0.255) long]_[*@3 mode], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s0;l288;%% Overload. Uploads [%-*@3 in] to remote [%-*@3 path], with 
-access [%-*@3 flags] and [%-*@3 mode]. Returns true on success. [%-*@3 progress] 
-function can be used to track the progress of the upload; returning 
-true will abort the operation.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:int64`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
+[@(0.0.255) long]_[*@3 mode])&]
+[s5;:Upp`:`:SFtp`:`:Put`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:int64`): [@(0.0.255) b
 ool]_[* Put]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 path], [_^Upp`:`:int64^ int64]_[*@3 offset], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
-[s0;l288;%% Overload. Uploads [%-*@3 in] to remote [%-*@3 path], with 
-access [%-*@3 flags] and [%-*@3 mode]. Returns true on success. [%-*@3 offset 
-]can be used to start or restart a partial upload. Setting [%-*@3 offset] 
-to zero or a negative value will result in full upload. [%-*@3 progress 
-]function can be used to track the progress of the upload; returning 
-true will abort the operation.&]
+tring][@(0.0.255) `&]_[*@3 path], [_^Upp`:`:int64^ int64]_[*@3 offset])&]
+[s2;%% Uploads [%-*@3 in] to remote file pointed by [%-*@3 handle]. or 
+[%-*@3 path], optionally with access [%-*@3 flags] and [%-*@3 mode]. 
+Returns true on success. [%-*@3 offset ]can be used to start or 
+restart a partial upload. Setting [%-*@3 offset] to zero or a negative 
+value will result in full upload. Returns true on success.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:Append`(Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
+[s5;:Upp`:`:SFtp`:`:Append`(Upp`:`:Stream`&`,const Upp`:`:String`&`): [@(0.0.255) bool]_
+[* Append]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
+tring][@(0.0.255) `&]_[*@3 path])&]
+[s5;:Upp`:`:SFtp`:`:Append`(Upp`:`:Stream`&`,const Upp`:`:String`&`,long`): [@(0.0.255) b
 ool]_[* Append]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 path], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], 
-[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Appends [%-*@3 in] to remote file at [%-*@3 path]. Returns true 
-on success. [%-*@3 progress ]function can be used to track the 
-progress of the upload; returning true will abort the operation.&]
+tring][@(0.0.255) `&]_[*@3 path], [@(0.0.255) long]_[*@3 mode])&]
+[s2;%% Appends [%-*@3 in] to remote file at [%-*@3 path], optionally 
+with access [%-*@3 mode]. Returns true on success.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:Append`(Upp`:`:Stream`&`,const Upp`:`:String`&`,long`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
-ool]_[* Append]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in], [@(0.0.255) const]_[_^Upp`:`:String^ S
-tring][@(0.0.255) `&]_[*@3 path], [@(0.0.255) long]_[*@3 mode], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Overload. Appends [%-*@3 in] to remote file at [%-*@3 path], with 
-access [%-*@3 mode]. Returns true on success. [%-*@3 progress ]function 
-can be used to track the progress of the upload; returning true 
-will abort the operation.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SFtp`:`:Peek`(const Upp`:`:String`&`,Upp`:`:int64`,Upp`:`:int64`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [_^Upp`:`:String^ S
+[s5;:Upp`:`:SFtp`:`:Peek`(const Upp`:`:String`&`,Upp`:`:int64`,Upp`:`:int64`): [_^Upp`:`:String^ S
 tring]_[* Peek]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[_^Upp`:`:int64^ int64]_[*@3 offset], [_^Upp`:`:int64^ int64]_[*@3 length], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
+[_^Upp`:`:int64^ int64]_[*@3 offset], [_^Upp`:`:int64^ int64]_[*@3 length])&]
 [s2;%% Peeks at the content of remote file at [%-*@3 path]. The file 
 block to be peeked at can be specified using the [%-*@3 offset] 
 and [%-*@3 length] variables. Returns peeked data block as string 
-on success, and an empty string on failure. [%-*@3 progress ]function 
-can be used to track the progress of peeking; returning true 
-will abort the operation. In non`-blocking mode, the result of 
-this operation can be obtained using GetResult() method.&]
+on success, and an empty string on failure.&]
+[s2;%% In non`-blocking mode, the result of this operation can be 
+obtained using GetResult() method..&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:Poke`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:int64`,Upp`:`:int64`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) b
+[s5;:Upp`:`:SFtp`:`:Poke`(const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:int64`,Upp`:`:int64`): [@(0.0.255) b
 ool]_[* Poke]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 data], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
-[_^Upp`:`:int64^ int64]_[*@3 offset], [_^Upp`:`:int64^ int64]_[*@3 length], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=
-_Null)&]
+[_^Upp`:`:int64^ int64]_[*@3 offset], [_^Upp`:`:int64^ int64]_[*@3 length])&]
 [s2;%% Pokes [%-*@3 data ]at the remote file at [%-*@3 path]. The file 
 block to be poked at can be specified using the [%-*@3 offset] 
-and [%-*@3 length] variables. Returns true on success. [%-*@3 progress 
-]function can be used to track the progress of poking; returning 
-true will abort the operation. Note that this method simply overwrites 
+and [%-*@3 length] variables. Note that this method simply overwrites 
 a given section of a remote file. It does not change the size 
 of it.&]
 [s3;%% &]
-[s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Multithreaded Transfer Methods.]]}}&]
-[s3;  &]
-[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+[s2;# &]
+[s2;#%% [%- The following convenience methods use high performance 
+worker threads to transfer data. They all require a valid ssh 
+][%-*@3 session][%-  during the operation, and throw ][%-^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`_en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
+Sh`::Error][%-  on failures. In all of these methods, except AsyncConsumerGet(), 
+][%-*@3 progress] gate can be used to track the progress of the 
+transfer: The first parameter of this gate indicates a unique 
+id. The second parameter provides the amount of data that has 
+already been transferred. The third parameter may provide the 
+total amount of data to be transferred, but is allowed to be 
+0. Returning true will abort the current data transfer. Note 
+that these worker threads will use their session`'s waitstep 
+value to wait.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
 tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[_^Upp`:`:String^ String]>_[* AsyncGet]([_^Upp`:`:SshSession^ S
 shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
-]_[*@3 path], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 p
-rogress]_`=_Null)&]
-[s2;%% Downloads the remote file at [%-*@3 path] as string. Throws 
-[^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ Ssh`:
-:Error] on failure. [%-*@3 progress ]function can be used to track 
-the progress of the download; returning true will abort the operation. 
-Requires a valid ssh [%-*@3 session].&]
+]_[*@3 path], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Downloads the remote file pointed by the [%-*@3 path] as string.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const char`*`,const char`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+[s5;:Upp`:`:SFtp`:`:AsyncGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Stream`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
 tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncGet]([_^Upp`:`:SshSession^ S
-shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 source
-], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 target], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Overload. Downloads the remote file at [%-*@3 source] path to 
-[%-*@3 target] (local) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
-sh`::Error] on failure. [%-*@3 progress ]function can be used to 
-track the progress of the download; returning true will abort 
-the operation. Requires a valid ssh [%-*@3 session].&]
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 path], [_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 out], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
+nt64], [_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Downloads the remote file pointed by the [%-*@3 path] to [%-*@3 out].&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,Upp`:`:String`&`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
 tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`:SshSession^ S
-shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:String^ String][@(0.0.255) `&`&]_[*@3 da
-ta], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 target], 
-[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64]>_[*@3 progress])&]
-[s2;%% Uploads [%-*@3 data] to [%-*@3 target] (remote) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
-sh`::Error] on failure. [%-*@3 progress ]function can be used to 
-track the progress of the upload; returning true will abort the 
-operation. Requires a valid ssh [%-*@3 session].&]
+shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 in],
+ [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in],
+ [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Uploads [%-*@3 in] to the [%-*@3 path].&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SFtp`:`:AsyncPut`(Upp`:`:SshSession`&`,const char`*`,const char`*`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
-tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncPut]([_^Upp`:`:SshSession^ S
-shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 source
-], [@(0.0.255) const]_[@(0.0.255) char`*]_[*@3 target], [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ i
-nt64], [_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
-[s2;%% Overload. Upload the local file at [%-*@3 source] path to [%-*@3 target] 
-(remote) path. Throws [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Base`$en`-us`#Upp`:`:Ssh`:`:Error`:`:struct^ S
-sh`::Error] on failure. [%-*@3 progress ]function can be used to 
-track the progress of the upload; returning true will abort the 
-operation. Requires a valid ssh [%-*@3 session].&]
+[s5;:Upp`:`:SFtp`:`:AsyncAppend`(Upp`:`:SshSession`&`,Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncAppend]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 in],
+ [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s5;:Upp`:`:SFtp`:`:AsyncAppend`(Upp`:`:SshSession`&`,Upp`:`:Stream`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncAppend]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 in],
+ [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 path], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Appends [%-*@3 in] to the object pointed by the [%-*@3 path].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncGetToFile`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]> [* AsyncGetToFile]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 dest], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Downloads the remote file pointed by [%-*@3 src ]to local file 
+pointed by [%-*@3 dest]. Note that, in case of failure this method 
+[/ does not] automatically delete the partially downloaded file.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncPutFromFile`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic] [_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]> [* AsyncPutFromFile]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 dest], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Uploads the local file pointed by [%-*@3 src] to  the remote 
+path pointed by [%-*@3 dest].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncAppendFromFile`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,Upp`:`:Gate`<Upp`:`:int64`,Upp`:`:int64`,Upp`:`:int64`>`): [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]> [* AsyncAppendFromFile]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 src], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 dest], 
+[_^Upp`:`:Gate^ Gate]<[_^Upp`:`:int64^ int64], [_^Upp`:`:int64^ int64], 
+[_^Upp`:`:int64^ int64]>_[*@3 progress]_`=_Null)&]
+[s2;%% Appends the local file pointed by [%-*@3 src] to the remote 
+path pointed by [%-*@3 dest].&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:SFtp`:`:AsyncConsumerGet`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:Event`<Upp`:`:int64`,const void`*`,int`>`): [@(0.0.255) s
+tatic ][_^Upp`:`:AsyncWork^ AsyncWork]<[@(0.0.255) void]>_[* AsyncConsumerGet]([_^Upp`:`:SshSession^ S
+shSession][@(0.0.255) `&]_[*@3 session], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 path], [_^Upp`:`:Event^ Event]<[_^Upp`:`:int64^ int64], [@(0.0.255) const]_[@(0.0.255) v
+oid`*], [@(0.0.255) int]>_[*@3 consumer])&]
+[s2;%% Downloads the remote file pointed by [%-*@3 path], using a user`-defined 
+[%-*@3 consumer] function. The first parameter of the consumer 
+function is the unique id of the given sftp worker.&]
+[s3;%% &]
 [s3;%% &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]

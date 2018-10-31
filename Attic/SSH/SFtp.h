@@ -13,15 +13,15 @@ public:
         IRUSR = LIBSSH2_SFTP_S_IRUSR,
         IWUSR = LIBSSH2_SFTP_S_IWUSR,
         IXUSR = LIBSSH2_SFTP_S_IXUSR,
-        IRWXU = IRUSR | IWUSR | IXUSR,
+        IRWXU = LIBSSH2_SFTP_S_IRWXU,
         IRGRP = LIBSSH2_SFTP_S_IRGRP,
         IWGRP = LIBSSH2_SFTP_S_IWGRP,
         IXGRP = LIBSSH2_SFTP_S_IXGRP,
-        IRWXG = IRGRP | IWGRP | IXGRP,
+        IRWXG = LIBSSH2_SFTP_S_IRWXG,
         IROTH = LIBSSH2_SFTP_S_IROTH,
         IWOTH = LIBSSH2_SFTP_S_IWOTH,
         IXOTH = LIBSSH2_SFTP_S_IXOTH,
-        IRWXO = IROTH | IWOTH | IXOTH,
+        IRWXO = LIBSSH2_SFTP_S_IRWXO,
         IRALL = IRUSR | IRGRP | IROTH,
         IWALL = IWUSR | IWGRP | IWOTH,
         IXALL = IXUSR | IXGRP | IXOTH,
@@ -78,8 +78,8 @@ public:
 public:
     SFtp&                   Timeout(int ms)                                         { ssh->timeout = ms; return *this; }
     SFtp&                   NonBlocking(bool b = true)                              { return Timeout(b ? 0 : Null) ;}
-    SFtp&                   WaitStep(int ms)                                        { ssh->waitstep = clamp(ms, 0, INT_MAX); }
-    SFtp&                   ChunkSize(int sz)                                       { if(sz >= 1024) ssh->chunk_size = sz; return *this; }
+    SFtp&                   WaitStep(int ms)                                        { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
+    SFtp&                   ChunkSize(int sz)                                       { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }
 
     LIBSSH2_SFTP_HANDLE*    GetHandle() const                                       { return sftp->handle; };
     Value                   GetResult() const                                       { return sftp->value; }
@@ -96,19 +96,19 @@ public:
     int64                   GetPos(SFtpHandle* handle);
 
     // Read/Write
-    bool                    Get(SFtpHandle* handle, Stream& out, Gate<int64, int64> progress = Null);
-    String                  Get(SFtpHandle* handle, Gate<int64, int64> progress = Null);
-    bool                    Get(const String& path, Stream& out, Gate<int64, int64> progress = Null);
-    String                  Get(const String& path, Gate<int64, int64> progress = Null);
-    bool                    Get(const String& path, Stream& out, int64 offset, Gate<int64, int64> progress = Null);
-    bool                    Put(SFtpHandle* handle, Stream& in, Gate<int64, int64> progress = Null);
-    bool                    Put(Stream& in, const String& path, Gate<int64, int64> progress = Null);
-    bool                    Put(Stream& in, const String& path, dword flags, long mode, Gate<int64, int64> progress = Null);
-    bool                    Put(Stream& in, const String& path, int64 offset, Gate<int64, int64> progress = Null);
-    bool                    Append(Stream& in, const String& path, Gate<int64, int64> progress = Null);
-    bool                    Append(Stream& in, const String& path, long mode, Gate<int64, int64> progress = Null);
-    String                  Peek(const String& path, int64 offset, int64 length, Gate<int64, int64> progress = Null);
-    bool                    Poke(const String& data, const String& path, int64 offset, int64 length, Gate<int64, int64> progress = Null);
+    bool                    Get(SFtpHandle* handle, Stream& out);
+    bool                    Get(const String& path, Stream& out);
+    bool                    Get(const String& path, Stream& out, int64 offset);
+    String                  Get(SFtpHandle* handle);
+    String                  Get(const String& path);
+    bool                    Put(SFtpHandle* handle, Stream& in);
+    bool                    Put(Stream& in, const String& path);
+    bool                    Put(Stream& in, const String& path, dword flags, long mode);
+    bool                    Put(Stream& in, const String& path, int64 offset);
+    bool                    Append(Stream& in, const String& path);
+    bool                    Append(Stream& in, const String& path, long mode);
+    String                  Peek(const String& path, int64 offset, int64 length);
+    bool                    Poke(const String& data, const String& path, int64 offset, int64 length);
 
     // Directory
     SFtpHandle*             OpenDir(const String& path);
@@ -116,8 +116,7 @@ public:
     bool                    RemoveDir(const String& path);
     bool                    ListDir(SFtpHandle* handle, DirList& list);
     bool                    ListDir(const String& path, DirList& list);
-    String                  GetCurrentDir();
-    String                  GetParentDir();
+    String                  GetWorkDir();
 
     // Symlink
     bool                    MakeLink(const String& orig, const String& link)        { return SymLink(orig, const_cast<String*>(&link), LIBSSH2_SFTP_SYMLINK); }
@@ -131,28 +130,37 @@ public:
     bool                    SetAttrs(const String& path, const SFtpAttrs& attrs);
     DirEntry                GetInfo(const String& path);
     bool                    SetInfo(const DirEntry& entry)                          { return SetAttrs(entry.GetName(), ~entry); }
-    int64                   GetSize(const String& path)                             { QueryAttr(path, SIZE); return sftp->value; }
-    bool                    SetSize(const String& path, int64 size)                 { return ModifyAttr(path, SIZE, size); }
-    Time                    GetLastModifyTime(const String& path)                   { QueryAttr(path, LASTMODIFIED); return sftp->value; }
-    bool                    SetLastModifyTime(const String& path, const Time& time) { return ModifyAttr(path, LASTMODIFIED, time); }
-    Time                    GetLastAccessTime(const String& path)                   { QueryAttr(path, LASTACCESSED); return sftp->value; }
-    bool                    SetLastAccessTime(const String& path, const Time& time) { return ModifyAttr(path, LASTACCESSED, time); }
+    int64                   GetSize(const String& path)                             { QueryAttr(path, SFTP_ATTR_SIZE); return sftp->value; }
+    bool                    SetSize(const String& path, int64 size)                 { return ModifyAttr(path, SFTP_ATTR_SIZE, size); }
+    Time                    GetLastModifyTime(const String& path)                   { QueryAttr(path, SFTP_ATTR_LAST_MODIFIED); return sftp->value; }
+    bool                    SetLastModifyTime(const String& path, const Time& time) { return ModifyAttr(path, SFTP_ATTR_LAST_MODIFIED, time); }
+    Time                    GetLastAccessTime(const String& path)                   { QueryAttr(path, SFTP_ATTR_LAST_ACCESSED); return sftp->value; }
+    bool                    SetLastAccessTime(const String& path, const Time& time) { return ModifyAttr(path, SFTP_ATTR_LAST_ACCESSED, time); }
 
     // Tests
-    bool                    FileExists(const String& path)                          { QueryAttr(path, FILE); return sftp->value; }
-    bool                    DirectoryExists(const String& path)                     { QueryAttr(path, DIRECTORY); return sftp->value; }
-    bool                    SymLinkExists(const String& path)                       { QueryAttr(path, SYMLINK); return sftp->value; }
-    bool                    SocketExists(const String& path)                        { QueryAttr(path, SOCKET); return sftp->value; }
-    bool                    PipeExists(const String& path)                          { QueryAttr(path, PIPE); return sftp->value; }
-    bool                    BlockExists(const String& path)                         { QueryAttr(path, BLOCK); return sftp->value; }
-    bool                    SpecialFileExists(const String& path)                   { QueryAttr(path, SPECIAL); return sftp->value; }
+    bool                    FileExists(const String& path)                          { QueryAttr(path, SFTP_ATTR_FILE); return sftp->value; }
+    bool                    DirectoryExists(const String& path)                     { QueryAttr(path, SFTP_ATTR_DIRECTORY); return sftp->value; }
+    bool                    SymLinkExists(const String& path)                       { QueryAttr(path, SFTP_ATTR_SYMLINK); return sftp->value; }
+    bool                    SocketExists(const String& path)                        { QueryAttr(path, SFTP_ATTR_SOCKET); return sftp->value; }
+    bool                    PipeExists(const String& path)                          { QueryAttr(path, SFTP_ATTR_PIPE); return sftp->value; }
+    bool                    BlockExists(const String& path)                         { QueryAttr(path, SFTP_ATTR_BLOCK); return sftp->value; }
+    bool                    SpecialFileExists(const String& path)                   { QueryAttr(path, SFTP_ATTR_SPECIAL); return sftp->value; }
 
     // (Multithreaded I/O)
-    static AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64> progress = Null);
-    static AsyncWork<void>   AsyncGet(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
-    static AsyncWork<void>   AsyncPut(SshSession& session, String&& data, const String& target, Gate<int64, int64> progress = Null);
-    static AsyncWork<void>   AsyncPut(SshSession& session, const char* source, const char* target, Gate<int64, int64> progress = Null);
-    
+    static AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncGet(SshSession& session, const String& path, Stream& out, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncPut(SshSession& session, String& in, const String& path, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncPut(SshSession& session, Stream& in, const String& path, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncAppend(SshSession& session, String& in, const String& path, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncAppend(SshSession& session, Stream& in, const String& path, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncPutFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncAppendFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
+    static AsyncWork<void>   AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer);
+
+    Event<const void*, int> WhenContent;
+    Gate<int64, int64>      WhenProgress;
+
     SFtp(SshSession& session);
     virtual ~SFtp();
 
@@ -160,9 +168,9 @@ public:
     SFtp& operator=(SFtp&&) = default;
 
 private:
-    virtual bool            Init() override;
-    virtual void            Exit() override;
-    virtual bool            Cleanup(Error& e) override;
+    bool                    Init() override;
+    void                    Exit() override;
+    bool                    Cleanup(Error& e) override;
 
     inline SFtpHandle*      HANDLE(SFtpHandle* h)                                   { return h ? h : sftp->handle; }
     int                     FStat(SFtpHandle* handle, SFtpAttrs& a, bool set);
@@ -170,8 +178,10 @@ private:
     bool                    QueryAttr(const String& path, int attr);
     bool                    ModifyAttr(const String& path, int attr, const Value& v);
     bool                    SymLink(const String& path, String* target, int type);
-    bool                    FRead(SFtpHandle* handle, Stream& out, int64 size,  Gate<int64, int64> progress = Null, bool str = false);
-    bool                    FWrite(SFtpHandle* handle, Stream& out, int64 size, Gate<int64, int64> progress = Null);
+    bool                    DataRead(SFtpHandle* handle, int64 size, Event<const void*, int>&& fn, bool str = false);
+    bool                    DataWrite(SFtpHandle* handle, Stream& out, int64 size);
+    static void             StartAsync(int cmd, SshSession& session, const String& path, Stream& io,
+                                        Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer = Null);
 
     struct SFtpData {
         LIBSSH2_SFTP*       session;
@@ -179,16 +189,51 @@ private:
         DirEntry            finfo;
         Value               value;
         StringStream        stream;
+        int64               done;
     };
     One<SFtpData> sftp;
 
-    enum OpCodes{
-        INIT, EXIT, START, FOPEN, FCLOSE, FSYNC, FRENAME, FDELETE, FGET, FPUT, FGETSTAT,
-        FSETSTAT, DOPEN, DMAKE, DDELETE, DLIST, DGET, LINK, FQUERY, FMODIFY, FSEEK, FTELL,
-        FPEEK, FPOKE
+    enum OpCodes {
+        SFTP_INIT,
+        SFTP_EXIT,
+        SFTP_START,
+        SFTP_OPEN,
+        SFTP_CLOSE,
+        SFTP_SYNC,
+        SFTP_RENAME,
+        SFTP_DELETE,
+        SFTP_GET,
+        SFTP_PUT,
+        SFTP_APPEND,
+        SFTP_GET_STAT,
+        SFTP_SET_STAT,
+        SFTP_OPENDIR,
+        SFTP_MAKEDIR,
+        SFTP_REMOVEDIR,
+        SFTP_LISTDIR,
+        SFTP_QUERY,
+        SFTP_MODIFY,
+        SFTP_SEEK,
+        SFTP_TELL,
+        SFTP_PEEK,
+        SFTP_POKE,
+        SFTP_LINK
     };
+
     enum FileAttributes {
-        FILE, DIRECTORY, SYMLINK, SOCKET, PIPE, BLOCK, SPECIAL, INFO, UID, GID, PERMISSIONS,
-        SIZE, LASTMODIFIED, LASTACCESSED
+        SFTP_ATTR_FILE,
+        SFTP_ATTR_DIRECTORY,
+        SFTP_ATTR_SYMLINK,
+        SFTP_ATTR_SOCKET,
+        SFTP_ATTR_PIPE,
+        SFTP_ATTR_BLOCK,
+        SFTP_ATTR_SPECIAL,
+        SFTP_ATTR_INFO,
+        SFTP_ATTR_UID,
+        SFTP_ATTR_GID,
+        SFTP_ATTR_PERMISSIONS,
+        SFTP_ATTR_SIZE,
+        SFTP_ATTR_LAST_MODIFIED,
+        SFTP_ATTR_LAST_ACCESSED
     };
 };

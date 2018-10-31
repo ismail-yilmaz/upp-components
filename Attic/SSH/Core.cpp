@@ -46,9 +46,9 @@ String GetName(int type, int64 id)
 // Ssh: SSH objects core class.
 void Ssh::Exit()
 {
-//	ssh->async = false;
 	ssh->timeout = 5000;
-	ssh->ccmd    = -1;
+	ssh->start_time = 0;
+	ssh->ccmd = -1;
 	ssh->queue.Clear();
 }
 
@@ -135,13 +135,9 @@ bool Ssh::Do()
 
 dword Ssh::GetWaitEvents()
 {
-	if(ssh->socket  && ssh->session) {
-		auto e = libssh2_session_block_directions(ssh->session);
-		if(e & LIBSSH2_SESSION_BLOCK_INBOUND)
-			ssh->events |= WAIT_READ;
-		if(e & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-			ssh->events |= WAIT_WRITE;
-	}
+	ssh->events = 0;
+	if(ssh->socket  && ssh->session)
+		ssh->events = libssh2_session_block_directions(ssh->session);
 	return ssh->events;
 }
 
@@ -166,7 +162,7 @@ void Ssh::Wait()
 			return;
 		SocketWaitEvent we;
 		AddTo(we);
-		if(we.Wait(ssh->waitstep))
+		if(we.Wait(ssh->waitstep) || ssh->noloop)
 			return;
 	}
 }
@@ -194,11 +190,11 @@ Ssh::Ssh()
     ssh->session        = NULL;
     ssh->socket         = NULL;
     ssh->init           = false;
+    ssh->noloop			= false;
     ssh->timeout        = Null;
     ssh->start_time     = 0;
     ssh->waitstep       = 10;
     ssh->chunk_size     = CHUNKSIZE;
-    ssh->packet_length  = 0;
     ssh->status         = FINISHED;
     ssh->ccmd           = -1;
     ssh->oid            = GetNewId();

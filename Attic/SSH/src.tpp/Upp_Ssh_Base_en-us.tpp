@@ -34,6 +34,11 @@ in blocking mode. Returns true if the request is still in progress.&]
 [s2;%% Returns the timeout value.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:Ssh`:`:GetWaitStep`(`)const: [@(0.0.255) int]_[* GetWaitStep]()_[@(0.0.255) con
+st]&]
+[s2;%% Returns current periodicity of calling WhenWait.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:Ssh`:`:IsWorking`(`)const: [@(0.0.255) bool]_[* IsWorking]()_[@(0.0.255) const]&]
 [s2;%% Returns true if a command or data transfer is currently in 
 progress.&]

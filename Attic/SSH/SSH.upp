@@ -41,7 +41,6 @@ file
 	Shell.cpp,
 	Hosts.h,
 	Hosts.cpp,
-	Async.cpp,
 	Malloc.cpp,
 	"Library Files" readonly separator,
 	libssh2upp.c,

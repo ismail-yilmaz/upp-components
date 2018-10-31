@@ -3,6 +3,7 @@ public:
     bool                Do();
     void                Cancel()                                { if(ssh) ssh->status = CANCELLED; }
     int                 GetTimeout() const                      { return ssh->timeout; }
+    int					GetWaitStep() const						{ return ssh->waitstep; }
     bool                IsWorking() const                       { return ssh->status == WORKING || ssh->status == CLEANUP; }
     bool                IsBlocking() const                      { return ssh->timeout != 0; }
     bool                IsError() const                         { return ssh->status == FAILED; }
@@ -47,9 +48,9 @@ protected:
         int                 start_time;
         int                 waitstep;
         int                 chunk_size;
-        size_t              packet_length;
         int                 status;
         dword               events;
+        bool				noloop;
     };
     One<CoreData> ssh;
 
@@ -61,7 +62,7 @@ protected:
     virtual void        Exit();
     virtual bool        Cmd(int code, Function<bool()>&& fn);
     virtual bool        ComplexCmd(int code, Function<void()>&& fn);
-    inline bool         IsComplexCmd() const                    { return ssh->ccmd != -1; }
+    inline  bool        IsComplexCmd() const                    { return ssh->ccmd != -1; }
     virtual void        Check();
     virtual bool        Cleanup(Error& e);
     void                Wait();
