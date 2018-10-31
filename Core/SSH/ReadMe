@@ -4,6 +4,8 @@ SSH package is a flexible, easy-to-use, yet powerful libssh2 wrapper for Ultimat
 It supports both console and GUI-based applications on POSIX-compliant operating systems and
 MS Windows (tm).
 
+Note: SSH package is now officially a part of Ultimate++, and can be found in the U++ nightly builds.
+
 Classes:
 --------------------
 
