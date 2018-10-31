@@ -1,0 +1,16 @@
+description "Demonstrates a basic SFtp browser with GUI\377";
+
+uses
+	CtrlLib,
+	Core/SSH;
+
+file
+	SFtpBrowser.h,
+	SFtpBrowser.cpp,
+	SFtpBrowser.t,
+	SFtpBrowser.lay,
+	SFtpBrowser.iml;
+
+mainconfig
+	"" = "GUI";
+
