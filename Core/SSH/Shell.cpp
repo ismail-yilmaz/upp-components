@@ -9,19 +9,10 @@ bool SshShell::Run(int mode_, const String& terminal, Size pagesize)
 {
 	mode  = mode_;
 	psize = pagesize;
-	ssh->noloop = mode == CONSOLE; // FIXME: Not very pretty, but currently required for console i/o to work.
 	
-	return ComplexCmd(CHANNEL_SHELL, [=]() mutable {
-		SshChannel::Open();
-		SshChannel::Terminal(terminal, psize);
-		Cmd(CHANNEL_SHELL, [=] { return X11Init(); });
-		SshChannel::Shell();
-		Cmd(CHANNEL_SHELL, [=] { Unlock(); return ConsoleInit(); });
-		Cmd(CHANNEL_SHELL, [=] { return ProcessEvents(queue);  });
-		SshChannel::SendRecvEof();
-		SshChannel::Close();
-		SshChannel::CloseWait();
-	});
+	if(RequestTerminal(terminal, psize) && X11Init() && RequestShell() && ConsoleInit())
+		ProcessEvents(queue);
+	return Shut(IsError() ? GetErrorDesc() : Null);
 }
 
 void SshShell::ReadWrite(String& in, const void* out, int out_len)
@@ -49,12 +40,12 @@ void SshShell::ReadWrite(String& in, const void* out, int out_len)
 			sigset_t set;
 			sigemptyset(&set);
 			sigaddset(&set, SIGWINCH);
-			sigprocmask(SIG_BLOCK, &set, NULL);
+			sigprocmask(SIG_BLOCK, &set, nullptr);
 
 			struct timespec timeout;
 			Zero(timeout); // Instead of waiting, we simply poll.
 
-			auto rc = sigtimedwait(&set, NULL, &timeout);
+			auto rc = sigtimedwait(&set, nullptr, &timeout);
 			if(rc < 0 && errno != EAGAIN)
 				SetError(-1, "sigtimedwait() failed.");
 			if(rc > 0)
@@ -69,7 +60,7 @@ void SshShell::ReadWrite(String& in, const void* out, int out_len)
 			// see if they met our criteria and remove them one by one as we encounter, using
 			// the ReadConsoleInput method.
 
-			auto rc = WaitForSingleObject(stdinput, 10);
+			auto rc = WaitForSingleObject(stdinput, ssh->waitstep);
 			switch(rc) {
 				case WAIT_OBJECT_0:
 					break;
@@ -125,7 +116,8 @@ void SshShell::Resize()
 	int n = 0;
 	do {
 		n = SetPtySz(psize);
-		Wait();
+		if(n < 0)
+			Wait();
 	}
 	while(!IsTimeout() && !IsEof() && n < 0);
 	resized = false;
@@ -133,7 +125,10 @@ void SshShell::Resize()
 
 bool SshShell::ConsoleInit()
 {
-	if(mode == CONSOLE) {
+	if(mode != CONSOLE)
+		return true;
+	
+	return Ssh::Run([=]() mutable {
 #ifdef PLATFORM_WIN32
 		stdinput = GetStdHandle(STD_INPUT_HANDLE);
 		if(!stdinput)
@@ -143,8 +138,8 @@ bool SshShell::ConsoleInit()
 			SetError(-1, "Unable to obtain a handle for stdout.");
 #endif
 		ConsoleRawMode();
-	}
-	return true;
+		return true;
+	});
 }
 
 #ifdef PLATFORM_POSIX
@@ -207,7 +202,7 @@ void SshShell::ConsoleRead()
 	DWORD n = 0;
 	const int RBUFSIZE = 1024 * 16;
 	Buffer<char> buffer(RBUFSIZE);
-	if(!ReadConsole(stdinput, buffer, RBUFSIZE, &n, NULL))
+	if(!ReadConsole(stdinput, buffer, RBUFSIZE, &n, nullptr))
 		SetError(-1, "Couldn't read input from console.");
 	if(n > 0)
 		Send(String(buffer, n));
@@ -216,7 +211,7 @@ void SshShell::ConsoleRead()
 void SshShell::ConsoleWrite(const void* buffer, int len)
 {
 	DWORD n = 0;
-	if(!WriteConsole(stdoutput, buffer, len, &n, NULL))
+	if(!WriteConsole(stdoutput, buffer, len, &n, nullptr))
 		SetError(-1, "Couldn't Write output to console.");
 }
 
@@ -255,17 +250,20 @@ bool SshShell::X11Init()
 {
 	if(!xenabled)
 		return true;
+
+	return Ssh::Run([=]() mutable {
 #ifdef PLATFORM_POSIX
-	auto rc = libssh2_channel_x11_req(*channel, xscreen);
-	if(!WouldBlock(rc) && rc < 0)
-		SetError(rc);
-	if(rc == 0)
-		LLOG("X11 tunnel succesfully initialized.");
-	return rc == 0;
+		int rc = libssh2_channel_x11_req(*channel, xscreen);
+		if(!WouldBlock(rc) && rc < 0)
+			SetError(rc);
+		if(!rc)
+			LLOG("X11 tunnel succesfully initialized.");
+		return !rc;
 #elif PLATFORM_WIN32
-	SetError(-1, "X11 tunneling is not (yet) supported on Windows platform");
-	return false;
+		SetError(-1, "X11 tunneling is not (yet) supported on Windows platform");
+		return false;
 #endif
+	});
 }
 
 void SshShell::X11Loop()
@@ -274,23 +272,23 @@ void SshShell::X11Loop()
 	if(xrequests.IsEmpty())
 		return;
 
-	for(auto i = 0; i < xrequests.GetCount(); i++) {
-		auto* chan = xrequests[i].Get<SshX11Connection*>();
-		auto  sock = xrequests[i].Get<SOCKET>();
+	for(int i = 0; i < xrequests.GetCount(); i++) {
+		SshX11Handle xhandle = xrequests[i].a;
+		SOCKET sock = xrequests[i].b;
 
 		if(EventWait(sock, WAIT_WRITE, 0)) {
-			auto rc = libssh2_channel_read(chan, xbuffer, xbuflen);
+			int rc = libssh2_channel_read(xhandle, xbuffer, xbuflen);
 			if(!WouldBlock(rc) && rc < 0)
 				SetError(-1, "[X11]: Read failed.");
 			if(rc > 0)
 				write(sock, xbuffer, rc);
 		}
 		if(EventWait(sock, WAIT_READ, 0)) {
-			auto rc =  read(sock, xbuffer, xbuflen);
+			int rc =  read(sock, xbuffer, xbuflen);
 			if(rc > 0)
-				libssh2_channel_write(chan, (const char*) xbuffer, rc);
+				libssh2_channel_write(xhandle, (const char*) xbuffer, rc);
 		}
-		if(libssh2_channel_eof(chan) == 1) {
+		if(libssh2_channel_eof(xhandle) == 1) {
 			LLOG("[X11] EOF received.");
 			close(sock);
 			xrequests.Remove(i);
@@ -315,10 +313,10 @@ SshShell& SshShell::ForwardX11(const String& host, int display, int screen, int 
 	return *this;
 }
 
-bool SshShell::AcceptX11(SshX11Connection* x11conn)
+bool SshShell::AcceptX11(SshX11Handle xhandle)
 {
 #ifdef PLATFORM_POSIX
-	if(x11conn && xenabled) {
+	if(xhandle && xenabled) {
 		auto sock = socket(AF_UNIX, SOCK_STREAM, 0);
 		if(sock < 0) {
 			LLOG("Couldn't create UNIX socket.");
@@ -334,67 +332,38 @@ bool SshShell::AcceptX11(SshX11Connection* x11conn)
 		if(connect(sock, (struct sockaddr*) &addr, sizeof(addr)) == -1) {
 			LLOG("Couldn't connect to " << path);
 			close(sock);
+			return false;
 		}
 
 		LLOG("X11 connection accepted.");
 
 		auto& xr = xrequests.Add();
-		xr.Get<SshX11Connection*>() = x11conn;
-		xr.Get<SOCKET>() = sock;
+		xr.a = xhandle;
+		xr.b = sock;
 		return true;
 	}
 #endif
 	return false;
 }
 
-AsyncWork<void> SshShell::AsyncRun(SshSession& session, String terminal, Size pagesize, Event<SshShell&> in, Event<const String&> out)
-{
-	auto work = Async([=, &session, in = pick(in), out = pick(out)]{
-		SshShell worker(session);
-		worker.NonBlocking();
-	
-		bool cancelled = false;
-		int  waitstep  = worker.GetWaitStep();
-		
-		worker.WhenInput = [&worker, &in]() {
-			in(worker);
-		};
-		worker.WhenOutput = [&out](const void* buf, int len) {
-			String s((const char*) buf, len);
-			out(s);
-		};
-
-		worker.Run(terminal, pagesize);
-		
-		while(worker.Do()) {
-			if(!cancelled && CoWork::IsCanceled()) {
-				worker.Cancel();
-				cancelled = true;
-			}
-			Sleep(waitstep);
-		}
-		if(worker.IsError())
-			throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
-	});
-	return pick(work);
-}
 
 SshShell::SshShell(SshSession& session)
 : SshChannel(session)
 {
-	ssh->otype	= SHELL;
-	mode		= GENERIC;
-	rawmode     = false;
-	resized		= false;
-	xenabled    = false;
+    ssh->otype  = SHELL;
+    ssh->noblock = true;
+    mode        = GENERIC;
+    rawmode     = false;
+    resized     = false;
+    xenabled    = false;
 #ifdef PLATFORM_POSIX
-	xscreen		= 0;
-	xdisplay	= 0;
-	xenabled	= false;
-	xbuflen		= 1024 * 1024;
+    xscreen     = 0;
+    xdisplay    = 0;
+    xenabled    = false;
+    xbuflen     = 1024 * 1024;
 #elif PLATFORM_WIN32
-	stdinput	= NULL;
-	stdoutput	= NULL;
+    stdinput    = nullptr;
+    stdoutput   = nullptr;
 #endif
 
 	Zero(tflags);
@@ -403,5 +372,6 @@ SshShell::SshShell(SshSession& session)
 SshShell::~SshShell()
 {
 	ConsoleRawMode(false);
+
 }
 }

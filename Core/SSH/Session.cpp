@@ -36,7 +36,7 @@ static void ssh_keyboard_callback(const char *name, int name_len, const char *in
 
 static void ssh_x11_request(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, char *shost, int sport, void **abstract)
 {
-	static_cast<SshSession*>(*abstract)->WhenX11((SshX11Connection*) channel);
+	static_cast<SshSession*>(*abstract)->WhenX11((SshX11Handle) channel);
 }
 
 // ssh_session_libtrace: Allows full-level logging (redirection) of libsssh2 diagnostic messages.
@@ -51,117 +51,108 @@ static void ssh_session_libtrace(LIBSSH2_SESSION *session, void* context, const 
 }
 #endif
 
-void SshSession::Check()
-{
-	Ssh::Check();
-	if(session->socket.IsAbort())
-		SetError(-1, "Operation aborted.");
-	if(session->socket.IsError()) {
-		SetError(-1, "Socket error. " << session->socket.GetErrorDesc());
-	}
-}
-
 void SshSession::Exit()
 {
-	ComplexCmd(DISCONNECT, [=]() mutable {
-		ssh->queue.Clear();
-		ssh->ccmd = -1;
-		Cmd(DISCONNECT, [=]() mutable {
-			if(!ssh->session)
-				return true;
-			auto rc = libssh2_session_disconnect(ssh->session, "Disconnecting...");
-			if(WouldBlock(rc))
-				return false;
-			LLOG("Successfully disconnected from the server.");
+	if(!session)
+		return;
+	
+	Run([=]() mutable {
+		if(!ssh->session)
 			return true;
-		});
-		Cmd(DISCONNECT, [=]() mutable {
-			if(!ssh->session)
-				return true;
-			auto rc = libssh2_session_free(ssh->session);
-			if(WouldBlock(rc))
-				return false;
-			ssh->socket = NULL;
-			ssh->session = NULL;
-			session->lock = 0;
-			session->connected = false;
-			LLOG("Session handles freed.");
+		int rc = libssh2_session_disconnect(ssh->session, "Disconnecting...");
+		if(WouldBlock(rc))
+			return false;
+		LLOG("Successfully disconnected from the server.");
+		return true;
+	});
+
+	Run([=]() mutable {
+		if(!ssh->session)
 			return true;
-		});
+		int rc = libssh2_session_free(ssh->session);
+		if(WouldBlock(rc))
+			return false;
+		ssh->init    = false;
+		ssh->socket  = nullptr;
+		ssh->session = nullptr;
+		session->connected = false;
+		LLOG("Session handles freed.");
+		return true;
 	});
 }
 
 bool SshSession::Connect(const String& url)
 {
 	UrlInfo u(url);
-	return ComplexCmd(CONNECT, [=, u = pick(u)]() mutable {
-		auto b = u.scheme == "ssh"   ||
-                 u.scheme == "scp"   ||
-                 u.scheme == "sftp"  ||
-                 u.scheme == "exec"  ||
-                 u.scheme.IsEmpty()  &&
-                 !u.host.IsEmpty();
-		int port = (u.port.IsEmpty() || !b) ? 22 : StrInt(u.port);
-		if(b)
-			Connect(u.host, port, u.username, u.password);
-		else
-			Cmd(CONNECT, [=]{
-				SetError(-1, "Malformed secure shell URL.");
-				return false; // Just to prevent compiler warnings.
-			});
-	});
+
+	auto b = u.scheme == "ssh"   ||
+             u.scheme == "scp"   ||
+             u.scheme == "sftp"  ||
+             u.scheme == "exec"  ||
+             u.scheme.IsEmpty()  &&
+             !u.host.IsEmpty();
+	int port = (u.port.IsEmpty() || !b) ? 22 : StrInt(u.port);
+
+	return b ? Connect(u.host, port, u.username, u.password)
+	         : Run([=]{ SetError(-1, "Malformed secure shell URL."); return false; });
 }
 
 bool SshSession::Connect(const String& host, int port, const String& user, const String& password)
 {
-	return ComplexCmd(CONNECT, [=]() mutable {
-		ssh->queue.Clear();
-		Cmd(CONNECT, [=]() mutable {
-			if(host.IsEmpty())
-				SetError(-1, "Host is not specified.");
-			session->socket.Timeout(0);
-			ssh->session = NULL;
-			if(!WhenProxy) {
-				session->ipinfo.Start(host, port);
-				LLOG(Format("Starting DNS sequence locally for %s:%d", host, port));
-			}
-			else
-				LLOG("Proxy plugin found. Attempting to connect via proxy...");
-			return true;
-		});
+	IpAddrInfo ipinfo;
+	
+	if(!Run([=, &ipinfo] () mutable {
+		if(host.IsEmpty())
+			SetError(-1, "Host is not specified.");
+		ssh->session = nullptr;
+		session->socket.Timeout(0);
 		if(!WhenProxy) {
-			Cmd(CONNECT, [=]() mutable {
-				if(session->ipinfo.InProgress())
-					return false;
-				if(!session->ipinfo.GetResult())
-					SetError(-1, "DNS lookup failed.");
-				return true;
-			});
-			Cmd(CONNECT, [=]() mutable {
-				if(!session->socket.Connect(session->ipinfo))
-					return false;
-				session->ipinfo.Clear();
-				return true;
-			});
-			Cmd(CONNECT, [=]() mutable {
-				if(!session->socket.WaitConnect())
-					return false;
-				LLOG("Successfully connected to " << host <<":" << port);
-				return true;
-			});
+			ipinfo.Start(host, port);
+			LLOG(Format("Starting DNS sequence locally for %s:%d", host, port));
 		}
-		else {
-			Cmd(CONNECT, [=]() mutable {
-				if(!WhenProxy())
-					SetError(-1, "Proxy connection attempt failed.");
-				LLOG("Proxy connection to " << host << ":" << port << " is successful.");
-				return true;
-			});
-		}
-		Cmd(CONNECT, [=]() mutable {
+		else
+			LLOG("Proxy plugin found. Attempting to connect via proxy...");
+		WhenPhase(WhenProxy ? PHASE_CONNECTION : PHASE_DNS);
+		return true;
+	})) goto Bailout;
+	
+	if(!WhenProxy) {
+		if(!Run([=, &ipinfo] () mutable {
+			if(ipinfo.InProgress())
+				return false;
+			if(!ipinfo.GetResult())
+				SetError(-1, "DNS lookup failed.");
+			WhenPhase(PHASE_CONNECTION);
+			return true;
+		})) goto Bailout;
+		
+		if(!Run([=, &ipinfo] () mutable {
+			if(!session->socket.Connect(ipinfo))
+				return false;
+			ipinfo.Clear();
+			return true;
+		})) goto Bailout;
+		
+		if(!Run([=, &ipinfo] () mutable {
+			if(!session->socket.WaitConnect())
+				return false;
+			LLOG("Successfully connected to " << host <<":" << port);
+			return true;
+		})) goto Bailout;
+	}
+	else {
+		if(!Run([=] () mutable {
+			if(!WhenProxy())
+				SetError(-1, "Proxy connection attempt failed.");
+			LLOG("Proxy connection to " << host << ":" << port << " is successful.");
+			return true;
+		})) goto Bailout;
+	}
+	
+	if(!Run([=] () mutable {
 #ifdef flagUSEMALLOC
 			LLOG("Using libssh2's memory managers.");
-			ssh->session = libssh2_session_init_ex(NULL, NULL, NULL, this);
+			ssh->session = libssh2_session_init_ex(nullptr, nullptr, nullptr, this);
 #else
 			LLOG("Using Upp's memory managers.");
 			ssh->session = libssh2_session_init_ex((*ssh_malloc), (*ssh_free), (*ssh_realloc), this);
@@ -177,44 +168,51 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			}
 #endif
 			libssh2_session_set_blocking(ssh->session, 0);
-			LLOG(Format("Successfully connected to %s:%d", host, port));
 			ssh->socket = &session->socket;
+			LLOG("Session successfully initialized.");
 			WhenConfig();
+			WhenPhase(PHASE_HANDSHAKE);
 			return true;
-		});
-		Cmd(CONNECT, [=]() mutable {
+	})) goto Bailout;
+
+	if(!Run([=] () mutable {
 			if(session->iomethods.IsEmpty())
 				return true;
-			auto rc = libssh2_session_method_pref(ssh->session, session->iomethods.GetKey(0), ~GetMethodNames(0));
+			int rc = libssh2_session_method_pref(ssh->session, session->iomethods.GetKey(0), ~GetMethodNames(0));
 			if(!WouldBlock(rc) && rc < 0) SetError(rc);
-			if(rc == 0)	LLOG("Transport methods are successfully set.");
-			return rc == 0;
-		});
-		Cmd(CONNECT, [=]() mutable {
-			auto rc = libssh2_session_handshake(ssh->session, session->socket.GetSOCKET());
+			if(!rc)	LLOG("Transport methods are successfully set.");
+			return !rc;
+	})) goto Bailout;
+	
+	if(!Run([=] () mutable {
+			int rc = libssh2_session_handshake(ssh->session, session->socket.GetSOCKET());
 			if(!WouldBlock(rc) && rc < 0) SetError(rc);
-			if(rc == 0)	LLOG("Handshake successful.");
-			return rc == 0;
-		});
-		Cmd(CONNECT, [=]() mutable {
-			session->fingerprint = libssh2_hostkey_hash(ssh->session, LIBSSH2_HOSTKEY_HASH_SHA1);
+			if(!rc) {
+				LLOG("Handshake successful.");
+				WhenPhase(PHASE_AUTHORIZATION);
+			}
+			return !rc;
+	})) goto Bailout;
+	
+	if(!Run([=] () mutable {
+			session->fingerprint = libssh2_hostkey_hash(ssh->session, session->hashtype);
 			if(session->fingerprint.IsEmpty()) LLOG("Warning: Fingerprint is not available!.");
 			LDUMPHEX(session->fingerprint);
-			if(WhenVerify && !WhenVerify())
+			if(WhenVerify && !WhenVerify(host, port))
 				SetError(-1);
 			return true;
-		});
-		Cmd(CONNECT, [=]() mutable {
+	})) goto Bailout;
+	
+	if(!Run([=] () mutable {
 			session->authmethods = libssh2_userauth_list(ssh->session, user, user.GetLength());
 			if(session->authmethods.IsEmpty()) { if(!WouldBlock()) SetError(-1); return false; }
 			LLOG("Authentication methods successfully retrieved.");
 			WhenAuth();
-			if(session->phrase.IsEmpty())
-				session->phrase = password;
 			return true;
-		});
-		Cmd(CONNECT, [=]() mutable {
-			auto rc = -1;
+	})) goto Bailout;
+	
+	if(!Run([=] () mutable {
+			int rc = -1;
 			switch(session->authmethod) {
 				case PASSWORD:
 					rc = libssh2_userauth_password(ssh->session, ~user, ~password);
@@ -267,10 +265,17 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			LLOG("X11 dispatcher is set.");
 #endif
 				session->connected = true;
+				WhenPhase(PHASE_SUCCESS);
 			}
 			return	session->connected;
-		});
-	});
+	})) goto Bailout;
+	
+	return true;
+	
+Bailout:
+	LLOG("Connection attempt failed. Bailing out...");
+	Exit();
+	return false;
 }
 
 void SshSession::Disconnect()
@@ -302,7 +307,7 @@ Scp SshSession::CreateScp()
 	return pick(Scp(*this));
 }
 
-SshTunnel SshSession::CreateTcpTunnel()
+SshTunnel SshSession::CreateTunnel()
 {
 	ASSERT(ssh && ssh->session);
 	return pick(SshTunnel(*this));
@@ -319,7 +324,7 @@ ValueMap SshSession::GetMethods()
 	ValueMap methods;
 	if(ssh->session) {
 		for(int i = METHOD_EXCHANGE; i < METHOD_SCOMPRESSION; i++) {
-			const char **p = NULL;
+			const char **p = nullptr;
 			auto rc = libssh2_session_supported_algs(ssh->session, i, &p);
 			if(rc > 0) {
 				auto& v = methods(i);
@@ -356,7 +361,7 @@ int SshSession::TryAgent(const String& username)
 		FreeAgent(agent);
 		SetError(-1, "Couldn't request identities to ssh-agent.");
 	}
-	libssh2_agent_publickey *id = NULL, *previd = NULL;
+	libssh2_agent_publickey *id = nullptr, *previd = nullptr;
 	
 	for(;;) {
 		auto rc = libssh2_agent_get_identity(agent, &id, previd);
@@ -370,7 +375,7 @@ int SshSession::TryAgent(const String& username)
 							username, id->comment));
 			}
 			else {
-				LLOG(Format("Authentication with username %s and public key %s succeeded.",
+				LLOG(Format("Authentication with username %s and public key %s succeesful.",
 							username, id->comment));
 				break;
 			}
@@ -406,18 +411,15 @@ SshSession::SshSession()
 {
     session.Create();
     ssh->otype          = SESSION;
-    ssh->wait           = Proxy(WhenWait);
+    ssh->whenwait       = Proxy(WhenWait);
     session->authmethod = PASSWORD;
     session->connected  = false;
     session->keyfile    = true;
-    session->lock       = 0;
-}
+    session->hashtype   = LIBSSH2_HOSTKEY_HASH_SHA1;
+ }
 
 SshSession::~SshSession()
 {
-	if(session && ssh->session) { // Picked?
-		Ssh::Exit();
-		Exit();
-	}
+	Exit();
 }
 }

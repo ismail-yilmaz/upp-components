@@ -30,8 +30,8 @@ String GetName(int type, int64 id)
 		case Ssh::SHELL:
 			s = "Shell";
 			break;
-		case Ssh::TCPTUNNEL:
-			s = "TCP Tunnel";
+		case Ssh::TUNNEL:
+			s = "Tunnel";
 			break;
 		default:
 			return "";
@@ -44,138 +44,99 @@ String GetName(int type, int64 id)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
 // Ssh: SSH objects core class.
-void Ssh::Exit()
-{
-	ssh->timeout = 5000;
-	ssh->start_time = 0;
-	ssh->ccmd = -1;
-	ssh->queue.Clear();
-}
+
+static StaticMutex sLoopLock;
 
 void Ssh::Check()
 {
+	auto sock = ssh->socket;
+
 	if(IsTimeout())
-		SetError(-1000, "Operation timed out.");
-	if(ssh->status == CANCELLED)
-		SetError(-1001, "Operation cancelled.");
+		SetError(-1, "Operation timed out.");
+
+	if(ssh->status == ABORTED)
+		SetError(-1, "Operation aborted.");
+
+	if(sock && ssh->socket->IsError())
+		SetError(-1, "[Socket error]: " << ssh->socket->GetErrorDesc());
 }
 
-// TODO: Merge Cmd & ComplexCmd.
-bool Ssh::Cmd(int code, Function<bool()>&& fn)
+bool Ssh::Do(Gate<>& fn)
 {
-	if(ssh->status != CLEANUP)
-		ssh->status = WORKING;
-	if(!IsComplexCmd())
-		ssh->queue.Clear();
-	ssh->queue.AddTail() = MakeTuple<int, Gate<>>(code, pick(fn));
-	if(IsBlocking() && !IsComplexCmd())
-		while(Do0());
-	return !IsError();
+	Mutex::Lock __(sLoopLock);
+
+	Check();
+	if(!ssh->init)
+		ssh->init = Init();
+	if(ssh->init && fn())
+		return false;
+	Wait();
+	return true;
 }
 
-bool Ssh::ComplexCmd(int code, Function<void()>&& fn)
-{
-	bool b = IsComplexCmd(); // Is this complex command a part of another complex command?
-	ssh->ccmd = code;
-	if(ssh->status != CLEANUP)
-		ssh->status = WORKING;
-	if(!b)
-		ssh->queue.Clear();
-	fn();
-	if(!b && IsBlocking())
-		while(Do0());
-	return !IsError();
-}
-
-bool Ssh::Do0()
+bool Ssh::Run(Gate<>&& fn)
 {
 	try {
-		if(ssh->start_time == 0)
-			ssh->start_time = msecs();
-INTERLOCKED {
-		if(!ssh->init) {
-			ssh->init = Init();
-		}
-		else
-		if(!ssh->queue.IsEmpty()) {
-			auto cmd = ssh->queue.Head().Get<Gate<>>();
-			if(cmd())
-				ssh->queue.DropHead();
-			else
-				Wait();
-		}
-}
-		if(ssh->queue.IsEmpty()) {
-			switch(ssh->status) {
-				case CLEANUP:
-					ssh->status = FAILED;
-					break;
-				case WORKING:
-					ssh->status = FINISHED;
-					break;
-				case FAILED:
-					break;
-			}
-			ssh->ccmd = -1;
-			ssh->start_time =  0;
-		}
-		else Check();
+		ssh->status = WORKING;
+		ssh->start_time = msecs();
+
+		while(Do(fn))
+			;
+
+		ssh->status = IDLE;
 	}
-	catch(Error& e) {
-		Cleanup(e);
+	catch(const Error& e) {
+		ReportError(e.code, e);
 	}
-	return IsWorking();
-}
-
-bool Ssh::Do()
-{
-	ASSERT(!IsBlocking());
-	return Do0();
-}
-
-dword Ssh::GetWaitEvents()
-{
-	ssh->events = 0;
-	if(ssh->socket  && ssh->session)
-		ssh->events = libssh2_session_block_directions(ssh->session);
-	return ssh->events;
-}
-
-bool Ssh::Cleanup(Error& e)
-{
-	ssh->queue.Clear();
-	ssh->start_time = 0;
-	auto b = ssh->status == CLEANUP;
-	ssh->status = FAILED;
-	if(b)
-		return false;
-	ssh->error  = MakeTuple<int, String>(e.code, e);
-	LLOG("Failed." << " Code = " << e.code << ", " << e);
-	return !b && e.code != -1000; // Make sure we don't loop on timeout errors.
+	catch(...) {
+		ReportError(-1, "Unhandled exception.");
+	}
+	return !IsError();
 }
 
 void Ssh::Wait()
 {
 	while(!IsTimeout()) {
-		ssh->wait();
-		if(!IsBlocking() || !ssh->socket)
+		RefreshUI();
+		if(!ssh->socket)
 			return;
 		SocketWaitEvent we;
 		AddTo(we);
-		if(we.Wait(ssh->waitstep) || ssh->noloop)
+		if(we.Wait(ssh->waitstep) || ssh->noblock)
 			return;
 	}
+}
+
+dword Ssh::GetWaitEvents()
+{
+	dword events = 0;
+	if(ssh->socket && ssh->session)
+		events = libssh2_session_block_directions(ssh->session);
+	return !!(events & LIBSSH2_SESSION_BLOCK_INBOUND) * WAIT_READ +
+	       !!(events & LIBSSH2_SESSION_BLOCK_OUTBOUND) * WAIT_WRITE;
 }
 
 void Ssh::SetError(int rc, const String& reason)
 {
 	if(IsNull(reason) && ssh && ssh->session) {
-		Buffer<char*> libmsg(256);
-		rc = libssh2_session_last_error(ssh->session, libmsg, NULL, 0);
+		Buffer<char*> libmsg(256, 0);
+		rc = libssh2_session_last_error(ssh->session, libmsg, nullptr, 0);
 		throw Error(rc, *libmsg);
 	}
 	else
 		throw Error(rc, reason);
+}
+
+void Ssh::ReportError(int rc, const String& reason)
+{
+	ssh->status  = FAILED;
+	ssh->error.a = rc;
+	ssh->error.b = reason;
+	if(ssh->socket) {
+		ssh->socket->ClearAbort();
+		ssh->socket->ClearError();
+	}
+	LLOG("Failed. Code = " << rc << ", " << reason);
 }
 
 int64 Ssh::GetNewId()
@@ -187,19 +148,17 @@ int64 Ssh::GetNewId()
 Ssh::Ssh()
 {
     ssh.Create();
-    ssh->session        = NULL;
-    ssh->socket         = NULL;
+    ssh->session        = nullptr;
+    ssh->socket         = nullptr;
     ssh->init           = false;
-    ssh->noloop			= false;
+    ssh->noblock		= false;
     ssh->timeout        = Null;
     ssh->start_time     = 0;
     ssh->waitstep       = 10;
     ssh->chunk_size     = CHUNKSIZE;
-    ssh->status         = FINISHED;
-    ssh->ccmd           = -1;
+    ssh->status         = IDLE;
     ssh->oid            = GetNewId();
-    ssh->otype          = 0;
-    ssh->events         = WAIT_READ | WAIT_WRITE;
+    ssh->otype          = CORE;
 }
 
 Ssh::~Ssh()

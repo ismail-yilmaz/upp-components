@@ -75,7 +75,7 @@ void JobWorker::Wait()
 {
 	Mutex::Lock __(lock);
 	while(Is(WORKING)) {
-		LLOG("Waiting for worker to finish...");
+		LLOG("Waiting for the worker to finish its job...");
 		wv.Wait(lock);
 	}
 }

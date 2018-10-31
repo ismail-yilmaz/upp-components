@@ -11,13 +11,9 @@ uses
 
 library(POSIX) "crypto ssl z";
 
-library(WIN32 MSC !SHARED !DEBUG) "libeay32MT ssleay32MT";
+library(WIN32 MSC !SHARED) "libeay32MT ssleay32MT crypt32";
 
-library(WIN32 MSC !SHARED DEBUG) "libeay32MTd ssleay32MTd";
-
-library(WIN32 MSC SHARED !DEBUG) "libeay32MD ssleay32MD";
-
-library(WIN32 MSC SHARED DEBUG) "libeay32MDd ssleay32MDd";
+library(WIN32 MSC SHARED) "libeay32MD ssleay32MD crypt32";
 
 library(WIN32 GCC) "ssl crypto";
 
@@ -29,19 +25,24 @@ file
 	SSH.h,
 	Core.h,
 	Core.cpp,
+	Malloc.cpp,
+	Session readonly separator,
 	Session.h,
 	Session.cpp,
+	SFtp readonly separator,
 	SFtp.h,
 	SFtp.cpp,
+	SFtpStream.cpp,
+	Channels readonly separator,
 	Channels.h,
 	Channels.cpp,
 	Scp.cpp,
 	Exec.cpp,
 	Tunnel.cpp,
 	Shell.cpp,
+	Helpers readonly separator,
 	Hosts.h,
 	Hosts.cpp,
-	Malloc.cpp,
 	"Library Files" readonly separator,
 	libssh2upp.c,
 	libssh2\libssh2_config.h,
@@ -49,9 +50,8 @@ file
 	Docs readonly separator,
 	src.tpp,
 	Info readonly separator,
+	ReadMe,
 	Copying,
-	ReadMe;
-
-mainconfig
-	"" = "";
+	Todo,
+	Issues;
 

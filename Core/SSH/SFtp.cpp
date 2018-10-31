@@ -5,747 +5,518 @@ namespace Upp {
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)	  do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
-
-bool SFtp::Cleanup(Error& e)
-{
-	if(!Ssh::Cleanup(e) || !IsComplexCmd())
-		return false;
-	ssh->ccmd = -1;
-	if(sftp->handle) {
-		LLOG("Cleaning up...");
-		ssh->status = CLEANUP;
-		Close(NULL);
-	}
-	return true;
-}
-
 bool SFtp::Init()
 {
 	if(!ssh->session)
 		SetError(-1, "SSH session is invalid.");
-	sftp->session = libssh2_sftp_init(ssh->session);
-	if(sftp->session) {
-		LLOG("Session successfully initialized.");
-		return true;
-	}
-	if(!WouldBlock())
+	auto session = libssh2_sftp_init(ssh->session);
+	if(!session && !WouldBlock())
 		SetError(-1);
-	return false;
+	if(session) {
+		sftp_session = MakeOne<LIBSSH2_SFTP*>(session);
+		LLOG("Session successfully initialized.");
+	}
+	return session;
 }
 
 void SFtp::Exit()
 {
-	Cmd(SFTP_EXIT, [=]() mutable {
-		if(!sftp->session)
-			return true;
-		if(WouldBlock(libssh2_sftp_shutdown(sftp->session)))
+	if(!sftp_session)
+		return;
+
+	Run([=]() mutable {
+		if(WouldBlock(libssh2_sftp_shutdown(*sftp_session)))
 			return false;
-		sftp->session = NULL;
-		sftp->handle = NULL;
 		ssh->init = false;
+		sftp_session.Clear();
 		LLOG("Session deinitalized.");
 		return true;
 	});
 }
 
-int SFtp::FStat(SFtpHandle* handle, SFtpAttrs& a, bool set)
+int SFtp::FStat(SFtpHandle handle, SFtpAttrs& a, bool set)
 {
-	auto rc = libssh2_sftp_fstat_ex(HANDLE(handle), &a, set);
+	int rc = libssh2_sftp_fstat_ex(handle, &a, set);
 	return WouldBlock(rc) ?  1 : rc;
 }
 
 int SFtp::LStat(const String& path, SFtpAttrs& a, int type)
 {
-	auto rc = libssh2_sftp_stat_ex(sftp->session, ~path, path.GetLength(), type, &a);
+	int rc = libssh2_sftp_stat_ex(*sftp_session, ~path, path.GetLength(), type, &a);
 	return WouldBlock(rc) ?  1 : rc;
 }
 
-SFtpHandle* SFtp::Open(const String& path, dword flags, long mode)
+SFtpHandle SFtp::Open(const String& path, dword flags, long mode)
 {
-	auto b = Cmd(SFTP_OPEN, [=]() mutable {
-		ASSERT(sftp->session);
-		sftp->handle = libssh2_sftp_open(sftp->session, path, flags, mode);
-		if(!sftp->handle && !WouldBlock())
+	SFtpHandle h = nullptr;
+
+	Run([=, &h] () mutable {
+		h = libssh2_sftp_open(*sftp_session, path, flags, mode);
+		if(!h && !WouldBlock())
 			SetError(-1);
-		if(sftp->handle)
+		if(h)
 			LLOG(Format("File '%s' is successfully opened.", path));
-		return sftp->handle != NULL;
+		return h;
 	});
-	return b ? sftp->handle : NULL;
+	return h;
 }
 
-bool SFtp::Close(SFtpHandle* handle)
+void SFtp::Close(SFtpHandle handle)
 {
-	return Cmd(SFTP_CLOSE, [=]() mutable {
-		auto rc = libssh2_sftp_close_handle(HANDLE(handle));
-		if(!WouldBlock(rc) && rc != 0)
-			SetError(-1, "Unable to close handle.");
-		if(rc == 0) {
-			LLOG("File handle freed.");
-			sftp->handle = NULL;
-		}
-		return rc == 0;
+	if(!handle)
+		return;
+
+	Run([=] () mutable {
+		int rc = libssh2_sftp_close_handle(handle);
+		if(!rc)	LLOG("File handle freed.");
+		return !rc;
 	});
 }
 
 bool SFtp::Rename(const String& oldpath, const String& newpath)
 {
-	return Cmd(SFTP_RENAME, [=]() mutable {
-		ASSERT(sftp->session);
-		auto rc = libssh2_sftp_rename(sftp->session, oldpath, newpath);
+	return Run([=] () mutable {
+		int rc = libssh2_sftp_rename(*sftp_session, oldpath, newpath);
 		if(!WouldBlock(rc) && rc != 0)
 			SetError(rc);
 		if(rc == 0)
 			LLOG(Format("'%s' is successfully renamed to '%s'", oldpath, newpath));
-		return rc == 0;
+		return !rc;
 	});
 }
 
 bool SFtp::Delete(const String& path)
 {
-	return Cmd(SFTP_DELETE, [=]() mutable {
-		ASSERT(sftp->session);
-		auto rc = libssh2_sftp_unlink(sftp->session, path);
+	return Run([=] () mutable {
+		int rc = libssh2_sftp_unlink(*sftp_session, path);
 		if(!WouldBlock(rc) && rc != 0)
 			SetError(rc);
 		if(rc == 0)
-			LLOG(Format("File '%s' is successfully deleted", path));
-		return rc == 0;
+			LLOG(Format("File '%s' is successfully deleted.", path));
+		return !rc;
 	});
 }
 
-bool SFtp::Sync(SFtpHandle* handle)
+bool SFtp::Sync(SFtpHandle handle)
 {
-	return Cmd(SFTP_SYNC, [=]() mutable {
-		auto rc = libssh2_sftp_fsync(HANDLE(handle));
+	return Run([=] () mutable {
+		int rc = libssh2_sftp_fsync(handle);
 		if(!WouldBlock(rc) && rc != 0)
 			SetError(rc);
 		if(rc == 0)
 			LLOG("File successfully synchronized to disk.");
-		return rc == 0;
+		return !rc;
 	});
 }
 
-SFtp& SFtp::Seek(SFtpHandle* handle, int64 position)
+SFtp& SFtp::Seek(SFtpHandle handle, int64 position)
 {
-	Cmd(SFTP_SEEK, [=]() mutable {
-		LLOG("Seeking to offset " << position);
-		libssh2_sftp_seek64(HANDLE(handle), position);
+	Run([=] () mutable {
+		//LLOG("Seeking to offset: " << position);
+		libssh2_sftp_seek64(handle, position);
 		return true;
 	});
 	return *this;
 }
 
-int64 SFtp::GetPos(SFtpHandle* handle)
+int64 SFtp::GetPos(SFtpHandle handle)
 {
-	Cmd(SFTP_TELL, [=]() mutable {
-		sftp->value = (int64) libssh2_sftp_tell64(HANDLE(handle));
-		LLOG("File position: " << sftp->value);
+	int64 pos = 0;
+
+	return Run([=, &pos] () mutable {
+		pos = libssh2_sftp_tell64(handle);
+		//LLOG("File position: " << pos);
 		return true;
 	});
-	return !IsBlocking() ? Null : pick(sftp->value);
+	return pos;
 }
 
-bool SFtp::DataRead(SFtpHandle* handle, int64 size, Event<const void*, int>&& fn, bool str)
+int SFtp::Read(SFtpHandle handle, void* ptr, int size)
 {
-	if(OpCode() == SFTP_START) {
-		if(FStat(HANDLE(handle), *sftp->finfo, false) <= 0) OpCode() = SFTP_GET;
-		else return false;
+	int sz = min(size - done, ssh->chunk_size);
+
+	int rc = libssh2_sftp_read(handle, (char*) ptr + done, sz);
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc > 0) {
+		done += rc;
+		ssh->start_time = msecs();
+		RefreshUI();
 	}
+	if(!rc)
+		LLOG("EOF received.");
+	return rc;
+}
 
-	auto peek = size > 0;
-	auto csz = peek ? min(size, int64(ssh->chunk_size)) : ssh->chunk_size;
-	int  rc = 0;
-	do {
-		Buffer<char> buffer(csz);
-		rc = libssh2_sftp_read(HANDLE(handle), buffer, csz);
-		if(rc < 0) {
-			if(!WouldBlock(rc))
-				SetError(rc);
-			return false;
-		}
-		if(rc > 0) {
-			const auto& fn_ = WhenContent ? WhenContent : fn;
-			if(peek && sftp->done < size)
-				fn_(buffer, sftp->done + rc > size ? size : rc);
-			else
-			if(!peek)
-				fn_(buffer, rc);
-			sftp->done += rc;
-			if(peek && sftp->done == size)
-				break;
-			if(WhenProgress(sftp->done, sftp->finfo.GetSize()))
-				SetError(-1, "Read aborted.");
-			ssh->start_time = msecs();
-		}
+int SFtp::Write(SFtpHandle handle, const void* ptr, int size)
+{
+	int sz = min(size - done, ssh->chunk_size);
+
+	int rc = libssh2_sftp_write(handle, (const char*) ptr + done, sz);
+	if(!WouldBlock(rc) && rc < 0)
+		SetError(rc);
+	if(rc > 0) {
+		done += rc;
+		ssh->start_time = msecs();
+		RefreshUI();
 	}
-	while(rc > 0);
-	LLOG(Format("%d of %d bytes successfully read.", sftp->done, peek ? size : sftp->finfo.GetSize()));
-	if(peek || str)
-		sftp->value = WhenContent ? Null : pick(sftp->stream.GetResult());
-	return true;
+	if(!rc)
+		LLOG("EOF received.");
+	return rc;
 }
 
-bool SFtp::DataWrite(SFtpHandle* handle, Stream& in, int64 size)
+int SFtp::Get(SFtpHandle handle, void *ptr, int size)
 {
-	auto poke = size > 0;
-	ssize_t write_size = poke ? size : in.GetSize();
-	int rc = 0;
-	do {
-		auto s = in.Get(ssh->chunk_size);
-		rc = libssh2_sftp_write(HANDLE(handle), s.Begin(), s.GetLength());
-		if(rc < 0 && !WouldBlock(rc))
-			SetError(rc);
-		if(rc != 0) {
-			if(rc < s.GetLength())
-				in.SeekCur(-(s.GetLength() - (rc > 0 ? rc : 0)));
-			if(rc < 0)
-				return false;
-			sftp->done += rc;
-			if(WhenProgress(sftp->done, write_size))
-				SetError(-1, "File write aborted");
-			ssh->start_time = msecs();
+	done = 0;
+	Run([=]() mutable {
+		while(done < size && !IsTimeout() && InProgress()) {
+			int rc = Read(handle, ptr, size);
+			if(rc < 0) return false;
+			if(!rc) break;
 		}
+		return true;
+	});
+	return GetDone();
+}
+
+int SFtp::Put(SFtpHandle handle, const void *ptr, int size)
+{
+	done = 0;
+	Run([=]() mutable {
+		while(done < size && !IsTimeout() && InProgress()) {
+			int rc = Write(handle, ptr, size);
+			if(rc < 0) return false;
+			if(!rc) break;
+		}
+		return true;
+	});
+	return GetDone();
+}
+
+bool SFtp::CopyData(Stream& dest, Stream& src, int64 maxsize)
+{
+	int64 size = src.GetSize();
+	String err;
+	
+	if(IsError())
+		return false;
+	
+	if(size < 0 || size >= maxsize) {
+		err = Format("Buffer overflow. size = %d (allowed size >= 0 && < %d", size, maxsize);
+		goto Bailout;
 	}
-	while(sftp->done < write_size);
-	LLOG(Format("%ld of %ld bytes successfully written.", (int64) sftp->done, (int64) write_size));
-	return true;
+	LLOG("Transfer chunk size: " << ssh->chunk_size);
+	if(CopyStream(dest, src, src.GetSize(), WhenProgress, ssh->chunk_size) < 0) {
+		err = "File transfer is aborted.";
+		goto Bailout;
+	}
+	return !IsError();
+
+Bailout:
+	src.Close();
+	dest.Close();
+	ReportError(-1, err);
+	return false;
 }
 
-bool SFtp::Get(SFtpHandle* handle, Stream& out)
+bool SFtp::SaveFile(const char *path, const String& data)
 {
-	sftp->done  = 0;
-	sftp->finfo = Null;
-	return Cmd(SFTP_START, [=, &out]() mutable {
-		return DataRead(HANDLE(handle), 0, [&out](const void* b, int l) { out.Put(b, l); });
-	});
+	StringStream in(data);
+	SFtpFileOut out(*this, path);
+	return CopyData(out, in);
 }
 
-String SFtp::Get(SFtpHandle* handle)
+String SFtp::LoadFile(const char *path)
 {
-	sftp->done  = 0;
-	sftp->finfo = Null;
-	sftp->stream.Create();
-	Cmd(SFTP_START, [=]() mutable {
-		return DataRead(HANDLE(handle), 0, [=](const void* b, int l) { sftp->stream.Put(b, l); }, true);
-	});
-	return !IsBlocking() ? Null : pick(sftp->value);
+	StringStream out;
+	SFtpFileIn in(*this, path);
+	CopyData(out, in, INT_MAX);
+	return pick(out.GetResult());
 }
 
-bool SFtp::Get(const String& path, Stream& out)
+bool SFtp::SaveFile(const char *path, Stream& in)
 {
-	return ComplexCmd(SFTP_GET, [=, &out]() mutable {
-		OpenRead(path);
-		Get(NULL, out);
-		Close(NULL);
-	});
+	SFtpFileOut out(*this, path);
+	return CopyData(out, in);
 }
 
-bool SFtp::Get(const String& path, Stream& out, int64 offset)
+bool SFtp::LoadFile(Stream& out, const char *path)
 {
-	return ComplexCmd(SFTP_GET, [=, &out]() mutable {
-		OpenRead(path);
-		Seek(NULL, offset);
-		Get(NULL, out);
-		Close(NULL);
-	});
+	SFtpFileIn in(*this, path);
+	return CopyData(out, in);
 }
 
-String SFtp::Get(const String& path)
+SFtpHandle SFtp::OpenDir(const String& path)
 {
-	ComplexCmd(SFTP_GET, [=]() mutable {
-		OpenRead(path);
-		Get(NULL);
-		Close(NULL);
-	});
-	return !IsBlocking() ? Null : pick(sftp->value);
-}
+	SFtpHandle h = nullptr;
 
-bool SFtp::Put(SFtpHandle* handle, Stream& in)
-{
-	sftp->done = 0;
-	return Cmd(SFTP_PUT, [=, &in]() mutable {
-		return DataWrite(HANDLE(handle), in, 0);
-	});
-}
-
-bool SFtp::Put(Stream& in, const String& path, dword flags, long mode)
-{
-	return ComplexCmd(SFTP_PUT, [=, &in]() mutable {
-		Open(path, flags, mode);
-		Put(NULL, in);
-		Close(NULL);
-	});
-}
-
-bool SFtp::Put(Stream& in, const String& path)
-{
-	return Put(in, path, CREATE | WRITE | TRUNCATE,	IWUSR | IRALL);
-}
-
-bool SFtp::Put(Stream& in, const String& path, int64 offset)
-{
-	return ComplexCmd(SFTP_PUT, [=, &in] {
-		OpenWrite(path);
-		Seek(NULL, offset);
-		Put(NULL, in);
-		Close(NULL);
-	});
-}
-
-bool SFtp::Append(Stream& in, const String& path, long mode)
-{
-	return Put(in, path, WRITE | CREATE | APPEND, mode);
-}
-
-bool SFtp::Append(Stream& in, const String& path)
-{
-	return Put(in, path, WRITE | CREATE | APPEND, IRALL | IWUSR);
-}
-
-String SFtp::Peek(const String& path, int64 offset, int64 length)
-{
-	ComplexCmd(SFTP_PEEK, [=]() mutable {
-		sftp->done = 0;
-		sftp->stream.Create();
-		OpenRead(path);
-		Seek(NULL, offset);
-		Cmd(SFTP_START, [=]{
-			return DataRead(NULL, length, [=](const void* b, int l) { sftp->stream.Put(b, l); }, true);
-		});
-		Close(NULL);
-	});
-	return !IsBlocking() ? Null : pick(sftp->value);
-}
-
-bool SFtp::Poke(const String& data, const String& path, int64 offset, int64 length)
-{
-	return ComplexCmd(SFTP_POKE, [=]() mutable {
-		sftp->done = 0;
-		sftp->stream.Open(data);
-		OpenWrite(path);
-		Seek(NULL, offset);
-		Cmd(SFTP_PUT, [=]{ return DataWrite(HANDLE(NULL), sftp->stream, length); });
-		Close(NULL);
-	});
-}
-
-SFtpHandle*	 SFtp::OpenDir(const String& path)
-{
-	auto b = Cmd(SFTP_OPENDIR, [=]() mutable {
-		ASSERT(sftp->session);
-		sftp->handle = libssh2_sftp_opendir(sftp->session, path);
-		if(!sftp->handle && !WouldBlock())
+	Run([=, &h] () mutable {
+		h = libssh2_sftp_opendir(*sftp_session, path);
+		if(!h && !WouldBlock())
 			SetError(-1);
-		if(sftp->handle)
+		if(h)
 			LLOG(Format("Directory '%s' is successfully opened.", path));
-		return sftp->handle != NULL;
+		return h;
 	});
-	return b ? sftp->handle : NULL;
+	return h;
 }
 
 bool SFtp::MakeDir(const String& path, long mode)
 {
-	return Cmd(SFTP_MAKEDIR, [=]() mutable {
-		ASSERT(sftp->session);
-		auto rc = libssh2_sftp_mkdir(sftp->session, path, mode);
+	return Run([=] () mutable {
+		int rc = libssh2_sftp_mkdir(*sftp_session, path, mode);
 		if(!WouldBlock(rc) && rc != 0)
 			SetError(rc);
-		if(rc == 0)
+		if(!rc)
 			LLOG(Format("Directory '%s' is succesfully created.", path));
-		return rc == 0;
+		return !rc;
 	});
 }
 
 bool SFtp::RemoveDir(const String& path)
 {
-	return Cmd(SFTP_REMOVEDIR, [=]() mutable {
-		ASSERT(sftp->session);
-		auto rc = libssh2_sftp_rmdir(sftp->session, path);
+	return Run([=] () mutable {
+		int rc = libssh2_sftp_rmdir(*sftp_session, path);
 		if(!WouldBlock(rc) && rc != 0)
 			SetError(rc);
-		if(rc == 0)
+		if(!rc)
 			LLOG(Format("Directory '%s' is succesfully deleted.", path));
-		return rc == 0;
+		return !rc;
 	});
 }
 
-bool SFtp::ListDir(SFtpHandle* handle, DirList& list)
+bool SFtp::ListDir(SFtpHandle handle, DirList& list)
 {
-	return Cmd(SFTP_LISTDIR, [=, &list]() mutable {
+	SFtpAttrs attrs;
+	return Run([=, &attrs, &list] () mutable {
 		char label[512];
 		char longentry[512];
-		SFtpAttrs attrs;
-		int rc = 0;
-		do {
-			rc = libssh2_sftp_readdir_ex(
-					HANDLE(handle),
-					label, sizeof(label),
-					longentry, sizeof(longentry),
-					&attrs
+
+		while(InProgress()) {
+			Zero(attrs);
+			int rc = libssh2_sftp_readdir_ex(
+						handle,
+						label, sizeof(label),
+						longentry, sizeof(longentry),
+						&attrs
 			);
 			if(rc < 0) {
 				if(!WouldBlock(rc))
 					SetError(rc);
-				return false;
+				break;
 			}
+			else
 			if(rc > 0) {
 				DirEntry& entry	= list.Add();
 				entry.filename	= label;
 				*entry.a		= attrs;
 				entry.valid		= true;
-//				DUMP(entry)
+//				DUMP(entry);
+			}
+			if(rc == 0) {
+				LLOG(Format("Directory listing is successful. (%d entries)", list.GetCount()));
+				return true;
 			}
 		}
-		while(rc > 0);
-		LLOG(Format("Directory listing is successful. (%d entries)", list.GetCount()));
-		return true;
+		return false;
 	});
 }
 
 bool SFtp::ListDir(const String& path, DirList& list)
 {
-	return ComplexCmd(SFTP_LISTDIR, [=, &list]() mutable {
-		OpenDir(path);
-		ListDir(NULL, list);
-		Close(NULL);
-	});
+	SFtpHandle h = OpenDir(path);
+	if(h) {
+		bool b = ListDir(h, list);
+		Close(h);
+		if(!b) ssh->status = FAILED;
+	}
+	return !IsError();
 }
 
-String SFtp::GetWorkDir()
+bool SFtp::SymLink(const String& path, String& target, int type)
 {
-	ComplexCmd(SFTP_LINK, [=]() mutable {
-		SymLink(".", NULL, LIBSSH2_SFTP_REALPATH);
-	});
-	return !IsBlocking() ? Null : pick(sftp->value);
-}
+	Buffer<char> buffer(512, 0);
 
-bool SFtp::SymLink(const String& path, String* target, int type)
-{
 	if(type == LIBSSH2_SFTP_SYMLINK)
-		return Cmd(SFTP_LINK, [=]() mutable {
-			ASSERT(sftp->session);
-			ASSERT(target);
+		return Run([=, &path, &buffer, &target] () mutable {
 			int rc = libssh2_sftp_symlink_ex(
-						sftp->session,
+						*sftp_session,
 						path,
 						path.GetLength(),
-						const_cast<char*>(target->Begin()),
-						target->GetLength(),
+						buffer,
+						512,
 						type
 					);
 			if(!WouldBlock(rc) && rc != 0)
 				SetError(rc);
-			if(rc == 0)
+			if(!rc) {
+				target.Set(buffer, rc);
 				LLOG(Format("Symbolic link '%s' for path '%s' is successfult created.", target, path));
-			return rc == 0;
+			}
+			return !rc;
 		});
 	else
-		return Cmd(SFTP_LINK, [=]() mutable {
-			ASSERT(sftp->session);
-			Buffer<char> buf(512, 0);
+		return Run([=, &path, &buffer, &target] () mutable {
+			Buffer<char> sbuf(512, 0);
 			int rc = libssh2_sftp_symlink_ex(
-						sftp->session,
+						*sftp_session,
 						path,
 						path.GetLength(),
-						buf,
+						buffer,
 						512,
 						type
 					);
-			if(!WouldBlock(rc) && rc <= 0)
+			if(!WouldBlock(rc) && rc < 0)
 				SetError(rc);
 			if(rc > 0) {
-				LLOG("Symbolic link operation is successful.");
-				if(target)
-					target->Set(buf, rc);
-				else
-					sftp->value = pick(String(buf, rc));
+				target.Set(buffer, rc);
+				LLOG("Symbolic link operation is successful. Target: " << target);
 			}
 			return rc > 0;
 		});
 }
 
-bool SFtp::GetAttrs(SFtpHandle* handle, SFtpAttrs& attrs)
+SFtp::DirEntry SFtp::GetInfo(const String& path)
 {
-	return Cmd(SFTP_GET_STAT, [=, &attrs]() mutable {
-		auto rc = FStat(handle, attrs, false);
+	DirEntry finfo;
+
+	if(!GetAttrs(path, *finfo))
+		return Null;
+
+	finfo.filename = path;
+	finfo.valid = true;
+
+	return pick(finfo);
+}
+
+bool SFtp::GetAttrs(SFtpHandle handle, SFtpAttrs& attrs)
+{
+	return Run([=, &attrs] () mutable {
+		int rc = FStat(handle, attrs, false);
 		if(rc < 0)	SetError(rc);
-		if(rc == 0)	LLOG("File attributes successfully retrieved.");
-		return rc == 0;
+		if(!rc)	LLOG("File attributes successfully retrieved.");
+		return !rc;
 	});
 }
 
 bool SFtp::GetAttrs(const String& path, SFtpAttrs& attrs)
 {
-	return Cmd(SFTP_GET_STAT, [=, &attrs]() mutable {
-		auto rc = LStat(path, attrs, LIBSSH2_SFTP_STAT);
+	return Run([=, &path, &attrs] () mutable {
+		int rc = LStat(path, attrs, LIBSSH2_SFTP_STAT);
 		if(rc < 0)	SetError(rc);
-		if(rc == 0) LLOG(Format("File attributes of '%s' is successfully retrieved.", path));
-		return rc == 0;
+		if(!rc) LLOG(Format("File attributes of '%s' is successfully retrieved.", path));
+		return !rc;
 	});
 }
 
-bool SFtp::SetAttrs(SFtpHandle* handle, const SFtpAttrs& attrs)
+bool SFtp::SetAttrs(SFtpHandle handle, const SFtpAttrs& attrs)
 {
-	return Cmd(SFTP_SET_STAT, [=, &attrs]() mutable {
-		auto rc = FStat(handle, const_cast<SFtpAttrs&>(attrs), true);
+	return Run([=, &attrs] () mutable {
+		int rc = FStat(handle, const_cast<SFtpAttrs&>(attrs), true);
 		if(rc < 0)	SetError(rc);
-		if(rc == 0)	LLOG("File attributes successfully modified.");
-		return rc == 0;
+		if(!rc)	LLOG("File attributes successfully modified.");
+		return !rc;
 	});
 }
 
 bool SFtp::SetAttrs(const String& path, const SFtpAttrs& attrs)
 {
-	return Cmd(SFTP_SET_STAT, [=, &attrs]() mutable {
-		auto rc = LStat(path,  const_cast<SFtpAttrs&>(attrs), LIBSSH2_SFTP_SETSTAT);
+	return Run([=, &attrs] () mutable {
+		int rc = LStat(path,  const_cast<SFtpAttrs&>(attrs), LIBSSH2_SFTP_SETSTAT);
 		if(rc < 0)	SetError(rc);
-		if(rc == 0)	LLOG(Format("File attributes of '%s' is successfully modified.", path));
-		return rc == 0;
+		if(!rc)	LLOG(Format("File attributes of '%s' is successfully modified.", path));
+		return !rc;
 	});
 }
 
-bool SFtp::QueryAttr(const String& path, int attr)
+Value SFtp::QueryAttr(const String& path, int attr)
 {
-	return ComplexCmd(SFTP_QUERY, [=]() mutable {
-		sftp->finfo = Null;
-		sftp->value = Null;
-		GetAttrs(path, *sftp->finfo);
-		Cmd(SFTP_QUERY, [=] {
-			sftp->finfo.filename = path;
-			switch(attr) {
-				case SFTP_ATTR_FILE:
-					sftp->value = sftp->finfo.IsFile();
-					break;
-				case SFTP_ATTR_DIRECTORY:
-					sftp->value = sftp->finfo.IsDirectory();
-					break;
-				case SFTP_ATTR_SOCKET:
-					sftp->value = sftp->finfo.IsSocket();
-					break;
-				case SFTP_ATTR_SYMLINK:
-					sftp->value = sftp->finfo.IsSymLink();
-					break;
-				case SFTP_ATTR_PIPE:
-					sftp->value = sftp->finfo.IsPipe();
-					break;
-				case SFTP_ATTR_BLOCK:
-					sftp->value = sftp->finfo.IsBlock();
-					break;
-				case SFTP_ATTR_SPECIAL:
-					sftp->value = sftp->finfo.IsSpecial();
-					break;
-				case SFTP_ATTR_SIZE:
-					sftp->value = sftp->finfo.GetSize();
-					break;
-				case SFTP_ATTR_LAST_MODIFIED:
-					sftp->value = sftp->finfo.GetLastModified();
-					break;
-				case SFTP_ATTR_LAST_ACCESSED:
-					sftp->value = sftp->finfo.GetLastAccessed();
-					break;
-				case SFTP_ATTR_INFO:
-					sftp->finfo.valid = true;
-					sftp->value = RawPickToValue(pick(sftp->finfo));
-					sftp->finfo = Null;
-					break;
-				default:
-					break;
-			}
-			return true;
-		});
-	});
+	DirEntry finfo;
+	Value v;
+
+	if(!GetAttrs(path, *finfo))
+		return Null;
+
+	switch(attr) {
+		case SFTP_ATTR_FILE:
+			v = finfo.IsFile();
+			break;
+		case SFTP_ATTR_DIRECTORY:
+			v = finfo.IsDirectory();
+			break;
+		case SFTP_ATTR_SOCKET:
+			v = finfo.IsSocket();
+			break;
+		case SFTP_ATTR_SYMLINK:
+			v = finfo.IsSymLink();
+			break;
+		case SFTP_ATTR_PIPE:
+			v = finfo.IsPipe();
+			break;
+		case SFTP_ATTR_BLOCK:
+			v = finfo.IsBlock();
+			break;
+		case SFTP_ATTR_SPECIAL:
+			v = finfo.IsSpecial();
+			break;
+		case SFTP_ATTR_SIZE:
+			v = finfo.GetSize();
+			break;
+		case SFTP_ATTR_LAST_MODIFIED:
+			v = finfo.GetLastModified();
+			break;
+		case SFTP_ATTR_LAST_ACCESSED:
+			v = finfo.GetLastAccessed();
+			break;
+		default:
+			break;
+	}
+	return pick(v);
 }
 
 bool SFtp::ModifyAttr(const String& path, int attr, const Value& v)
 {
-	return ComplexCmd(SFTP_MODIFY, [=]() mutable {
-		sftp->finfo = Null;
-		GetAttrs(path, *sftp->finfo);
-		Cmd(SFTP_MODIFY, [=]{
-			auto& attrs = *sftp->finfo;
-			switch(attr) {
-				case SFTP_ATTR_SIZE:
-					attrs.flags |= LIBSSH2_SFTP_ATTR_SIZE;
-					attrs.filesize = v.To<int64>();
-					break;
-				case SFTP_ATTR_LAST_MODIFIED:
-					attrs.flags |= LIBSSH2_SFTP_ATTR_ACMODTIME;
-					attrs.mtime = GetUTCSeconds(v);
-					break;
-				case SFTP_ATTR_LAST_ACCESSED:
-					attrs.flags |= LIBSSH2_SFTP_ATTR_ACMODTIME;
-					attrs.atime = GetUTCSeconds(v);
-					break;
-				default:
-					break;
-			}
-			return true;
-		});
-		SetAttrs(path, ~sftp->finfo);
-	});
-}
+	DirEntry finfo;
 
-SFtp::DirEntry SFtp::GetInfo(const String& path)
-{
-	QueryAttr(path, SFTP_ATTR_INFO);
-	if(IsBlocking()&& !IsError()) {
-		auto& e = const_cast<DirEntry&>(sftp->value.To<DirEntry>());
-		return pick(e);
+	if(!GetAttrs(path, *finfo))
+		return false;
+
+	SFtpAttrs& attrs = *finfo;
+
+	switch(attr) {
+		case SFTP_ATTR_SIZE:
+			attrs.flags |= LIBSSH2_SFTP_ATTR_SIZE;
+			attrs.filesize = v.To<int64>();
+			break;
+		case SFTP_ATTR_LAST_MODIFIED:
+			attrs.flags |= LIBSSH2_SFTP_ATTR_ACMODTIME;
+			attrs.mtime = GetUTCSeconds(v);
+			break;
+		case SFTP_ATTR_LAST_ACCESSED:
+			attrs.flags |= LIBSSH2_SFTP_ATTR_ACMODTIME;
+			attrs.atime = GetUTCSeconds(v);
+			break;
+		default:
+			break;
 	}
-	return Null;
-}
-
-void SFtp::StartAsync(int cmd, SshSession& session, const String& path, Stream& io,
-						Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer)
-{
-	SFtp worker(session);
-	worker.NonBlocking();
-	
-	auto wid = worker.GetId();
-	
-	if(consumer)
-		worker.WhenContent = [=, &consumer](const void* b, int l) {
-			consumer(wid, b, l);
-		};
-	if(progress)
-		worker.WhenProgress = [=, &progress](int64 d, int64 t) {
-			return progress(wid, d, t);
-		};
-
-	switch(cmd) {
-	case SFtp::SFTP_GET:
-		worker.Get(path, io);
-		break;
-	case SFtp::SFTP_PUT:
-		worker.Put(io, path);
-		break;
-	case SFtp::SFTP_APPEND:
-		worker.Append(io, path);
-		break;
-	default:
-		NEVER();
-	}
-
-	bool cancelled = false;
-	int  waitstep  = worker.GetWaitStep();
-
-	while(worker.Do()) {
-		if(!cancelled && CoWork::IsCanceled()) {
-			worker.Cancel();
-			cancelled = true;
-		}
-		Sleep(waitstep);
-	}
-	if(worker.IsError())
-		throw Ssh::Error(worker.GetError(), worker.GetErrorDesc());
-}
-
-AsyncWork<String> SFtp::AsyncGet(SshSession& session, const String& path, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, progress = pick(progress)]{
-		StringStream data;
-		SFtp::StartAsync(SFtp::SFTP_GET, session, path, data, progress);
-		return pick(data.GetResult());
-	});
-}
-
-AsyncWork<void> SFtp::AsyncGet(SshSession& session, const String& path, Stream& out, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, &out, progress = pick(progress)]{
-		SFtp::StartAsync(SFtp::SFTP_GET, session, path, out, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncPut(SshSession& session, String& in, const String& path, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, &in, progress = pick(progress)]{
-		StringStream ss(in);
-		SFtp::StartAsync(SFtp::SFTP_PUT, session, path, ss, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncPut(SshSession& session, Stream& in, const String& path, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, &in, progress = pick(progress)]{
-		SFtp::StartAsync(SFtp::SFTP_PUT, session, path, in, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncAppend(SshSession& session, String& in, const String& path, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, &in, progress = pick(progress)]{
-		StringStream ss(in);
-		SFtp::StartAsync(SFtp::SFTP_APPEND, session, path, ss, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncAppend(SshSession& session, Stream& in, const String& path, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, &in, progress = pick(progress)]{
-		SFtp::StartAsync(SFtp::SFTP_APPEND, session, path, in, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, progress = pick(progress)]{
-		FileOut fo(dest);
-		if(!fo)
-			throw Ssh::Error(Format("Unable to open file '%s' for writing.", dest));
-		SFtp::StartAsync(SFtp::SFTP_GET, session, src, fo, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncPutFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, progress = pick(progress)]{
-		FileIn fi(src);
-		if(!fi)
-			throw Ssh::Error(Format("Unable to open file '%s' for reading.", src));
-		SFtp::StartAsync(SFtp::SFTP_PUT, session, dest, fi, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncAppendFromFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress)
-{
-	return Async([=, &session, progress = pick(progress)]{
-		FileIn fi(src);
-		if(!fi)
-			throw Ssh::Error(Format("Unable to open file '%s' to append.", src));
-		SFtp::StartAsync(SFtp::SFTP_APPEND, session, dest, fi, progress);
-	});
-}
-
-AsyncWork<void> SFtp::AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer)
-{
-	return Async([=, &session, consumer = pick(consumer)]{
-		SFtp::StartAsync(SFtp::SFTP_GET, session, path, NilStream(), Null, consumer);
-	});
+	return SetAttrs(path, ~finfo);;
 }
 
 SFtp::SFtp(SshSession& session)
 : Ssh()
 {
-	sftp.Create();
 	ssh->otype		= SFTP;
-	sftp->session	= NULL;
-	sftp->handle	= NULL;
-	sftp->value		= Null;
-	sftp->done		= 0;
 	ssh->session	= session.GetHandle();
 	ssh->socket		= &session.GetSocket();
 	ssh->timeout	= session.GetTimeout();
 	ssh->waitstep   = session.GetWaitStep();
-	ssh->wait       = Proxy(session.WhenWait);
+	ssh->whenwait   = Proxy(session.WhenWait);
+	done            = 0;
 }
 
 SFtp::~SFtp()
 {
-	if(sftp && sftp->session) { // Picked?
-		Ssh::Exit();
-		Exit();
-	}
+	Exit();
 }
 
 String SFtp::DirEntry::ToString() const
@@ -811,6 +582,23 @@ String SFtp::DirEntry::ToXml() const
 			.Text(GetName());
 }
 
+FileSystemInfo::FileInfo SFtp::DirEntry::ToFileInfo() const
+{
+	FileSystemInfo::FileInfo fi;
+	fi.filename         = GetName();
+	fi.length           = GetSize();
+	fi.unix_mode        = GetPermissions();
+	fi.creation_time    = GetLastModified();
+	fi.last_access_time = GetLastAccessed();
+	fi.last_write_time  = GetLastModified();
+	fi.is_file          = IsFile();
+	fi.is_directory     = IsDirectory();
+	fi.is_symlink       = IsSymLink();
+	fi.is_read_only     = IsReadOnly();
+	fi.root_style       = FileSystemInfo::ROOT_FIXED;
+	return pick(fi);
+}
+
 bool SFtp::DirEntry::CanMode(dword u, dword g, dword o) const
 {
 	return a->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS &&
@@ -837,5 +625,50 @@ SFtp::DirEntry::DirEntry(const String& path, const SFtpAttrs& attrs)
 {
 	filename = path;
 	*a = attrs;
+}
+
+Array<FileSystemInfo::FileInfo> SFtpFileSystemInfo::Find(String mask, int max_count, bool unmounted) const
+{
+	ASSERT(browser);
+	Array<FileInfo> fi;
+	String dir;
+	if(!browser->InProgress()) {
+		if(IsNull(mask))
+			dir = browser->GetDefaultDir();
+		else {
+			String s;
+			dir = GetFileDirectory(browser->RealizePath(mask, s) ? s : mask);
+		}
+		bool haswc = HasWildcards(mask);
+		if(!haswc && max_count == 1) { // A small optimization.
+			SFtp::DirEntry e = browser->GetInfo(mask);
+			if(e)
+				fi.Add(e.ToFileInfo());
+		}
+		else {
+			String pattern;
+			SFtp::DirList ls;
+			if(browser->ListDir(dir, ls)) {
+				if(haswc)
+					pattern = GetFileName(mask);
+				for(int i = 0, j = 0; i < ls.GetCount() && j < max_count; i++) {
+					const SFtp::DirEntry& e = ls[i];
+					if(!haswc || (haswc && PatternMatch(pattern, e.GetName()))) {
+						fi.Add(e.ToFileInfo());
+						j++;
+					}
+				}
+			}
+		}
+	}
+	return pick(fi);
+}
+
+bool SFtpFileSystemInfo::CreateFolder(String path, String& error) const
+{
+	ASSERT(browser);
+	if(!browser->MakeDir(path, 0))
+		error = browser->GetErrorDesc();
+	return !browser->IsError();
 }
 }

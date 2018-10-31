@@ -16,20 +16,20 @@ topic "Job";
 [s1;:Upp`:`:Job`:`:class: [@(0.0.255) class]_[* Job]&]
 [s0;#l288;%% This template class implements a scope`-bound, lightweight, 
 single worker thread based on [^https`:`/`/en`.wikipedia`.org`/wiki`/Resource`_acquisition`_is`_initialization`?oldformat`=true^ R
-AII] principle. It provides a return semantic for result gathering, 
+AII] principle. It provides a return semantics for result gathering, 
 functionally similar to the promise`-future pattern, including 
 void type specialization, and exception propagation. &]
 [s0;#l288;%% &]
-[s0;#l288;%% Note that Job class is meant to be a hybrid between 
-the so`-called `"dedicated thread`" and `"worker thread`" models. 
-While Job is a decent general`-purpose multithreading tool, for 
-high performance parallelization scenarios [^topic`:`/`/Core`/src`/CoWork`$en`-us`#CoWork`:`:class^ C
-oWork] would be a more suitable option. This class is mainly 
-designed to allow applications and libraries to gain an easily 
-managable, optional non`-blocking behavior where high latency 
-is expected such as network operations and file I/O, and a safe, 
-container`-style access to the data processed by the worker threads 
-is preferred. &]
+[s0;#l288;%% Note that Job is meant to be a hybrid between the so`-called 
+`"dedicated thread`" and `"worker thread`" models. While this 
+class is a decent general`-purpose multithreading tool, for high 
+performance parallelization scenarios [^topic`:`/`/Core`/src`/CoWork`$en`-us`#CoWork`:`:class^ C
+oWork] would be a more suitable option. Job is mainly designed 
+to allow applications and libraries to gain an easily managable, 
+optional non`-blocking behavior where high latency is expected 
+such as network operations and file I/O, and a safe, container`-style 
+access to the data processed by the worker threads is preferred. 
+&]
 [s2;#%% &]
 [s3; &]
 [s3; &]
@@ -44,16 +44,10 @@ only one [%-*@3 f] at a time. Invoking this method while a work
 is in progress simply returns false.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:Job`:`:Finish`(`): [@(0.0.255) void]_[* Finish]()&]
-[s2;%% Waits until the job is finished. Provides per`-job external 
-blocking. Note that a finished jobs is not `"joined`", it is 
-simply `"parked`" to be re`-used.&]
-[s3; &]
-[s4; &]
 [s5;:Upp`:`:Job`:`:IsFinished`(`)const: [@(0.0.255) bool]_[* IsFinished]()_[@(0.0.255) cons
 t]&]
-[s2;%% Returns true if the job is finished. Basically, this method 
-is a non`-blocking variant of Finish().&]
+[s2;%% Returns true if the work is finished. This method is non`-blocking. 
+It returns false if the work is not finished.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Job`:`:Cancel`(`): [@(0.0.255) void]_[* Cancel]()&]
@@ -61,8 +55,7 @@ is a non`-blocking variant of Finish().&]
 Rethrows the exception thrown in worker thread.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:Job`:`:IsCancelled`(`): [@(0.0.255) static] [@(0.0.255) bool]_[* IsCancelled]()
-&]
+[s5;:Upp`:`:Job`:`:IsCanceled`(`): [@(0.0.255) static] [@(0.0.255) bool]_[* IsCanceled]()&]
 [s2;%% Returns true if the job is canceled. Intended to be called 
 [*/ within ]the worker thread.&]
 [s3; &]

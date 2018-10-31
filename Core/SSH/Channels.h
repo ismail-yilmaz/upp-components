@@ -1,59 +1,46 @@
 class SshChannel : public Ssh {
 public:
-    SshChannel&         Timeout(int ms)                                             { ssh->timeout = ms; return *this;  }
-    SshChannel&         NonBlocking(bool b = true)                                  { return Timeout(b ? 0 : Null); }
-    SshChannel&         WaitStep(int ms)                                            { ssh->waitstep = clamp(ms, 0, INT_MAX); return *this; }
-    SshChannel&         ChunkSize(int sz)                                           { ssh->chunk_size = clamp(sz, 128, INT_MAX); return *this; }
+    SshChannel&         Timeout(int ms)                                                     { ssh->timeout = ms; return *this; }
+    SshChannel&         ChunkSize(int sz)                                                   { ssh->chunk_size = clamp(sz, 1, INT_MAX); return *this; }
 
+    LIBSSH2_CHANNEL*    GetHandle() const                                                   { return channel ? *channel : nullptr; }
+    int                 GetDone() const                                                     { return done; }
 
-    LIBSSH2_CHANNEL*    GetHandle() const                                           { return *channel; }
-    Value               GetResult()                                                 { return pick(result); }
+    bool                IsOpen() const                                                      { return channel; }
 
     bool                Open();
     bool                Close();
-    bool                CloseWait();
+    bool                WaitClose();
+
     bool                Request(const String& request, const String& params = Null);
-    bool                Exec(const String& cmdline)                                 { return Request("exec", cmdline); }
-    bool                Shell()                                                     { return Request("shell", Null); }
-    bool                Subsystem(const String& subsystem)                          { return Request("subsystem", subsystem); }
+    bool                RequestExec(const String& cmdline)                                  { return Request("exec", cmdline); }
+    bool                RequestShell()                                                      { return Request("shell", Null); }
+    bool                RequestSubsystem(const String& subsystem)                           { return Request("subsystem", subsystem); }
+    bool                RequestTerminal(const String& term, int width, int height);
+    bool                RequestTerminal(const String& term, Size sz)                        { return RequestTerminal(term, sz.cx, sz.cy); }
     bool                SetEnv(const String& variable, const String& value);
-    bool                Terminal(const String& term, int width, int height);
-    bool                Terminal(const String& term, Size sz)                       { return Terminal(term, sz.cx, sz.cy); }
 
-    String              Get(int64 size, int sid = 0);
-    int64               Get(Stream& out, int64 size, int sid = 0);
+    int                 Get(void *ptr, int size, int sid = 0);
+    String              Get(int size, int sid = 0);
     String              GetLine(int maxlen = 65536, int sid = 0);
-    int                 GetNow(int sid = 0);
-    int                 GetNow(void* buffer, int sid = 0);
-    String              GetStdErr(int64 size = 65536)                               { return Get(size, SSH_EXTENDED_DATA_STDERR); }
-    int64               GetStdErr(Stream& out, int64 size = 65536)                  { return Get(out, size, SSH_EXTENDED_DATA_STDERR); }
-    int64               Put(const String& s, int sid = 0);
-    int64               Put(Stream& in, int64 size = 65536, int sid = 0);
-    bool                PutNow(char c, int sid = 0);
-    int                 PutNow(const void* buffer, int64 size, int sid = 0);
-    int64               PutStdErr(const String& err)                                { return Put(err, SSH_EXTENDED_DATA_STDERR); }
-    int64               PutStdErr(Stream& err)                                      { return Put(err, err.GetSize(), SSH_EXTENDED_DATA_STDERR); }
+    String              GetStdErr(int size)                                                 { return Get(size, SSH_EXTENDED_DATA_STDERR); }
+    int                 Put(const void *ptr, int size, int sid = 0);
+    int                 Put(const String& s, int sid = 0)                                   { return Put(~s, s.GetLength(), sid); }
+    int                 PutStdErr(const String& err)                                        { return Put(err, SSH_EXTENDED_DATA_STDERR); }
 
-    bool                SendEof();
-    bool                RecvEof();
-    bool                SendRecvEof();
+    bool                PutEof();
+    bool                GetEof();
+    bool                PutGetEof()                                                         { return PutEof() && GetEof(); }
     bool                IsEof();
 
     bool                SetTerminalSize(int width, int height);
-    bool                SetTerminalSize(Size sz)                                    { return SetTerminalSize(sz.cx, sz.cy); }
-    bool                SetReadWindowSize(int64 size, bool force = false);
-    int64               GetReadWindowSize();
-    int64               GetWriteWindowSize();
+    bool                SetTerminalSize(Size sz)                                            { return SetTerminalSize(sz.cx, sz.cy); }
+    bool                SetReadWindowSize(uint32 size, bool force = false);
+    uint32              GetReadWindowSize()                                                 { return libssh2_channel_window_read(*channel); }
+    uint32              GetWriteWindowSize()                                                { return libssh2_channel_window_write(*channel); }
     int                 GetExitCode();
     String              GetExitSignal();
 
-    bool                IsNullInstance() const                                      { return !channel || !ssh; }
-    inline operator     bool() const                                                { return IsNullInstance();}
-
-    Event<const void*, int> WhenContent;
-    Gate<int64, int64>      WhenProgress;
-
-    SshChannel() : Ssh(false) {}
     SshChannel(SshSession& session);
     virtual ~SshChannel();
 
@@ -63,133 +50,75 @@ public:
 protected:
     bool                Init() override;
     void                Exit() override;
-    bool                Cleanup(Error& e) override;
-
-    int                 AdjustChunkSize(int64 sz);
-    void                Clear();
-
-    int                 Read(void *buffer, int64 len, int sid = 0);
+    int                 Read(void *ptr, int size, int sid = 0);
     int                 Read(int sid = 0);
-    bool                ReadString(String& s, int64 len, int sid = 0, bool nb = false);
-    bool                ReadStream(Stream& s, int64 len, int sid = 0, bool nb = false);
-    bool                ReadContent(Event<const void*,int>&& consumer, int64 len, int sid = 0, bool nb =  false);
-
-    int                 Write(const void* buffer, int64 len, int sid = 0);
+    int                 Write(const void *ptr, int size, int sid = 0);
     bool                Write(char c, int sid = 0);
-    bool                WriteString(const String& s, int64 len, int sid = 0, bool nb = false);
-    bool                WriteStream(Stream& s, int64 len, int sid = 0, bool nb = false);
-
-    bool                SendEof0();
-    bool                RecvEof0();
-
-    bool                SetWndSz(int64 size, bool force = false);
-
+    bool                SetWndSz(uint32 size, bool force = false);
     int                 SetPtySz(int w, int h);
-    int                 SetPtySz(Size sz)                                           { return SetPtySz(sz.cx, sz.cy); }
+    int                 SetPtySz(Size sz)                                                   { return SetPtySz(sz.cx, sz.cy); }
+
 
     dword               EventWait(int fd, dword events, int tv = 10);
     bool                ProcessEvents(String& input);
-    virtual void        ReadWrite(String& in, const void* out, int out_len);
+    virtual void        ReadWrite(String& in, const void* out, int out_len)                 {}
 
-    bool                Lock();
-    void                Unlock();
-
-    One<LIBSSH2_CHANNEL*>    channel;
-    LIBSSH2_LISTENER*        listener;
-    libssh2_struct_stat      filestat;
-    Value                    result;
-    int                      exitcode;
-    String                   exitsignal;
-    int64                    done;
-    int64                    total;
-    std::atomic<int64>*      lock;
-
-    enum OpCodes {
-        CHANNEL_INIT,
-        CHANNEL_EXIT,
-        CHANNEL_OPEN,
-        CHANNEL_CLOSE,
-        CHANNEL_REQUEST,
-        CHANNEL_SET_ENV,
-        CHANNEL_READ,
-        CHANNEL_WRITE,
-        CHANNEL_WAIT,
-        CHANNEL_EOF,
-        CHANNEL_STDERR,
-        CHANNEL_RC,
-        CHANNEL_SIGNAL,
-        CHANNEL_WIN_SIZE,
-        CHANNEL_PTY_SIZE,
-        CHANNEL_SCP,
-        CHANNEL_SCP_GET,
-        CHANNEL_SCP_PUT,
-        CHANNEL_EXEC,
-        CHANNEL_SHELL,
-        CHANNEL_TUNNEL,
-        CHANNEL_TUNNEL_CONNECT,
-        CHANNEL_TUNNEL_LISTEN,
-        CHANNEL_TUNNEL_ACCEPT
-    };
-};
-
-// Channels.
-class Scp : public SshChannel {
-public:
-    bool    Get(const String& path, Stream& out);
-    bool    operator()(const String& path, Stream& out)                                                 { return Get(path, out); }
-    String  Get(const String& path);
-    String  operator()(const String& path)                                                              { return Get(path); }
-    bool    Put(Stream& in, const String& path, long mode = 0744);
-    bool    Put(const String& in, const String& path, long mode = 0744);
-    bool    operator()(Stream& in, const String& path, long mode = 0744)                                 { return Put(in, path, mode); }
-    bool    operator()(const String& in, const String& path, long mode = 0744)                           { return Put(in, path, mode); }
-
-    static  AsyncWork<String> AsyncGet(SshSession& session, const String& path, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncGet(SshSession& session, const String& path, Stream& out, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPut(SshSession& session, String& in, const String& path, long mode = 0744, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPut(SshSession& session, Stream& in, const String& path, long mode = 0744, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncGetToFile(SshSession& session, const String& src, const String& dest, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncPutToFile(SshSession& session, const String& src, const String& dest, long mode = 0744, Gate<int64, int64, int64> progress = Null);
-    static  AsyncWork<void>   AsyncConsumerGet(SshSession& session, const String& path, Event<int64, const void*, int> consumer);
-
-    Scp(SshSession& session) : SshChannel(session)                                                      { ssh->otype = SCP; }
-
-private:
-    bool Init() override                                                                        { return Lock(); }
-    bool Open(int opcode, const String& path, int64 size, long mode);
-    static void StartAsync(int cmd, SshSession& session, const String& path, Stream& io, long mode,
-                            Gate<int64, int64, int64> progress, Event<int64, const void*, int> consumer = Null);
+    bool                Shut(const String& msg, bool nowait = true);
+    
+    One<LIBSSH2_CHANNEL*>  channel;
+    int                    done;
 };
 
 class SshExec : public SshChannel {
 public:
-    int         Execute(const String& cmd, Stream& out, Stream& err);
-    int         operator()(const String& cmd, Stream& out, Stream& err)                                 { return Execute(cmd, out, err); }
+    int Execute(const String& cmd, String& out, String& err);
+    int operator()(const String& cmd, String& out, String& err)                             { return Execute(cmd, out, err); }
 
-    static      AsyncWork<Tuple<int, String, String>> AsyncRun(SshSession& session, const String& cmd);
+    SshExec(SshSession& session) : SshChannel(session)                                      { ssh->otype = EXEC; };
+};
 
-    SshExec(SshSession& session) : SshChannel(session)                                                  { ssh->otype = EXEC; };
+class Scp : public SshChannel {
+public:
+    bool   SaveFile(const char *path, const String& data);
+    String LoadFile(const char *path);
+    bool   SaveFile(const char *path, Stream& in);
+    bool   LoadFile(Stream& out, const char *path);
+
+    Gate<int64, int64> WhenProgress;
+    
+    Scp(SshSession& session) : SshChannel(session)                                          { ssh->otype = SCP; ssh->init = true; }
 
 private:
-    bool        Init() override                                                                        { return Lock(); }
+    bool   OpenRead(const String& path, ScpAttrs& attrs);
+    bool   OpenWrite(const String& path, int64 size, long mode = 0644);
+    bool   Load(Stream& s, ScpAttrs a, int64 maxsize = INT64_MAX);
+    bool   Save(Stream& s);
 };
 
 class SshTunnel : public SshChannel {
 public:
-    bool        Connect(const String& host, int port);
-    bool        Connect(const String& url);
-    bool        Listen(int port, int listen_count = 5)                                                  { return Listen(Null, port, NULL, listen_count); }
-    bool        Listen(const String& host, int port, int* bound_port, int listen_count = 5);
-    bool        Accept(SshTunnel& listener);
+    bool Connect(const String& host, int port);
+    bool Connect(const String& url);
+    bool Listen(int port, int listen_count = 5)                                             { return Listen(Null, port, nullptr, listen_count); }
+    bool Listen(const String& host, int port, int* bound_port, int listen_count = 5);
+    bool Accept(SshTunnel& listener);
 
-    SshTunnel(SshSession& session) : SshChannel(session)                                                { ssh->otype = TCPTUNNEL; mode = -1; }
-    SshTunnel() : SshChannel()                                                                          {}
+    SshTunnel(SshSession& session) : SshChannel(session)                                    { ssh->otype = TUNNEL; mode = NONE; ssh->init = true; }
+    virtual ~SshTunnel()                                                                    { Exit(); }
+
+    SshTunnel(SshTunnel&&) = default;
+    SshTunnel& operator=(SshTunnel&&) = default;
 
 private:
-    bool         Init() override                                                                        { return true; }
-    void         Validate();
-    int mode;
+    void Exit() override;
+    bool IsValid();
+
+    int  mode;
+    One<LIBSSH2_LISTENER*>  listener;
+
+    enum Modes { NONE, CONNECT, LISTEN, ACCEPT };
 };
+
 
 class SshShell : public SshChannel {
 public:
@@ -199,7 +128,7 @@ public:
     bool        Console(const String& terminal)                                                         { return Run(CONSOLE, terminal, GetConsolePageSize()); }
 
     SshShell&   ForwardX11(const String& host = Null, int display = 0, int screen = 0, int bufsize = 1024 * 1024);
-    bool        AcceptX11(SshX11Connection* x11conn);
+    bool        AcceptX11(SshX11Handle xhandle);
 
     void        Send(int c)                     { queue.Cat(c);   }
     void        Send(const char* s)             { Send(String(s));}
@@ -211,9 +140,6 @@ public:
 
     Event<>                  WhenInput;
     Event<const void*, int>  WhenOutput;
-
-    static AsyncWork<void> AsyncRun(SshSession& session, String terminal, Size pagesize,
-                                        Event<SshShell&> in, Event<const String&> out);
 
     SshShell(SshSession& session);
     virtual ~SshShell();
@@ -237,8 +163,6 @@ protected:
     enum Modes { GENERIC, CONSOLE };
 
 private:
-    bool    Init() override                                                                        { return Lock(); }
-
     String  queue;
     Size    psize;
     int     mode;
@@ -256,6 +180,6 @@ private:
     String  xhost;
     Buffer<char> xbuffer;
     int          xbuflen;
-    Vector<Tuple<SshX11Connection*, SOCKET>> xrequests;
+    Vector<Tuple<SshX11Handle, SOCKET>> xrequests;
 #endif
 };

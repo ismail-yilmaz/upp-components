@@ -56,10 +56,9 @@ private:
 public:
     template<class Function, class... Args>
     bool    Do(Function&& f, Args&&... args)            { return worker && worker->Start(f, args...); }
-    void    Finish()                                    { ASSERT(worker); worker->v.Wait(); }
     bool    IsFinished() const                          { return !worker || !worker->v.Is(JobWorker::WORKING);  }
     void    Cancel()                                    { ASSERT(worker); worker->v.Cancel(); }
-    static bool IsCancelled()                           { return JobWorker::IsCanceled(); }
+    static bool IsCanceled()                            { return JobWorker::IsCanceled(); }
     T       Get()                                       { ASSERT(worker); return worker->Get(); }
     T       operator~()                                 { return Get(); }
     Job()                                               { worker.Create(); }

@@ -17,57 +17,48 @@ ic][3 _][*@3;3 Ssh]&]
 [s0;#l288;%% This class encapsulates a secure shell (version 2) client 
 session. It is responsible for establishing, authenticating, 
 and managing a cryptographically secured shell session on an 
-SSH2 compliant server. SshSession class is derived from Ssh base 
-class, and has pick semantics.&]
+SSH2 compliant server. SshSession class is derived from [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Base`_en`-us`#Upp`:`:Ssh`:`:class^ S
+sh] base class, and has pick semantics.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
 [s5;:Upp`:`:SshSession`:`:Timeout`(int`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* Timeout]([@(0.0.255) int]_[*@3 ms])&]
 [s2;%% Sets timeout value in miliseconds. Setting the timeout value 
-to 0 puts the SshSession object into non`-blocking mode (same 
-as NonBlocking(true)). Returns `*this for methods chaining. Note 
-that ssh subsystems and channels inherit their default timeout 
-values from their session.&]
+to Null puts the SshSession object into blocking mode. Returns 
+`*this for method chaining. Note that ssh subsystems and channels 
+inherit their default timeout values from their session.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:NonBlocking`(bool`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
-]_[* NonBlocking]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%% Activates or deactivates non`-blocking mode. Default is blocking 
-mode. Returns `*this for methods chaining.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SshSession`:`:WaitStep`(int`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
-]_[* WaitStep]([@(0.0.255) int]_[*@3 ms])&]
-[s2;%% Sets the periodicity of calling [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:WhenWait^ W
-henWait] in millisecond between calls. Default value is 10ms 
-(100hz). Returns `*this for method chaining. Note that ssh subsystems 
-and channels inherit their default waitstep values from their 
-session.&]
+[s5;:Upp`:`:SshSession`:`:HashType`(Hash`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
+]_[* HashType](Hash_[*@3 h])&]
+[s2;%% Sets the requested hash type for server fingerprint. Can be 
+[C HASH`_MD5 ]or [C HASH`_SHA1]. SHA1 is the default hash algorithm. 
+Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,bool`): [_^Upp`:`:SshSession^ S
 shSession][@(0.0.255) `&]_[* Keys]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 prikey], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 pubkey], 
-[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 phrase]_`=_Null, 
+[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 phrase], 
 [@(0.0.255) bool]_[*@3 fromfile]_`=_[@(0.0.255) true])&]
 [s2;%% Sets the asymmetric encryption keys to be used to authenticate 
 the session. [%-*@3 phrase] can be used to decipher the private 
-key. If phrase is not specified, supplied password will be used 
-instead. Returns `*this for methods chaining. Note that when 
-the [%-*@3 fromfile] parameter is true, [%-*@3 prikey] and [%-*@3 pubkey] 
-strings will be treated as file paths to the respective key files. 
-This is the default behaviour. Otherwise they will be treated 
-as memory buffers containing the actual keys.&]
+key, or it can be empty (not recommended). Returns `*this for 
+method chaining. Note that when the [%-*@3 fromfile] parameter 
+is true, [%-*@3 prikey] and [%-*@3 pubkey] strings will be treated 
+as file paths to the respective key files. This is the default 
+behaviour. Otherwise they will be treated as memory buffers containing 
+the actual keys.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Method`(int`,Upp`:`:Value`): [_^Upp`:`:SshSession^ SshSession
 ][@(0.0.255) `&]_[* Method]([@(0.0.255) int]_[*@3 type], [_^Upp`:`:Value^ Value]_[*@3 method])
 &]
-[s2;%% Sets preferred transport method for the method [%-*@3 type]. 
-Transport [%-*@3 method] .parameter may contain a single method, 
+[s2;%% Sets the preferred transport method for the method [%-*@3 type]. 
+Transport [%-*@3 method ]parameter may contain a single method, 
 or a list of methods, with the most preferred method listed as 
-first and the least preferred as last. Returns `*this for methods 
+first and the least preferred as last. Returns `*this for method 
 chaining.&]
 [s3;%% &]
 [s4; &]
@@ -77,43 +68,44 @@ chaining.&]
 key`-value pairs, where keys represent possible method types, 
 and values represent a single or multiple transport method(s), 
 with the most preferred listed as first and the least preferred 
-as last. Returns `*this for methods chaining.&]
+as last. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:PasswordAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* PasswordAuth]()&]
 [s2;%% Sets the authentication method to basic password authentication. 
-Returns `*this for methods chaining.&]
+Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:PublicKeyAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* PublicKeyAuth]()&]
 [s2;%% Sets the authentication method to public key authentication. 
-Returns `*this for methods chaining.&]
+Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:HostBasedAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* HostBasedAuth]()&]
 [s2;%% Sets the authentication method to host based authentication. 
-Returns `*this for methods chaining.&]
+Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:KeyboardAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* KeyboardAuth]()&]
 [s2;%% Sets the authentication method to keyboard`-interactive (challenge/response) 
-authentication. Returns `*this for methods chaining.&]
+authentication. Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:AgentAuth`(`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&]_
 [* AgentAuth]()&]
 [s2;%% Enables using an ssh`-agent for authentication. Returns this 
-for methods chaining. This method requires public and private 
+for method chaining. This method requires public and private 
 keys to be present.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetHandle`(`): [_^LIBSSH2`_SESSION^ LIBSSH2`_SESSION][@(0.0.255) `*
 ]_[* GetHandle]()&]
-[s2; Returns the libssh2 session handle on success, NULL on failure.&]
+[s2; Returns a pointer to the libssh2 session handle on success, 
+NULL on failure.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetBanner`(`)const: [_^Upp`:`:String^ String]_[* GetBanner]()_[@(0.0.255) c
@@ -124,7 +116,10 @@ onst]&]
 [s5;:Upp`:`:SshSession`:`:GetFingerprint`(`)const: [_^Upp`:`:String^ String]_[* GetFinger
 print]()_[@(0.0.255) const]&]
 [s2;%% Returns the computed digest of the server`'s host key (in 
-raw bytes) on success, or an empty String on failure.&]
+raw bytes) on success, or an empty String on failure (e.g. requested 
+hash algorithm might not be available). Hash type can be set 
+using the [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:HashType`(Hash`)^ H
+ashType()] method.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetSocket`(`): [_^Upp`:`:TcpSocket^ TcpSocket][@(0.0.255) `&]_[* G
@@ -165,8 +160,8 @@ hannel]()&]
 [s2;%% Creates an scp channel instance.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:CreateTcpTunnel`(`): [_^Upp`:`:SshTunnel^ SshTunnel]_[* CreateT
-cpTunnel]()&]
+[s5;:Upp`:`:SshSession`:`:CreateTunnel`(`): [_^Upp`:`:SshTunnel^ SshTunnel]_[* CreateTunn
+el]()&]
 [s2;%% Creates a tcp`-ip and port forwarding channel instance.&]
 [s3; &]
 [s4; &]
@@ -195,15 +190,6 @@ Returns true on success.&]
 [s2;%% Disconnects from the SSH2 server.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:WhenWait: [_^Upp`:`:Event^ Event]<>_[* WhenWait]&]
-[s2;%% If this event is defined, it is invoked periodically while 
-the ssh client performs any socket operations, with the frequency 
-of 100Hz. This is intended to give user feedback in interactive 
-applications. Note that all ssh channels privately has a similar 
-callback defined and redirect their calls to their session`'s 
-WhenWait callback.&]
-[s3; &]
-[s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenConfig: [_^Upp`:`:Event^ Event]<>_[* WhenConfig]&]
 [s2;%% This event is emitted at the beginning of the protocol handshake 
 phase to allow user to query or set the transport methods.&]
@@ -215,10 +201,20 @@ authentication phase to allow user to query or set the authentication
 method(s)&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:WhenVerify: [_^Upp`:`:Gate^ Gate]<>_[* WhenVerify]&]
+[s5;:Upp`:`:SshSession`:`:WhenPhase: [_^Upp`:`:Event^ Event]<[@(0.0.255) int]>_[* WhenPhase
+]&]
+[s2;%% This event is invoked at certain phases of connection process, 
+and is meant to be informational. Possible values of its parameter 
+are: [*C PHASE`_DNS, PHASE`_CONNECTION, PHASE`_HANDSHAKE, PHASE`_AUTHORIZATION, 
+PHASE`_SUCCESS]&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:SshSession`:`:WhenVerify: [_^Upp`:`:Gate^ Gate]<[_^Upp`:`:String^ String], 
+[@(0.0.255) int]>_[* WhenVerify]&]
 [s0;l288;%% This gate is invoked after a successful protocol handshake 
 to allow user to verify the host against a list of known (trusted) 
-hosts. Returning false halts the connection process.&]
+hosts. Passes the target hostname and port number as its parameters. 
+Returning false halts the connection process.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:WhenProxy: [_^Upp`:`:Gate^ Gate]<>_[* WhenProxy]&]
@@ -228,11 +224,10 @@ party `-`"plug`-in`" network proxy adapters on`-demand. Returning
 false halts the connection process.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:SshSession`:`:WhenX11: [_^Upp`:`:Event^ Event]<SshX11Request[@(0.0.255) `*]>_
-[* WhenX11]&]
+[s5;:Upp`:`:SshSession`:`:WhenX11: [_^Upp`:`:Event^ Event]<SshX11Handle>_[* WhenX11]&]
 [s6; POSIX only. Requires a running X server.&]
 [s2;%% This event will forward the X11 connections to the SshShell 
-instances that accept X11 requests. See [^topic`:`/`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ S
+instances that accept X11 requests. See [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ S
 shShell].&]
 [s3; &]
 [s4; &]
