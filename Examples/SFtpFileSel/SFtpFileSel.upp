@@ -1,0 +1,12 @@
+description "Demonstrates the file selector integration of SFtp class\377";
+
+uses
+	CtrlLib,
+	Core/SSH;
+
+file
+	SFtpFileSel.cpp;
+
+mainconfig
+	"" = "GUI";
+
