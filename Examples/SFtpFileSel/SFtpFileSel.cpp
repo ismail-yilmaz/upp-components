@@ -3,9 +3,9 @@
 
 using namespace Upp;
 
-// SFtpFileSelInfo:
-// This example demonstrates the FileSel integration of SFtp class,
-// using the FileSystemInfo interface.
+// SFtpFileSel:
+// This example demonstrates FileSel integration of SFtp class,
+// using FileSystemInfo interface.
 
 GUI_APP_MAIN
 {
@@ -19,9 +19,9 @@ GUI_APP_MAIN
 	bool refresh_gui = true; // FileSel refreshes its file list on every single GUI event.
 	                         // In most cases this is not possible for an sftp connection,
 	                         // because of the network latency. This switch is a workaround
-	                         // for this particular problem, and allows calls to sftp to be
-	                         // in sync with FileSel requests at the cost of a minimal GUI lag
-	                         // in FileSel.
+	                         // for this particular problem, and allows the calls to the sftp
+	                         // subsystem to be in sync with FileSel requests at the cost of a
+	                         // minimal GUI lag in FileSel.
 
 	SshSession session;
 	session.WhenPhase = [&refresh_gui, &pi] (int phase) {
@@ -50,7 +50,7 @@ GUI_APP_MAIN
 			break;
 		}
 	};
-	session.WhenWait = [&refresh_gui, &pi] { if(refresh_gui) pi.ProcessEvent(); };
+	session.WhenWait = [&refresh_gui, &pi] { if(refresh_gui) pi.ProcessEvents(); };
 	if(session.Timeout(30000).Connect(url)) {
 		SFtp sftp(session);
 		SFtpFileSystemInfo sfsi(sftp);
@@ -61,7 +61,6 @@ GUI_APP_MAIN
 			pi.Reset();
 			refresh_gui = true;
 			String path = fsel.Get();
-			sftp.WhenWait = [&pi] { pi.ProcessEvent(); };
 			sftp.WhenProgress = [&pi] (int64 done, int64 total)
 			{
 				pi.SetText(

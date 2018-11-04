@@ -1,4 +1,4 @@
-description "Demonstrates the file selector integration of SFtp class\377";
+description "Demonstrates FileSel integration of SFtp class, using FileSystemInfo interface.\377";
 
 uses
 	CtrlLib,
