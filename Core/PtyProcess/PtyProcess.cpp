@@ -1,5 +1,8 @@
 #include "PtyProcess.h"
 
+// Note: This code is a modification of U++/LocalProcess.
+// Credits should go to U++ team.
+
 namespace Upp {
 
 #define LLOG(x)	// RLOG(x)
