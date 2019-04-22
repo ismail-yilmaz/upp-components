@@ -18,6 +18,7 @@ public:
     Vector<String>  GetParameters() const           { return Split(parameters, ';', false); }
     String          GetIntermediate() const         { return intermediate; }
     int             GetTerminator() const           { return fin; }
+    int				GetMode() const					{ return flag;}
     
     bool            IsEsc(int c) const              { return c == 0x1b; }
     bool            IsCsi(int c) const              { return c == 0x5b || c == 0x9b; }
@@ -48,10 +49,13 @@ protected:
     
     int             ctl;
     int             fin;
+    int             flag;
     Type            type;
     Mode            mode;
     String          parameters;
     String          intermediate;
+    bool			malformed;
+    Event<int>      output;
     
     Type            GetType(int c);
     virtual void    ParseCsi(int c);

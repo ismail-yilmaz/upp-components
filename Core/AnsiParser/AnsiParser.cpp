@@ -5,8 +5,10 @@ void AnsiParser::Reset()
 {
 	ctl   = -1;
 	fin   = -1;
-	mode  = Mode::PLAIN;
-	type  = Type::PARAMETER;
+	flag  =  0;
+	mode   = Mode::PLAIN;
+	type   = Type::PARAMETER;
+	malformed    = false;
 	parameters   = Null;
 	intermediate = Null;
 }
@@ -26,26 +28,26 @@ auto AnsiParser::GetType(int c) -> Type
 
 void AnsiParser::Parse0(Stream& in, Event<int>&& out, bool utf8)
 {
+	output = pick(out);
 	while(!in.IsEof()) {
 		auto c = utf8 ? in.GetUtf8() : in.Get();
-		if(c < 0)
-			break;
-		c = Parse(c);
-		if(c != -1)
-			out(c);
+		if(c > 0) {
+			c = Parse(c);
+			if(c != -1)
+				output(c);
+		}
 	}
-	if(in.IsError())
-		throw Error(in.GetErrorText());
+	if(in.IsError()) {
+		Reset();
+	}
 }
 
 int AnsiParser::Parse(int c)
 {
 	switch(mode) {
 		case Mode::PLAIN:
-			if(!IsEsc(c)) {
-			
+			if(!IsEsc(c))
 				return c;
-			}
 			mode = Mode::ESCAPE;
 			break;
 		case Mode::ESCAPE:
@@ -73,26 +75,25 @@ int AnsiParser::Parse(int c)
 
 void AnsiParser::ParseCsi(int c)
 {
+	type = GetType(c);
+	
 	switch(type) {
 		case Type::PARAMETER:
-			if(IsParameter(c)) {
-				parameters.Cat(c);
+				if(c >= 0x3c && c <= 0x3f)
+					flag = c;
+				else parameters.Cat(c);
 				break;
-			}
-			type = Type::INTERMEDIATE;
 		case Type::INTERMEDIATE:
-			if(IsIntermediate(c)) {
 				intermediate.Cat(c);
 				break;
-			}
-			type = Type::ALPHABETIC;
 		case Type::ALPHABETIC:
-			if(IsAlphabetic(c)) {
 				fin = c;
 				WhenCsi();
 				Reset();
 				break;
-			}
+		case Type::CONTROL:
+			output(c);
+			break;
 		default:
 			Reset();
 			throw Error("Malformed command sequence.");
