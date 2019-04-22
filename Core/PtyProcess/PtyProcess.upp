@@ -1,0 +1,14 @@
+description "A pseudo-terminal process implementation\377";
+
+uses
+	Core;
+
+file
+	PtyProcess.h,
+	PtyProcess.cpp,
+	Docs readonly separator,
+	src.tpp;
+
+mainconfig
+	"" = "";
+
