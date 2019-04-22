@@ -83,18 +83,18 @@ to specify the new current directory for the process.&]
 [s2;%% Default constructor.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const char`*`): [* PtyProcess]([@(0.0.255) c
-onst]_[@(0.0.255) char]_`*[*@3 cmdline], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 env]_`=
-_nullptr)&]
-[s2;%% Constructor. Calls Start method with the given [%-*@3 cmdline] 
-and [%-*@3 env].&]
+[s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const char`*`,const char`*`): [* Pt
+yProcess]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], [@(0.0.255) const]_[@(0.0.255) c
+har]_`*[*@3 env]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
+[s2;%%  Constructor. Calls Start method with the given [%-*@3 cmdline], 
+[%-*@3 env], and [%-*@3 cd].&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const Upp`:`:Vector`<Upp`:`:String`>`*`,const char`*`): [* P
+[s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const Upp`:`:Vector`<Upp`:`:String`>`*`,const char`*`,const char`*`): [* P
 tyProcess]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmd], [@(0.0.255) const]_[_^Upp`:`:Vector^ V
 ector]<[_^Upp`:`:String^ String]>_`*[*@3 args], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 e
-nv]_`=_nullptr)&]
+nv]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
 [s2;%%  Constructor. Calls Start method with the given [%-*@3 cmd], 
-[%-*@3 args ]and [%-*@3 env].&]
+[%-*@3 args], [%-*@3 env], and [%-*@3 cd].&]
 [s3;%% &]
 [s0;%% ]]

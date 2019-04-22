@@ -298,7 +298,7 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 		close(slave);
 
 	if(cd)
-		chdir(cd);
+		(void) chdir(cd);
 	
 	if(env) {
 		Vector<const char*> venv;
