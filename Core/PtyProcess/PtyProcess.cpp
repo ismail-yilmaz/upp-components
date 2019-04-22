@@ -422,7 +422,7 @@ Size PtyProcess::GetSize()
 		b = ioctl(master, TIOCGWINSZ, &wsz) >= 0;
 		if(b) {
 			sz = { wsz.ws_col, wsz.ws_row };
-			LLOG("Pty size feltched: " << sz);
+			LLOG("Pty size fetched: " << sz);
 		}
 	}
 	return b ? sz : Null;
@@ -442,7 +442,7 @@ bool PtyProcess::SetAtrributes(const termios& t)
 
 bool PtyProcess::GetAttributes(termios& t)
 {
-	return master >= 0 && IsRunning() && tcgetattr(slave, &t) >= 0;
+	return master >= 0 && IsRunning() && tcgetattr(master, &t) >= 0;
 }
 #endif
 }
