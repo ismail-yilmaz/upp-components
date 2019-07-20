@@ -1,0 +1,12 @@
+description "Demonstrates a simple virtual terminal emulator example, using Terminal package and PtyProcess on POSIX-compliant systems\377";
+
+uses
+	CtrlLib,
+	Terminal;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+

@@ -1,0 +1,13 @@
+description "Demonstrates a simple SSH terminal example, using the Terminal ctrl as a fron end for Core/SSH package.\377";
+
+uses
+	CtrlLib,
+	Terminal,
+	Core/SSH;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
