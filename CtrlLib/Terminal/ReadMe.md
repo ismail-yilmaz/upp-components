@@ -2,6 +2,7 @@
 # Terminal Package for Ultimate++
 
 *Copyright © 2019, İsmail  Yılmaz*
+
 E-mail: iylmz.iylmz@gmail.com
 
 ![From left to right: Emacs, Lynx, mapscii](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
