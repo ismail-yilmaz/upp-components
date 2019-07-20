@@ -1,11 +1,10 @@
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019, İsmail  Yılmaz*
-
 E-mail: iylmz.iylmz@gmail.com
 
-![From left to right: Emacs, Lynx, mapscii (on Linux)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
-
+![From left to right: Emacs, Lynx, mapscii](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
 ## Introduction
 
 Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
@@ -207,10 +206,9 @@ Here is an xterm compatible terminal emulator in 31 LoC:
 
 Yup, that's all.
 
-And here is the result:
+And here is the result (Lynx web browser running on the Terminal Example (Linux)):
 
-![Lynx web browser running on Terminal Example](../Images/TerminalExample-Screenshot.png)
-
+![Lynx web browser running on the Terminal Example (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TerminalExample-Screenshot.png)
 ---	
 ### Ssh Terminal Example
 
@@ -270,7 +268,9 @@ Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 LoC:
     	SshTerminalExample().Run();
     }
 
-![On the left is PuTTY, and on the right is Ssh Terminal Example (on Windows) ](../Images/SSTerminalExample-Screenshot.png)
+The result is (On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)):
+
+![On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSTerminalExample-Screenshot.png)
 
 ## To Do
 There is always room for improvement and new features.
