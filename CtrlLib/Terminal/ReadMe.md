@@ -4,7 +4,7 @@
 
 E-mail: iylmz.iylmz@gmail.com
 
-![From left to right: Emacs, Lynx web browser and mapscii (on Linux) ](CtrlLib/Images/Terminal-Screenshot-1.png)
+![From left to right: Emacs, Lynx, mapscii (on Linux)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
 
 ## Introduction
 
@@ -209,7 +209,7 @@ Yup, that's all.
 
 And here is the result:
 
-![Lynx web browser running on Terminal Example](CtrlLib/Images/TerminalExample-Screenshot.png)
+![Lynx web browser running on Terminal Example](../Images/TerminalExample-Screenshot.png)
 
 ---	
 ### Ssh Terminal Example
@@ -270,7 +270,7 @@ Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 LoC:
     	SshTerminalExample().Run();
     }
 
-![On the left is PuTTY, and on the right is Ssh Terminal Example (on Windows) ](CtrlLib/Images/SSTerminalExample-Screenshot.png)
+![On the left is PuTTY, and on the right is Ssh Terminal Example (on Windows) ](../Images/SSTerminalExample-Screenshot.png)
 
 ## To Do
 There is always room for improvement and new features.
