@@ -26,7 +26,7 @@ As a result, Terminal package and its Terminal ctrl are not bound by any platfor
 This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal with no code modification required on Windows and Linux. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
- A fully-fledged terminal emulation requires less than 50 LoC. In fact, the first basic example provided with the package is only a single file with 31 LoC, and it can run complex/heavy applications such as GNU Emacs, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section)
+ A fully-fledged terminal emulation requires less than 50 LoC. In fact, the first basic example provided with the package is only a single file with 31 LoC, and it can run complex/heavy applications such as GNU Emacs, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
 - **Terminal package combines simplicity with configurability.** 
 Although it is easy to use and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
 - **Terminal widget is a regular ctrl.**
