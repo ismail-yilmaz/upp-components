@@ -34,7 +34,7 @@ It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing b
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
 
 - **Terminal widget can also run inside a web browser such as Firefox and Chromium, or their derivatives.**
-  Thanks to Ultimate++ team, it is possible to use the U++ applications inside a web browser that supports canvas, using a  thin HTML5 client called Turtle.
+  Thanks to Ultimate++ team, it is possible to run U++ GUI applications from within a web browser that supports HTML-5 canvas and websockets. And Terminal package is no exception. Applications using Terminal ctrl can basically turn into a remote terminal that can be accessed via any decent web browser (even from a smartphone!) if compiled with the TURTLE flag. See the *Examples* section.
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
 ## Features
@@ -271,6 +271,86 @@ Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 LoC:
 The result is (On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)):
 
 ![On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSTerminalExample-Screenshot.png)
+---
+### Terminal in a Web Browser Example
+
+Now some cool stuff.
+Turtle package allows any U++ GUI app to be accessed via decent web browser. To demonstrate this point we'll use the Terminal Example above.
+A few lines of code will turn it into a remote terminal:
+
+	#include <Terminal/Terminal.h>
+	#include <Terminal/PtyProcess.h>
+	using namespace Upp;
+
+	const char *nixshell = "/bin/bash";
+
+	struct TerminalExample : TopWindow {
+		Terminal  term;
+		PtyProcess pty;			// This class is completely optional
+
+		TerminalExample()
+		{
+			SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
+			Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+
+			term.WhenBell   = [=]()			{ BeepExclamation(); };
+			term.WhenTitle  = [=](String s)	{ Title(s);	};
+			term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
+			term.WhenOutput = [=](String s)	{ PutGet(s); };
+
+			SetTimeCallback(-1, [=] { PutGet(); });
+			pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
+		}
+
+		void PutGet(String out = Null)
+		{
+			term.CheckWriteUtf8(pty.Get());
+			pty.Write(out);
+			if(!pty.IsRunning())
+				Break();
+		}
+	};
+
+	void Main()
+	{
+		TerminalExample().Run();
+	}
+
+	#ifdef flagTURTLE
+	CONSOLE_APP_MAIN
+	{
+		StdLogSetup(LOG_COUT|LOG_FILE);
+
+		MemoryLimitKb(100000000);
+		Ctrl::host = "localhost";
+		Ctrl::port = 8888;
+		Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
+
+	#ifdef _DEBUG
+		Ctrl::debugmode = true;		// Only single session in debug (no forking)
+	#endif
+
+	#ifndef _DEBUG
+
+	#endif
+
+		if(Ctrl::StartSession()) {
+			Main();
+			Ctrl::EndSession();
+		}
+
+		LOG("Session Finished");
+	}
+	#else
+	GUI_APP_MAIN
+	{
+		Main();
+	}
+	#endif
+
+The result is "browserception": Lynx running on Terminal accessed from within Firefox!
+
+![The result is "browserception": Lynx running on Terminal accessed from within Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TerminalExample-Turtle.png)
 
 ## To Do
 There is always room for improvement and new features.
