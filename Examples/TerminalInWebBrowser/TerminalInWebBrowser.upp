@@ -1,0 +1,14 @@
+description "Demonstrates the usage of Terminal package with TURTLE (Thin HTML5 client)\377";
+
+uses
+	CtrlLib,
+	Turtle,
+	Terminal;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI",
+	"" = "TURTLE";
+
