@@ -38,8 +38,8 @@ Console::ControlId Console::FindControlId(byte ctl, byte level, bool& refresh)
         VT_CTL(VT,          0x0B,   NOREFRESH, LEVEL_0),
         VT_CTL(FF,          0x0C,   NOREFRESH, LEVEL_0),
         VT_CTL(CR,          0x0D,   NOREFRESH, LEVEL_0),
-        VT_CTL(LSI,         0x0E,   NOREFRESH, LEVEL_0),
-        VT_CTL(LSO,         0x0F,   NOREFRESH, LEVEL_0),
+        VT_CTL(LS1,         0x0E,   NOREFRESH, LEVEL_0),
+        VT_CTL(LS0,         0x0F,   NOREFRESH, LEVEL_0),
         VT_CTL(XON,         0x11,   NOREFRESH, LEVEL_0),
         VT_CTL(XOFF,        0x13,   NOREFRESH, LEVEL_0),
         VT_CTL(DEL,         0x7F,   NOREFRESH, LEVEL_0),
@@ -47,8 +47,8 @@ Console::ControlId Console::FindControlId(byte ctl, byte level, bool& refresh)
         VT_CTL(NEL,         0x85,   DOREFRESH, LEVEL_0),
         VT_CTL(HTS,         0x88,   NOREFRESH, LEVEL_0),
         VT_CTL(RI,          0x8D,   DOREFRESH, LEVEL_0),
-        VT_CTL(SS2,         0x8E,   NOREFRESH, LEVEL_0),
-        VT_CTL(SS3,         0x8F,   NOREFRESH, LEVEL_0),
+        VT_CTL(SS2,         0x8E,   NOREFRESH, LEVEL_2),
+        VT_CTL(SS3,         0x8F,   NOREFRESH, LEVEL_2),
         VT_CTL(SPA,         0x96,   NOREFRESH, LEVEL_0),
         VT_CTL(EPA,         0x97,   NOREFRESH, LEVEL_0),
         VT_CTL(DECID,       0x9A,   NOREFRESH, LEVEL_0),
@@ -105,11 +105,11 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
 {
     BEGIN_VT_SEQUENCES(vtsequences)
         // Escape sequences
-        VT_ESC(DECBI,           '6', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Back index
+        VT_ESC(DECBI,           '6', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Back index
         VT_ESC(DECSC,           '7', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Save cursor
         VT_ESC(DECRC,           '8', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Restore cursor
         VT_ESC(DECALN,          '8', 0x00, '#',  DOREFRESH, LEVEL_1),   // Display alignment test
-        VT_ESC(DECFI,           '9', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Forward index
+        VT_ESC(DECFI,           '9', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Forward index
         VT_ESC(S7C1T,           'F', 0x00, ' ',  NOREFRESH, LEVEL_2),   // 7-bits mode
         VT_ESC(S8C1T,           'G', 0x00, ' ',  NOREFRESH, LEVEL_2),   // 8-bits mode.
         VT_ESC(ANSICL1,         'L', 0x00, ' ',  NOREFRESH, LEVEL_2),   // Select ANSI conformance level 1
@@ -124,35 +124,35 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_ESC(LS2R,            '}', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Locking-shift 2, GR
         VT_ESC(LS1R,            '~', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Locking-shift 1, GR
         // SCS specific escape sequences
-        VT_ESC(SCS_G0_DEC_DCS,  '0', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_DEC_DCS,  '0', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
-        VT_ESC(SCS_G2_DEC_DCS,  '0', 0x00, '*',  NOREFRESH, LEVEL_2),   // Select charset G2
-        VT_ESC(SCS_G3_DEC_DCS,  '0', 0x00, '+',  NOREFRESH, LEVEL_2),   // Select charset G3
-        VT_ESC(SCS_G0_DEC_ACS,  '1', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_DEC_ACS,  '1', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
-        VT_ESC(SCS_G0_DEC_ACS,  '2', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_DEC_ACS,  '2', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
+        VT_ESC(SCS_G0_DEC_DCS,  '0', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke DEC Line-drawing charset into G0
+        VT_ESC(SCS_G1_DEC_DCS,  '0', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke DEC Line-drawing charset into G1
+        VT_ESC(SCS_G2_DEC_DCS,  '0', 0x00, '*',  NOREFRESH, LEVEL_2),   // Invoke DEC Line-drawing charset into G2
+        VT_ESC(SCS_G3_DEC_DCS,  '0', 0x00, '+',  NOREFRESH, LEVEL_2),   // Invoke DEC Line-drawing charset into G3
+        VT_ESC(SCS_G0_DEC_ACS,  '1', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke DEC standard ROM charset into G0 (stubbed)
+        VT_ESC(SCS_G1_DEC_ACS,  '1', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke DEC standard ROM charset into G1 (stubbed)
+        VT_ESC(SCS_G0_DEC_ACS,  '2', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke DEC alternate ROM charset into G0 (stubbed)
+        VT_ESC(SCS_G1_DEC_ACS,  '2', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke DEC alternate ROM charset into G1 (stubbed)
         VT_ESC(SCS_DEFAULT,     '@', 0x00, '%',  NOREFRESH, LEVEL_3),   // Select default charset
-        VT_ESC(SCS_G0_ASCII,    'A', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_ASCII,    'A', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
-        VT_ESC(SCS_G2_ASCII,    'A', 0x00, '*',  NOREFRESH, LEVEL_2),   // Select charset G2
-        VT_ESC(SCS_G3_ASCII,    'A', 0x00, '+',  NOREFRESH, LEVEL_2),   // Select charset G3
-        VT_ESC(SCS_G1_LATIN1,   'A', 0x00, '-',  NOREFRESH, LEVEL_3),   // Select charset G0
-        VT_ESC(SCS_G2_LATIN1,   'A', 0x00, '.',  NOREFRESH, LEVEL_3),   // Select charset G2
-        VT_ESC(SCS_G3_LATIN1,   'A', 0x00, '/',  NOREFRESH, LEVEL_3),   // Select charset G3
-        VT_ESC(SCS_G0_ASCII,    'B', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_ASCII,    'B', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
-        VT_ESC(SCS_G2_ASCII,    'B', 0x00, '*',  NOREFRESH, LEVEL_2),   // Select charset G2
-        VT_ESC(SCS_G3_ASCII,    'B', 0x00, '+',  NOREFRESH, LEVEL_2),   // Select charset G3
-        VT_ESC(SCS_UTF8,        'G', 0x00, '%',  NOREFRESH, LEVEL_3),   // Select UTF-8
-        VT_ESC(SCS_G0_DEC_MCS,  '<', 0x00, '(',  NOREFRESH, LEVEL_1),   // Select charset G0
-        VT_ESC(SCS_G1_DEC_MCS,  '<', 0x00, ')',  NOREFRESH, LEVEL_1),   // Select charset G1
-        VT_ESC(SCS_G2_DEC_MCS,  '<', 0x00, '*',  NOREFRESH, LEVEL_2),   // Select charset G2
-        VT_ESC(SCS_G3_DEC_MCS,  '<', 0x00, '+',  NOREFRESH, LEVEL_2),   // Select charset G3
-        VT_ESC(SCS_G0_DEC_TCS,  '>', 0x00, '(',  NOREFRESH, LEVEL_3),   // Select charset G0
-        VT_ESC(SCS_G1_DEC_TCS,  '>', 0x00, ')',  NOREFRESH, LEVEL_3),   // Select charset G1
-        VT_ESC(SCS_G2_DEC_TCS,  '>', 0x00, '*',  NOREFRESH, LEVEL_3),   // Select charset G2
-        VT_ESC(SCS_G3_DEC_TCS,  '>', 0x00, '+',  NOREFRESH, LEVEL_3),   // Select charset G3
+        VT_ESC(SCS_G0_ASCII,    'A', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke EN-GB charset into G0 (stubbed)
+        VT_ESC(SCS_G1_ASCII,    'A', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke EN-GB charset into G1 (stubbed)
+        VT_ESC(SCS_G2_ASCII,    'A', 0x00, '*',  NOREFRESH, LEVEL_2),   // Invoke EN-GB charset into G2 (stubbed)
+        VT_ESC(SCS_G3_ASCII,    'A', 0x00, '+',  NOREFRESH, LEVEL_2),   // Invoke EN-GB charset into G3 (stubbed)
+        VT_ESC(SCS_G1_LATIN1,   'A', 0x00, '-',  NOREFRESH, LEVEL_3),   // Invoke DEC/ISO Latin-1 charset into G1
+        VT_ESC(SCS_G2_LATIN1,   'A', 0x00, '.',  NOREFRESH, LEVEL_3),   // Invoke DEC/ISO Latin-1 charset into G2
+        VT_ESC(SCS_G3_LATIN1,   'A', 0x00, '/',  NOREFRESH, LEVEL_3),   // Invoke DEC/ISO Latin-1 charset into G3
+        VT_ESC(SCS_G0_ASCII,    'B', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke US-ASCII charset into G0
+        VT_ESC(SCS_G1_ASCII,    'B', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke US-ASCII charset into G1
+        VT_ESC(SCS_G2_ASCII,    'B', 0x00, '*',  NOREFRESH, LEVEL_2),   // Invoke US-ASCII charset into G2
+        VT_ESC(SCS_G3_ASCII,    'B', 0x00, '+',  NOREFRESH, LEVEL_2),   // Invoke US-ASCII charset into G3
+        VT_ESC(SCS_UTF8,        'G', 0x00, '%',  NOREFRESH, LEVEL_3),   // Select UTF-8 charset
+        VT_ESC(SCS_G0_DEC_MCS,  '<', 0x00, '(',  NOREFRESH, LEVEL_2),   // Invoke DEC supplemental charset into G0
+        VT_ESC(SCS_G1_DEC_MCS,  '<', 0x00, ')',  NOREFRESH, LEVEL_2),   // Invoke DEC supplemental charset into G1
+        VT_ESC(SCS_G2_DEC_MCS,  '<', 0x00, '*',  NOREFRESH, LEVEL_2),   // Invoke DEC supplemental charset into G2
+        VT_ESC(SCS_G3_DEC_MCS,  '<', 0x00, '+',  NOREFRESH, LEVEL_2),   // Invoke DEC supplemental charset into G3
+        VT_ESC(SCS_G0_DEC_TCS,  '>', 0x00, '(',  NOREFRESH, LEVEL_3),   // Invoke DEC technical charset into G0
+        VT_ESC(SCS_G1_DEC_TCS,  '>', 0x00, ')',  NOREFRESH, LEVEL_3),   // Invoke DEC technical charset into G1
+        VT_ESC(SCS_G2_DEC_TCS,  '>', 0x00, '*',  NOREFRESH, LEVEL_3),   // Invoke DEC technical charset into G2
+        VT_ESC(SCS_G3_DEC_TCS,  '>', 0x00, '+',  NOREFRESH, LEVEL_3),   // Invoke DEC technical charset into G3
         // VT52 specific escape sequences
         VT_ESC(VT52_CUU,        'A', 0x00, 0x00, NOREFRESH, LEVEL_0),   // Move upward
         VT_ESC(VT52_CUD,        'B', 0x00, 0x00, NOREFRESH, LEVEL_0),   // Move downward
@@ -187,8 +187,8 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(IL,              'L', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Insert line
         VT_CSI(DL,              'M', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Remove line
         VT_CSI(DCH,             'P', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Delete character
-        VT_CSI(SU,              'S', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll up
-        VT_CSI(SD,              'T', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll down
+        VT_CSI(SU,              'S', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Scroll up
+        VT_CSI(SD,              'T', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Scroll down
         VT_CSI(ECH,             'X', 0x00, 0x00, DOREFRESH, LEVEL_2),   // Erase character
         VT_CSI(CBT,             'Z', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Cursor backward tabulation
         VT_CSI(ECH,             '^', 0x00, 0x00, NOREFRESH, LEVEL_3),   // FIXME
@@ -225,15 +225,15 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECCRA,          'v', 0x00, '$',  DOREFRESH, LEVEL_4),   // Copy rectangular area.
         VT_CSI(DECREQTPARM,     'x', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Request terminal parameters
         VT_CSI(DECFRA,          'x', 0x00, '$',  DOREFRESH, LEVEL_4),   // Fill rectangular area
-        VT_CSI(DECSACE,         'x', 0x00, '*',  NOREFRESH, LEVEL_4),   // Select rectaangular area attribute change extent.
+        VT_CSI(DECSACE,         'x', 0x00, '*',  NOREFRESH, LEVEL_4),   // Select rectangular area attribute change extent.
         VT_CSI(DECTST,          'y', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Device confidence tests
         VT_CSI(DECRQCRA,        'y', 0x00, '*',  NOREFRESH, LEVEL_4),   // Request rectangular area checksum
         VT_CSI(DECERA,          'z', 0x00, '$',  DOREFRESH, LEVEL_4),   // Erase rectangular area
         VT_CSI(DECSERA,         '{', 0x00, '$',  DOREFRESH, LEVEL_4),   // Selectively erase rectangular area
-        VT_CSI(DECIC,           '}', 0x00, '\'', DOREFRESH, LEVEL_3),   // Insert column
-        VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_3),   // Delete column
+        VT_CSI(DECIC,           '}', 0x00, '\'', DOREFRESH, LEVEL_4),   // Insert column
+        VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_4),   // Delete column
         // Device control strings
-        VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_4),   // Request status string
+        VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_4),   // Request control function status strings
         VT_DCS(DECUDK,          '|', 0x00, 0x00, NOREFRESH, LEVEL_2)    // Set user-defined keys
     END_VT_SEQUENCES;
     
@@ -299,7 +299,7 @@ int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(DECARM,     8,      '?',    NOREFRESH, LEVEL_1),    // Autorepeat mode
         VT_MODE(DECTCEM,    25,     '?',    DOREFRESH, LEVEL_2),    // Show/hide caret
         VT_MODE(DECBKM,     67,     '?',    NOREFRESH, LEVEL_3),    // Send backspace when backarrow key is pressed.
-        VT_MODE(DECLRMM,    69,     '?',    NOREFRESH, LEVEL_3),    // Enable/disable horizontal margins
+        VT_MODE(DECLRMM,    69,     '?',    NOREFRESH, LEVEL_4),    // Enable/disable horizontal margins
         // Private mode extensions
         VT_MODE(XTX10MM,    9,      '?',    NOREFRESH, LEVEL_1),    // X10 mouse button tracking mode (compat.)
         VT_MODE(XTASBM,     47,     '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 1)

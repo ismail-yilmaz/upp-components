@@ -244,13 +244,6 @@ void Console::DECtcem(bool b)
 	LDUMP(DECTCEM);
 }
 
-void Console::DECst8c(bool b)
-{
-	modes.Set(DECST8C, b);
-	if(b) page->SetTabs(8);
-	LDUMP(DECST8C);
-}
-
 void Console::DEClrmm(bool b)
 {
 	modes.Set(DECLRMM, b);

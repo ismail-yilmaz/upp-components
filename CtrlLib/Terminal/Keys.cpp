@@ -162,7 +162,7 @@ bool Terminal::UDKey(dword key, int count)
 	String s;
 	bool b = GetUDKString(userkey, s);
 	if(b && !IsNull(s))
-		Put(s, count);
+		Console::Put(s, count);
 	return b;
 }
 
@@ -253,7 +253,7 @@ bool Terminal::Key(dword key, int count)
 	case K_CTRL_PERIOD:
 	case K_CTRL_EQUAL:
 	case K_CTRL_APOSTROPHE:
-		Put(key & 0x1F);
+		Console::Put(key & 0x1F);
 		break;
 	case K_ALT_KEY:
 	case K_CTRL_KEY:
@@ -263,7 +263,7 @@ bool Terminal::Key(dword key, int count)
 		PutEol();
 		break;
 	case K_BACKSPACE:
-		Put(modes[DECBKM] ? key : 0x7F, count);
+		Console::Put(modes[DECBKM] ? key : 0x7F, count);
 		break;
 	default:
 		if(UDKey(key, count))
@@ -281,7 +281,7 @@ bool Terminal::Key(dword key, int count)
 			return false;
 		else
 		if(key < 32)
-			Put(key, count);
+			Console::Put(key, count);
 		else {
 			const Charsets& chrsets = GetCharsets();
 			byte chrset = chrsets.Get(key, IsLevel2());
@@ -292,7 +292,7 @@ bool Terminal::Key(dword key, int count)
 			else {
 				int c = ConvertToCharset(key, chrset);
 				if(c != DEFAULTCHAR) {
-					Put(c, count);
+					Console::Put(c, count);
 					break;
 				}
 			}

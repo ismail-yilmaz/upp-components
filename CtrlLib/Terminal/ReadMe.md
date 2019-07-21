@@ -1,4 +1,3 @@
-
 # Terminal Package for Ultimate++
 
 *Copyright © 2019, İsmail  Yılmaz*

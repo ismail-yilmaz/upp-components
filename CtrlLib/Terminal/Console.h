@@ -303,7 +303,6 @@ protected:
         DECOM,
         DECSCLM,
         DECSCNM,
-        DECST8C,
         DECTCEM,
         XTASBM,
         XTASCM,
@@ -345,7 +344,6 @@ private:
     void            DECom(bool b);
     void            DECsclm(bool b);
     void            DECscnm(bool b);
-    void            DECst8c(bool b);
     void            DECtcem(bool b);
 
     // Private mode extensions.
@@ -374,8 +372,8 @@ private:
         VT,
         FF,
         CR,
-        LSO,
-        LSI,
+        LS0,
+        LS1,
         XON,
         XOFF,
         DEL,
@@ -418,13 +416,10 @@ private:
         DECCARA,
         DECDC,
         DECCRA,
-        DECDHL,
-        DECDWL,
         DECERA,
         DECFI,
         DECFRA,
         DECIC,
-        DECID,
         DECKPAM,
         DECKPNM,
         DECLL,
@@ -444,10 +439,8 @@ private:
         DECSEL,
         DECSLRM,
         DECSERA,
-        DECST8C,
         DECSTBM,
         DECSTR,
-        DECSWL,
         DECTST,
         DECUDK,
         DECXCPR,

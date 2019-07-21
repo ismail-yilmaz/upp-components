@@ -37,10 +37,10 @@ void Console::ParseControlChars(byte c)
 	case ControlId::CR:
 		modes[LNM] ? page->NewLine() : page->MoveHome();
 		break;
-	case ControlId::LSI:
+	case ControlId::LS1:
 		charsets.G1toGL();
 		break;
-	case ControlId::LSO:
+	case ControlId::LS0:
 		charsets.G0toGL();
 		break;
 	case ControlId::XON:
