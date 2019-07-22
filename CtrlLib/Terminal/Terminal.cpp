@@ -221,7 +221,7 @@ Tuple<String, Rect> Terminal::GetSizeHint(Rect r, Size sz)
 
 void Terminal::RefreshSizeHint()
 {
-	Refresh(GetSizeHint(GetRect(), GetPageSize()).b.Inflated(8));
+	Refresh(GetSizeHint(GetView(), GetPageSize()).b.Inflated(8));
 }
 
 void Terminal::SyncSb()
@@ -265,7 +265,7 @@ void Terminal::RefreshPage(bool full)
 void Terminal::RefreshDisplay()
 {
 	Size wsz = GetSize();
-	Size psz = page->GetSize();
+	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	int	 pos = GetSbPos();
 	int blinking_cells = 0;
@@ -395,7 +395,7 @@ void Terminal::RightUp(Point p, dword keyflags)
 
 void Terminal::MouseMove(Point p, dword keyflags)
 {
-	Rect r = GetRect();
+	Rect r = GetView();
 	p = clamp(p, r.TopLeft(), r.BottomRight());
 	
 	bool b = HasCapture();

@@ -56,16 +56,10 @@ CONSOLE_APP_MAIN
 #ifdef _DEBUG
 	Ctrl::debugmode = true;				// Only single session in debug (no forking)
 #endif
-
-#ifndef _DEBUG
-	
-#endif
-
 	if(Ctrl::StartSession()) {
 		Main();
 		Ctrl::EndSession();
 	}
-
 	LOG("Session Finished");
 }
 #else

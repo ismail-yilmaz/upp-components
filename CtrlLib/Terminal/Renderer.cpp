@@ -153,7 +153,7 @@ void Terminal::Paint(Draw& w)
 
 		// Hint new size.
 		if(sizehint && hinting) {
-			auto hint = GetSizeHint(GetRect(), psz);
+			auto hint = GetSizeHint(GetView(), psz);
 			DrawFrame(w ,hint.b.Inflated(8), LtGray);
 			w.DrawRect(hint.b.Inflated(7), SColorText);
 			w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
