@@ -322,6 +322,8 @@ void Terminal::LostFocus()
 {
 	if(modes[XTFOCUSM])
 		PutCSI('O');
+	if(HasCapture())
+		ReleaseCapture();
 	Refresh();
 }
 
