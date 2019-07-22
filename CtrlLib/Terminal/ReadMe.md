@@ -151,10 +151,13 @@ This is the virtual terminal emulation ctrl. It is responsible for painting the 
 VTInStream, VTCell, VTPage, Console, and Upp/Core	
 
 ## Examples
-As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 2 basic examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 3 basic examples are provided with the package:
 
 1 TerminalExample
+
 2 SshTerminalExample
+
+3 TerminalInABrowser
 
 ### Terminal Example
 
