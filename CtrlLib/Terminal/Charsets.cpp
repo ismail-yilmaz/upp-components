@@ -91,7 +91,7 @@ static word CHRTAB_DEC_TECHNICAL[128] = {	// VT300+
 
 INITIALIZER(DECCharsets)
 {
-	LOG("Initializing DEC-specific charsets...");
+	LLOG("Initializing DEC-specific charsets...");
 
 	CHARSET_DEC_VT52 = AddCharSet("dec-vt52", CHRTAB_DEC_VT52_GRAPHICS);
 	CHARSET_DEC_DCS  = AddCharSet("dec-dcs", CHRTAB_DEC_LINEDRAWING);

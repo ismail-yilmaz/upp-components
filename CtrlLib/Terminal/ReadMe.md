@@ -25,7 +25,7 @@ As a result, Terminal package and its Terminal ctrl are not bound by any platfor
 This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal with no code modification required on Windows and Linux. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
- A fully-fledged terminal emulation requires less than 50 LoC. In fact, the first basic example provided with the package is only a single file with 31 LoC, and it can run complex/heavy applications such as GNU Emacs, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
+ A fully-fledged terminal emulation requires less than s50 LoC. In fact, the first basic example provided with the package is only a single file with 31 sLoC, and it can run complex/heavy applications such as GNU Emacs, vim, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
 - **Terminal package combines simplicity with configurability.** 
 Although it is easy to use and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
 - **Terminal widget is a regular ctrl.**
@@ -34,7 +34,7 @@ It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing b
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
 
 - **Terminal widget can also run inside a web browser such as Firefox and Chromium, or their derivatives.**
-  Thanks to Ultimate++ team, it is possible to run U++ GUI applications from within a web browser that supports HTML-5 canvas and websockets. And Terminal package is no exception. Applications using Terminal ctrl can basically turn into a remote terminal that can be accessed via any decent web browser (even from a smartphone!) if compiled with the TURTLE flag. See the *Examples* section.
+  Thanks to Ultimate++ team, it is possible to run U++ GUI applications from within a web browser that supports HTML-5 canvas and websockets. And Terminal package is no exception. Applications using Terminal ctrl can basically turn into a remote terminal that can be accessed via any decent web browser (even from a smartphone!) if compiled with the TURTLE flag. (See the *Examples* section).
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
 ## Features
@@ -151,13 +151,15 @@ This is the virtual terminal emulation ctrl. It is responsible for painting the 
 VTInStream, VTCell, VTPage, Console, and Upp/Core	
 
 ## Examples
-As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 3 basic examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 4 basic examples are provided with the package:
 
 1 TerminalExample
 
 2 SshTerminalExample
 
 3 TerminalInABrowser
+
+4 TerminalMultiplexingExample
 
 ### Terminal Example
 
@@ -217,7 +219,7 @@ And here is the result (Lynx web browser running on the Terminal Example (Linux)
 
 This example demonstrates the basic usage of, and interaction between, Terminal and SshShell classes. It also exemplifies the first point put forth in the *Highlights* section, since Core/SSH package can run on Windows, Linux and MacOS.
 
-Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 LoC:
+Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 sLoC:
 	
 	
 
@@ -271,7 +273,7 @@ Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 LoC:
     	SshTerminalExample().Run();
     }
 
-The result is (On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)):
+On the left is PuTTY and on the right is Ssh Terminal Example (on Windows):
 
 ![On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSTerminalExample-Screenshot.png)
 ---
@@ -332,16 +334,10 @@ A few lines of code will turn it into a remote terminal:
 	#ifdef _DEBUG
 		Ctrl::debugmode = true;		// Only single session in debug (no forking)
 	#endif
-
-	#ifndef _DEBUG
-
-	#endif
-
 		if(Ctrl::StartSession()) {
 			Main();
 			Ctrl::EndSession();
 		}
-
 		LOG("Session Finished");
 	}
 	#else
@@ -357,7 +353,7 @@ The result is "browserception": Lynx running on Terminal accessed from within Fi
 
 ### Terminal Multiplexing Example
 
-As it is already mentioned in the Highlights section, Terminal widget is a regular ctrl: It follows the ingenious design of the Ultimate++ ctrl library as closely as possible. This example demonstrates how a terminal multiplexing can be achieved simply by using a splitter widget. Splitter is a container ctrl that can be used to split any parent ctrl into resizeable horizontal and/or vertical panes. It also demonstrates the usage of NTL containers with Terminal widget:
+As it is already mentioned in the *Highlights* section, Terminal widget is a regular ctrl: It follows the ingenious design of the Ultimate++ ctrl library as closely as possible. This example demonstrates how a terminal multiplexing can be achieved simply by using a splitter widget. Splitter is a container ctrl that can be used to split any parent ctrl into resizeable horizontal and/or vertical panes. It also demonstrates the usage of NTL containers with Terminal widget:
 
 	#include <Terminal/Terminal.h>
 	#include <Terminal/PtyProcess.h>
@@ -366,7 +362,7 @@ As it is already mentioned in the Highlights section, Terminal widget is a regul
 	// It uses PtyProcess, therefore it is currently POSIX-only.
 	
 	const char *nixshell = "/bin/bash";
-	const int  PANECOUNT = 2;						// You can increase the number of panes if you like.
+	const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
 	
 	using namespace Upp;
 	
@@ -389,9 +385,8 @@ As it is already mentioned in the Highlights section, Terminal widget is a regul
 	
 	class TerminalMultiplexerExample : public TopWindow {
 		Splitter splitter;
-		Array<TerminalPane> terminals;				// Let's dynamically create the TerminalPane instances.
+		Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
 	public:
-		
 		void SetupSplitter()
 		{
 			Add(splitter.Horz());
