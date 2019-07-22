@@ -434,6 +434,8 @@ As it is already mentioned in the Highlights section, Terminal widget is a regul
 
 Here is the result: On the left is htop, and on the right is GNU nano running on Terminal Multiplexing Example (Linux)
 
+![On the left is htop, and on the right is GNU nano running on Terminal Multiplexing Example (Linux)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Multiplexer.png)
+
 - *P.s. The two Terminal panes in the above screenshot do not have to share any configuration.
 For example one can have a Courier (16) font,and the other can have Liberation Mono (8) at the same time. This is also true for their color settings and other properties.*
 
