@@ -1,0 +1,12 @@
+description "Demonstrates a basic terminal multiplexer, using Terminal package.\377";
+
+uses
+	CtrlLib,
+	Terminal;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
