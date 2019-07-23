@@ -71,9 +71,6 @@ void Console::ParseControlChars(byte c)
 	case ControlId::EPA:
 		ProtectAttributes(false);
 		break;
-	case ControlId::DECID:
-		// Noop
-		break;
 	case ControlId::ST:
 		break;
 	default:

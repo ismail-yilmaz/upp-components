@@ -190,6 +190,6 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 				index += 8;
 
 	c = colortable[index];	// Adjust only the first 16 colors,
-	return adjustcolors ? AdjustIfDark(c) : c;
+	return (adjustcolors && IsDarkTheme()) ? AdjustIfDark(c) : c;
 }
 }
