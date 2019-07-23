@@ -53,8 +53,8 @@ public:
 		SetupSplitter();
 		OpenMain();
 		while(IsOpen() && !terminals.IsEmpty()) {
-			ProcessEvents();
 			for(int i = 0; i < terminals.GetCount(); i++) {
+				ProcessEvents();
 				TerminalPane& pane = terminals[i];
 				if(!pane.Do()) {
 					RemovePane(i, pane);
