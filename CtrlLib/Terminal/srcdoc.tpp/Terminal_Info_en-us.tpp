@@ -144,7 +144,7 @@ emulation modes.&]
 [s5;i150;O0; Supports both 7`-bits and 8`-bits I/O.&]
 [s5;i150;O0; Supports Unicode/UTF8.&]
 [s5;i150;O0; Supports user configurable, legacy “g`-set” (G0/G1/G2/G3), 
-and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R).&]
+and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).&]
 [s5;i150;O0; Supports ANSI conformance levels.&]
 [s5;i150;O0; Supports various terminal state, device, and mode reports.&]
 [s5;i150;O0; Supports DEC VT52 graphics charset, VT1xx line`-drawing 

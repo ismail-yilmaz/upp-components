@@ -29,30 +29,30 @@ namespace Upp {
 Console::ControlId Console::FindControlId(byte ctl, byte level, bool& refresh)
 {
     BEGIN_VT_CTL(vtcbytes)
-        VT_CTL(NUL,         0x00,   NOREFRESH, LEVEL_0),
-        VT_CTL(ENQ,         0x05,   NOREFRESH, LEVEL_0),
-        VT_CTL(BEL,         0x07,   NOREFRESH, LEVEL_0),
-        VT_CTL(BS,          0x08,   NOREFRESH, LEVEL_0),
-        VT_CTL(HT,          0x09,   NOREFRESH, LEVEL_0),
-        VT_CTL(LF,          0x0A,   NOREFRESH, LEVEL_0),
-        VT_CTL(VT,          0x0B,   NOREFRESH, LEVEL_0),
-        VT_CTL(FF,          0x0C,   NOREFRESH, LEVEL_0),
-        VT_CTL(CR,          0x0D,   NOREFRESH, LEVEL_0),
-        VT_CTL(LS1,         0x0E,   NOREFRESH, LEVEL_0),
-        VT_CTL(LS0,         0x0F,   NOREFRESH, LEVEL_0),
-        VT_CTL(XON,         0x11,   NOREFRESH, LEVEL_0),
-        VT_CTL(XOFF,        0x13,   NOREFRESH, LEVEL_0),
-        VT_CTL(DEL,         0x7F,   NOREFRESH, LEVEL_0),
-        VT_CTL(IND,         0x84,   DOREFRESH, LEVEL_0),
-        VT_CTL(NEL,         0x85,   DOREFRESH, LEVEL_0),
-        VT_CTL(HTS,         0x88,   NOREFRESH, LEVEL_0),
-        VT_CTL(RI,          0x8D,   DOREFRESH, LEVEL_0),
-        VT_CTL(SS2,         0x8E,   NOREFRESH, LEVEL_2),
-        VT_CTL(SS3,         0x8F,   NOREFRESH, LEVEL_2),
-        VT_CTL(SPA,         0x96,   NOREFRESH, LEVEL_0),
-        VT_CTL(EPA,         0x97,   NOREFRESH, LEVEL_0),
-        VT_CTL(DECID,       0x9A,   NOREFRESH, LEVEL_0),
-        VT_CTL(ST,          0x9C,   NOREFRESH, LEVEL_0)
+        VT_CTL(NUL,         0x00,   NOREFRESH, LEVEL_0),	// Ignored
+        VT_CTL(ENQ,         0x05,   NOREFRESH, LEVEL_0),	// Terminal status request
+        VT_CTL(BEL,         0x07,   NOREFRESH, LEVEL_0),	// Audio or visual bell
+        VT_CTL(BS,          0x08,   NOREFRESH, LEVEL_0),	// Backspace
+        VT_CTL(HT,          0x09,   NOREFRESH, LEVEL_0),	// Horizontal tab. Move the cursor to next tab stop
+        VT_CTL(LF,          0x0A,   NOREFRESH, LEVEL_0),	// Line feed
+        VT_CTL(VT,          0x0B,   NOREFRESH, LEVEL_0),	// Vertical tab (treated as LF)
+        VT_CTL(FF,          0x0C,   NOREFRESH, LEVEL_0),	// Form feed (treated as LF)
+        VT_CTL(CR,          0x0D,   NOREFRESH, LEVEL_0),	// Carriage return
+        VT_CTL(LS1,         0x0E,   NOREFRESH, LEVEL_1),	// Invoke and locks G1 into GL
+        VT_CTL(LS0,         0x0F,   NOREFRESH, LEVEL_1),	// Invoke and locks G0 into GL
+        VT_CTL(XON,         0x11,   NOREFRESH, LEVEL_0),	// Resume data transfer
+        VT_CTL(XOFF,        0x13,   NOREFRESH, LEVEL_0),	// Pause data transfer
+        VT_CTL(DEL,         0x7F,   NOREFRESH, LEVEL_0),	// Ignored
+        VT_CTL(IND,         0x84,   DOREFRESH, LEVEL_1),	// Index
+        VT_CTL(NEL,         0x85,   DOREFRESH, LEVEL_1),	// Move to next line
+        VT_CTL(HTS,         0x88,   NOREFRESH, LEVEL_1),	// Sets a tab at the active cursor position
+        VT_CTL(RI,          0x8D,   DOREFRESH, LEVEL_1),	// Reverse index
+        VT_CTL(SS2,         0x8E,   NOREFRESH, LEVEL_1),	// Temporarily invoke G2 to GL
+        VT_CTL(SS3,         0x8F,   NOREFRESH, LEVEL_1),	// Temporarily invoke G3 to GL
+        VT_CTL(SPA,         0x96,   NOREFRESH, LEVEL_2),	// Start of protected area
+        VT_CTL(EPA,         0x97,   NOREFRESH, LEVEL_2),	// End of protected area
+        VT_CTL(DECID,       0x9A,   NOREFRESH, LEVEL_1),	// Report terminal ID
+        VT_CTL(ST,          0x9C,   NOREFRESH, LEVEL_1)		// String terminator
     END_VT_CTL;
 
     const auto *p = vtcbytes.FindPtr(ctl);
@@ -118,11 +118,11 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_ESC(DECKPAM,         '=', 0x00, 0x00, NOREFRESH, LEVEL_0),   // Keypad application mode
         VT_ESC(DECKPNM,         '>', 0x00, 0x00, NOREFRESH, LEVEL_0),   // Keypad mumeric mode
         VT_ESC(RIS,             'c', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Hard reset
-        VT_ESC(LS2,             'n', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Locking-shift 2, GL
-        VT_ESC(LS3,             'o', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Locking-shift 3, GL
-        VT_ESC(LS3R,            '|', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Locking-shift 3, GR
-        VT_ESC(LS2R,            '}', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Locking-shift 2, GR
-        VT_ESC(LS1R,            '~', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Locking-shift 1, GR
+        VT_ESC(LS2,             'n', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Invoke G2 into GL
+        VT_ESC(LS3,             'o', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Invoke G3 into GL
+        VT_ESC(LS3R,            '|', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Invoke G3 into GR
+        VT_ESC(LS2R,            '}', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Invoke G2 into GR
+        VT_ESC(LS1R,            '~', 0x00, 0x00, NOREFRESH, LEVEL_2),   // Invoke G1 into GR
         // SCS specific escape sequences
         VT_ESC(SCS_G0_DEC_DCS,  '0', 0x00, '(',  NOREFRESH, LEVEL_1),   // Invoke DEC Line-drawing charset into G0
         VT_ESC(SCS_G1_DEC_DCS,  '0', 0x00, ')',  NOREFRESH, LEVEL_1),   // Invoke DEC Line-drawing charset into G1
@@ -175,11 +175,11 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(CUD,             'B', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Move downward
         VT_CSI(CUF,             'C', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Move forward
         VT_CSI(CUB,             'D', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Move backward
-        VT_CSI(CNL,             'E', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Move to next line (no scrolling)
-        VT_CSI(CPL,             'F', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Move to prev line )no scrolling)
-        VT_CSI(CHA,             'G', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Cursor horizontal absolute
+        VT_CSI(CNL,             'E', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Move to next line (no scrolling)
+        VT_CSI(CPL,             'F', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Move to prev line )no scrolling)
+        VT_CSI(CHA,             'G', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor horizontal absolute
         VT_CSI(CUP,             'H', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Cursor position
-        VT_CSI(CHT,             'I', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Cursor horizontal tabulation
+        VT_CSI(CHT,             'I', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor horizontal tabulation
         VT_CSI(ED,              'J', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Erase screen
         VT_CSI(DECSED,          'J', '?',  0x00, DOREFRESH, LEVEL_2),   // Selectively erase screen
         VT_CSI(EL,              'K', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Erase line
@@ -187,19 +187,19 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(IL,              'L', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Insert line
         VT_CSI(DL,              'M', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Remove line
         VT_CSI(DCH,             'P', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Delete character
-        VT_CSI(SU,              'S', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Scroll up
-        VT_CSI(SD,              'T', 0x00, 0x00, DOREFRESH, LEVEL_4),   // Scroll down
+        VT_CSI(SU,              'S', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll up
+        VT_CSI(SD,              'T', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll down
         VT_CSI(ECH,             'X', 0x00, 0x00, DOREFRESH, LEVEL_2),   // Erase character
-        VT_CSI(CBT,             'Z', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Cursor backward tabulation
+        VT_CSI(CBT,             'Z', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor backward tabulation
         VT_CSI(ECH,             '^', 0x00, 0x00, NOREFRESH, LEVEL_3),   // FIXME
-        VT_CSI(HPA,             '`', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Horizontal position absolute
-        VT_CSI(HPR,             'a', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Horizontal position relative
+        VT_CSI(HPA,             '`', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Horizontal position absolute
+        VT_CSI(HPR,             'a', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Horizontal position relative
         VT_CSI(REP,             'b', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Repeat last character
         VT_CSI(DA1,             'c', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Send primary device attributes
-        VT_CSI(DA2,             'c', '>',  0x00, NOREFRESH, LEVEL_2),   // Send secondary device attributes
+        VT_CSI(DA2,             'c', '>',  0x00, NOREFRESH, LEVEL_1),   // Send secondary device attributes
         VT_CSI(DA3,             'c', '=',  0x00, NOREFRESH, LEVEL_4),   // Send tertiary device attributes
-        VT_CSI(VPA,             'd', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Vertical position absolute
-        VT_CSI(VPR,             'e', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Vertical position relative
+        VT_CSI(VPA,             'd', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Vertical position absolute
+        VT_CSI(VPR,             'e', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Vertical position relative
         VT_CSI(HVP,             'f', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Cursor horz and vert position
         VT_CSI(TBC,             'g', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Clear tabs
         VT_CSI(SM,              'h', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Set ANSI modes
@@ -216,7 +216,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECRQM,          'p', '?',  '$',  NOREFRESH, LEVEL_2),   // Request private mode
         VT_CSI(DECLL,           'q', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Set programmable LEDs
         VT_CSI(DECSCA,          'q', 0x00, '\"', NOREFRESH, LEVEL_2),   // Set character protection attribute
-        VT_CSI(DECSCUSR,        'q', 0x00, ' ',  DOREFRESH, LEVEL_3),   // Set cursor style
+        VT_CSI(DECSCUSR,        'q', 0x00, ' ',  DOREFRESH, LEVEL_4),   // Set cursor style
         VT_CSI(DECSTBM,         'r', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Set vertical margins
         VT_CSI(DECCARA,         'r', 0x00, '$',  DOREFRESH, LEVEL_4),   // Change attributes in rectangular area
         VT_CSI(DECSLRM,         's', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Set horizontal margins / SCO save cursor

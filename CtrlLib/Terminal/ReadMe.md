@@ -10,6 +10,9 @@ E-mail: iylmz.iylmz@gmail.com
 Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
 
 It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
+
+A short video demonstation of Terminal widget:
+https://vimeo.com/349761874
 	
 ## Requirements
 
@@ -46,7 +49,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports user configurable device conformance levels (1, 2, 3, 4, and 0 as VT52 emulation).
 - Supports both 7-bits and 8-bits I/O.
 - Supports Unicode/UTF8.
-- Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R).
+- Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).
 - Supports ANSI conformance levels.
 - Supports various terminal state, device, and mode reports.
 - Supports DEC VT52 graphics charset, VT1xx line-drawing charset, VT2xx multinational charset, and VT3xx technical charset.

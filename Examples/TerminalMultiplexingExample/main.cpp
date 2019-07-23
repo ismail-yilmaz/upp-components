@@ -5,6 +5,7 @@
 // It uses PtyProcess, therefore it is currently POSIX-only.
 
 const char *nixshell = "/bin/bash";
+const char *fontface = "FreeMono";
 const int  PANECOUNT = 2;						// You can increase the number of panes if you like.
 
 using namespace Upp;
@@ -34,8 +35,14 @@ public:
 	void SetupSplitter()
 	{
 		Add(splitter.Horz());
-		for(int i = 0; i < PANECOUNT; i++)
-			splitter.Add(terminals.Add().SizePos());
+		Font f;
+		for(int i = 0; i < PANECOUNT; i++) {
+			TerminalPane& tp = terminals.Add();
+			tp.SetFont(f.FaceName(fontface).Height(i % 2 ? 12 : 16));
+			if(i % 2)
+				tp.Ink(White()).Paper(Black());
+			splitter.Add(tp);
+		}
 	}
 	
 	void RemovePane(int i, Ctrl& c)
