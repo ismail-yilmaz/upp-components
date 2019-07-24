@@ -547,9 +547,9 @@ Now, let's compile the above multiplexing example with TURTLE flag, and access i
 
 Extra code added to the source is basically the same as in example 3. 
 
-And here is the result: A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox (Linux)!
+And here is the result: A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox! (Linux)
 
-![A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TTerminal-Multiplexer-in-web-browser.png)
+![terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Multiplexer-in-web-browser.png)
 
 
 ## To Do
