@@ -1,8 +1,9 @@
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a barebone terminal multiplexer.
+// This example demonstrates a barebone terminal multiplexer that can be accessed via a web borwser.
 // It uses PtyProcess, therefore it is currently POSIX-only.
+
 
 const char *nixshell = "/bin/bash";
 const int  PANECOUNT = 2;						// You can increase the number of panes if you like.
@@ -66,7 +67,33 @@ public:
 	}
 };
 
-GUI_APP_MAIN
+void Main()
 {
 	TerminalMultiplexerExample().Run();
 }
+
+#ifdef flagTURTLE
+CONSOLE_APP_MAIN
+{
+	StdLogSetup(LOG_COUT|LOG_FILE);
+
+	MemoryLimitKb(100000000);
+	Ctrl::host = "localhost";
+	Ctrl::port = 8888;
+	Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
+
+#ifdef _DEBUG
+	Ctrl::debugmode = true;		// Only single session in debug (no forking)
+#endif
+	if(Ctrl::StartSession()) {
+		Main();
+		Ctrl::EndSession();
+	}
+	LOG("Session Finished");
+}
+#else
+GUI_APP_MAIN
+{
+	Main();
+}
+#endif
