@@ -49,7 +49,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports user configurable device conformance levels (1, 2, 3, 4, and 0 as VT52 emulation).
 - Supports both 7-bits and 8-bits I/O.
 - Supports Unicode/UTF8.
-- Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R).
+- Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).
 - Supports ANSI conformance levels.
 - Supports various terminal state, device, and mode reports.
 - Supports DEC VT52 graphics charset, VT1xx line-drawing charset, VT2xx multinational charset, and VT3xx technical charset.
@@ -154,15 +154,17 @@ This is the virtual terminal emulation ctrl. It is responsible for painting the 
 VTInStream, VTCell, VTPage, Console, and Upp/Core	
 
 ## Examples
-As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 4 basic examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 5 basic examples are provided with the package:
 
 1 TerminalExample
 
 2 SshTerminalExample
 
-3 TerminalInABrowser
+3 TerminalInABrowserExample
 
 4 TerminalMultiplexingExample
+
+5 TerminalMultiplexingInAWebBrowserExample
 
 ### Terminal Example
 
@@ -436,6 +438,119 @@ Here is the result: On the left is htop, and on the right is GNU nano running on
 
 - *P.s. The two Terminal panes in the above screenshot do not have to share any configuration.
 For example one can have a Courier (16) font,and the other can have Liberation Mono (8) at the same time. This is also true for their color settings and other properties.*
+
+
+### Terminal Multiplexing In a Web Browser Example
+
+Now, let's compile the above multiplexing example with TURTLE flag, and access it via a web browser:
+
+	#include <Terminal/Terminal.h>
+	#include <Terminal/PtyProcess.h>
+	
+	// This example demonstrates a barebone terminal multiplexer that can be accessed via a web borwser.
+	// It uses PtyProcess, therefore it is currently POSIX-only.
+	
+	
+	const char *nixshell = "/bin/bash";
+	const int  PANECOUNT = 2;						// You can increase the number of panes if you like.
+	
+	using namespace Upp;
+	
+	struct TerminalPane : Terminal, PtyProcess {
+		TerminalPane()
+		{
+			WhenBell   = [=]()			{ BeepExclamation(); };
+			WhenResize = [=]()			{ PtyProcess::SetSize(GetPageSize()); };
+			WhenOutput = [=](String s)	{ Do(s); };
+			PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
+		};
+		
+		bool Do(String out = Null)
+		{
+			WriteUtf8(PtyProcess::Get());
+			PtyProcess::Write(out);
+			return PtyProcess::IsRunning();
+		}
+	};
+	
+	class TerminalMultiplexerExample : public TopWindow {
+		Splitter splitter;
+		Array<TerminalPane> terminals;				// Let's dynamically create the TerminalPane instances.
+	public:
+		
+		void SetupSplitter()
+		{
+			Add(splitter.Horz());
+			for(int i = 0; i < PANECOUNT; i++)
+				splitter.Add(terminals.Add().SizePos());
+		}
+		
+		void RemovePane(int i, Ctrl& c)
+		{
+			splitter.Remove(c);
+			splitter.RefreshLayoutDeep();
+			terminals.Remove(i);
+		}
+		
+		void Run()
+		{
+			Title(t_("Terminal Multiplexing Example"));
+			SetRect(0, 0, 1024, 600);
+			Sizeable().Zoomable().CenterScreen();
+			SetupSplitter();
+			OpenMain();
+			while(IsOpen() && !terminals.IsEmpty()) {
+				ProcessEvents();
+				for(int i = 0; i < terminals.GetCount(); i++) {
+					TerminalPane& pane = terminals[i];
+					if(!pane.Do()) {
+						RemovePane(i, pane);
+						i--;
+					}
+				}
+				Sleep(1);
+			}
+		}
+	};
+	
+	void Main()
+	{
+		TerminalMultiplexerExample().Run();
+	}
+	
+	#ifdef flagTURTLE
+	CONSOLE_APP_MAIN
+	{
+		StdLogSetup(LOG_COUT|LOG_FILE);
+	
+		MemoryLimitKb(100000000);
+		Ctrl::host = "localhost";
+		Ctrl::port = 8888;
+		Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
+	
+	#ifdef _DEBUG
+		Ctrl::debugmode = true;		// Only single session in debug (no forking)
+	#endif
+		if(Ctrl::StartSession()) {
+			Main();
+			Ctrl::EndSession();
+		}
+		LOG("Session Finished");
+	}
+	#else
+	GUI_APP_MAIN
+	{
+		Main();
+	}
+	#endif
+
+
+Extra code added to the source is basically the same as in example 3. 
+
+And here is the result: A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox (Linux)!
+
+![A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TTerminal-Multiplexer-in-web-browser.png)
+
 
 ## To Do
 There is always room for improvement and new features.
