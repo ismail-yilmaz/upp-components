@@ -15,8 +15,8 @@ class TerminalTab : public Terminal {
 public:
 	TerminalTab()
 	{
-		WhenBell   = [=]			{ BeepExclamation(); };
-		WhenResize = [=]			{ pty.SetSize(GetPageSize()); };
+		WhenBell   = [=]		{ BeepExclamation(); };
+		WhenResize = [=]		{ pty.SetSize(GetPageSize()); };
 		WhenOutput = [=](String s)	{ Do(s);   };
 		pty.Start("/bin/bash", Environment(), GetHomeDirectory());
 	}
