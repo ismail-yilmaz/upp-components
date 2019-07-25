@@ -150,6 +150,9 @@ void Console::ParseCommandSequences(const VTInStream::Sequence& seq)
 	case SequenceId::SCORC:
 		Restore();
 		break;
+	case SequenceId::DECRQPSR:
+		ReportPresentationState(seq);
+		break;
 	case SequenceId::DECREQTPARM:
 		ReportDeviceParameters(seq);
 		break;
@@ -370,6 +373,27 @@ void Console::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 	else
 	if(seq.mode == '=')
 		PutDCS(VTID_UNIT);	// DECREPTUI
+}
+
+void Console::ReportPresentationState(const VTInStream::Sequence& seq)
+{
+	int report = seq.GetInt(1, 0);
+
+	if(report == 1) {	// DECCIR
+		// TODO
+	}
+	else
+	if(report == 2) {	// DECTABSR
+		Vector<int> tabstops;
+		Vector<String> reply;
+
+		page->GetTabs(tabstops);
+
+		for(const auto& t : tabstops)
+			reply.Add(AsString(t));
+
+		PutDCS(Format("2$u%s", Join(reply, "/")));
+	}
 }
 
 void Console::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)

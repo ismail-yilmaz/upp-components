@@ -15,6 +15,9 @@ void Console::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 	case SequenceId::DECRQSS:
 		ReportControlFunctionSettings(seq);
 		break;
+	case SequenceId::DECRSPS:
+		RestorePresentationState(seq);
+		break;
 	case SequenceId::DECUDK:
 		SetUserDefinedKeys(seq);
 		break;
@@ -125,5 +128,27 @@ void Console::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 		reply = Format("%d`$r%[1:1;2]s`*x", 1, streamfill);
 	}
 	PutDCS(reply);
+}
+
+void Console::RestorePresentationState(const VTInStream::Sequence& seq)
+{
+	int which = seq.GetInt(1, 0);
+	
+	if(which == 1) {	// DECCIR
+		// TODO
+	}
+	else
+	if(which == 2) {	// DECTABSR
+		Vector<String> stab = Split(seq.payload, '/');
+
+		page->ClearTabs();
+
+		for(const auto& s : stab) {
+			int pos = StrInt(s);
+			if(pos > 0)
+				page->SetTabAt(pos, true);
+		}
+			
+	}
 }
 }

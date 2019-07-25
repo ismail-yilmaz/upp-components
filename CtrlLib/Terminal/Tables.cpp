@@ -223,6 +223,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECRARA,         't', 0x00, '$',  DOREFRESH, LEVEL_4),   // Reverse attributes in rectangular area
         VT_CSI(SCORC,           'u', 0x00, 0x00, NOREFRESH, LEVEL_3),   // SCO restore cursor
         VT_CSI(DECCRA,          'v', 0x00, '$',  DOREFRESH, LEVEL_4),   // Copy rectangular area.
+        VT_CSI(DECRQPSR,        'w', 0x00, '$',  NOREFRESH, LEVEL_3),   // Request presentation state report
         VT_CSI(DECREQTPARM,     'x', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Request terminal parameters
         VT_CSI(DECFRA,          'x', 0x00, '$',  DOREFRESH, LEVEL_4),   // Fill rectangular area
         VT_CSI(DECSACE,         'x', 0x00, '*',  NOREFRESH, LEVEL_4),   // Select rectangular area attribute change extent.
@@ -234,6 +235,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_4),   // Delete column
         // Device control strings
         VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_4),   // Request control function strings
+        VT_DCS(DECRSPS,         't', 0x00, '$',  NOREFRESH, LEVEL_3),   // Restore presentation state
         VT_DCS(DECUDK,          '|', 0x00, 0x00, NOREFRESH, LEVEL_2)    // Set user-defined keys
     END_VT_SEQUENCES;
     

@@ -140,7 +140,10 @@ private:
     void            ReportDeviceAttributes(const VTInStream::Sequence& seq);
     void            ReportControlFunctionSettings(const VTInStream::Sequence& seq);
     void            ReportRectAreaChecksum(const VTInStream::Sequence &seq);
+	void            ReportPresentationState(const VTInStream::Sequence& seq);
 
+    void			RestorePresentationState(const VTInStream::Sequence& seq);
+    
     void            SelectGraphicsRendition(const VTInStream::Sequence& seq);
     void            SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes);
     void            InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes);
@@ -429,6 +432,8 @@ private:
         DECRQSS,
         DECREQTPARM,
         DECRQCRA,
+        DECRQPSR,
+        DECRSPS,
         DECSACE,
         DECSC,
         DECSCA,

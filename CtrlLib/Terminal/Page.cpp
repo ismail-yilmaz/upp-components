@@ -96,10 +96,17 @@ VTPage& VTPage::SetTabs(int tsz)
 {
 	tabsize = tsz;
 	tabs.Clear();
-	for(int i = 1; i < size.cx; i += tabsize)
+	for(int i = 1; i <= size.cx; i += tabsize)
 		tabs.Set(i, true);
 	tabsync = true;
 	return *this;
+}
+
+void VTPage::GetTabs(Vector<int>& tabstops)
+{
+	for(int i = 1; i <= size.cx; i++)
+		if(IsTabstop(i))
+			tabstops.Add(i);
 }
 
 VTPage& VTPage::EraseLine(dword flags)
