@@ -89,9 +89,9 @@ static word CHRTAB_DEC_TECHNICAL[128] = {	// VT300+
 	0X03BE, 0X03C5, 0X03B6, 0X2190, 0X2191, 0X2192, 0X2193, 0X007F
 };
 
-INITIALIZER(DECCharsets)
+INITIALIZER(DECGSets)
 {
-	LLOG("Initializing DEC-specific charsets...");
+	LLOG("Initializing DEC-specific gsets...");
 
 	CHARSET_DEC_VT52 = AddCharSet("dec-vt52", CHRTAB_DEC_VT52_GRAPHICS);
 	CHARSET_DEC_DCS  = AddCharSet("dec-dcs", CHRTAB_DEC_LINEDRAWING);
@@ -102,54 +102,65 @@ EXITBLOCK
 {
 }
 
-int Console::ConvertToUnicode(int c, byte chrset)
+int Console::ConvertToUnicode(int c, byte gset)
 {
-	chrset = ResolveCharset(chrset);
+	byte cs = ResolveCharset(use_gsets ? gset : charset);
 	
-	if(chrset == CHARSET_UNICODE)
-		return c;
-	if(chrset == CHARSET_TOASCII)
-		return ToAscii(c);
-	c = ToUnicode(c |= 0x80, chrset);
+	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
+	   gset == CHARSET_DEC_TCS ||
+	   gset == CHARSET_DEC_VT52)
+        c = ToUnicode(c | 0x80, gset);
+	else
+	if(cs == CHARSET_TOASCII)
+		c = ToAscii(c);
+	else
+	if(cs != CHARSET_UNICODE)
+		c = ToUnicode(c | (use_gsets ? 0x80 : 0x00), cs);
 	return c != DEFAULTCHAR ? c : 0xFFFD;
 }
 
-int Console::ConvertToCharset(int c, byte chrset)
+int Console::ConvertToCharset(int c, byte gset)
 {
-	chrset = ResolveCharset(chrset);
-
-	if(chrset == CHARSET_UNICODE)
-		return c;
-	if(chrset == CHARSET_TOASCII)
-		return ToAscii(c);
-	return FromUnicode(c, chrset);
+	byte cs = ResolveCharset(use_gsets ? gset : charset);
+	
+	if(gset == CHARSET_DEC_DCS ||
+	   gset == CHARSET_DEC_TCS ||
+	   gset == CHARSET_DEC_VT52)
+	    c = FromUnicode(c | 0x80, gset);
+	else
+	if(cs == CHARSET_TOASCII)
+		c = ToAscii(c);
+	else
+	if(cs != CHARSET_UNICODE)
+		c = FromUnicode(c, cs);
+	return c;
 }
 
 int Console::LookupChar(int c)
 {
 	// Perform single or locking shifts for GL and GR...
 	bool allowgr = IsLevel2();
-	if(allowgr && charsets.GetSS() != 0x00) {
-		switch(charsets.GetSS()) {
+	if(allowgr && gsets.GetSS() != 0x00) {
+		switch(gsets.GetSS()) {
 		case 0x8E: // SS2
-			c = ConvertToUnicode(c, charsets.GetG2());
+			c = ConvertToUnicode(c, gsets.GetG2());
 			break;
 		case 0x8F: // SS3
-			c = ConvertToUnicode(c, charsets.GetG3());
+			c = ConvertToUnicode(c, gsets.GetG3());
 			break;
 		}
-		charsets.SS(0x00);
+		gsets.SS(0x00);
 		return c;
 	}
-	return ConvertToUnicode(c, charsets.Get(c, allowgr));
+	return ConvertToUnicode(c, gsets.Get(c, allowgr));
 }
 
-Console::Charsets::Charsets(byte defcset)
-: Charsets(CHARSET_TOASCII, defcset, defcset, defcset)
+Console::GSets::GSets(byte defgset)
+: GSets(CHARSET_TOASCII, CHARSET_TOASCII, defgset, defgset)
 {
 }
 
-Console::Charsets::Charsets(byte g0, byte g1, byte g2, byte g3)
+Console::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
 {
 	d[0] = g0;
 	d[1] = g1;
@@ -158,7 +169,7 @@ Console::Charsets::Charsets(byte g0, byte g1, byte g2, byte g3)
 	Reset();
 }
 
-void Console::Charsets::ConformtoANSILevel1()
+void Console::GSets::ConformtoANSILevel1()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -168,7 +179,7 @@ void Console::Charsets::ConformtoANSILevel1()
 	
 }
 
-void Console::Charsets::ConformtoANSILevel2()
+void Console::GSets::ConformtoANSILevel2()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -178,14 +189,14 @@ void Console::Charsets::ConformtoANSILevel2()
 
 }
 
-void Console::Charsets::ConformtoANSILevel3()
+void Console::GSets::ConformtoANSILevel3()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
 	G0toGL();
 }
 
-void Console::Charsets::Reset()
+void Console::GSets::Reset()
 {
 	ss = 0;
 	ResetG0();
@@ -196,7 +207,7 @@ void Console::Charsets::Reset()
 	G2toGR();
 }
 
-void Console::Charsets::Serialize(Stream& s)
+void Console::GSets::Serialize(Stream& s)
 {
 	int version = 1;
 	s / version;

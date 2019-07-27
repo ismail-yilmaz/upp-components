@@ -18,7 +18,7 @@ static Point sGetCoords(int pos, Size sz) // 1D -> 2D
 Terminal::Terminal() : Console()
 {
 	Unicode();
-	SetCharset(CHARSET_UNICODE);
+	NoLegacyCharsets();
 	SetFrame(FieldFrame());
 	History();
 	ResetColors();
@@ -41,11 +41,6 @@ void Terminal::PostParse()
 {
 	if(!delayed)
 		RefreshDisplay();
-}
-
-void Terminal::SetCharset(byte chrset)
-{
-	SetCharsets((charset = ResolveCharset(chrset)));
 }
 
 Size Terminal::GetFontSize() const
@@ -678,7 +673,6 @@ void Terminal::Serialize(Stream& s)
 	s / version;
 	if(version >= 1) {
 		s % font;
-		s % charset;
 		s % delayed;
 		s % lazyresize;
 		s % sizehint;

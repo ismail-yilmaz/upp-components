@@ -6,10 +6,12 @@ namespace Upp {
 
 Console::Console()
 : page(&dpage),
+  use_gsets(true),
   streamfill(false)
 {
 	SetLevel(LEVEL_4);
 	Set8BitsMode(false);
+	SetCharset(CHARSET_UNICODE);
 	parser.WhenChr = THISFN(PutChar);
 	parser.WhenCtl = THISFN(ParseControlChars);
 	parser.WhenEsc = THISFN(ParseEscapeSequences);
@@ -47,12 +49,12 @@ void Console::Reset(bool full)
 		Put(0x13);	// XOFF
 		dpage.Reset();
 		apage.Reset();
-		charsets_backup.Reset();
+		gsets_backup.Reset();
 		cellattrs_backup = Null;
 		dpage.WhenScroll();
 	}
 
-	charsets.Reset();
+	gsets.Reset();
 
 	cellattrs.Reset();
 
@@ -63,6 +65,7 @@ void Console::Reset(bool full)
 	modes.Set(SRM);
 	modes.Set(DECTCEM);
 	modes.Set(DECANM);
+	modes.Set(DECAWM);
 
 	dpage.SetTabs(8);
 	dpage.OriginMode(false);
@@ -87,8 +90,8 @@ void Console::Backup(bool tpage, bool csets, bool attrs)
 	if(attrs)
 		cellattrs_backup = cellattrs;
 	if(csets) {
-		charsets_backup  = charsets;
-		charsets.Reset();
+		gsets_backup  = gsets;
+		gsets.Reset();
 	}
 }
 
@@ -101,8 +104,8 @@ void Console::Restore(bool tpage, bool csets, bool attrs)
 		cellattrs_backup = Null;
 	}
 	if(csets) {
-		charsets = charsets_backup;
-		charsets_backup.Reset();
+		gsets = gsets_backup;
+		gsets_backup.Reset();
 	}
 }
 
@@ -366,7 +369,9 @@ void Console::Serialize(Stream& s)
 		s % eightbits;
 		s % dpage;
 		s % apage;
-		s % charsets;
+		s % charset;
+		s % gsets;
+		s % use_gsets;
 		s % udkenabled;
 		s % caret;
 		for(int i = 0; i < 21; i++)

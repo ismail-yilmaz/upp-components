@@ -53,106 +53,106 @@ void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		HardReset();
 		break;
 	case SequenceId::ANSICL1:
-		charsets.ConformtoANSILevel1();
+		gsets.ConformtoANSILevel1();
 		break;
 	case SequenceId::ANSICL2:
-		charsets.ConformtoANSILevel2();
+		gsets.ConformtoANSILevel2();
 		break;
 	case SequenceId::ANSICL3:
-		charsets.ConformtoANSILevel3();
+		gsets.ConformtoANSILevel3();
 		break;
 	case SequenceId::LS2:
-		charsets.G2toGL();
+		gsets.G2toGL();
 		break;
 	case SequenceId::LS3:
-		charsets.G3toGL();
+		gsets.G3toGL();
 		break;
 	case SequenceId::LS3R:
-		charsets.G3toGR();
+		gsets.G3toGR();
 		break;
 	case SequenceId::LS2R:
-		charsets.G2toGR();
+		gsets.G2toGR();
 		break;
 	case SequenceId::LS1R:
-		charsets.G1toGR();
+		gsets.G1toGR();
 		break;
 	case SequenceId::SCS_G0_ASCII:
-		charsets.ResetG0();
+		gsets.ResetG0();
 		break;
 	case SequenceId::SCS_G1_ASCII:
-		charsets.ResetG1();
+		gsets.ResetG1();
 		break;
 	case SequenceId::SCS_G2_ASCII:
-		charsets.ResetG2();
+		gsets.ResetG2();
 		break;
 	case SequenceId::SCS_G3_ASCII:
-		charsets.ResetG3();
+		gsets.ResetG3();
 		break;
 	case SequenceId::SCS_G1_LATIN1:
-		charsets.G1(CHARSET_ISO8859_1);
+		gsets.G1(CHARSET_ISO8859_1);
 		break;
 	case SequenceId::SCS_G2_LATIN1:
-		charsets.G3(CHARSET_ISO8859_1);
+		gsets.G3(CHARSET_ISO8859_1);
 		break;
 	case SequenceId::SCS_G3_LATIN1:
-		charsets.G3(CHARSET_ISO8859_1);
+		gsets.G3(CHARSET_ISO8859_1);
 		break;
 	case SequenceId::SCS_G0_DEC_ACS:
-		charsets.G0(CHARSET_TOASCII);
+		gsets.G0(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G1_DEC_ACS:
-		charsets.G0(CHARSET_TOASCII);
+		gsets.G0(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G0_DEC_DCS:
-		charsets.G0(CHARSET_DEC_DCS);
+		gsets.G0(CHARSET_DEC_DCS);
 		break;
 	case SequenceId::SCS_G1_DEC_DCS:
-		charsets.G1(CHARSET_DEC_DCS);
+		gsets.G1(CHARSET_DEC_DCS);
 		break;
 	case SequenceId::SCS_G2_DEC_DCS:
-		charsets.G2(CHARSET_DEC_DCS);
+		gsets.G2(CHARSET_DEC_DCS);
 		break;
 	case SequenceId::SCS_G3_DEC_DCS:
-		charsets.G3(CHARSET_DEC_DCS);
+		gsets.G3(CHARSET_DEC_DCS);
 		break;
 	case SequenceId::SCS_G0_DEC_MCS:
-		charsets.G0(CHARSET_DEC_MCS);
+		gsets.G0(CHARSET_DEC_MCS);
 		break;
 	case SequenceId::SCS_G1_DEC_MCS:
-		charsets.G1(CHARSET_DEC_MCS);
+		gsets.G1(CHARSET_DEC_MCS);
 		break;
 	case SequenceId::SCS_G2_DEC_MCS:
-		charsets.G2(CHARSET_DEC_MCS);
+		gsets.G2(CHARSET_DEC_MCS);
 		break;
 	case SequenceId::SCS_G3_DEC_MCS:
-		charsets.G3(CHARSET_DEC_MCS);
+		gsets.G3(CHARSET_DEC_MCS);
 		break;
 	case SequenceId::SCS_G0_DEC_TCS:
-		charsets.G0(CHARSET_DEC_TCS);
+		gsets.G0(CHARSET_DEC_TCS);
 		break;
 	case SequenceId::SCS_G1_DEC_TCS:
-		charsets.G1(CHARSET_DEC_TCS);
+		gsets.G1(CHARSET_DEC_TCS);
 		break;
 	case SequenceId::SCS_G2_DEC_TCS:
-		charsets.G2(CHARSET_DEC_TCS);
+		gsets.G2(CHARSET_DEC_TCS);
 		break;
 	case SequenceId::SCS_G3_DEC_TCS:
-		charsets.G3(CHARSET_DEC_TCS);
+		gsets.G3(CHARSET_DEC_TCS);
 		break;
 	case SequenceId::SCS_UTF8:
-		charsets.G0(CHARSET_UNICODE);
-		charsets.G1(CHARSET_UNICODE);
-		charsets.G2(CHARSET_UNICODE);
-		charsets.G3(CHARSET_UNICODE);
+		gsets.G0(CHARSET_UNICODE);
+		gsets.G1(CHARSET_UNICODE);
+		gsets.G2(CHARSET_UNICODE);
+		gsets.G3(CHARSET_UNICODE);
 		break;
 	case SequenceId::SCS_DEFAULT:
-		charsets.Reset();
+		gsets.Reset();
 		break;
 	case SequenceId::VT52_DCS_ON:
-		charsets.G0(CHARSET_DEC_VT52);
+		gsets.G0(CHARSET_DEC_VT52);
 		break;
 	case SequenceId::VT52_DCS_OFF:
-		charsets.ResetG0();
+		gsets.ResetG0();
 		break;
 	case SequenceId::VT52_CUU:
 		page->MoveUp();

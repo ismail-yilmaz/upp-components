@@ -38,10 +38,10 @@ void Console::ParseControlChars(byte c)
 		modes[LNM] ? page->NewLine() : page->MoveHome();
 		break;
 	case ControlId::LS1:
-		charsets.G1toGL();
+		gsets.G1toGL();
 		break;
 	case ControlId::LS0:
-		charsets.G0toGL();
+		gsets.G0toGL();
 		break;
 	case ControlId::XON:
 		break;
@@ -63,7 +63,7 @@ void Console::ParseControlChars(byte c)
 		break;
 	case ControlId::SS2:
 	case ControlId::SS3:
-		charsets.SS(c);
+		gsets.SS(c);
 		break;
 	case ControlId::SPA:
 		ProtectAttributes(true);

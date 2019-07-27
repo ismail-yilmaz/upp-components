@@ -64,19 +64,6 @@ to [%-*@3 sz]. Default is 1024 lines. Returns `*this for method
 chaining.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:Terminal`:`:SetCharset`(Upp`:`:byte`): [@(0.0.255) void]_[* SetCharset]([_^Upp`:`:byte^ b
-yte]_[*@3 chrset])&]
-[s2;%% Sets the character set of the Terminal ctlr to [%-*@3 chrset]. 
-Note that this method also calls Console`::SetCharsets to set 
-the g`-set slots (g1, g2, g3) to [%-*@3 chrset]. Terminal uses 
-unicode by default.&]
-[s3;%% &]
-[s4; &]
-[s5;:Upp`:`:Terminal`:`:GetCharset`(`)const: [_^Upp`:`:byte^ byte]_[* GetCharset]()_[@(0.0.255) c
-onst]&]
-[s2;%% Returns the current charset.&]
-[s3; &]
-[s4; &]
 [s5;:Upp`:`:Terminal`:`:SetFont`(Upp`:`:Font`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SetFont]([_^Upp`:`:Font^ Font]_[*@3 f])&]
 [s2;%% Sets the font to [%-*@3 f]. This method also refreshes the ctrl`'s 

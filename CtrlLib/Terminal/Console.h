@@ -41,7 +41,7 @@ public:
     Event<String>    WhenTitle;
     Event<String>    WhenOutput;
     Event<bool>      When132Column;
-
+    
     void            Write(const void *data, int size, bool utf8 = true);
     void            Write(const String& s, bool utf8)       { Write(~s, s.GetLength(), utf8); }
     inline void     WriteUtf8(const String& s)              { Write(s, true);         }
@@ -107,7 +107,7 @@ protected:
     void            PutSS3(const String& s, int cnt = 1);
     void            PutSS3(int c, int cnt = 1);
     void            PutEol();
-    
+
     void            Flush();
     void            CancelOut()                             { out.Clear(); }
 
@@ -140,10 +140,10 @@ private:
     void            ReportDeviceAttributes(const VTInStream::Sequence& seq);
     void            ReportControlFunctionSettings(const VTInStream::Sequence& seq);
     void            ReportRectAreaChecksum(const VTInStream::Sequence &seq);
-	void            ReportPresentationState(const VTInStream::Sequence& seq);
+    void            ReportPresentationState(const VTInStream::Sequence& seq);
 
-    void			RestorePresentationState(const VTInStream::Sequence& seq);
-    
+    void            RestorePresentationState(const VTInStream::Sequence& seq);
+
     void            SelectGraphicsRendition(const VTInStream::Sequence& seq);
     void            SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes);
     void            InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes);
@@ -166,7 +166,7 @@ private:
     void            ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert);
 
     dword           GetFillerFlags(const VTInStream::Sequence& seq) const;
-    
+
     void            Backup(bool tpage = true, bool csets = true, bool attrs = true);
     void            Restore(bool tpage = true, bool csets = true, bool attrs = true);
 
@@ -525,28 +525,32 @@ private:
     static SequenceId FindSequenceId(byte type, byte level, const VTInStream::Sequence& seq, bool& refresh);
 
 public:
-    // Terminal legacy character sets ("G-set") support.
-    class Charsets {
+    // Terminal legacy character sets ("G-sets") support.
+    class GSets {
         byte  g[4], d[4];
         byte  l, r;
         byte  ss;
     public:
-        Charsets&   G0toGL()                                { l = 0; return *this; }
-        Charsets&   G1toGL()                                { l = 1; return *this; }
-        Charsets&   G2toGL()                                { l = 2; return *this; }
-        Charsets&   G3toGL()                                { l = 3; return *this; }
-        Charsets&   G1toGR()                                { r = 1; return *this; }
-        Charsets&   G2toGR()                                { r = 2; return *this; }
-        Charsets&   G3toGR()                                { r = 3; return *this; }
+        GSets&     G0toGL()                                 { l = 0; return *this; }
+        GSets&     G1toGL()                                 { l = 1; return *this; }
+        GSets&     G2toGL()                                 { l = 2; return *this; }
+        GSets&     G3toGL()                                 { l = 3; return *this; }
+        GSets&     G0toGR()                                 { r = 0; return *this; }
+        GSets&     G1toGR()                                 { r = 1; return *this; }
+        GSets&     G2toGR()                                 { r = 2; return *this; }
+        GSets&     G3toGR()                                 { r = 3; return *this; }
 
-        Charsets&   G0(byte c)                              { g[0] = c; return *this; }
-        Charsets&   G1(byte c)                              { g[1] = c; return *this; }
-        Charsets&   G2(byte c)                              { g[2] = c; return *this; }
-        Charsets&   G3(byte c)                              { g[3] = c; return *this; }
-        Charsets&   SS(byte c)                              { ss   = c; return *this; }
+        GSets&     G0(byte c)                               { g[0] = c; return *this; }
+        GSets&     G1(byte c)                               { g[1] = c; return *this; }
+        GSets&     G2(byte c)                               { g[2] = c; return *this; }
+        GSets&     G3(byte c)                               { g[3] = c; return *this; }
+        GSets&     SS(byte c)                               { ss   = c; return *this; }
 
         byte        Get(int c, bool allowgr = true) const   { return allowgr && c > 0x7F ? g[r] : g[l]; }
-        
+
+        int         GetGLNum()                              { return l; }
+        int         GetGRNum()                              { return r; }
+
         byte        GetGL() const                           { return g[l]; }
         byte        GetGR() const                           { return g[r]; }
         byte        GetG0() const                           { return g[0]; }
@@ -559,30 +563,37 @@ public:
         void        ConformtoANSILevel2();
         void        ConformtoANSILevel3();
 
-        Charsets&   ResetG0()                               { g[0] = d[0]; return *this; }
-        Charsets&   ResetG1()                               { g[1] = d[1]; return *this; }
-        Charsets&   ResetG2()                               { g[2] = d[2]; return *this; }
-        Charsets&   ResetG3()                               { g[3] = d[3]; return *this; }
+        GSets&      ResetG0()                               { g[0] = d[0]; return *this; }
+        GSets&      ResetG1()                               { g[1] = d[1]; return *this; }
+        GSets&      ResetG2()                               { g[2] = d[2]; return *this; }
+        GSets&      ResetG3()                               { g[3] = d[3]; return *this; }
 
         void        Reset();
         void        Serialize(Stream& s);
 
-        Charsets(byte defcset = CHARSET_UNICODE);
-        Charsets(byte g0, byte g1, byte g2, byte g3);
+        GSets(byte defgset = CHARSET_ISO8859_1);
+        GSets(byte g0, byte g1, byte g2, byte g3);
     };
 
-    void            SetCharsets(Charsets chrsets)           { charsets = chrsets; }
-    const Charsets& GetCharsets() const                     { return charsets;    }
-
+    void            SetCharset(byte chrset)                 { charset = ResolveCharset(chrset); }
+    byte            GetCharset() const                      { return charset;    }
+    
+    void            SetLegacyCharsets(GSets newgsets)       { gsets = newgsets;  }
+    const GSets&    GetLegacyCharsets() const               { return gsets;      }
+    Console&        LegacyCharsets(bool b = true)           { use_gsets = b; return *this; }
+    Console&        NoLegacyCharsets()                      { return LegacyCharsets(false); }
+    
 protected:
-    int             ConvertToUnicode(int c, byte chrset);
-    int             ConvertToCharset(int c, byte chrset);
+    int             ConvertToUnicode(int c, byte gset);
+    int             ConvertToCharset(int c, byte gset);
 
 private:
-    Charsets        charsets;
-    Charsets        charsets_backup;
+    GSets           gsets;
+    GSets           gsets_backup;
+    bool            use_gsets;
+    byte            charset;
 };
 
-INITIALIZE(DECCharsets);
+INITIALIZE(DECGSets);
 }
 #endif

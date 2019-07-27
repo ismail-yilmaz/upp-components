@@ -135,7 +135,115 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 	int which = seq.GetInt(1, 0);
 	
 	if(which == 1) {	// DECCIR
-		// TODO
+		Vector<String> cr = Split(seq.payload, ';');
+
+		if(cr.IsEmpty())
+			return;
+
+		auto GetInt = [&cr](int n) -> int
+		{
+			bool b = cr.GetCount() < max(1, n);
+			if(b) return 0;
+			String s = cr[--n];
+			if(64 <= s[0] && s[0] <= 65536)
+				return s[0] & 0xFFFF;
+			else
+				return Nvl(StrInt(s), 0);
+		};
+
+		auto GetStr = [&cr](int n) -> String
+		{
+			bool b = cr.GetCount() < max(1, n);
+			return b ? Null : cr[--n];
+		};
+
+		auto GetChrset = [=](int i) -> byte
+		{
+			// TODO: This can be more precise...
+			if(i == '0') return CHARSET_DEC_DCS;
+			if(i == '>') return CHARSET_DEC_TCS;
+			if(i == '<') return CHARSET_DEC_MCS;
+			if(i == 'A') return CHARSET_ISO8859_1;
+			return CHARSET_TOASCII;
+		};
+		
+		Point pt;
+		pt.y      = GetInt(1);
+		pt.x      = GetInt(2);
+		int sgr   = GetInt(4);
+		int attrs = GetInt(5);
+		int flags = GetInt(6);
+		int gl    = GetInt(7);
+		int gr    = GetInt(8);
+		int sz	  = GetInt(9);
+		String gs = GetStr(10);
+		
+		DECom(flags & 0x01);
+		DECawm(flags & 0x08);
+		
+		cellattrs.Bold(sgr & 0x01);
+		cellattrs.Underline(sgr & 0x02);
+		cellattrs.Blink(sgr & 0x04);
+		cellattrs.Invert(sgr & 0x08);
+		cellattrs.Protect(attrs & 0x01);
+
+		page->Attributes(cellattrs);
+
+		page->MoveTo(pt);
+		
+		if(flags & 0x02)
+			gsets.SS(0x8E);
+		else
+		if(flags & 0x04)
+			gsets.SS(0x8F);
+		
+		if(IsNull(gs))
+			return;
+		
+		for(int i = 0; i < gs.GetLength(); i++) {
+			switch(i) {
+			case 0:
+				gsets.G0(GetChrset(gs[i]));
+				break;
+			case 1:
+				gsets.G1(GetChrset(gs[i]));
+				break;
+			case 2:
+				gsets.G2(GetChrset(gs[i]));
+				break;
+			case 3:
+				gsets.G3(GetChrset(gs[i]));
+				break;
+			}
+		}
+		
+		switch(gl) {
+		case 0:
+			gsets.G0toGL();
+			break;
+		case 1:
+			gsets.G1toGL();
+			break;
+		case 2:
+			gsets.G2toGL();
+			break;
+		case 3:
+			gsets.G3toGL();
+			break;
+		}
+
+		switch(gr) {
+		case 1:
+			gsets.G1toGR();
+			break;
+		case 2:
+			gsets.G2toGR();
+			break;
+		case 3:
+			gsets.G3toGR();
+			break;
+		}
+				
 	}
 	else
 	if(which == 2) {	// DECTABSR

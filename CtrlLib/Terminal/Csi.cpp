@@ -380,7 +380,72 @@ void Console::ReportPresentationState(const VTInStream::Sequence& seq)
 	int report = seq.GetInt(1, 0);
 
 	if(report == 1) {	// DECCIR
-		// TODO
+		byte report[4];
+		Zero(report);
+		
+		report[0] |= 0x40;	// Graphics rendition
+		report[1] |= 0x40;	// Character attributes
+		report[2] |= 0x40;	// Flags
+		report[3] |= 0x40;  // Charset size
+
+		if(cellattrs.IsBold())
+			report[0] |= 0x01;
+		if(cellattrs.IsUnderlined())
+			report[0] |= 0x02;
+		if(cellattrs.IsBlinking())
+			report[0] |= 0x04;
+		if(cellattrs.IsInverted())
+			report[0] |= 0x08;
+		if(cellattrs.IsProtected())
+			report[1] |= 0x01;
+		if(gsets.GetSS() == 0x8E)
+			report[2] |= 0x02;
+		if(gsets.GetSS() == 0x8F)
+			report[2] |= 0x04;
+		if(modes[DECOM])
+			report[2] |= 0x01;
+		if(modes[DECAWM])
+			report[2] |= 0x08;
+
+		auto Is96Chars = [=] (byte gx) -> bool
+		{
+			return CHARSET_ISO8859_1 <= gx && gx <= CHARSET_ISO8859_16;
+		};
+		
+		auto GetCharsetId = [=] (byte chrset) -> const char*
+		{
+			// TODO: This can be more precise...
+			if(chrset == CHARSET_DEC_DCS)   return "0";
+			if(chrset == CHARSET_DEC_TCS)   return ">";
+			if(chrset == CHARSET_DEC_MCS)   return "<";
+			if(chrset == CHARSET_ISO8859_1)	return "A";
+			return "B";		// ASCII
+		};
+		
+		if(Is96Chars(gsets.GetG0()))
+			report[3] |= 0x01;
+		if(Is96Chars(gsets.GetG1()))
+			report[3] |= 0x02;
+		if(Is96Chars(gsets.GetG2()))
+			report[3] |= 0x04;
+		if(Is96Chars(gsets.GetG3()))
+			report[3] |= 0x08;
+		
+		Point pt = page->GetRelPos();
+		
+		PutDCS(Format("1$u%d;%d;%d;%c;%c;%c;%d;%d;%c;%s%s%s%s",
+					pt.y, pt.x, 1,
+					report[0],
+					report[1],
+					report[2],
+					gsets.GetGLNum(),
+					gsets.GetGRNum(),
+					report[3],
+					GetCharsetId(gsets.GetG0()),
+					GetCharsetId(gsets.GetG1()),
+					GetCharsetId(gsets.GetG2()),
+					GetCharsetId(gsets.GetG3()))
+			);
 	}
 	else
 	if(report == 2) {	// DECTABSR
@@ -582,7 +647,7 @@ void Console::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 		// Credits should go to Thomas Dickey (xterm's maintainer) et al.
 		
 		int chr = cell.chr;
-		checksum -= ConvertToCharset(chr, charsets.Get(chr, IsLevel2()));
+		checksum -= ConvertToCharset(chr, gsets.Get(chr, IsLevel2()));
 		if(cell.IsUnderlined())
 			checksum -= 0x10;
 		if(cell.IsInverted())

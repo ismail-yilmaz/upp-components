@@ -71,6 +71,9 @@ public:
     VTPage& WrapAround(bool b = true);
     VTPage& History(bool b = true);
     VTPage& Attributes(const VTCell& attrs)             { cellattrs = attrs; return *this; }
+    
+    bool    IsOriginMode() const                        { return cursor.relative; }
+    bool    IsWrapAround() const                        { return cursor.wrap;     }
 
     void    SetCell(int x, int y, const VTCell& cell);
     void    SetCell(const Point& p, const VTCell& cell) { SetCell(p.x, p.y, cell);    }
@@ -118,12 +121,12 @@ public:
 
     VTPage& NextTab(int n = 1);
     VTPage& PrevTab(int n = 1);
-    VTPage& SetTabAt(int i, bool b = true)				{ SetTabstop(i, b); return *this; }
+    VTPage& SetTabAt(int i, bool b = true)              { SetTabstop(i, b); return *this; }
     VTPage& SetTab(bool b = true)                       { SetTabstop(cursor.x, b); return *this; }
     VTPage& SetTabs(int tsz);
     VTPage& ClearTabs()                                 { tabs.Clear(); tabsync = false; return *this; }
-	void	GetTabs(Vector<int>& tabstops);
-	
+    void    GetTabs(Vector<int>& tabstops);
+    
     VTPage& EraseLine(dword flags = 0);
     VTPage& EraseLeft(dword flags = 0);
     VTPage& EraseRight(dword flags = 0);

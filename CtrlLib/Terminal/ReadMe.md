@@ -28,7 +28,7 @@ As a result, Terminal package and its Terminal ctrl are not bound by any platfor
 This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal with no code modification required on Windows and Linux. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
- A fully-fledged terminal emulation requires less than s50 LoC. In fact, the first basic example provided with the package is only a single file with 31 sLoC, and it can run complex/heavy applications such as GNU Emacs, vim, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
+ A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single file with 31 sLoC, and it can run complex/heavy applications such as GNU Emacs, vim, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
 - **Terminal package combines simplicity with configurability.** 
 Although it is easy to use and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
 - **Terminal widget is a regular ctrl.**
@@ -170,7 +170,7 @@ As it is already noted above, one of the strengths of the Terminal package, and 
 
 This example demonstrates the basic usage of, and interaction between, Terminal and PtyProcess classes. Since PtyProcess class currently runs only on POSIX-compliant systems, this code will be a POSIX-only example for the time being. (This will change in the near future. A Windows power-shell encapsulation is on its way.)
 
-Here is an xterm compatible terminal emulator in 31 LoC:
+Here is an xterm compatible terminal emulator in 31 sLoC:
 	
     	
     #include <CtrlLib/CtrlLib.h>
@@ -334,10 +334,10 @@ A few lines of code will turn it into a remote terminal:
 		MemoryLimitKb(100000000);
 		Ctrl::host = "localhost";
 		Ctrl::port = 8888;
-		Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
+		Ctrl::connection_limit = 15; // Maximum number of concurrent users (preventing DDoS)
 
 	#ifdef _DEBUG
-		Ctrl::debugmode = true;		// Only single session in debug (no forking)
+		Ctrl::debugmode = true;		 // Only single session in debug (no forking)
 	#endif
 		if(Ctrl::StartSession()) {
 			Main();
@@ -452,7 +452,7 @@ Now, let's compile the above multiplexing example with TURTLE flag, and access i
 	
 	
 	const char *nixshell = "/bin/bash";
-	const int  PANECOUNT = 2;						// You can increase the number of panes if you like.
+	const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
 	
 	using namespace Upp;
 	
@@ -475,7 +475,7 @@ Now, let's compile the above multiplexing example with TURTLE flag, and access i
 	
 	class TerminalMultiplexerExample : public TopWindow {
 		Splitter splitter;
-		Array<TerminalPane> terminals;				// Let's dynamically create the TerminalPane instances.
+		Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
 	public:
 		
 		void SetupSplitter()
@@ -526,10 +526,10 @@ Now, let's compile the above multiplexing example with TURTLE flag, and access i
 		MemoryLimitKb(100000000);
 		Ctrl::host = "localhost";
 		Ctrl::port = 8888;
-		Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
+		Ctrl::connection_limit = 15;	// Maximum number of concurrent users (preventing DDoS)
 	
 	#ifdef _DEBUG
-		Ctrl::debugmode = true;		// Only single session in debug (no forking)
+		Ctrl::debugmode = true;			// Only single session in debug (no forking)
 	#endif
 		if(Ctrl::StartSession()) {
 			Main();

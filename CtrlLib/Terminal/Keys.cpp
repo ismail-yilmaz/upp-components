@@ -260,7 +260,7 @@ bool Terminal::Key(dword key, int count)
 	case K_SHIFT_KEY:
 		return true;
 	case K_RETURN:
-		PutEol();
+		Console::PutEol();
 		break;
 	case K_BACKSPACE:
 		Console::Put(modes[DECBKM] ? key : 0x7F, count);
@@ -283,20 +283,12 @@ bool Terminal::Key(dword key, int count)
 		if(key < 32)
 			Console::Put(key, count);
 		else {
-			const Charsets& chrsets = GetCharsets();
-			byte chrset = chrsets.Get(key, IsLevel2());
-			if(ResolveCharset(charset) == CHARSET_UTF8) {
-				PutUtf8(key, count);
-				break;
-			}
-			else {
-				int c = ConvertToCharset(key, chrset);
-				if(c != DEFAULTCHAR) {
-					Console::Put(c, count);
-					break;
-				}
-			}
-			return false;
+			int c = ConvertToCharset(key, GetLegacyCharsets().Get(key, IsLevel2()));
+			if(c == DEFAULTCHAR)
+				return true;
+			GetCharset() == CHARSET_UNICODE
+				? Console::PutUtf8(c, count)
+				: Console::Put(c, count);
 		}
 	}
 	PlaceCaret(true);

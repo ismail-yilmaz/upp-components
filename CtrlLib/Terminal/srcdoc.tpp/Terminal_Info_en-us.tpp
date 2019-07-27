@@ -300,7 +300,7 @@ be a POSIX`-only example for the time being. (This will change
 in the near future. A Windows power`-shell encapsulation is on 
 its way.)&]
 [s0; &]
-[s0; Here is an xterm compatible terminal emulator in 31 LoC:&]
+[s0; Here is an xterm compatible terminal emulator in 31 sLoC:&]
 [s0; &]
 [s7; #include <CtrlLib/CtrlLib.h>&]
 [s7; #include <Terminal/Terminal.h>&]
@@ -359,7 +359,7 @@ ighlights] section, since Core/SSH package can run on Windows,
 Linux and MacOS.&]
 [s0; &]
 [s0; Here is a cross`-platform, xterm compatible, basic SSH terminal 
-in only 43 LoC:&]
+in only 43 sLoC:&]
 [s0; &]
 [s7; #include <Core/Core.h>&]
 [s7; #include <Core/SSH/SSH.h>&]

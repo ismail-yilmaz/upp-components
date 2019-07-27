@@ -190,7 +190,7 @@ void Console::DECanm(bool b)
 		clevel = LEVEL_0;
 		Backup(false);
 		page->SetTabs(8);
-		charsets = Charsets(CHARSET_TOASCII);
+		gsets = GSets(CHARSET_TOASCII);
 	}
 	LDUMP(DECANM);
 }

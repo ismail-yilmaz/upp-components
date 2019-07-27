@@ -29,9 +29,6 @@ public:
     Terminal&   ClearHistory()                                  { GetDefaultPage().EraseHistory(); return *this; }
     Terminal&   SetHistorySize(int sz)                          { GetDefaultPage().SetHistorySize(sz); return *this; }
 
-    void        SetCharset(byte chrset);
-    byte        GetCharset() const                              { return charset; }
-
     Terminal&   SetFont(Font f)                                 { font = f; Layout(); return *this; }
     Font        GetFont() const                                 { return font; }
 
@@ -180,7 +177,6 @@ private:
     VScrollBar  sb;
     Scroller    scroller;
     Font        font            = Monospace();
-    byte        charset;
     Rect        caretrect;
     int         anchor          = -1;
     int         selpos          = -1;
