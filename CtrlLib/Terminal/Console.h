@@ -81,8 +81,8 @@ protected:
     virtual void    PostParse()                             {}
 
     virtual void    RefreshPage(bool full = false)          {}
-
     virtual void    SwapPage()                              {}
+
     void            SetPageSize(Size sz)                    { page->SetSize(sz); }
     VTPage&         GetDefaultPage()                        { return dpage; }
     bool            IsDefaultPage() const                   { return page == &dpage; }
@@ -448,6 +448,7 @@ private:
         DECSLPP,
         DECSLRM,
         DECSNLS,
+        DECST8C,
         DECSTBM,
         DECSTR,
         DECTST,

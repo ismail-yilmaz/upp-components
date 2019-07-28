@@ -198,6 +198,10 @@ void Console::ParseCommandSequences(const VTInStream::Sequence& seq)
 	case SequenceId::DECSNLS:
 		WhenSetLines(max(seq.GetInt(1), 1));
 		break;
+	case SequenceId::DECST8C:
+		if(seq.GetInt(1) == 5)
+			page->SetTabs(8);
+		break;
 	case SequenceId::IGNORED:
 		break;
 	default:

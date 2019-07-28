@@ -189,6 +189,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DCH,             'P', 0x00, 0x00, DOREFRESH, LEVEL_1),   // Delete character
         VT_CSI(SU,              'S', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll up
         VT_CSI(SD,              'T', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Scroll down
+        VT_CSI(DECST8C,         'W', '?',  0x00, NOREFRESH, LEVEL_4),   // Set a tab at every 8 columns
         VT_CSI(ECH,             'X', 0x00, 0x00, DOREFRESH, LEVEL_2),   // Erase character
         VT_CSI(CBT,             'Z', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor backward tabulation
         VT_CSI(ECH,             '^', 0x00, 0x00, NOREFRESH, LEVEL_3),   // FIXME
