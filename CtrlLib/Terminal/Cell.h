@@ -25,6 +25,7 @@ struct VTCell : Moveable<VTCell> {
         SGR_BLINK       = 0x0010,
         SGR_INVERTED    = 0x0020,
         SGR_HIDDEN      = 0x0040,
+        SGR_FAINT       = 0x0080
     };
 
     enum FillerFlags : dword {
@@ -39,8 +40,8 @@ struct VTCell : Moveable<VTCell> {
     };
     
     VTCell& Normal()                            { sgr = SGR_NORMAL; return *this; }
-    VTCell& Bold(bool b = true)                 { if(b) sgr |= SGR_BOLD; else sgr &= ~SGR_BOLD; return *this;               }
-    VTCell& Faint(bool b = true)                { return Bold(!b); } // TODO
+    VTCell& Bold(bool b = true)                 { if(b) sgr |= SGR_BOLD; else sgr &= ~SGR_BOLD; sgr &= ~SGR_FAINT; return *this;   }
+    VTCell& Faint(bool b = true)                { if(b) sgr |= SGR_FAINT; else sgr &= ~SGR_FAINT; sgr &= ~SGR_BOLD;  return *this; }
     VTCell& Italic(bool b = true)               { if(b) sgr |= SGR_ITALIC; else sgr &= ~SGR_ITALIC; return *this;             }
     VTCell& Underline(bool b = true)            { if(b) sgr |= SGR_UNDERLINE; else sgr &= ~SGR_UNDERLINE; return *this;       }
     VTCell& Blink(bool b = true)                { if(b) sgr |= SGR_BLINK; else sgr &= ~SGR_BLINK; return *this;               }
@@ -54,6 +55,7 @@ struct VTCell : Moveable<VTCell> {
     
     bool    IsNormal() const                    { return sgr == SGR_NORMAL; }
     bool    IsBold() const                      { return sgr & SGR_BOLD;    }
+    bool    IsFaint() const                     { return sgr & SGR_FAINT;   }
     bool    IsItalic() const                    { return sgr & SGR_ITALIC;  }
     bool    IsUnderlined() const                { return sgr & SGR_UNDERLINE;}
     bool    IsBlinking() const                  { return sgr & SGR_BLINK;   }

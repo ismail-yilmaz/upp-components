@@ -12,6 +12,8 @@ void Console::SelectGraphicsRendition(const VTInStream::Sequence& seq)
 
 void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
+	RTIMING("SGR");
+	
 	auto HandleOpcodes = [&opcodes](int i) -> int	// This is to handle ISO color opcodes
 	{
 		const String& s = opcodes[i];
@@ -34,8 +36,10 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 			break;
 		case 1:
 			attrs.sgr |= VTCell::SGR_BOLD;
+			attrs.sgr &= ~VTCell::SGR_FAINT;
 			break;
 		case 2:
+			attrs.sgr |= VTCell::SGR_FAINT;
 			attrs.sgr &= ~VTCell::SGR_BOLD;
 			break;
 		case 3:
@@ -58,15 +62,17 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 			attrs.sgr |= VTCell::SGR_STRIKEOUT;
 			break;
 		case 14:
-			// ACS on
+			 //ACS on
 			break;
 		case 15:
-			// ACS off
+			 //ACS off
 			break;
 		case 21:
 			attrs.sgr &= ~VTCell::SGR_BOLD;
+			attrs.sgr &= ~VTCell::SGR_FAINT;
 			break;
 		case 22:
+			attrs.sgr &= ~VTCell::SGR_FAINT;
 			attrs.sgr &= ~VTCell::SGR_BOLD;
 			break;
 		case 23:
