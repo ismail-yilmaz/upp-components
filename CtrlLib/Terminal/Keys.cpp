@@ -2,7 +2,7 @@
 
 // TODO: Refactor and improve key handling...
 
-#define LLOG(x)	// RLOG("Terminal: " << x);
+#define LLOG(x)	// RLOG("Terminal: " << x)
 
 namespace Upp {
 

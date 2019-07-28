@@ -1,6 +1,6 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 
@@ -77,16 +77,16 @@ void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		gsets.G1toGR();
 		break;
 	case SequenceId::SCS_G0_ASCII:
-		gsets.ResetG0();
+		gsets.G0(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G1_ASCII:
-		gsets.ResetG1();
+		gsets.G1(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G2_ASCII:
-		gsets.ResetG2();
+		gsets.G2(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G3_ASCII:
-		gsets.ResetG3();
+		gsets.G3(CHARSET_TOASCII);
 		break;
 	case SequenceId::SCS_G1_LATIN1:
 		gsets.G1(CHARSET_ISO8859_1);

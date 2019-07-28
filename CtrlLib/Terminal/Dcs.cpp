@@ -1,7 +1,7 @@
 #include "Console.h"
 
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 
@@ -126,6 +126,18 @@ void Console::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 	else
 	if(seq.payload.IsEqual("*x")) {		// DECSACE
 		reply = Format("%d`$r%[1:1;2]s`*x", 1, streamfill);
+	}
+	else
+	if(seq.payload.IsEqual("t")) {		// DECSLPP
+		reply = Format("%d`$r%d`t", 1, page->GetSize().cy);
+	}
+	else
+	if(seq.payload.IsEqual("$|")) {		// DECSCPP
+		reply = Format("%d`$r%d`$|", 1, page->GetSize().cx);
+	}
+	else
+	if(seq.payload.IsEqual("*|")) {		// DECSNLS
+		reply = Format("%d`$r%d`*|", 1, page->GetSize().cy);
 	}
 	PutDCS(reply);
 }

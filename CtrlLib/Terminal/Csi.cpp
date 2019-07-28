@@ -1,6 +1,6 @@
 #include "Console.h"
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 
@@ -188,6 +188,15 @@ void Console::ParseCommandSequences(const VTInStream::Sequence& seq)
 		break;
 	case SequenceId::DECRQCRA:
 		ReportRectAreaChecksum(seq);
+		break;
+	case SequenceId::DECSCPP:
+		WhenSetColumns(seq.GetInt(1) != 132 ? 80 : 132);
+		break;
+	case SequenceId::DECSLPP:
+		if(seq.GetInt(1) < 24)
+			break;
+	case SequenceId::DECSNLS:
+		WhenSetLines(max(seq.GetInt(1), 1));
 		break;
 	case SequenceId::IGNORED:
 		break;

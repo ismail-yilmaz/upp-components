@@ -1,6 +1,6 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x);
+#define LLOG(x)	// RLOG("Terminal: " << x)
 
 namespace Upp {
 

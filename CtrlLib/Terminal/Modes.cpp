@@ -1,6 +1,6 @@
 #include "Console.h"
 
-#define LLOG(x)	 // RLOG("Console: " << x);
+#define LLOG(x)	 // RLOG("Console: " << x)
 #define LDUMP(x) // RLOG("Console: Mode: " << #x << " = " << modes[x])
 
 namespace Upp {
@@ -219,7 +219,7 @@ void Console::DECcolm(bool b)
 	modes.Set(DECCOLM, b);
 	page->ErasePage();
 	DECom(false);
-	When132Column(b);
+	WhenSetColumns(b ? 132 : 80);
 	LDUMP(DECCOLM);
 }
 

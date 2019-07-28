@@ -220,6 +220,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECSTBM,         'r', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Set vertical margins
         VT_CSI(DECCARA,         'r', 0x00, '$',  DOREFRESH, LEVEL_4),   // Change attributes in rectangular area
         VT_CSI(DECSLRM,         's', 0x00, 0x00, NOREFRESH, LEVEL_3),   // Set horizontal margins / SCO save cursor
+        VT_CSI(DECSLPP,         't', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Set lines per page
         VT_CSI(DECRARA,         't', 0x00, '$',  DOREFRESH, LEVEL_4),   // Reverse attributes in rectangular area
         VT_CSI(SCORC,           'u', 0x00, 0x00, NOREFRESH, LEVEL_3),   // SCO restore cursor
         VT_CSI(DECCRA,          'v', 0x00, '$',  DOREFRESH, LEVEL_4),   // Copy rectangular area.
@@ -231,6 +232,8 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECRQCRA,        'y', 0x00, '*',  NOREFRESH, LEVEL_4),   // Request rectangular area checksum
         VT_CSI(DECERA,          'z', 0x00, '$',  DOREFRESH, LEVEL_4),   // Erase rectangular area
         VT_CSI(DECSERA,         '{', 0x00, '$',  DOREFRESH, LEVEL_4),   // Selectively erase rectangular area
+        VT_CSI(DECSCPP,         '|', 0x00, '$',  DOREFRESH, LEVEL_3),   // Set columns per page
+        VT_CSI(DECSNLS,         '|', 0x00, '*',  DOREFRESH, LEVEL_4),   // Set number of lines per screen
         VT_CSI(DECIC,           '}', 0x00, '\'', DOREFRESH, LEVEL_4),   // Insert column
         VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_4),   // Delete column
         // Device control strings

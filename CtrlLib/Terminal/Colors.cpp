@@ -3,7 +3,7 @@
 // ANSI, dynamic, and ISO colors support.
 // See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 	

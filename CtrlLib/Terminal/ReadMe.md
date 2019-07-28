@@ -7,7 +7,7 @@ E-mail: iylmz.iylmz@gmail.com
 ![From left to right: Emacs, Lynx, mapscii](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
 ## Introduction
 
-Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
+Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library and widget written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
 
 It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
 
@@ -172,47 +172,46 @@ This example demonstrates the basic usage of, and interaction between, Terminal 
 
 Here is an xterm compatible terminal emulator in 31 sLoC:
 	
-    	
-    #include <CtrlLib/CtrlLib.h>
-    #include <Terminal/Terminal.h>
-    #include <Terminal/PtyProcess.h>
-    
-    using namespace Upp;
-    
-    const char *nixshell = "/bin/bash";
-    
-    struct TerminalExample : TopWindow {
-    	Terminal  term;
-    	PtyProcess pty;	// This class is completely optional
-    	
-    	TerminalExample()
-    	{
-    		SetRect(term.GetStdSize()); // 80 x 24 cells (scaled)
-    		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-    
-    		term.WhenBell   = [=]()		{ BeepExclamation(); };
-    		term.WhenTitle  = [=](String s)	{ Title(s);  };
-    		term.WhenResize = [=]()		{ pty.SetSize(term.GetPageSize()); };
-    		term.WhenOutput = [=](String s)	{ PutGet(s); };
-    
-    		SetTimeCallback(-1, [=] { PutGet(); });
-    		pty.Start(nixshell, Environment(), GetHomeDirectory());
-    	}
-    	
-    	void PutGet(String out = Null)
-    	{
-    		term.WriteUtf8(pty.Get());
-    		pty.Write(out);
-    		if(!pty.IsRunning())
-    			Break();
-    	}
-    };
-    
-    GUI_APP_MAIN
-    {
-    	TerminalExample().Run();
-    }
+```C++    	
+#include <Terminal/Terminal.h>
+#include <Terminal/PtyProcess.h>
 
+using namespace Upp;
+
+const char *nixshell = "/bin/bash";
+
+struct TerminalExample : TopWindow {
+	Terminal  term;
+	PtyProcess pty;	// This class is completely optional
+	
+	TerminalExample()
+	{
+		SetRect(term.GetStdSize()); // 80 x 24 cells (scaled)
+		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+
+		term.WhenBell   = [=]()		{ BeepExclamation(); };
+		term.WhenTitle  = [=](String s)	{ Title(s);  };
+		term.WhenResize = [=]()		{ pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s)	{ PutGet(s); };
+
+		SetTimeCallback(-1, [=] { PutGet(); });
+		pty.Start(nixshell, Environment(), GetHomeDirectory());
+	}
+	
+	void PutGet(String out = Null)
+	{
+		term.WriteUtf8(pty.Get());
+		pty.Write(out);
+		if(!pty.IsRunning())
+			Break();
+	}
+};
+
+GUI_APP_MAIN
+{
+	TerminalExample().Run();
+}
+```
 
 Yup, that's all.
 
@@ -227,56 +226,57 @@ This example demonstrates the basic usage of, and interaction between, Terminal 
 Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 sLoC:
 	
 	
+```C++
+#include <Core/Core.h>
+#include <Core/SSH/SSH.h>
+#include <Terminal/Terminal.h>
 
-    #include <Core/Core.h>
-    #include <Core/SSH/SSH.h>
-    #include <Terminal/Terminal.h>
-    
-    using namespace Upp;
-    
-    String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
-    
-    struct SshTerminal : Terminal, SshShell {
-    	SshTerminal(SshSession& session) : SshShell(session)
-    	{
-    		SshShell::Timeout(Null);
-    		SshShell::ChunkSize(65536);
-    		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size); };
-    		Terminal::WhenOutput = [=](String data) { SshShell::Send(data); };
-    		Terminal::WhenResize = [=]() { SshShell::PageSize(Terminal::GetPageSize()); };		
-    	}
-    
-    	void Run(const String& termtype)
-    	{
-    		SshShell::Run(termtype, Terminal::GetPageSize());
-    		if(SshShell::IsError())
-    			ErrorOK(DeQtf(GetErrorDesc()));
-    	}
-    };
-    
-    struct SshTerminalExample : TopWindow {
-    	void Run()
-    	{
-    		if(!EditTextNotNull(url, "SSH server", "Url"))
-    			return;
-    		SshSession session;
-    		session.WhenWait = [=]{ ProcessEvents(); };
-    		if(!session.Timeout(10000).Connect(url)) {
-    			ErrorOK(DeQtf(session.GetErrorDesc()));
-    			return;
-    		}
-    		SshTerminal term(session);
-    		SetRect(term.GetStdSize()); // 80 x 24 cells (scaled)
-    		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-    		OpenMain();
-    		term.Run("xterm");
-    	}
-    };
-    
-    GUI_APP_MAIN
-    {
-    	SshTerminalExample().Run();
-    }
+using namespace Upp;
+
+String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
+
+struct SshTerminal : Terminal, SshShell {
+	SshTerminal(SshSession& session) : SshShell(session)
+	{
+		SshShell::Timeout(Null);
+		SshShell::ChunkSize(65536);
+		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size); };
+		Terminal::WhenOutput = [=](String data) { SshShell::Send(data); };
+		Terminal::WhenResize = [=]() { SshShell::PageSize(Terminal::GetPageSize()); };		
+	}
+
+	void Run(const String& termtype)
+	{
+		SshShell::Run(termtype, Terminal::GetPageSize());
+		if(SshShell::IsError())
+			ErrorOK(DeQtf(GetErrorDesc()));
+	}
+};
+
+struct SshTerminalExample : TopWindow {
+	void Run()
+	{
+		if(!EditTextNotNull(url, "SSH server", "Url"))
+			return;
+		SshSession session;
+		session.WhenWait = [=]{ ProcessEvents(); };
+		if(!session.Timeout(10000).Connect(url)) {
+			ErrorOK(DeQtf(session.GetErrorDesc()));
+			return;
+		}
+		SshTerminal term(session);
+		SetRect(term.GetStdSize()); // 80 x 24 cells (scaled)
+		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+		OpenMain();
+		term.Run("xterm");
+	}
+};
+
+GUI_APP_MAIN
+{
+	SshTerminalExample().Run();
+}
+```
 
 On the left is PuTTY and on the right is Ssh Terminal Example (on Windows):
 
@@ -288,69 +288,72 @@ Now some cool stuff.
 Turtle package allows any U++ GUI app to be accessed via decent web browser. To demonstrate this point we'll use the Terminal Example above.
 A few lines of code will turn it into a remote terminal:
 
-	#include <Terminal/Terminal.h>
-	#include <Terminal/PtyProcess.h>
-	using namespace Upp;
+```C++
+#include <Terminal/Terminal.h>
+#include <Terminal/PtyProcess.h>
 
-	const char *nixshell = "/bin/bash";
+using namespace Upp;
 
-	struct TerminalExample : TopWindow {
-		Terminal  term;
-		PtyProcess pty;			// This class is completely optional
+const char *nixshell = "/bin/bash";
 
-		TerminalExample()
-		{
-			SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
-			Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+struct TerminalExample : TopWindow {
+	Terminal  term;
+	PtyProcess pty;			// This class is completely optional
 
-			term.WhenBell   = [=]()			{ BeepExclamation(); };
-			term.WhenTitle  = [=](String s)	{ Title(s);	};
-			term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
-			term.WhenOutput = [=](String s)	{ PutGet(s); };
-
-			SetTimeCallback(-1, [=] { PutGet(); });
-			pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
-		}
-
-		void PutGet(String out = Null)
-		{
-			term.CheckWriteUtf8(pty.Get());
-			pty.Write(out);
-			if(!pty.IsRunning())
-				Break();
-		}
-	};
-
-	void Main()
+	TerminalExample()
 	{
-		TerminalExample().Run();
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
+		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+
+		term.WhenBell   = [=]()			{ BeepExclamation(); };
+		term.WhenTitle  = [=](String s)	{ Title(s);	};
+		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s)	{ PutGet(s); };
+
+		SetTimeCallback(-1, [=] { PutGet(); });
+		pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
 	}
 
-	#ifdef flagTURTLE
-	CONSOLE_APP_MAIN
+	void PutGet(String out = Null)
 	{
-		StdLogSetup(LOG_COUT|LOG_FILE);
-
-		MemoryLimitKb(100000000);
-		Ctrl::host = "localhost";
-		Ctrl::port = 8888;
-		Ctrl::connection_limit = 15; // Maximum number of concurrent users (preventing DDoS)
-
-	#ifdef _DEBUG
-		Ctrl::debugmode = true;		 // Only single session in debug (no forking)
-	#endif
-		if(Ctrl::StartSession()) {
-			Main();
-			Ctrl::EndSession();
-		}
-		LOG("Session Finished");
+		term.CheckWriteUtf8(pty.Get());
+		pty.Write(out);
+		if(!pty.IsRunning())
+			Break();
 	}
-	#else
-	GUI_APP_MAIN
-	{
+};
+
+void Main()
+{
+	TerminalExample().Run();
+}
+
+#ifdef flagTURTLE
+CONSOLE_APP_MAIN
+{
+	StdLogSetup(LOG_COUT|LOG_FILE);
+
+	MemoryLimitKb(100000000);
+	Ctrl::host = "localhost";
+	Ctrl::port = 8888;
+	Ctrl::connection_limit = 15; // Maximum number of concurrent users (preventing DDoS)
+
+#ifdef _DEBUG
+	Ctrl::debugmode = true;		 // Only single session in debug (no forking)
+#endif
+	if(Ctrl::StartSession()) {
 		Main();
+		Ctrl::EndSession();
 	}
-	#endif
+	LOG("Session Finished");
+}
+#else
+GUI_APP_MAIN
+{
+	Main();
+}
+#endif
+```
 
 The result is "browserception": Lynx running on Terminal accessed from within Firefox!
 
@@ -360,77 +363,79 @@ The result is "browserception": Lynx running on Terminal accessed from within Fi
 
 As it is already mentioned in the *Highlights* section, Terminal widget is a regular ctrl: It follows the ingenious design of the Ultimate++ ctrl library as closely as possible. This example demonstrates how a terminal multiplexing can be achieved simply by using a splitter widget. Splitter is a container ctrl that can be used to split any parent ctrl into resizeable horizontal and/or vertical panes. It also demonstrates the usage of NTL containers with Terminal widget:
 
-	#include <Terminal/Terminal.h>
-	#include <Terminal/PtyProcess.h>
-	
-	// This example demonstrates a barebone terminal multiplexer.
-	// It uses PtyProcess, therefore it is currently POSIX-only.
-	
-	const char *nixshell = "/bin/bash";
-	const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
-	
-	using namespace Upp;
-	
-	struct TerminalPane : Terminal, PtyProcess {
-		TerminalPane()
-		{
-			WhenBell   = [=]()		{ BeepExclamation(); };
-			WhenResize = [=]()		{ PtyProcess::SetSize(GetPageSize()); };
-			WhenOutput = [=](String s)	{ Do(s); };
-			PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
-		};
-		
-		bool Do(String out = Null)
-		{
-			WriteUtf8(PtyProcess::Get());
-			PtyProcess::Write(out);
-			return PtyProcess::IsRunning();
-		}
-	};
-	
-	class TerminalMultiplexerExample : public TopWindow {
-		Splitter splitter;
-		Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
-	public:
-		void SetupSplitter()
-		{
-			Add(splitter.Horz());
-			for(int i = 0; i < PANECOUNT; i++)
-				splitter.Add(terminals.Add().SizePos());
-		}
-		
-		void RemovePane(int i, Ctrl& c)
-		{
-			splitter.Remove(c);
-			splitter.RefreshLayoutDeep();
-			terminals.Remove(i);
-		}
-		
-		void Run()
-		{
-			Title(t_("Terminal Multiplexing Example"));
-			SetRect(0, 0, 1024, 600);
-			Sizeable().Zoomable().CenterScreen();
-			SetupSplitter();
-			OpenMain();
-			while(IsOpen() && !terminals.IsEmpty()) {
-				ProcessEvents();
-				for(int i = 0; i < terminals.GetCount(); i++) {
-					TerminalPane& pane = terminals[i];
-					if(!pane.Do()) {
-						RemovePane(i, pane);
-						i--;
-					}
-				}
-				Sleep(1);
-			}
-		}
-	};
-	
-	GUI_APP_MAIN
+```C++
+#include <Terminal/Terminal.h>
+#include <Terminal/PtyProcess.h>
+
+// This example demonstrates a barebone terminal multiplexer.
+// It uses PtyProcess, therefore it is currently POSIX-only.
+
+const char *nixshell = "/bin/bash";
+const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
+
+using namespace Upp;
+
+struct TerminalPane : Terminal, PtyProcess {
+	TerminalPane()
 	{
-		TerminalMultiplexerExample().Run();
+		WhenBell   = [=]()		{ BeepExclamation(); };
+		WhenResize = [=]()		{ PtyProcess::SetSize(GetPageSize()); };
+		WhenOutput = [=](String s)	{ Do(s); };
+		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
+	};
+	
+	bool Do(String out = Null)
+	{
+		WriteUtf8(PtyProcess::Get());
+		PtyProcess::Write(out);
+		return PtyProcess::IsRunning();
 	}
+};
+
+class TerminalMultiplexerExample : public TopWindow {
+	Splitter splitter;
+	Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
+public:
+	void SetupSplitter()
+	{
+		Add(splitter.Horz());
+		for(int i = 0; i < PANECOUNT; i++)
+			splitter.Add(terminals.Add().SizePos());
+	}
+	
+	void RemovePane(int i, Ctrl& c)
+	{
+		splitter.Remove(c);
+		splitter.RefreshLayoutDeep();
+		terminals.Remove(i);
+	}
+	
+	void Run()
+	{
+		Title(t_("Terminal Multiplexing Example"));
+		SetRect(0, 0, 1024, 600);
+		Sizeable().Zoomable().CenterScreen();
+		SetupSplitter();
+		OpenMain();
+		while(IsOpen() && !terminals.IsEmpty()) {
+			ProcessEvents();
+			for(int i = 0; i < terminals.GetCount(); i++) {
+				TerminalPane& pane = terminals[i];
+				if(!pane.Do()) {
+					RemovePane(i, pane);
+					i--;
+				}
+			}
+			Sleep(1);
+		}
+	}
+};
+
+GUI_APP_MAIN
+{
+	TerminalMultiplexerExample().Run();
+}
+```
 
 Here is the result: On the left is htop, and on the right is GNU nano running on Terminal Multiplexing Example (Linux)
 
@@ -444,106 +449,107 @@ For example one can have a Courier (16) font,and the other can have Liberation M
 
 Now, let's compile the above multiplexing example with TURTLE flag, and access it via a web browser:
 
-	#include <Terminal/Terminal.h>
-	#include <Terminal/PtyProcess.h>
-	
-	// This example demonstrates a barebone terminal multiplexer that can be accessed via a web borwser.
-	// It uses PtyProcess, therefore it is currently POSIX-only.
-	
-	
-	const char *nixshell = "/bin/bash";
-	const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
-	
-	using namespace Upp;
-	
-	struct TerminalPane : Terminal, PtyProcess {
-		TerminalPane()
-		{
-			WhenBell   = [=]()			{ BeepExclamation(); };
-			WhenResize = [=]()			{ PtyProcess::SetSize(GetPageSize()); };
-			WhenOutput = [=](String s)	{ Do(s); };
-			PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
-		};
-		
-		bool Do(String out = Null)
-		{
-			WriteUtf8(PtyProcess::Get());
-			PtyProcess::Write(out);
-			return PtyProcess::IsRunning();
-		}
-	};
-	
-	class TerminalMultiplexerExample : public TopWindow {
-		Splitter splitter;
-		Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
-	public:
-		
-		void SetupSplitter()
-		{
-			Add(splitter.Horz());
-			for(int i = 0; i < PANECOUNT; i++)
-				splitter.Add(terminals.Add().SizePos());
-		}
-		
-		void RemovePane(int i, Ctrl& c)
-		{
-			splitter.Remove(c);
-			splitter.RefreshLayoutDeep();
-			terminals.Remove(i);
-		}
-		
-		void Run()
-		{
-			Title(t_("Terminal Multiplexing Example"));
-			SetRect(0, 0, 1024, 600);
-			Sizeable().Zoomable().CenterScreen();
-			SetupSplitter();
-			OpenMain();
-			while(IsOpen() && !terminals.IsEmpty()) {
-				ProcessEvents();
-				for(int i = 0; i < terminals.GetCount(); i++) {
-					TerminalPane& pane = terminals[i];
-					if(!pane.Do()) {
-						RemovePane(i, pane);
-						i--;
-					}
-				}
-				Sleep(1);
-			}
-		}
-	};
-	
-	void Main()
-	{
-		TerminalMultiplexerExample().Run();
-	}
-	
-	#ifdef flagTURTLE
-	CONSOLE_APP_MAIN
-	{
-		StdLogSetup(LOG_COUT|LOG_FILE);
-	
-		MemoryLimitKb(100000000);
-		Ctrl::host = "localhost";
-		Ctrl::port = 8888;
-		Ctrl::connection_limit = 15;	// Maximum number of concurrent users (preventing DDoS)
-	
-	#ifdef _DEBUG
-		Ctrl::debugmode = true;			// Only single session in debug (no forking)
-	#endif
-		if(Ctrl::StartSession()) {
-			Main();
-			Ctrl::EndSession();
-		}
-		LOG("Session Finished");
-	}
-	#else
-	GUI_APP_MAIN
-	{
-		Main();
-	}
-	#endif
+```C++
+#include <Terminal/Terminal.h>
+#include <Terminal/PtyProcess.h>
 
+// This example demonstrates a barebone terminal multiplexer that can be accessed via a web borwser.
+// It uses PtyProcess, therefore it is currently POSIX-only.
+
+
+const char *nixshell = "/bin/bash";
+const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
+
+using namespace Upp;
+
+struct TerminalPane : Terminal, PtyProcess {
+	TerminalPane()
+	{
+		WhenBell   = [=]()			{ BeepExclamation(); };
+		WhenResize = [=]()			{ PtyProcess::SetSize(GetPageSize()); };
+		WhenOutput = [=](String s)	{ Do(s); };
+		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
+	};
+	
+	bool Do(String out = Null)
+	{
+		WriteUtf8(PtyProcess::Get());
+		PtyProcess::Write(out);
+		return PtyProcess::IsRunning();
+	}
+};
+
+class TerminalMultiplexerExample : public TopWindow {
+	Splitter splitter;
+	Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
+public:
+	
+	void SetupSplitter()
+	{
+		Add(splitter.Horz());
+		for(int i = 0; i < PANECOUNT; i++)
+			splitter.Add(terminals.Add().SizePos());
+	}
+	
+	void RemovePane(int i, Ctrl& c)
+	{
+		splitter.Remove(c);
+		splitter.RefreshLayoutDeep();
+		terminals.Remove(i);
+	}
+	
+	void Run()
+	{
+		Title(t_("Terminal Multiplexing Example"));
+		SetRect(0, 0, 1024, 600);
+		Sizeable().Zoomable().CenterScreen();
+		SetupSplitter();
+		OpenMain();
+		while(IsOpen() && !terminals.IsEmpty()) {
+			ProcessEvents();
+			for(int i = 0; i < terminals.GetCount(); i++) {
+				TerminalPane& pane = terminals[i];
+				if(!pane.Do()) {
+					RemovePane(i, pane);
+					i--;
+				}
+			}
+			Sleep(1);
+		}
+	}
+};
+
+void Main()
+{
+	TerminalMultiplexerExample().Run();
+}
+
+#ifdef flagTURTLE
+CONSOLE_APP_MAIN
+{
+	StdLogSetup(LOG_COUT|LOG_FILE);
+
+	MemoryLimitKb(100000000);
+	Ctrl::host = "localhost";
+	Ctrl::port = 8888;
+	Ctrl::connection_limit = 15;	// Maximum number of concurrent users (preventing DDoS)
+
+#ifdef _DEBUG
+	Ctrl::debugmode = true;			// Only single session in debug (no forking)
+#endif
+	if(Ctrl::StartSession()) {
+		Main();
+		Ctrl::EndSession();
+	}
+	LOG("Session Finished");
+}
+#else
+GUI_APP_MAIN
+{
+	Main();
+}
+#endif
+```
 
 Extra code added to the source is basically the same as in example 3. 
 

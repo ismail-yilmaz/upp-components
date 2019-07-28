@@ -1,6 +1,6 @@
 #include "Terminal.h"
 
-#define LLOG(x)	   // RLOG("Terminal: " << x);
+#define LLOG(x)	   // RLOG("Terminal: " << x)
 #define LTIMING(x) // RTIMING(x)
 
 namespace Upp {
@@ -189,7 +189,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 			if(index < 8)
 				index += 8;
 
-	c = colortable[index];	// Adjust only the first 16 colors,
+	c = colortable[index];	// Adjust only the first 16 colors.
 	return adjustcolors ? AdjustIfDark(c) : c;
 }
 }

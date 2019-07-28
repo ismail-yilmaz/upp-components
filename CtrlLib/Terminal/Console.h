@@ -40,7 +40,8 @@ public:
     Event<>          WhenBell;
     Event<String>    WhenTitle;
     Event<String>    WhenOutput;
-    Event<bool>      When132Column;
+    Event<int>       WhenSetColumns;
+    Event<int>       WhenSetLines;
     
     void            Write(const void *data, int size, bool utf8 = true);
     void            Write(const String& s, bool utf8)       { Write(~s, s.GetLength(), utf8); }
@@ -438,12 +439,15 @@ private:
         DECSC,
         DECSCA,
         DECSCL,
+        DECSCPP,
         DECSCUSR,
         DECSGR,
         DECSED,
         DECSEL,
-        DECSLRM,
         DECSERA,
+        DECSLPP,
+        DECSLRM,
+        DECSNLS,
         DECSTBM,
         DECSTR,
         DECTST,

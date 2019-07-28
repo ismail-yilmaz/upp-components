@@ -6,7 +6,7 @@ namespace Upp {
 #define CUNDEF DEFAULTCHAR
 #endif
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 byte CHARSET_DEC_VT52 = 0;
 byte CHARSET_DEC_DCS  = 0;
@@ -123,10 +123,10 @@ int Console::ConvertToCharset(int c, byte gset)
 {
 	byte cs = ResolveCharset(use_gsets ? gset : charset);
 	
-	if(gset == CHARSET_DEC_DCS ||
+	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
 	   gset == CHARSET_DEC_TCS ||
 	   gset == CHARSET_DEC_VT52)
-	    c = FromUnicode(c | 0x80, gset);
+	    c = FromUnicode(c, gset) & 0x7F;
 	else
 	if(cs == CHARSET_TOASCII)
 		c = ToAscii(c);
@@ -139,8 +139,9 @@ int Console::ConvertToCharset(int c, byte gset)
 int Console::LookupChar(int c)
 {
 	// Perform single or locking shifts for GL and GR...
-	bool allowgr = IsLevel2();
-	if(allowgr && gsets.GetSS() != 0x00) {
+	// Single shifts are available on devices with level >= 1
+	
+	if(IsLevel1() && gsets.GetSS() != 0x00) {
 		switch(gsets.GetSS()) {
 		case 0x8E: // SS2
 			c = ConvertToUnicode(c, gsets.GetG2());
@@ -152,7 +153,7 @@ int Console::LookupChar(int c)
 		gsets.SS(0x00);
 		return c;
 	}
-	return ConvertToUnicode(c, gsets.Get(c, allowgr));
+	return ConvertToUnicode(c, gsets.Get(c, IsLevel2()));
 }
 
 Console::GSets::GSets(byte defgset)

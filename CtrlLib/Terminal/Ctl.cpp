@@ -1,6 +1,6 @@
 #include "Console.h"
 
-#define LLOG(x)	// RLOG("Console: " << x);
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 	

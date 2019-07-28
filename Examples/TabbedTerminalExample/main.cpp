@@ -1,4 +1,3 @@
-#include <CtrlLib/CtrlLib.h>
 #include <TabBar/TabBar.h>
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
@@ -6,26 +5,25 @@
 // This example demonstrates a simple tabbed terminal.
 // It uses PtyProcess, therefore it is currently POSIX-only.
 
-const int MAXTABS = 10;
+const char *nixshell = "/bin/bash";
+const int MAXTABS    = 10;
 
 using namespace Upp;
 
-class TerminalTab : public Terminal {
-	PtyProcess pty;
-public:
+struct TerminalTab : Terminal, PtyProcess {
 	TerminalTab()
 	{
-		WhenBell   = [=]		{ BeepExclamation(); };
-		WhenResize = [=]		{ pty.SetSize(GetPageSize()); };
-		WhenOutput = [=](String s)	{ Do(s);   };
-		pty.Start("/bin/bash", Environment(), GetHomeDirectory());
+		WhenBell   = [=] { BeepExclamation(); };
+		WhenResize = [=] { PtyProcess::SetSize(GetPageSize()); };
+		WhenOutput = [=](String s) { Do(s);   };
+		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
 	}
 
 	bool Do(String out = Null)
 	{
-		Write(pty.Get(), true);
-		pty.Write(out);
-		return pty.IsRunning();
+		WriteUtf8(PtyProcess::Get());
+		PtyProcess::Write(out);
+		return PtyProcess::IsRunning();
 	}
 };
 
@@ -47,8 +45,8 @@ public:
 	void AddNewTab()
 	{
 		TerminalTab& tt = terminals.Add();
-		tt.WantFocus();
-		tabs.AddCtrl(tt.SizePos(),  (int64) GetTickCount(), Format("Terminal #%d", terminals.GetCount()));
+		int64 key = (int64) GetTickCount();
+		tabs.AddCtrl(tt.SizePos(), key,	Format("Terminal #%d", terminals.GetCount()));
 	}
 
 	void CloseTab(Value key)
@@ -56,8 +54,10 @@ public:
 		Ctrl *c = tabs.GetCtrl(key);
 		if(c)
 			for(int i = 0; i < terminals.GetCount(); i++)
-				if(&terminals[i] == c)
+				if(&terminals[i] == c) {
 					terminals.Remove(i);
+					break;
+				}
 	}
 
 	void FocusTab()
@@ -84,7 +84,7 @@ public:
 					i--;
 				}
 			}
-			Sleep(1);
+			Sleep(10);
 		}
 	}
 };
