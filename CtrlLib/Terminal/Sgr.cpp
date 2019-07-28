@@ -1,6 +1,7 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)		// RLOG("Console: " << x)
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
@@ -12,8 +13,6 @@ void Console::SelectGraphicsRendition(const VTInStream::Sequence& seq)
 
 void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
-	RTIMING("SGR");
-	
 	auto HandleOpcodes = [&opcodes](int i) -> int	// This is to handle ISO color opcodes
 	{
 		const String& s = opcodes[i];
@@ -28,6 +27,8 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 		return rc;
 	};
 
+	LTIMING("Sgr");
+	
 	for(int i = 0; i < opcodes.GetCount(); i++) {
 		int opcode = HandleOpcodes(i);
 		switch(opcode) {

@@ -1,7 +1,7 @@
 #include "Terminal.h"
 
 #define LLOG(x)	   // RLOG("Terminal: " << x)
-#define LTIMING(x)  RTIMING(x)
+#define LTIMING(x) // RTIMING(x)
 
 namespace Upp {
 
@@ -162,7 +162,7 @@ void Terminal::Paint(Draw& w)
 	w.End();
 }
 
-static Color sAdjustBrightness(const Color& c, VTCell cell, int which, double brightness = 0.70f)
+static Color sAdjustBrightness(const Color& c, const VTCell& cell, int which, double brightness = 0.70f)
 {
 	if(!cell.IsFaint() || which != Console::COLOR_INK)
 		return c;
