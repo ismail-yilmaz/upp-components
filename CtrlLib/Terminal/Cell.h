@@ -40,8 +40,8 @@ struct VTCell : Moveable<VTCell> {
     };
     
     VTCell& Normal()                            { sgr = SGR_NORMAL; return *this; }
-    VTCell& Bold(bool b = true)                 { if(b) sgr |= SGR_BOLD; else sgr &= ~SGR_BOLD; sgr &= ~SGR_FAINT; return *this;   }
-    VTCell& Faint(bool b = true)                { if(b) sgr |= SGR_FAINT; else sgr &= ~SGR_FAINT; sgr &= ~SGR_BOLD;  return *this; }
+    VTCell& Bold(bool b = true)                 { if(b) sgr |= SGR_BOLD; else sgr &= ~SGR_BOLD; return *this;                 }
+    VTCell& Faint(bool b = true)                { if(b) sgr |= SGR_FAINT; else sgr &= ~SGR_FAINT; return *this;               }
     VTCell& Italic(bool b = true)               { if(b) sgr |= SGR_ITALIC; else sgr &= ~SGR_ITALIC; return *this;             }
     VTCell& Underline(bool b = true)            { if(b) sgr |= SGR_UNDERLINE; else sgr &= ~SGR_UNDERLINE; return *this;       }
     VTCell& Blink(bool b = true)                { if(b) sgr |= SGR_BLINK; else sgr &= ~SGR_BLINK; return *this;               }

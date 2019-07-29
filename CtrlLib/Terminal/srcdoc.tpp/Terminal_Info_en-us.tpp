@@ -33,6 +33,8 @@ topic "Overview";
 &]
 [s11;= [* From left to right: GNU Emacs, Lynx web browser, mapscii (on 
 Linux)]&]
+[s2;= &]
+[s2;= Overview&]
 [s22;%- Table of contents&]
 [s0; &]
 [s0; [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Chapter1^ 1. 

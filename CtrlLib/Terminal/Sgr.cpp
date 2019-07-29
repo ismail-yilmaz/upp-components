@@ -27,7 +27,7 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 		return rc;
 	};
 
-	LTIMING("Sgr");
+	LTIMING("Console::SetGraphicsRendition");
 	
 	for(int i = 0; i < opcodes.GetCount(); i++) {
 		int opcode = HandleOpcodes(i);
@@ -41,7 +41,6 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 			break;
 		case 2:
 			attrs.sgr |= VTCell::SGR_FAINT;
-			attrs.sgr &= ~VTCell::SGR_BOLD;
 			break;
 		case 3:
 			attrs.sgr |= VTCell::SGR_ITALIC;
@@ -67,10 +66,6 @@ void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 			break;
 		case 15:
 			 //ACS off
-			break;
-		case 21:
-			attrs.sgr &= ~VTCell::SGR_BOLD;
-			attrs.sgr &= ~VTCell::SGR_FAINT;
 			break;
 		case 22:
 			attrs.sgr &= ~VTCell::SGR_FAINT;

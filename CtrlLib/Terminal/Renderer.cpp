@@ -162,21 +162,20 @@ void Terminal::Paint(Draw& w)
 	w.End();
 }
 
-static Color sAdjustBrightness(const Color& c, const VTCell& cell, int which, double brightness = 0.70f)
-{
-	if(!cell.IsFaint() || which != Console::COLOR_INK)
-		return c;
-	
-	double h, s, v;
-	RGBtoHSV(c.GetR() / 255.0, c.GetG() / 255.0, c.GetB() / 255.0, h, s, v);
-	return HsvColorf(h, s, brightness);
-}
-
 Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 {
 	int index = which == COLOR_INK ? cell.ink : cell.paper;
 
 	Color c;
+	
+	auto AdjustBrightness = [&which, &cell](Color c) -> Color
+	{
+		if(!cell.IsFaint() || which != COLOR_INK)
+			return c;
+		double h, s, v;
+		RGBtoHSV(c.GetR() / 255.0, c.GetG() / 255.0, c.GetB() / 255.0, h, s, v);
+		return HsvColorf(h, s, 0.70);
+	};
 
 	if(index == 0xFFFF) {
 		index = which;
@@ -191,7 +190,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 		}
 		else // Grayscale
 			r = g = b = (index - 232) * 10 + 8;
-		return sAdjustBrightness(Color(r, g, b), cell, which);
+		return AdjustBrightness(Color(r, g, b));
 	}
 
 	if(lightcolors ||
@@ -200,6 +199,6 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 				index += 8;
 
 	c = colortable[index];	// Adjust only the first 16 colors.
-	return sAdjustBrightness(adjustcolors ? AdjustIfDark(c) : c, cell, which);
+	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
 }
 }

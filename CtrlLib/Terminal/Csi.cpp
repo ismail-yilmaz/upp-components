@@ -657,7 +657,7 @@ void Console::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 		// GL or GR, but I wasn't able to figure out how to take the SGR
 		// values into account. Luckily, I found the anwser in xterm's code.
 		// See: xterm/screen.c, ln 2719-2817 (xtermCheckRect() function)
-		// Credits should go to Thomas Dickey (xterm's maintainer) et al.
+		// Credits should go to Thomas E. Dickey (xterm's maintainer) et al.
 		
 		int chr = cell.chr;
 		checksum -= ConvertToCharset(chr, gsets.Get(chr, IsLevel2()));
