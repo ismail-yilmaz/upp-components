@@ -157,7 +157,9 @@ keys.&]
 [s5;i150;O0; Supports UDK (DEC’s user`-defined function keys feature).&]
 [s5;i150;O0; Supports user configurable blinking text and blink interval.&]
 [s5;i150;O0; Supports ANSI colors (16 colors palette).&]
-[s5;i150;O0; Supports ISO colors (256 colors palette).&]
+[s5;i150;O0; Supports ISO indexed color mode (256 colors palette).&]
+[s5;i150;O0; Supports ISO direct/true color mode (16 million colors) 
+via TRUECOLOR compiler flag.&]
 [s5;i150;O0; Supports xterm dynamic colors (dynamic ink/paper/selection 
 colors).&]
 [s5;i150;O0; Supports bright colors.&]

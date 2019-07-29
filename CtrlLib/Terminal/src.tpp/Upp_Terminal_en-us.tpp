@@ -22,7 +22,9 @@ topic "Terminal";
 &]
 [s0;%% &]
 [s2;%% This class implements a 256`-color virtual terminal emulator 
-ctrl compatible with DEC`'s VT series and xterm.&]
+ctrl compatible with DEC`'s VT series and xterm. It also supports 
+the direct or true (24`-bit) color mode if compiled with the 
+TRUECOLOR flag.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]

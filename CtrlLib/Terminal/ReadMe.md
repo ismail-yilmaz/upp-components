@@ -58,6 +58,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports user configurable blinking text and blink interval.
 - Supports ANSI colors (16 colors palette).
 - Supports ISO colors (256 colors palette).
+- Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
 - Supports xterm dynamic colors (dynamic ink/paper/selection colors).
 - Supports bright colors.
 - Supports background color erase (BCE).

@@ -10,8 +10,8 @@ struct VTCell : Moveable<VTCell> {
     word    attrs;
     word    sgr;
 #ifdef flagTRUECOLOR
-	int     ink;
-	int     paper;
+    int     ink;
+    int     paper;
 #else
     word    ink;
     word    paper;

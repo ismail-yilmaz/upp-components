@@ -63,16 +63,16 @@ void VTCell::Reset()
 
 bool VTCell::IsNullInstance() const
 {
-	return  attrs == 0          &&
-	        sgr   == SGR_NORMAL &&
+    return  attrs == 0          &&
+            sgr   == SGR_NORMAL &&
 #ifdef flagTRUECOLOR
-			IsNull(ink)         &&
-			IsNull(paper)       &&
+            IsNull(ink)         &&
+            IsNull(paper)       &&
 #else
-	        ink   == 0xFFFF     &&
-	        paper == 0xFFFF     &&
+            ink   == 0xFFFF     &&
+            paper == 0xFFFF     &&
 #endif
-	        chr == 0;
+            chr == 0;
 }
 
 void VTCell::Serialize(Stream& s)
