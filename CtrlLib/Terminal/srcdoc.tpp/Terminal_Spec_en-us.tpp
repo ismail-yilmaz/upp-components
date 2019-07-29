@@ -67,7 +67,7 @@ special case, and labelled as `"level 0`".&]
 [s5;i150;O0; Not all terminal sequences or modes pertaining to the 
 above mentioned device levels or models are implemented: Some 
 of these emulations are complete, while others cover only a set 
-of selected features. See [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Spec`_en`-us`#TerminalSequenceTables^ T
+of selected features. See the [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Spec`_en`-us`#TerminalSequenceTables^ T
 ables] section for a list of supported sequences.&]
 [s5;i150;O0; DEC terminals are backwards compatible devices (i.e. 
 a level 4 device recognizes virtually all of the terminal sequences 

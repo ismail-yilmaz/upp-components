@@ -4,6 +4,26 @@
 
 namespace Upp {
 
+VTCell& VTCell::Ink(int n)
+{
+#ifdef flagTRUECOLOR
+	ink = n;
+#else
+	ink = Nvl(n, 0xFFFF);
+#endif
+	return *this;
+}
+
+VTCell& VTCell::Paper(int n)
+{
+#ifdef flagTRUECOLOR
+	paper = n;
+#else
+	paper = Nvl(n, 0xFFFF);
+#endif
+	return *this;
+}
+
 void VTCell::Fill(const VTCell& filler, dword flags)
 {
 	if(flags == FILL_NORMAL) {
@@ -31,9 +51,28 @@ void VTCell::Fill(const VTCell& filler, dword flags)
 
 void VTCell::Reset()
 {
+#ifdef flagTRUECOLOR
+	ink   = Null;
+	paper = Null;
+#else
 	ink   = 0xFFFF;
 	paper = 0xFFFF;
+#endif
 	sgr   = SGR_NORMAL;
+}
+
+bool VTCell::IsNullInstance() const
+{
+	return  attrs == 0          &&
+	        sgr   == SGR_NORMAL &&
+#ifdef flagTRUECOLOR
+			IsNull(ink)         &&
+			IsNull(paper)       &&
+#else
+	        ink   == 0xFFFF     &&
+	        paper == 0xFFFF     &&
+#endif
+	        chr == 0;
 }
 
 void VTCell::Serialize(Stream& s)

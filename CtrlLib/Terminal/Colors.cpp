@@ -138,9 +138,46 @@ void Console::SetISOColor(VTCell& attrs, const Vector<String>& opcodes)
 		if(which == 48)
 			attrs.Paper(GetParam(3));
 	}
+#ifdef flagTRUECOLOR
 	else
 	if(mode == 2) {	// Direct color mode (True color)
-		// TODO:
+
+		auto GetRGBColor = [&v](int r, int g, int b) -> int
+		{
+			int c = Null;
+			if((0 <= r && r <= 255) &&
+		       (0 <= g && g <= 255) &&
+			   (0 <= b && b <= 255)) {
+			       c  = 0x01000000; // We use this bit as the true color marker. (index > 255)
+			       c |= r << 16;
+			       c |= g << 8;
+			       c |= b;
+			   }
+			return c;
+		};
+		
+		// The format of direct color sequence (ISO-8613-6) is known to be confusing.
+		// We also support Konsole's (KDE's default terminal emulator) version of this
+		// sequence.
+
+		int r = 0, g = 0, b = 0;
+		if(v.GetCount() >= 6) { // Ignores color space identifier.
+			r = GetParam(4);
+			g = GetParam(5);
+			b = GetParam(6);
+		}
+		else
+		if(v.GetCount() == 5) { // Same but with no color space identifier.
+			r = GetParam(3);
+			g = GetParam(4);
+			b = GetParam(5);
+		}
+		if(which == 38)
+			attrs.Ink(GetRGBColor(r, g, b));
+		else
+		if(which == 48)
+			attrs.Paper(GetRGBColor(r, g, b));
 	}
+#endif
 }
 }

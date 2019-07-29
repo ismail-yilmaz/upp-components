@@ -165,8 +165,6 @@ void Terminal::Paint(Draw& w)
 Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 {
 	int index = which == COLOR_INK ? cell.ink : cell.paper;
-
-	Color c;
 	
 	auto AdjustBrightness = [&which, &cell](Color c) -> Color
 	{
@@ -177,10 +175,25 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 		return HsvColorf(h, s, 0.70);
 	};
 
+#ifndef flagTRUECOLOR
 	if(index == 0xFFFF) {
 		index = which;
 	}
 	else
+#else
+	if(IsNull(index)) {
+		index = which;
+	}
+	else
+	if(index > 255 && index & 0x01000000) {	// True color support.
+		byte r, g, b;
+		r = (index & 0xFF0000) >> 16;
+		g = (index & 0xFF00) >> 8;
+		b =  index & 0xFF;
+		return AdjustBrightness(Color(r, g, b));
+	}
+	else
+#endif
 	if(index >= 16) {	// 256 colors support.
 		byte r, g, b;
 		if(index < 232) {
@@ -198,7 +211,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 			if(index < 8)
 				index += 8;
 
-	c = colortable[index];	// Adjust only the first 16 colors.
+	Color c = colortable[index];	// Adjust only the first 16 colors.
 	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
 }
 }

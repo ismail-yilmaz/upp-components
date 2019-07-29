@@ -1,5 +1,8 @@
 description "A flexible and powerful terminal emulation library for Ultimate++\377";
 
+acceptflags
+	TRUECOLOR;
+
 uses
 	CtrlLib;
 

@@ -62,7 +62,8 @@ License]&]
 [s0; &]
 [s0; Terminal package is a flexible, easy`-to`-use yet powerful cross`-platform 
 virtual terminal emulation library and Terminal widget written 
-for Ultimate`+`+. It is designed from the ground up with modularity 
+for Ultimate`+`+. It is not based on existing terminal emulation 
+libraries. It is designed from the ground up with modularity 
 and maintainability in mind. In this respect the package consists 
 of several re`-usable classes, only one being the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:class^ T
 erminal] widget. (See the [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Chapter4^ C

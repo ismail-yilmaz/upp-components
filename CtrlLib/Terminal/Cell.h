@@ -9,8 +9,13 @@ struct VTCell : Moveable<VTCell> {
     int     chr;
     word    attrs;
     word    sgr;
+#ifdef flagTRUECOLOR
+	int     ink;
+	int     paper;
+#else
     word    ink;
     word    paper;
+#endif
 
     enum Attrs : byte {
         ATTR_PROTECTED  = 0x0001,
@@ -50,9 +55,9 @@ struct VTCell : Moveable<VTCell> {
     VTCell& Conceal(bool b = true)              { if(b) sgr |= SGR_HIDDEN; else sgr &= ~SGR_HIDDEN; return *this;             }
     VTCell& Protect(bool b = true)              { if(b) attrs |= ATTR_PROTECTED; else attrs &= ~ATTR_PROTECTED; return *this; }
 
-    VTCell& Ink(int n)                          { ink   = Nvl(n, 0xFFFF); return *this; }
-    VTCell& Paper(int n)                        { paper = Nvl(n, 0xFFFF); return *this; }
-    
+    VTCell& Ink(int n);
+    VTCell& Paper(int n);
+
     bool    IsNormal() const                    { return sgr == SGR_NORMAL; }
     bool    IsBold() const                      { return sgr & SGR_BOLD;    }
     bool    IsFaint() const                     { return sgr & SGR_FAINT;   }
@@ -63,7 +68,7 @@ struct VTCell : Moveable<VTCell> {
     bool    IsStrikeout() const                 { return sgr & SGR_STRIKEOUT;}
     bool    IsConcealed() const                 { return sgr & SGR_HIDDEN;  }
     bool    IsProtected() const                 { return attrs & ATTR_PROTECTED;}
-    bool    IsNullInstance() const              { return attrs == 0 && sgr == SGR_NORMAL && ink == 0xFFFF && paper == 0xFFFF && chr == 0; }
+    bool    IsNullInstance() const;
 
     void    Fill(const VTCell& filler, dword flags);
 
