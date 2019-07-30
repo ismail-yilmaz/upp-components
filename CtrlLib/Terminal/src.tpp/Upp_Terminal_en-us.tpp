@@ -22,9 +22,9 @@ topic "Terminal";
 &]
 [s0;%% &]
 [s2;%% This class implements a 256`-color virtual terminal emulator 
-ctrl compatible with DEC`'s VT series and xterm. It also supports 
-the direct or true (24`-bit) color mode if compiled with the 
-TRUECOLOR flag.&]
+ctrl compatible with DEC VT series and xterm. It also supports 
+the true color (24`-bit) mode when compiled with the TRUECOLOR 
+flag.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -387,6 +387,12 @@ specific actions (enable/disable read`-only mode and show/hide
 scrollbar). This menu is optional. It can be overridden, appended 
 or disabled simply by defining or nullifying the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenBar^ W
 henBar ]callback.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:PaintPage`(Upp`:`:Draw`&`): [@(0.0.255) void]_[* PaintPage]([_^Upp`:`:Draw^ D
+raw][@(0.0.255) `&]_[*@3 w])&]
+[s2;%% Dumps the terminal screen to [%-*@3 w]. Useful for taking screenshots. 
+Note that this method works on WYSIWYG`-basis.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:IsTrackingEnabled`(`)const: [@(0.0.255) bool]_[* IsTrackingEnable

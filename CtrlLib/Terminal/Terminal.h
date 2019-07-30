@@ -97,6 +97,7 @@ public:
 
     void        Layout() override;
     void        Paint(Draw& w)  override;
+    void        PaintPage(Draw& w)                              { Paint0(w, GetSize(), true); }
 
     bool         Key(dword key, int count) override;
     virtual bool VTKey(dword key, int count);
@@ -132,6 +133,8 @@ private:
     void        PreParse() override;
     void        PostParse() override;
 
+    void        Paint0(Draw& w, const Size& wsz, bool print = false);
+    
     void        SyncPage(bool notify = true);
     void        SwapPage() override;
     void        RefreshPage(bool full = false) override;

@@ -1,7 +1,7 @@
 #include "Terminal.h"
 
-#define LLOG(x)	   // RLOG("Terminal: " << x)
-#define LTIMING(x) // RTIMING(x)
+#define LLOG(x)	    // RLOG("Terminal: " << x)
+#define LTIMING(x)  // RTIMING(x)
 
 namespace Upp {
 
@@ -91,76 +91,80 @@ void sVTTextRenderer::DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Co
 void Terminal::Paint(Draw& w)
 {
 	GuiLock __;
+	Size sz = GetSize();
+	w.Clip(sz);
+	Paint0(w, sz);
+	w.End();
+}
+
+void Terminal::Paint0(Draw& w, const Size& wsz, bool print)
+{
 	int  pos = GetSbPos();
-	Size wsz = GetSize();
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	Font fnt = font;
-	
-	w.Clip(wsz);
-	{
-		sVTRectRenderer rr(w);
-		sVTTextRenderer tr(w);
-		LTIMING("Terminal::Paint");
-		if(!nobackground)
-			w.DrawRect(wsz, colortable[COLOR_PAPER]);
-		for(int i = 0; i < pos + psz.cy; i++) {
-			int y = i * fsz.cy - (fsz.cy * pos);
-			if(w.IsPainting(0, y, wsz.cx, fsz.cy)) {
-				int pass = 0;
-				while(pass < 2) {
-					const auto& line = page->GetLine(i);
-					for(int j = 0; !line.IsEmpty() && j < psz.cx; j++) {
-						const VTCell& cell = j < line.GetCount() ? line[j] : GetAttrs();
-						Color ink = GetColorFromIndex(cell, COLOR_INK);
-						Color paper = GetColorFromIndex(cell, COLOR_PAPER);
-						if(cell.IsInverted())
-							Swap(ink, paper);
-						if(modes[DECSCNM])
-							Swap(ink, paper);
-						int x = j * fsz.cx;
-						int n = i * psz.cx + j;
-						bool highlight = IsSelected(n);
-						if(pass == 0) {
-							if(!nobackground ||
-								(highlight || cell.IsInverted() || cell.paper != 0xFFFF)) {
-									int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
-									rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
-							}
+
+	sVTRectRenderer rr(w);
+	sVTTextRenderer tr(w);
+	LTIMING("Terminal::Paint");
+	if(!nobackground)
+		w.DrawRect(wsz, colortable[COLOR_PAPER]);
+	for(int i = 0; i < pos + psz.cy; i++) {
+		int y = i * fsz.cy - (fsz.cy * pos);
+		if(w.IsPainting(0, y, wsz.cx, fsz.cy)) {
+			int pass = 0;
+			while(pass < 2) {
+				const auto& line = page->GetLine(i);
+				for(int j = 0; !line.IsEmpty() && j < psz.cx; j++) {
+					const VTCell& cell = j < line.GetCount() ? line[j] : GetAttrs();
+					Color ink = GetColorFromIndex(cell, COLOR_INK);
+					Color paper = GetColorFromIndex(cell, COLOR_PAPER);
+					if(cell.IsInverted())
+						Swap(ink, paper);
+					if(modes[DECSCNM])
+						Swap(ink, paper);
+					int x = j * fsz.cx;
+					int n = i * psz.cx + j;
+					bool highlight = IsSelected(n);
+					if(pass == 0) {
+						if(!nobackground || print ||
+							(highlight || cell.IsInverted() || cell.paper != 0xFFFF)) {
+								int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
+								rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
 						}
-						else
-						if(pass == 1) {
-							fnt.Bold(cell.IsBold());
-							fnt.Italic(cell.IsItalic());
-							fnt.Strikeout(cell.IsStrikeout());
-							fnt.Underline(cell.IsUnderlined());
-							if(!cell.IsConcealed()) {
-								if(!cell.IsBlinking() || highlight || (cell.IsBlinking() && !blinking)) {
-									tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
-								}
+					}
+					else
+					if(pass == 1) {
+						fnt.Bold(cell.IsBold());
+						fnt.Italic(cell.IsItalic());
+						fnt.Strikeout(cell.IsStrikeout());
+						fnt.Underline(cell.IsUnderlined());
+						if(!cell.IsConcealed()) {
+							if(!cell.IsBlinking() || highlight || print || (cell.IsBlinking() && !blinking)) {
+								tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
 							}
 						}
 					}
-					rr.Flush();
-					tr.Flush();
-					pass++;
 				}
+				rr.Flush();
+				tr.Flush();
+				pass++;
 			}
 		}
-		// Paint a steady (non-blinking) caret, if enabled.
-		if(modes[DECTCEM] && HasFocus() && !caret.IsBlinking())
-			w.DrawRect(GetCaretRect(), InvertColor);
-
-		// Hint new size.
-		if(sizehint && hinting) {
-			auto hint = GetSizeHint(GetView(), psz);
-			DrawFrame(w ,hint.b.Inflated(8), LtGray);
-			w.DrawRect(hint.b.Inflated(7), SColorText);
-			w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
-		}
 	}
-	w.End();
+	// Paint a steady (non-blinking) caret, if enabled.
+	if(modes[DECTCEM] && (print || (HasFocus() && !caret.IsBlinking())))
+		w.DrawRect(GetCaretRect(), InvertColor);
+
+	// Hint new size.
+	if(sizehint && hinting) {
+		auto hint = GetSizeHint(GetView(), psz);
+		DrawFrame(w ,hint.b.Inflated(8), LtGray);
+		w.DrawRect(hint.b.Inflated(7), SColorText);
+		w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
+	}
 }
+
 
 Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 {

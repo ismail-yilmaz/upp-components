@@ -25,7 +25,7 @@ struct TerminalExample : TopWindow {
 	
 	void PutGet(String out = Null)
 	{
-		term.CheckWriteUtf8(pty.Get());
+		term.WriteUtf8(pty.Get());
 		pty.Write(out);
 		if(!pty.IsRunning())
 			Break();

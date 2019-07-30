@@ -565,7 +565,6 @@ There is always room for improvement and new features.
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
 - Sixel graphics.
-- True color (24 bit) support.
 - Improve modifier keys handling.
 - Implement reverse wrap.
 - Improve legacy charsets support.

@@ -32,7 +32,7 @@ public:
         LED_SCRLOCK  = 2,
         LED_ALL      = 3
     };
-
+    
     Console();
     virtual ~Console() {}
 
@@ -165,7 +165,7 @@ private:
     void            ClearRectArea(const VTInStream::Sequence& seq, bool selective = false);
     void            SelectRectAreaAttrsChangeExtent(const VTInStream::Sequence& seq);
     void            ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert);
-
+    
     dword           GetFillerFlags(const VTInStream::Sequence& seq) const;
 
     void            Backup(bool tpage = true, bool csets = true, bool attrs = true);
