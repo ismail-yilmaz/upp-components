@@ -96,8 +96,9 @@ public:
     void        StdBar(Bar& menu);
 
     void        Layout() override;
-    void        Paint(Draw& w)  override;
-    void        PaintPage(Draw& w)                              { Paint0(w, GetSize(), true); }
+    
+    void        Paint(Draw& w)  override                        { Paint0(w); }
+    void        PaintPage(Draw& w)                              { Paint0(w, true); }
 
     bool         Key(dword key, int count) override;
     virtual bool VTKey(dword key, int count);
@@ -133,7 +134,7 @@ private:
     void        PreParse() override;
     void        PostParse() override;
 
-    void        Paint0(Draw& w, const Size& wsz, bool print = false);
+    void        Paint0(Draw& w, bool print = false);
     
     void        SyncPage(bool notify = true);
     void        SwapPage() override;

@@ -88,22 +88,16 @@ void sVTTextRenderer::DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Co
 	xpos = _x + fsz.cx;
 }
 
-void Terminal::Paint(Draw& w)
+void Terminal::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
-	Size sz = GetSize();
-	w.Clip(sz);
-	Paint0(w, sz);
-	w.End();
-}
-
-void Terminal::Paint0(Draw& w, const Size& wsz, bool print)
-{
 	int  pos = GetSbPos();
+	Size wsz = GetSize();
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	Font fnt = font;
-
+	
+	w.Clip(wsz);
 	sVTRectRenderer rr(w);
 	sVTTextRenderer tr(w);
 	LTIMING("Terminal::Paint");
@@ -127,8 +121,12 @@ void Terminal::Paint0(Draw& w, const Size& wsz, bool print)
 					int n = i * psz.cx + j;
 					bool highlight = IsSelected(n);
 					if(pass == 0) {
-						if(!nobackground || print ||
-							(highlight || cell.IsInverted() || cell.paper != 0xFFFF)) {
+#ifdef flagTRUECOLOR
+						bool defpcolor = IsNull(cell.paper);
+#else
+						bool defpcolor = cell.paper == 0xFFFF;
+#endif
+						if(!nobackground || print || highlight || cell.IsInverted() || !defpcolor) {
 								int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
 								rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
 						}
@@ -153,7 +151,7 @@ void Terminal::Paint0(Draw& w, const Size& wsz, bool print)
 		}
 	}
 	// Paint a steady (non-blinking) caret, if enabled.
-	if(modes[DECTCEM] && (print || (HasFocus() && !caret.IsBlinking())))
+	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
 		w.DrawRect(GetCaretRect(), InvertColor);
 
 	// Hint new size.
@@ -163,8 +161,8 @@ void Terminal::Paint0(Draw& w, const Size& wsz, bool print)
 		w.DrawRect(hint.b.Inflated(7), SColorText);
 		w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
 	}
+	w.End();
 }
-
 
 Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 {

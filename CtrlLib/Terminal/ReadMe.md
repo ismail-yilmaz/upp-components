@@ -9,7 +9,7 @@ E-mail: iylmz.iylmz@gmail.com
 
 Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library and widget written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
 
-It is not based on existing terminal emulation libraries. It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
+It is not based on the existing terminal emulation libraries. It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
 
 A short video demonstration of Terminal widget:
 https://vimeo.com/349761874
