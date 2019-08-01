@@ -107,6 +107,8 @@ protected:
     void            PutSS2(int c, int cnt = 1);
     void            PutSS3(const String& s, int cnt = 1);
     void            PutSS3(int c, int cnt = 1);
+    void            PutEncoded(const String& s, bool noctl = false);
+    void            PutEncoded(const WString& s, bool noctl = false);
     void            PutEol();
 
     void            Flush();

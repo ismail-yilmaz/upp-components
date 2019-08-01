@@ -1,6 +1,7 @@
 #include "Console.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)		// RLOG("Console: " << x)
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
@@ -334,6 +335,30 @@ void Console::PutSS3(int c, int cnt)
 		PutC(c);
 	}
 	Flush();
+}
+
+void Console::PutEncoded(const String& s, bool noctl)
+{
+	LTIMING("Console::PutEncoded");
+
+	String txt, buf = s;
+
+	if(!modes[LNM])
+		buf.Replace("\n", "\r");
+
+	for(int c : buf) {
+		c = ConvertToCharset(c, gsets.Get(c, IsLevel2()));
+		if(!noctl		||
+			IsSpace(c)	||
+				(c >= 0x20 && c <= 0xFFFF))
+					txt.Cat(c == DEFAULTCHAR ? '?' : c);
+	}
+	PutRaw(txt);
+}
+
+void Console::PutEncoded(const WString& s, bool noctl)
+{
+	PutEncoded(ToUtf8(s), noctl);
 }
 
 void Console::PutEol()
