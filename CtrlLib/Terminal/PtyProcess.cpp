@@ -371,7 +371,7 @@ void PtyProcess::Write(String s)
 			Read(wread);
 			wread = ho + wread;
 			ret = write(master, ~wbuffer + wn, wbuffer.GetLength() - wn);
-			if(ret)
+			if(ret > 0)
 				wbuffer.Remove(0, ret);
 		}
 	}
