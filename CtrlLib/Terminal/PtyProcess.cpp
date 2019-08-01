@@ -358,18 +358,21 @@ bool PtyProcess::Read(String& s)
 
 void PtyProcess::Write(String s)
 {
-	if(IsNull(s))
+	if(IsNull(s) && wbuffer.IsEmpty())
 		return;
 	if(convertcharset)
 		s = ToSystemCharset(s);
+	wbuffer.Cat(s);
 	if (master >= 0) {
 		int ret = 1;
-		for(int wn = 0; (ret > 0 || errno == EINTR) && wn < s.GetLength(); wn += ret) {
+		for(int wn = 0; (ret > 0 || errno == EINTR) && wn < wbuffer.GetLength(); wn += ret) {
 			String ho = wread;
 			wread = Null;
 			Read(wread);
 			wread = ho + wread;
-			ret = write(master, ~s + wn, s.GetLength() - wn);
+			ret = write(master, ~wbuffer + wn, wbuffer.GetLength() - wn);
+			if(ret)
+				wbuffer.Remove(0, ret);
 		}
 	}
 }

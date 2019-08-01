@@ -55,8 +55,7 @@ private:
     String      exit_string;
     String      sname;
     String      wread;
-    Size        ptysize;
-
+    String      wbuffer;
     pid_t       pid;
 };
 #endif
