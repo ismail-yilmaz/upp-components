@@ -422,6 +422,25 @@ raw][@(0.0.255) `&]_[*@3 w])&]
 Note that this method works on WYSIWYG`-basis.&]
 [s3;%% &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:MetaEscapesKeys`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* MetaEscapesKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Prefixes the `"Alt`-key`" modified keys with ESC. Returns 
+`*this for method chaining. This is the default behaviour.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:MetaShiftsKeys`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* MetaShiftsKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Shifts the codes of `"Alt`-key`" modified keys from 0`-127 
+to 128`-255 by adding 128 to them. Returns `*this for method 
+chaining.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:MetaKeyDoesNothing`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* MetaKeyDoesNothing]()&]
+[s2;%% Disables shifting and prefixing of the `"Alt`" modified keys. 
+Returns `*this for method chaining.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:IsTrackingEnabled`(`)const: [@(0.0.255) bool]_[* IsTrackingEnable
 d]()_[@(0.0.255) const]&]
 [s2;%% Returns true if mouse tracking mode is enabled.&]

@@ -107,6 +107,10 @@ public:
     virtual bool UDKey(dword key, int count);
     virtual bool NavKey(dword key, int count);
 
+    Terminal&   MetaEscapesKeys(bool b = true);
+    Terminal&   MetaShiftsKeys(bool b = true);
+    Terminal&   MetaKeyDoesNothing()                            { metakeyflags = MKEY_NONE; return *this; }
+
     void        LeftDown(Point p, dword keyflags) override;
     void        LeftUp(Point p, dword keyflags) override;
     void        LeftDrag(Point p, dword keyflags) override;
@@ -179,6 +183,12 @@ private:
     WString     GetSelectedText();
 
 private:
+    enum ModifierKeyFlags : dword {
+        MKEY_NONE   = 0x00,
+        MKEY_ESCAPE = 0x01,
+        MKEY_SHIFT  = 0x02
+    };
+
     VScrollBar  sb;
     Scroller    scroller;
     Font        font            = Monospace();
@@ -203,6 +213,7 @@ private:
     bool        blinking        = false;
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
+    dword       metakeyflags    = MKEY_ESCAPE;
 };
 }
 #endif

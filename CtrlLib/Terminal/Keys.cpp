@@ -206,65 +206,16 @@ bool Terminal::Key(dword key, int count)
 		return true;
 	
 	switch(key) {
-	case K_CTRL_A:
-	case K_CTRL_B:
-	case K_CTRL_C:
-	case K_CTRL_D:
-	case K_CTRL_E:
-	case K_CTRL_F:
-	case K_CTRL_G:
-	case K_CTRL_H:
-	case K_CTRL_I:
-	case K_CTRL_J:
-	case K_CTRL_K:
-	case K_CTRL_L:
-	case K_CTRL_M:
-	case K_CTRL_N:
-	case K_CTRL_O:
-	case K_CTRL_P:
-	case K_CTRL_Q:
-	case K_CTRL_R:
-	case K_CTRL_S:
-	case K_CTRL_T:
-	case K_CTRL_U:
-	case K_CTRL_V:
-	case K_CTRL_W:
-	case K_CTRL_X:
-	case K_CTRL_Y:
-	case K_CTRL_Z:
-	case K_CTRL_0:
-	case K_CTRL_1:
-	case K_CTRL_2:
-	case K_CTRL_3:
-	case K_CTRL_4:
-	case K_CTRL_5:
-	case K_CTRL_6:
-	case K_CTRL_7:
-	case K_CTRL_8:
-	case K_CTRL_9:
-	case K_CTRL_SPACE:
-	case K_CTRL_MINUS:
-	case K_CTRL_GRAVE:
-	case K_CTRL_SLASH:
-	case K_CTRL_BACKSLASH:
-	case K_CTRL_LBRACKET:
-	case K_CTRL_RBRACKET:
-	case K_CTRL_COMMA:
-	case K_CTRL_PERIOD:
-	case K_CTRL_EQUAL:
-	case K_CTRL_APOSTROPHE:
-		Console::Put(key & 0x1F);
-		break;
 	case K_ALT_KEY:
 	case K_CTRL_KEY:
 	case K_SHIFT_KEY:
+	case K_ALT|K_CTRL_KEY:
+	case K_ALT|K_SHIFT_KEY:
+	case K_CTRL|K_ALT_KEY:
+	case K_CTRL|K_SHIFT_KEY:
+	case K_SHIFT|K_ALT_KEY:
+	case K_SHIFT|K_CTRL_KEY:
 		return true;
-	case K_RETURN:
-		Console::PutEol();
-		break;
-	case K_BACKSPACE:
-		Console::Put(modes[DECBKM] ? key : 0x7F, count);
-		break;
 	default:
 		if(UDKey(key, count))
 			break;
@@ -277,21 +228,68 @@ bool Terminal::Key(dword key, int count)
 		else
 		if(VTKey(key, count))
 			break;
-		if(key > 65535)
-			return false;
-		else
-		if(key < 32)
-			Console::Put(key, count);
 		else {
+			bool meta  = key & K_ALT;
+			bool ctrl  = key & K_CTRL;
+			bool shift = key & K_SHIFT;
+		
+			key &= ~(K_CTRL|K_SHIFT|K_ALT|K_DELTA);
+			
+			if(key > 65535)
+				return true;
+			
+			bool utf8 = GetCharset() == CHARSET_UTF8;
+			
 			int c = ConvertToCharset(key, GetLegacyCharsets().Get(key, IsLevel2()));
 			if(c == DEFAULTCHAR)
 				return true;
-			GetCharset() == CHARSET_UNICODE
-				? Console::PutUtf8(c, count)
-				: Console::Put(c, count);
-		}
+		
+			if(ctrl)
+				c &= 0x1F;
+		
+			if(c == K_RETURN && !meta) {
+				PutEol();
+				break;
+			}
+			else
+			if(c == K_BACKSPACE)
+				c = modes[DECBKM] ? c : 0x7F;
+			
+			if(meta) {
+				if(metakeyflags & MKEY_SHIFT)
+					c |= 0x80;
+			
+				if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
+					utf8
+						? Console::PutESC(c, count)
+						: Console::Put(c, count);
+			}
+			else
+				utf8
+					? Console::PutUtf8(c, count)
+					: Console::Put(c, count);
+			}
 	}
 	PlaceCaret(true);
 	return true;
+}
+
+Terminal& Terminal::MetaEscapesKeys(bool b)
+{
+	if(b)
+		metakeyflags |=  MKEY_ESCAPE;
+	else
+		metakeyflags &= ~MKEY_ESCAPE;
+	return *this;
+}
+
+Terminal& Terminal::MetaShiftsKeys(bool b)
+{
+	if(b)
+		metakeyflags |=  MKEY_SHIFT;
+	else
+		metakeyflags &= ~MKEY_SHIFT;
+	return *this;
+
 }
 }

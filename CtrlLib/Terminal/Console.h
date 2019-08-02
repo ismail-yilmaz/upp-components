@@ -316,6 +316,7 @@ protected:
         XTDRAGM,
         XTANYMM,
         XTFOCUSM,
+        XTALTESCM,
         XTSRCM,
         XTSGRMM,
         XTUTF8MM,
@@ -359,6 +360,7 @@ private:
     void            XTbrpm(bool b);
     void            XTdragm(bool b);
     void            XTfocusm(bool b);
+    void            XTaltkeym(bool b);
     void            XTsgrmm(bool b);
     void            XTsrcm(bool b);
     void            XTutf8mm(bool b);

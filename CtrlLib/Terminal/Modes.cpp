@@ -92,6 +92,9 @@ void Console::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case XTFOCUSM:
 			XTfocusm(enable);
 			break;
+		case XTALTESCM:
+			XTaltkeym(enable);
+			break;
 		case XTASBM:
 			XTasbm(modenum, enable);
 			break;
@@ -331,6 +334,12 @@ void Console::XTfocusm(bool b)
 {
 	modes.Set(XTFOCUSM, b);
 	LDUMP(XTFOCUSM);
+}
+
+void Console::XTaltkeym(bool b)
+{
+	modes.Set(XTALTESCM, b);
+	LDUMP(XTALTESCM);
 }
 
 void Console::XTanymm(bool b)
