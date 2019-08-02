@@ -109,7 +109,7 @@ public:
 
     Terminal&   MetaEscapesKeys(bool b = true);
     Terminal&   MetaShiftsKeys(bool b = true);
-    Terminal&   MetaKeyDoesNothing()                            { metakeyflags = MKEY_NONE; return *this; }
+    Terminal&   MetaKeyDoesNothing()                            { modes.Set(XTALTESCM, false); metakeyflags = MKEY_NONE; return *this; }
 
     void        LeftDown(Point p, dword keyflags) override;
     void        LeftUp(Point p, dword keyflags) override;
