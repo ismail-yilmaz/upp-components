@@ -23,7 +23,7 @@ topic "Terminal";
 [s0;%% &]
 [s2;%% This class implements a 256`-color virtual terminal emulator 
 ctrl compatible with DEC VT series and xterm. It also supports 
-the true color (24`-bit) mode when compiled with the TRUECOLOR 
+the direct color (24`-bit) mode when compiled with the TRUECOLOR 
 flag.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
@@ -39,6 +39,29 @@ tdBar] method on construction. But client code can use this event
 to set, change or completely disable the context menu by setting 
 it to Null. Note that when the mouse tracking mode is activated 
 the context menu is not available.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:WhenClip: [_^Upp`:`:Gate^ Gate]<PasteClip[@(0.0.255) `&]>_[* WhenCl
+ip]&]
+[s2;%% This event is dispatched right [/ after ]the ctrl accepts a 
+clip for paste or drop operation. In this way, client code can 
+examine the content of the clip and reject it if it is not suitable 
+for the given operation. There are some important points to note 
+here:&]
+[s2;%% &]
+[s2;i150;O9;%% 1) Terminal ctrl accepts only plain text and OS file 
+URIs as valid source clips. It automatically encodes them into 
+either the overriding target charset, or the relevant g`-set 
+if the legacy charset support is enabled. However, WhenClip event 
+presents the client code with the `"raw`" clip content, not with 
+the encoded final product.&]
+[s2;i150;O9;%% &]
+[s2;i150;O9;%% 2) Returning true enables the control`-byte filtering 
+function: This will remove all bytes with value < 32 except the 
+whitespace characters, from the clip`'s content. &]
+[s2;i150;O9;%% &]
+[s2;i150;O9;%% 3) Returning false disables the control`-byte filtering 
+function. (This is the default behavior.).&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:History`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* Hi
@@ -369,7 +392,11 @@ Terminal ctrl doesn`'t have a predefined upper size limit.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:Paste`(`): [@(0.0.255) void]_[* Paste]()&]
-[s2;%% Pastes the clipboard to terminal.&]
+[s2;%% Pastes the clipboard to terminal. The content to be pasted 
+is automatically encoded into the target character set. Also 
+it can be examined, modified, or rejected by client code, using 
+the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenClip^ W
+henClip] event.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:SelectAll`(bool`): [@(0.0.255) void]_[* SelectAll]([@(0.0.255) bool
@@ -401,15 +428,14 @@ d]()_[@(0.0.255) const]&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:RefreshDisplay`(`): [@(0.0.255) void]_[* RefreshDisplay]()&]
-[s2;%% Refreshes the terminal display. This is the preferred refresh 
+[s2;%% Refreshes the terminal display. This is the prefered refresh 
 method. It refreshes only the damaged lines, and does some extra 
 stuff.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:Serialize`(Upp`:`:Stream`&`)override: [@(0.0.255) void]_[* Serial
 ize]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 s])_override&]
-[s2;%% Serializes the current configuration of Terminal to stream 
-[%-*@3 s].&]
+[s2;%% Serializes the current configuration of Terminal to [%-*@3 s].&]
 [s3;%% &]
 [s0; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]

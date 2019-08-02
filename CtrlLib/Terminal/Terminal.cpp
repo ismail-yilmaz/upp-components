@@ -100,43 +100,31 @@ Rect Terminal::GetCaretRect()
 
 void Terminal::Copy()
 {
-	String txt = GetSelectedText();
-	if(!IsNull(txt)) {
+	WString s = GetSelectedText();
+	if(!IsNull(s)) {
 		ClearClipboard();
-		AppendClipboardText(txt);
+		AppendClipboardUnicodeText(s);
+		AppendClipboardText(s.ToString());
 	}
 }
 
 void Terminal::Paste()
 {
-	Paste(Clipboard());
+	DragAndDrop(Null, Clipboard());
 }
 
-void Terminal::Paste(PasteClip& d)
+void Terminal::Paste(const WString& s, bool filter)
 {
 	if(IsReadOnly())
 		return;
 
-	String s;
-	bool accepted;
-	if((accepted = AcceptFiles(d))) {
-		for(auto f : GetFiles(d))
-			s << "'" << f << "' ";
-		s = TrimRight(s);
+	if(modes[XTBRPM]) {
+		PutCSI("200~");
+		PutEncoded(s, filter);
+		PutCSI("201~");
 	}
 	else
-	if((accepted = AcceptText(d))) {
-		s = GetWString(d).ToString();
-	}
-	if(accepted && !IsNull(s)) {
-		if(modes[XTBRPM]) {		// Bracketed paste mode.
-			PutCSI("200~");
-			PutRaw(s);
-			PutCSI("201~");
-		}
-		else PutRaw(s);
-	}
-	ClearSelection();
+		PutEncoded(s, filter);
 }
 
 void Terminal::SelectAll(bool history)
@@ -146,7 +134,7 @@ void Terminal::SelectAll(bool history)
 	Rect r = RectC(0, h ? 0 : sb, psz.cx, (h ? sb + (sb.GetTotal() - sb) : psz.cy) - 1);
 	anchor = sGetPos(r.TopLeft(), psz);
 	selpos = sGetPos(r.BottomRight(), psz);
-	selection = true;
+	selclick = true;
 	Refresh();
 }
 
@@ -322,8 +310,31 @@ void Terminal::LostFocus()
 
 void Terminal::DragAndDrop(Point p, PasteClip& d)
 {
-	if(!IsDragAndDropSource())
-		Paste(d);
+	if(IsReadOnly() || IsDragAndDropSource())
+		return;
+	
+	WString s;
+
+	if(AcceptFiles(d)) {
+		for(const auto& f : GetFiles(d)) {
+			s.Cat('\'');
+			s.Cat(f.ToWString());
+			s.Cat('\'');
+		}
+		s = TrimRight(s);
+	}
+	else
+	if(AcceptText(d))
+		s = GetWString(d);
+	else
+		return;
+
+	d.SetAction(DND_COPY);
+	
+	bool noctl = WhenClip(d);
+
+	if(d.IsAccepted())
+		Paste(s, noctl);
 }
 
 void Terminal::LeftDown(Point p, dword keyflags)
@@ -332,26 +343,46 @@ void Terminal::LeftDown(Point p, dword keyflags)
 	if(IsTrackingEnabled())
 		VTMouseEvent(p, LEFTDOWN, keyflags);
 	else {
-		int l, h, n = GetMouseSelPos(p);
-		if(selection || GetSelection(l, h) && n >= l && n < h) {
-			ClearSelection();
+		int n = GetMouseSelPos(p);
+		if(IsSelected(n)) {
+			selclick = true;
 			return;
 		}
-		SetSelection(n, n);
+		else
+			SetSelection(n, n);
 	}
 	SetCapture();
 }
 
 void Terminal::LeftUp(Point p, dword keyflags)
 {
-	if(IsTrackingEnabled() && !modes[XTX10MM])
-		VTMouseEvent(p, LEFTUP, keyflags);
+	if(IsTrackingEnabled()) {
+		if(!modes[XTX10MM])
+			VTMouseEvent(p, LEFTUP, keyflags);
+	}
 	else {
-		int l, h;
-		if(selection && !GetSelection(l, h))
+		int n = GetMouseSelPos(p);
+		if(!HasCapture() && selclick && IsSelected(n))
 			ClearSelection();
+		selclick = false;
 	}
 	ReleaseCapture();
+}
+
+void Terminal::LeftDrag(Point p, dword keyflags)
+{
+	int n = GetMouseSelPos(p);
+	if(!IsTrackingEnabled() && !HasCapture() && selclick && IsSelected(n)) {
+		WString sample = GetSelectedText();
+		VectorMap<String, ClipData> data;
+		Append(data, sample);
+		Size ssz = StdSampleSize();
+		ImageDraw iw(ssz);
+		iw.DrawRect(ssz, Black());
+		iw.Alpha().DrawRect(ssz, Black());
+		DrawTLText(iw.Alpha(), 0, 0, ssz.cx, sample, font, White());
+		DoDragAndDrop(data, iw, DND_COPY);
+	}
 }
 
 void Terminal::MiddleDown(Point p, dword keyflags)
@@ -360,7 +391,6 @@ void Terminal::MiddleDown(Point p, dword keyflags)
 	if(IsTrackingEnabled())
 		VTMouseEvent(p, MIDDLEDOWN, keyflags);
 	else
-	if(!IsReadOnly())
 		Paste();
 }
 
@@ -376,7 +406,8 @@ void Terminal::RightDown(Point p, dword keyflags)
 	if(IsTrackingEnabled())
 		VTMouseEvent(p, RIGHTDOWN, keyflags);
 	else {
-		if(!IsSelected(GetMouseSelPos(p)))
+		int n = GetMouseSelPos(p);
+		if(!(selclick = IsSelected(n)))
 			ClearSelection();
 		MenuBar::Execute(WhenBar);
 	}
@@ -506,7 +537,7 @@ void Terminal::SetSelection(int l, int h)
 {
 	anchor = min(l, h);
 	selpos = max(l, h);
-	selection = true;
+	Refresh();
 }
 
 bool Terminal::GetSelection(int& l, int& h)
@@ -522,9 +553,9 @@ bool Terminal::GetSelection(int& l, int& h)
 
 Rect Terminal::GetSelectionRect()
 {
-	Rect r;
+	Rect r = Null;
 	int l, h;
-	if(selection && GetSelection(l, h)) {
+	if(GetSelection(l, h)) {
 		Size psz = page->GetSize();
 		Point a = sGetCoords(l, psz);
 		Point b = sGetCoords(h, psz);
@@ -535,7 +566,6 @@ Rect Terminal::GetSelectionRect()
 
 void Terminal::ClearSelection()
 {
-	selection = false;
 	anchor = selpos = -1;
 	Refresh();
 }
@@ -553,10 +583,10 @@ void Terminal::ReCalcSelection()
 bool Terminal::IsSelected(int pos)
 {
 	int l, h;
-	return selection && GetSelection(l, h) && pos >= l && pos < h;
+	return GetSelection(l, h) && pos >= l && pos < h;
 }
 
-String Terminal::GetSelectedText()
+WString Terminal::GetSelectedText()
 {
 	WString txt;
 	Rect r = GetSelectionRect();
@@ -595,7 +625,7 @@ String Terminal::GetSelectedText()
 				PutCrLf();
 		}
 	}
-	return ToUtf8(txt);
+	return txt;
 }
 
 void Terminal::StdBar(Bar& menu)
@@ -607,7 +637,7 @@ void Terminal::StdBar(Bar& menu)
 		.Key(K_SHIFT_CTRL_S)
 		.Check(sb.IsChild());
 	menu.Separator();
-	menu.Add(selection, t_("Copy"), CtrlImg::copy(), [=] { Copy(); })
+	menu.Add(selclick, t_("Copy"), CtrlImg::copy(), [=] { Copy(); })
 		.Key(K_SHIFT_CTRL_C);
 	menu.Add(IsEditable(), t_("Paste"), CtrlImg::paste(), [=] { Paste(); })
 		.Key(K_SHIFT_CTRL_V);

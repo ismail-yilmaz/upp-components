@@ -21,8 +21,9 @@ public:
     Terminal();
     virtual ~Terminal()                                         {}
 
-    Event<>     WhenResize;
-    Event<Bar&> WhenBar;
+    Event<>          WhenResize;
+    Event<Bar&>      WhenBar;
+    Gate<PasteClip&> WhenClip;
 
     Terminal&   History(bool b = true)                          { GetDefaultPage().History(b); return *this; }
     Terminal&   NoHistory()                                     { return History(false); }
@@ -91,6 +92,7 @@ public:
 
     void        Copy();
     void        Paste();
+    void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
 
     void        StdBar(Bar& menu);
@@ -107,6 +109,7 @@ public:
 
     void        LeftDown(Point p, dword keyflags) override;
     void        LeftUp(Point p, dword keyflags) override;
+    void        LeftDrag(Point p, dword keyflags) override;
     void        MiddleDown(Point p, dword keyflags) override;
     void        MiddleUp(Point p, dword keyflags) override;
     void        RightDown(Point p, dword keyflags) override;
@@ -147,8 +150,6 @@ private:
 
     Color       GetColorFromIndex(const VTCell& cell, int which) const;
 
-    void        Paste(PasteClip& d);
-
     void        Scroll();
     void        SyncSb();
 
@@ -175,7 +176,7 @@ private:
     void        ReCalcSelection();
     bool        IsSelected(int pos);
     Rect        GetSelectionRect();
-    String      GetSelectedText();
+    WString     GetSelectedText();
 
 private:
     VScrollBar  sb;
@@ -184,7 +185,7 @@ private:
     Rect        caretrect;
     int         anchor          = -1;
     int         selpos          = -1;
-    bool        selection       = false;
+    bool        selclick        = false;
     bool        delayed         = true;
     bool        resizing        = false;
     bool        lazyresize      = false;
