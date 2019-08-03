@@ -255,7 +255,6 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 			gsets.G3toGR();
 			break;
 		}
-				
 	}
 	else
 	if(which == 2) {	// DECTABSR

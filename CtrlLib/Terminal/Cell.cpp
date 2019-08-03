@@ -90,8 +90,7 @@ void VTCell::Serialize(Stream& s)
 
 VTCell::VTCell()
 {
-	chr = 0;
-	Reset();
+	Clear();
 }
 
 
