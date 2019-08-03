@@ -25,6 +25,11 @@ struct TerminalTab : Terminal, PtyProcess {
 		PtyProcess::Write(out);
 		return PtyProcess::IsRunning();
 	}
+	
+	bool Key(dword key, int count) override
+	{
+		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+	}
 };
 
 class TabbedTerminalExample : public TopWindow {

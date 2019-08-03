@@ -315,8 +315,8 @@ int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(XTFOCUSM,   1004,   '?',    NOREFRESH, LEVEL_1),    // Focus in/out mode
         VT_MODE(XTUTF8MM,   1005,   '?',    NOREFRESH, LEVEL_1),    // Enable/disable UTF8 mouse tracking coordinates
         VT_MODE(XTSGRMM,    1006,   '?',    NOREFRESH, LEVEL_1),    // Enable/disable SGR mouse tracking coordinates
-        VT_MODE(XTALTESCM,  1039,   '?',    NOREFRESH, LEVEL_1),    // Prefix the key with ESC when modified with Alt-key.
         VT_MODE(XTASCM,     1007,   '?',    NOREFRESH, LEVEL_1),    // Alternate scroll mode
+        VT_MODE(XTALTESCM,  1039,   '?',    NOREFRESH, LEVEL_1),    // Prefix the key with ESC when modified with Alt-key.
         VT_MODE(XTASBM,     1047,   '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 2)
         VT_MODE(XTSRCM,     1048,   '?',    NOREFRESH, LEVEL_1),    // Save/restore cursor
         VT_MODE(XTASBM,     1049,   '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 3)
