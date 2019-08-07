@@ -38,15 +38,15 @@ void SixelRenderer::Clear()
 SixelRenderer& SixelRenderer::SetSize(Size sz)
 {
 	buffer.Create((info.size = sz));
-	if(info.nohole)
-		Fill(buffer, info.size, paper);
 	return *this;
 }
 
 Image SixelRenderer::Get()
 {
 	cursor = Point(0, 0);
-	
+
+	FillBuffer();
+
 	LTIMING("SixelRenderer::Get");
 	
 	while(!sixelstream.IsEof()) {
@@ -96,23 +96,44 @@ Color HslColorf(double h, double s, double l)
 
 void SixelRenderer::SetColors()
 {
+ONCELOCK {
+	colortable = {
+		{ 0,  Black()    },
+		{ 1,  Blue()     },
+		{ 2,  Red()      },
+		{ 3,  Green()    },
+		{ 4,  Magenta()  },
+		{ 5,  Cyan()     },
+		{ 6,  Yellow()   },
+		{ 7,  White()    },
+		{ 8,  Gray()     },
+		{ 9,  LtBlue()   },
+		{ 10, LtRed()    },
+		{ 11, LtGreen()  },
+		{ 12, LtMagenta()},
+		{ 13, LtCyan()   },
+		{ 14, LtYellow() },
+		{ 15, White()    },
+	};
+}
 	Vector<int> params;
-
+	
 	GetNumericParameters(params, ';');
 	
 	if(params.GetCount() == 5) {
+		int index = params[0];
 		if(params[1] == 1) {	// HSL
 			double h = params[2] * 1.0;
 			double l = params[3] / 100.0;
 			double s = params[4] / 100.0;
-			colortable.Put(params[0], HslColorf(h, s, l));
+			SetColorRegister(index, HslColorf(h, s, l));
 		}
 		else
 		if(params[1] == 2) {	// RGB
 			byte r = params[2] * 255 / 100;
 			byte g = params[3] * 255 / 100;
 			byte b = params[4] * 255 / 100;
-			colortable.Put(params[0], Color(r, g, b));
+			SetColorRegister(index, Color(r, g, b));
 		}
 	}
 	else
@@ -120,6 +141,14 @@ void SixelRenderer::SetColors()
 		Color *c = colortable.FindPtr(params[0]);
 		if(c) ink = *c;
 	}
+}
+
+void SixelRenderer::SetColorRegister(int i, const Color& c)
+{
+	int ii = colortable.Find(i);
+	if(ii >= 0)
+		colortable.Unlink(i);
+	colortable.Put(i, c);
 }
 
 void SixelRenderer::SetRasterInfo()
@@ -131,8 +160,10 @@ void SixelRenderer::SetRasterInfo()
 	if(params.GetCount() == 4) {
 		info.aspectratio = max(params[0] / params[1], 1);
 		Size size = Size(params[2], params[3]);
-		if(GetSize() != size)
+		if(GetSize() != size) {
 			SetSize(size);
+			FillBuffer();
+		}
 	}
 }
 
@@ -148,8 +179,10 @@ void SixelRenderer::SetRepeatCount()
 
 void SixelRenderer::DrawSixel(int c)
 {
-	if(buffer.IsEmpty())
+	if(buffer.IsEmpty()) {
 		SetSize(Size(640, 480));
+		FillBuffer();
+	}
 	
 	repeatcount = max(1, repeatcount);
 	int ratio   = max(info.aspectratio, 1);
@@ -186,6 +219,12 @@ void SixelRenderer::GetNumericParameters(Vector<int>& v, int delimiter)
 			sixelstream.Skip(1);
 		}
 	}
+}
+
+void SixelRenderer::FillBuffer()
+{
+	if(info.nohole)
+		Fill(buffer, info.size, paper);
 }
 
 Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper)

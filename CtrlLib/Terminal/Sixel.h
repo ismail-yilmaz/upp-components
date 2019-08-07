@@ -44,7 +44,9 @@ private:
     void            SetRepeatCount();
     void            DrawSixel(int c);
     void            GetNumericParameters(Vector<int>& v, int delimiter = Null);
-
+    void            SetColorRegister(int i, const Color& c);
+    void            FillBuffer();
+    
     VectorMap<int, Color> colortable;
     StringStream    sixelstream;
     int             repeatcount;
