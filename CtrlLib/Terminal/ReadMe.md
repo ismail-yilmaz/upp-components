@@ -639,11 +639,12 @@ GUI_APP_MAIN
 	SixelTerminalExample().Run();
 }
 
+```
+
 Here is the result: Terminal Example displaying the well-known "chess.sixel" file. (Linux)
 
 ![Terminal Example displaying the well-known "chess.sixel" file. (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-SixelViewer.png)
 
-```
 
 ## To Do
 There is always room for improvement and new features.
