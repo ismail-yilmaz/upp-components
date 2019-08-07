@@ -4,6 +4,7 @@
 #include <CtrlLib/CtrlLib.h>
 
 #include "Console.h"
+#include "Sixel.h"
 
 namespace Upp {
 
@@ -24,6 +25,7 @@ public:
     Event<>          WhenResize;
     Event<Bar&>      WhenBar;
     Gate<PasteClip&> WhenClip;
+    Event<const SixelInfo&, const String&> WhenSixel;
 
     Terminal&   History(bool b = true)                          { GetDefaultPage().History(b); return *this; }
     Terminal&   NoHistory()                                     { return History(false); }
@@ -77,6 +79,9 @@ public:
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(); }
 
+    Terminal&   SixelGraphics(bool b = true)                    { sixelgraphics = b; return *this; }
+    Terminal&   NoSixelGraphics()                               { return SixelGraphics(false); }
+    
     Terminal&   DelayedRefresh(bool b = true)                   { delayed = b; return *this;    }
     Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
 
@@ -142,7 +147,8 @@ private:
     void        PostParse() override;
 
     void        Paint0(Draw& w, bool print = false);
-    
+    void        RenderSixel(const String& data, int ratio, bool nohole) override;
+
     void        SyncPage(bool notify = true);
     void        SwapPage() override;
     void        RefreshPage(bool full = false) override;
@@ -211,6 +217,7 @@ private:
     bool        userdefinedkeys = true;
     bool        blinktext       = true;
     bool        blinking        = false;
+    bool        sixelgraphics   = false;
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;

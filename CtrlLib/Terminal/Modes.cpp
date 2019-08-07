@@ -62,6 +62,9 @@ void Console::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case DECBKM:
 			DECbkm(enable);
 			break;
+		case DECSDM:
+			DECsdm(enable);
+			break;
 		case XTASCM:
 			XTascm(enable);
 			break;
@@ -257,6 +260,12 @@ void Console::DECbkm(bool b)
 {
 	modes.Set(DECBKM, b);
 	LDUMP(DECBKM);
+}
+
+void Console::DECsdm(bool b)
+{
+	modes.Set(DECSDM, b);
+	LDUMP(DECSDM);
 }
 
 void Console::XTascm(bool b)

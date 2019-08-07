@@ -238,6 +238,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
         VT_CSI(DECIC,           '}', 0x00, '\'', DOREFRESH, LEVEL_4),   // Insert column
         VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_4),   // Delete column
         // Device control strings
+        VT_DCS(DECSIXEL,        'q', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Parse sixel graphics
         VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_4),   // Request control function strings
         VT_DCS(DECRSPS,         't', 0x00, '$',  NOREFRESH, LEVEL_3),   // Restore presentation state
         VT_DCS(DECUDK,          '|', 0x00, 0x00, NOREFRESH, LEVEL_2)    // Set user-defined keys
@@ -306,6 +307,7 @@ int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(DECTCEM,    25,     '?',    DOREFRESH, LEVEL_2),    // Show/hide caret
         VT_MODE(DECBKM,     67,     '?',    NOREFRESH, LEVEL_3),    // Send backspace when backarrow key is pressed.
         VT_MODE(DECLRMM,    69,     '?',    NOREFRESH, LEVEL_4),    // Enable/disable horizontal margins
+        VT_MODE(DECSDM,     80,     '?',    NOREFRESH, LEVEL_3),    // Enable/disable sixel scrolling
         // Private mode extensions
         VT_MODE(XTX10MM,    9,      '?',    NOREFRESH, LEVEL_1),    // X10 mouse button tracking mode (compat.)
         VT_MODE(XTASBM,     47,     '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 1)

@@ -89,6 +89,8 @@ protected:
     VTPage&         GetAlternatePage()                      { return apage; }
     bool            IsAlternatePage() const                 { return page == &apage; }
 
+    virtual void    RenderSixel(const String& data, int ratio, bool nohole) {}
+    
     void            PutC(int c);
     void            PutC(const String& s1);
     void            Put(const char *s, int cnt = 1);
@@ -152,6 +154,8 @@ private:
     void            InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes);
     String          GetGraphicsRenditionOpcodes(const VTCell& attrs);
 
+    void            ParseSixelGraphics(const VTInStream::Sequence& seq);
+    
     void            ProtectAttributes(bool protect);
 
     void            SetCaretStyle(const VTInStream::Sequence& seq);
@@ -309,6 +313,7 @@ protected:
         DECOM,
         DECSCLM,
         DECSCNM,
+        DECSDM,
         DECTCEM,
         XTASBM,
         XTASCM,
@@ -351,6 +356,7 @@ private:
     void            DECom(bool b);
     void            DECsclm(bool b);
     void            DECscnm(bool b);
+    void            DECsdm(bool b);
     void            DECtcem(bool b);
 
     // Private mode extensions.
@@ -449,6 +455,7 @@ private:
         DECSED,
         DECSEL,
         DECSERA,
+        DECSIXEL,
         DECSLPP,
         DECSLRM,
         DECSNLS,

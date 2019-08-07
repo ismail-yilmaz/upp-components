@@ -204,72 +204,63 @@ bool Terminal::Key(dword key, int count)
 
 	if(key & K_KEYUP)	// We don't really need to handle key-ups...
 		return true;
+
+	bool meta  = key & K_ALT;
+	bool ctrl  = key & K_CTRL;
+	bool shift = key & K_SHIFT;
+
+	if(UDKey(key, count))
+		goto KeyAccepted;
+	else
+	if(NavKey(key, count))
+		return true;
+	else
+	if(MenuBar::Scan(WhenBar, key))
+		return true;
+	else
+	if(VTKey(key, count))
+		goto KeyAccepted;
 	
-	switch(key) {
+	switch(key &= ~(K_SHIFT|K_ALT|K_CTRL)) {
+	case K_RETURN:
+		Console::PutEol();
+		break;
 	case K_ALT_KEY:
 	case K_CTRL_KEY:
 	case K_SHIFT_KEY:
-	case K_ALT|K_CTRL_KEY:
-	case K_ALT|K_SHIFT_KEY:
-	case K_CTRL|K_ALT_KEY:
-	case K_CTRL|K_SHIFT_KEY:
-	case K_SHIFT|K_ALT_KEY:
-	case K_SHIFT|K_CTRL_KEY:
 		return true;
 	default:
-		if(UDKey(key, count))
-			break;
-		else
-		if(NavKey(key, count))
+		if(key > 65535 && !ctrl && !meta)
+			return false;
+
+		bool utf8 = GetCharset() == CHARSET_UTF8;
+		
+		int c = ConvertToCharset(key &= ~K_DELTA, GetLegacyCharsets().Get(key, IsLevel2()));
+		if(c == DEFAULTCHAR)
 			return true;
-		else
-		if(MenuBar::Scan(WhenBar, key))
-			return true;
-		else
-		if(VTKey(key, count))
-			break;
-		else {
-			bool meta  = key & K_ALT;
-			bool ctrl  = key & K_CTRL;
-			bool shift = key & K_SHIFT;
+
+		if(ctrl)
+			c = ToAscii(c) & 0x1F;
 		
-			key &= ~(K_CTRL|K_SHIFT|K_ALT|K_DELTA);
-			
-			if(key > 65535)
-				return true;
-			
-			bool utf8 = GetCharset() == CHARSET_UTF8;
-			
-			int c = ConvertToCharset(key, GetLegacyCharsets().Get(key, IsLevel2()));
-			if(c == DEFAULTCHAR)
-				return true;
+		if(c == K_BACKSPACE)
+			c = modes[DECBKM] ? c : 0x7F;
+
+		if(meta) {
+			if(metakeyflags & MKEY_SHIFT)
+				c |= 0x80;
 		
-			if(ctrl)
-				c &= 0x1F;
-		
-			if(c == K_RETURN && !meta) {
-				PutEol();
-				break;
-			}
-			else
-			if(c == K_BACKSPACE)
-				c = modes[DECBKM] ? c : 0x7F;
-			
-			if(meta) {
-				if(metakeyflags & MKEY_SHIFT)
-					c |= 0x80;
-			
-				if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
-					utf8
-						? Console::PutESC(c, count)
-						: Console::Put(c, count);
-			}
-			else
+			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
 				utf8
-					? Console::PutUtf8(c, count)
+					? Console::PutESC(c, count)
 					: Console::Put(c, count);
-			}
+		}
+		else
+			utf8
+				? Console::PutUtf8(c, count)
+				: Console::Put(c, count);
 	}
+
+KeyAccepted:
 	PlaceCaret(true);
 	return true;
 }

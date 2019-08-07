@@ -121,11 +121,11 @@ void Terminal::Paint0(Draw& w, bool print)
 					int n = i * psz.cx + j;
 					bool highlight = IsSelected(n);
 					if(pass == 0) {
-						#ifdef flagTRUECOLOR
-							bool defpcolor = IsNull(cell.paper);
-						#else
-							bool defpcolor = cell.paper == 0xFFFF;
-						#endif
+					#ifdef flagTRUECOLOR
+						bool defpcolor = IsNull(cell.paper);
+					#else
+						bool defpcolor = cell.paper == 0xFFFF;
+					#endif
 						if(!nobackground || print || highlight || cell.IsInverted() || !defpcolor) {
 								int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
 								rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
@@ -215,5 +215,22 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 
 	Color c = colortable[index];	// Adjust only the first 16 colors.
 	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
+}
+
+void Terminal::RenderSixel(const String& data, int ratio, bool nohole)
+{
+	if(!sixelgraphics)
+		return;
+	
+	if(WhenSixel) {
+		SixelInfo si;
+		si.size = GetSize();	// Sixe hint.
+		si.nohole = nohole;
+		si.aspectratio = ratio;
+		WhenSixel(si, data);
+	}
+	else {
+		// TODO
+	}
 }
 }

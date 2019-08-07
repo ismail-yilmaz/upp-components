@@ -1,0 +1,12 @@
+description "Demonstrates a simple virtual terminal with an external sixel viewer.\377";
+
+uses
+	CtrlLib,
+	Terminal;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+

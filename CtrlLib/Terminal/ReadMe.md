@@ -56,13 +56,14 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports VT52/VT1xx/VT2xx keyboard emulation with function keys.
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
+- Support sixel graphics. (Passes the sixel data to client for external processing (with SixelRenderer class). Embedded sixel image support is a TODO.)
 - Supports ANSI colors (16 colors palette).
 - Supports ISO colors (256 colors palette).
 - Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
 - Supports xterm dynamic colors (dynamic ink/paper/selection colors).
 - Supports bright colors.
 - Supports background color erase (BCE).
-- Supports transparency (i.e. allows background images).
+- Supports transparency, i.e. allows background images, even animations. It's up to client code.
 - Supports VT4xx rectangular area operations: copy, invert, fill. erase.
 - Supports VT4xx rectangular area checksum calculation and reporting.
 - Supports both DEC and ANSI style selective erases.
@@ -88,7 +89,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 
 
 ## Classes
-This section briefly describes the classes of the Terminal package. Some of them have a stable and/or growing APIs (e.g. PtyProcess, VTInStream, Console, Terminal) and the others’ (VTPage, VTCell) are subject to change..
+This section briefly describes the classes of the Terminal package. Some of them have a stable and/or growing APIs (e.g. PtyProcess, VTInStream, Console, Terminal) and the others’ (VTPage, VTCell, SixelRenderer) are subject to change..
 
 *Full API documentation is high on my TODO list.*
 
@@ -142,6 +143,18 @@ This is the actual virtual terminal emulator. It processes the terminal sequence
 VTInStream, VTCell, VTPage, and Upp/Core
 
 ---
+### Console 
+This simple helper class parses and renders sixel data into raw images (U++ Image objects, to be specific). It can handle both RGB and HSL color spaces and it does not limit the color registers to 4, 16, or 256: It is possible to use more color register with SixelRenderer, for it uses a VectorMap to hold the color table.
+#### Notes:
+- This class is separately available. It has a stable public API
+
+#### Related files:
+	Upp/Core, Upp/Draw, VTInStream.
+
+#### Dependencies:
+Sixel.h, Sixel.cpp
+
+---
 ### Terminal
 This is the virtual terminal emulation ctrl. It is responsible for painting the content of VTPage onto computer screen, and handling the key and mouse events, clipboard and dnd operations. Since it is designed as a regular ctrl, it can be used in any place where a U++ ctrl can be used. It is also responsible for user configuration such as cursor styles, colors, resize behaviour, etc.
 
@@ -149,23 +162,25 @@ This is the virtual terminal emulation ctrl. It is responsible for painting the 
 - Terminal is a graphical front-end for Console.
 
 #### Related files:
-	Terminal.h, Terminal.cpp, Renderer.cpp, Keys.cpp
+	Terminal.h, Terminal.cpp, Renderer.cpp, Keys.cpp, Sixel.h, Sixel.cpp
 
 #### Dependencies:
-VTInStream, VTCell, VTPage, Console, and Upp/Core	
+VTInStream, VTCell, VTPage, Console, SixelRenderer, Upp/Core, Upp/Draw, and Upp/CtrlLib	
 
 ## Examples
 As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 5 basic examples are provided with the package:
 
-1 TerminalExample
+1 Terminal Example
 
-2 SshTerminalExample
+2 Ssh Terminal Example
 
-3 TerminalInABrowserExample
+3 Terminal In a Web Browser Example
 
-4 TerminalMultiplexingExample
+4 Terminal Multiplexing Example
 
-5 TerminalMultiplexingInAWebBrowserExample
+5 Terminal Multiplexing In a Web Browser Example
+
+6 Terminal With Sixel Graphics Support
 
 ### Terminal Example
 
@@ -558,13 +573,84 @@ And here is the result: A basic, xterm compatible terminal multiplexer running h
 
 ![terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Multiplexer-in-web-browser.png)
 
+### Terminal With Sixel Graphics Support
+
+This example demonstrates the sixel graphics support of the Terminal package. Terminal widget currently handles the sixel graphics externally, using the SixelRenderer class to render it into an image. Embedded sixel graphics is a TODO, and will be available soon.
+
+With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics in a non-blocking manner:
+
+```C++
+#include <Terminal/Terminal.h>
+#include <Terminal/PtyProcess.h>
+
+// This example demonstrates a virtual terminal with external.
+// sixel image  viewer.
+
+using namespace Upp;
+
+const char *nixshell = "/bin/bash";
+
+struct SixelTerminalExample : TopWindow {
+	Terminal	term;
+	PtyProcess	pty;				// This class is completely optional
+	TopWindow	sviewer;
+	ImageCtrl	imgctrl;
+
+	typedef SixelTerminalExample CLASSNAME;
+
+	SixelTerminalExample()
+	{
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
+		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
+		sviewer.Title(t_("Sixel Viewer")).Sizeable().Zoomable().Add(imgctrl.SizePos());
+
+		term.WhenBell   = [=]()			{ BeepExclamation(); };
+		term.WhenTitle  = [=](String s)	{ Title(s);	};
+		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s)	{ PutGet(s); };
+		term.WhenSixel  = THISFN(ShowSixelImage);
+		term.SixelGraphics();
+
+		SetTimeCallback(-1, [=] { PutGet(); });
+		pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
+	}
+
+	void PutGet(String out = Null)
+	{
+		term.CheckWriteUtf8(pty.Get());
+		pty.Write(out);
+		if(!pty.IsRunning())
+			Break();
+	}
+
+	void ShowSixelImage(const SixelInfo& sinfo, const String& sdata)
+	{
+		Image img = SixelRenderer(sdata, sinfo).SetPaper(Black());
+		imgctrl.SetImage(img);
+		if(!sviewer.IsOpen()) {
+			sviewer.SetRect(img.GetSize());
+			sviewer.CenterOwner().Open(this);
+		}
+	}
+};
+
+GUI_APP_MAIN
+{
+	SixelTerminalExample().Run();
+}
+
+Here is the result: Terminal Example displaying the well-known "chess.sixel" file. (Linux)
+
+![Terminal Example displaying the well-known "chess.sixel" file. (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-SixelViewer.png)
+
+```
 
 ## To Do
 There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
-- Sixel graphics.
+- In-display sixel images support and ReGIS graphics.
 - Improve modifier keys handling.
 - Implement reverse wrap.
 - Improve legacy charsets support.

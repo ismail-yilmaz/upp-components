@@ -46,8 +46,8 @@ ip]&]
 [s2;%% This event is dispatched right [/ after ]the ctrl accepts a 
 clip for paste or drop operation. In this way, client code can 
 examine the content of the clip and reject it if it is not suitable 
-for the given operation. There are some important points to note 
-here:&]
+for the pending operation. There are some important points to 
+note here:&]
 [s2;%% &]
 [s2;i150;O9;%% 1) Terminal ctrl accepts only plain text and OS file 
 URIs as valid source clips. It automatically encodes them into 
@@ -62,6 +62,23 @@ whitespace characters, from the clip`'s content. &]
 [s2;i150;O9;%% &]
 [s2;i150;O9;%% 3) Returning false disables the control`-byte filtering 
 function. (This is the default behavior.).&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:WhenSixel: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_SixelInfo[@(0.0.255) `&
+], [@(0.0.255) const]_String[@(0.0.255) `&]>_[* WhenSixel]&]
+[s2;%% This event is dispatched whenever the host sends a [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
+ixel graphics] to terminal.  WhenSixel event allows client code 
+to handle (process/save/modify/show, etc.) sixel graphics externally. 
+It has two parameters: a SixelInfo structure that contains the 
+basic information about the sixel image, and a string containing 
+the actual sixel data. Client code can easily render the sixel 
+data into a raw U`+`+ [^topic`:`/`/Draw`/src`/Image`_en`-us`#Image`:`:class^ Image] 
+object, using these two parameters with SixelRenderer class, 
+and alter the resulting image to suit its needs. Sixel graphics 
+feature is disabled by default. It can be enabled or disabled 
+run`-time by using the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
+ixelGraphics()] and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:NoSixelGraphics`(`)^ N
+oSixelGraphics()] methods.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:History`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* Hi
@@ -316,6 +333,22 @@ history buffer to be enabled.&]
 [* NoKeyNavigation]()&]
 [s2;%% Disables cursor key navigation. Same as KeyNavigation(false). 
 Returns `*this for method chaining.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:SixelGraphics`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
+ixel graphics] support. Returns `*this for method chaining. This 
+feature is disabled by default. Note that in`-display terminal 
+images are not yet supported. Instead, sixel images are passed 
+onto client code for external rendering. See WhenSixel event 
+for details.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* NoSixelGraphics]()&]
+[s2;%% Disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel 
+graphics] support. Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:DelayedRefresh`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&

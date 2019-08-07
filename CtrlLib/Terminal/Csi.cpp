@@ -393,32 +393,29 @@ void Console::ReportPresentationState(const VTInStream::Sequence& seq)
 	int report = seq.GetInt(1, 0);
 
 	if(report == 1) {	// DECCIR
-		byte report[4];
-		Zero(report);
-		
-		report[0] |= 0x40;	// Graphics rendition
-		report[1] |= 0x40;	// Character attributes
-		report[2] |= 0x40;	// Flags
-		report[3] |= 0x40;  // Charset size
+		byte sgr	= 0x40;
+		byte attrs	= 0x40;
+		byte flags	= 0x40;
+		byte gsize	= 0x40;
 
 		if(cellattrs.IsBold())
-			report[0] |= 0x01;
+			sgr |= 0x01;
 		if(cellattrs.IsUnderlined())
-			report[0] |= 0x02;
+			sgr |= 0x02;
 		if(cellattrs.IsBlinking())
-			report[0] |= 0x04;
+			sgr |= 0x04;
 		if(cellattrs.IsInverted())
-			report[0] |= 0x08;
+			sgr |= 0x08;
 		if(cellattrs.IsProtected())
-			report[1] |= 0x01;
+			attrs |= 0x01;
 		if(gsets.GetSS() == 0x8E)
-			report[2] |= 0x02;
+			flags |= 0x02;
 		if(gsets.GetSS() == 0x8F)
-			report[2] |= 0x04;
+			flags |= 0x04;
 		if(modes[DECOM])
-			report[2] |= 0x01;
+			flags |= 0x01;
 		if(modes[DECAWM])
-			report[2] |= 0x08;
+			flags |= 0x08;
 
 		auto Is96Chars = [=] (byte gx) -> bool
 		{
@@ -436,24 +433,24 @@ void Console::ReportPresentationState(const VTInStream::Sequence& seq)
 		};
 		
 		if(Is96Chars(gsets.GetG0()))
-			report[3] |= 0x01;
+			gsize |= 0x01;
 		if(Is96Chars(gsets.GetG1()))
-			report[3] |= 0x02;
+			gsize |= 0x02;
 		if(Is96Chars(gsets.GetG2()))
-			report[3] |= 0x04;
+			gsize |= 0x04;
 		if(Is96Chars(gsets.GetG3()))
-			report[3] |= 0x08;
+			gsize |= 0x08;
 		
 		Point pt = page->GetRelPos();
 		
 		PutDCS(Format("1$u%d;%d;%d;%c;%c;%c;%d;%d;%c;%s%s%s%s",
 					pt.y, pt.x, 1,
-					report[0],
-					report[1],
-					report[2],
+					sgr,
+					attrs,
+					flags,
 					gsets.GetGLNum(),
 					gsets.GetGRNum(),
-					report[3],
+					gsize,
 					GetCharsetId(gsets.GetG0()),
 					GetCharsetId(gsets.GetG1()),
 					GetCharsetId(gsets.GetG2()),

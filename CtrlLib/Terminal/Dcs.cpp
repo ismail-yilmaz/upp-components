@@ -18,6 +18,9 @@ void Console::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 	case SequenceId::DECRSPS:
 		RestorePresentationState(seq);
 		break;
+	case SequenceId::DECSIXEL:
+		ParseSixelGraphics(seq);
+		break;
 	case SequenceId::DECUDK:
 		SetUserDefinedKeys(seq);
 		break;
@@ -269,5 +272,27 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 		}
 			
 	}
+}
+
+void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
+{
+	bool nohole = seq.GetInt(2, 0) != 1;
+	int  grid   = seq.GetInt(3, 0); // Omitted.
+	int  ratio = 1;
+
+	switch(seq.GetInt(1, 1)) {
+	case 0 ... 1:
+	case 5 ... 6:
+		ratio = 2;
+		break;
+	case 3 ... 4:
+		ratio = 3;
+		break;
+	default:
+		ratio = 1;
+		break;
+	}
+
+	RenderSixel(seq.payload, ratio, nohole);
 }
 }
