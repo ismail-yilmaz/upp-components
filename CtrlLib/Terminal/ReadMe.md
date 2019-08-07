@@ -143,7 +143,7 @@ This is the actual virtual terminal emulator. It processes the terminal sequence
 VTInStream, VTCell, VTPage, and Upp/Core
 
 ---
-### Console 
+### SixelRenderer 
 This simple helper class parses and renders sixel data into raw images (U++ Image objects, to be specific). It can handle both RGB and HSL color spaces and it does not limit the color registers to 4, 16, or 256: It is possible to use more color register with SixelRenderer, for it uses a VectorMap to hold the color table.
 #### Notes:
 - This class is separately available. It has a stable public API
@@ -168,7 +168,7 @@ This is the virtual terminal emulation ctrl. It is responsible for painting the 
 VTInStream, VTCell, VTPage, Console, SixelRenderer, Upp/Core, Upp/Draw, and Upp/CtrlLib	
 
 ## Examples
-As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 5 basic examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 6 basic examples are provided with the package:
 
 1 Terminal Example
 
