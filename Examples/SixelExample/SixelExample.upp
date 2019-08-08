@@ -1,0 +1,12 @@
+description "Demonstrates the standalone usage of Terminal package's sixel renderer. \377";
+
+uses
+	CtrlLib,
+	Terminal;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+

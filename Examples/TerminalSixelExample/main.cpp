@@ -1,8 +1,7 @@
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a virtual terminal with external.
-// sixel image  viewer.
+// This example demonstrates a virtual terminal with external sixel image  viewer.
 
 using namespace Upp;
 
