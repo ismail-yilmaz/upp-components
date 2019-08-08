@@ -69,14 +69,15 @@ function. (This is the default behavior.).&]
 [s2;%% This event is dispatched whenever the host sends a [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
 ixel graphics] to terminal.  WhenSixel event allows client code 
 to handle (process/save/modify/show, etc.) sixel graphics externally. 
-It has two parameters: a SixelInfo structure that contains the 
-basic information about the sixel image, and a string containing 
-the actual sixel data. Client code can easily render the sixel 
-data into a raw U`+`+ [^topic`:`/`/Draw`/src`/Image`_en`-us`#Image`:`:class^ Image] 
-object, using these two parameters with SixelRenderer class, 
-and alter the resulting image to suit its needs. Sixel graphics 
-feature is disabled by default. It can be enabled or disabled 
-run`-time by using the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
+It has two parameters: a [^topic`:`/`/Terminal`/src`/Upp`_SixelRenderer`_en`-us`#Upp`:`:SixelRenderer`:`:Info`:`:struct^ S
+ixelInfo] structure that contains the basic information about 
+the sixel image, and a string containing the actual sixel data. 
+Client code can easily render the sixel data into a raw U`+`+ 
+[^topic`:`/`/Draw`/src`/Image`_en`-us`#Image`:`:class^ Image] object, 
+using these two parameters with SixelRenderer class, and alter 
+the resulting image to suit its needs. Sixel graphics feature 
+is disabled by default. It can be enabled or disabled run`-time 
+by using the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
 ixelGraphics()] and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:NoSixelGraphics`(`)^ N
 oSixelGraphics()] methods.&]
 [s3; &]
@@ -119,26 +120,27 @@ onst]&]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:Ink`(Upp`:`:Color`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* Ink]([_^Upp`:`:Color^ Color]_[*@3 c])&]
-[s2;%% Sets the color of text to [%-*@3 c]. Default is SColorText. 
-Returns `*this for method chaining.&]
+[s2;%% Sets the color of text to [%-*@3 c]. Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorText`(`)^ S
+ColorText]. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:Paper`(Upp`:`:Color`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* Paper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
-[s2;%% Sets the color of paper to [%-*@3 c] . Default is SColorPaper. 
-Returns `*this for method chaining.&]
+[s2;%% Sets the color of background to [%-*@3 c] . Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorPaper`(`)^ S
+ColorPaper]. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:SelectionInk`(Upp`:`:Color`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SelectionInk]([_^Upp`:`:Color^ Color]_[*@3 c])&]
-[s2;%% Sets the color of selected text to [%-*@3 c]. Default is SColorHighlightText. 
-Returns `*this for method chaining.&]
+[s2;%% Sets the color of selected text to [%-*@3 c]. Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorHighlightText`(`)^ S
+ColorHighlightText]. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:SelectionPaper`(Upp`:`:Color`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SelectionPaper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
-[s2;%% Sets the color of selected backround to [%-*@3 c] . Default 
-is SColorHighlight. Returns `*this for method chaining.&]
+[s2;%% Sets the color of selected background to [%-*@3 c] . Default 
+is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorHighlight`(`)^ SColorHighlight]. 
+Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:SetColor`(int`,Upp`:`:Color`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
@@ -201,7 +203,7 @@ colors) to default values. Returns `*this for method chaining.&]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:IntensifyBoldText`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* IntensifyBoldText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%% Forces the terminal to use light colors (8 `-16) for bold 
+[s2;%% Forces the terminal to use light colors (8 `-15) for bold 
 text. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
@@ -324,9 +326,9 @@ determined by the OS. Returns `*this for method chaining.&]
 ]_[* KeyNavigation]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2;%% Enables or disables the cursor key navigation mode. Returns 
 `*this for method chaining. In this mode the cursor keys (CTRL 
-`+ `[Up/Down, Left/Right, Page Up/Down, Home/End`]) can be used 
-to navigate through the history buffer. This mode requires the 
-history buffer to be enabled.&]
+`+ SHIFT `+ `[Up/Down, Left/Right, Page Up/Down, Home/End`]) 
+can be used to navigate through the history buffer. This mode 
+requires the history buffer to be enabled.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoKeyNavigation`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
@@ -341,8 +343,8 @@ Returns `*this for method chaining.&]
 ixel graphics] support. Returns `*this for method chaining. This 
 feature is disabled by default. Note that in`-display terminal 
 images are not yet supported. Instead, sixel images are passed 
-onto client code for external rendering. See WhenSixel event 
-for details.&]
+onto client code for external rendering. See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenSixel^ W
+henSixel] event for details.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_

@@ -281,12 +281,14 @@ void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 	int  ratio = 1;
 
 	switch(seq.GetInt(1, 1)) {
-	case 0 ... 1:
 	case 5 ... 6:
 		ratio = 2;
 		break;
 	case 3 ... 4:
 		ratio = 3;
+		break;
+	case 2:
+		ratio = 5;
 		break;
 	default:
 		ratio = 1;

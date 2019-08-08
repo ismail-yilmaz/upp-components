@@ -56,7 +56,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports VT52/VT1xx/VT2xx keyboard emulation with function keys.
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
-- Support sixel graphics. (Passes the sixel data to client for external processing (with SixelRenderer class). Embedded sixel image support is a TODO.)
+- Support sixel graphics with high/true color support. (Passes the sixel data to client for external processing (with SixelRenderer class). Embedded sixel image support is a TODO.)
 - Supports ANSI colors (16 colors palette).
 - Supports ISO colors (256 colors palette).
 - Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
@@ -144,9 +144,9 @@ VTInStream, VTCell, VTPage, and Upp/Core
 
 ---
 ### SixelRenderer 
-This simple helper class parses and renders sixel data into raw images (U++ Image objects, to be specific). It can handle both RGB and HSL color spaces and it does not limit the color registers to 4, 16, or 256: It is possible to use more color register with SixelRenderer, for it uses a VectorMap to hold the color table.
+This simple helper class parses and renders sixel data into raw images (U++ Image objects, to be specific). It can handle both RGB and HSL color spaces, supports high color, i.e it does not limit the color registers to 4, 16, or 256: It is possible to use more color register with SixelRenderer, for it uses a VectorMap to hold the color table.
 #### Notes:
-- This class is separately available. It has a stable public API
+- This class can be used as a standalone renderer. It has a stable public API
 
 #### Related files:
 	Upp/Core, Upp/Draw, VTInStream.

@@ -14,38 +14,61 @@ SixelRenderer::SixelRenderer(const String& data)
 }
 
 SixelRenderer::SixelRenderer(const String& data, Size sz)
-: sixelstream(data)
+: SixelRenderer(data)
 {
-	Clear();
 	SetSize(sz);
 }
 
 SixelRenderer::SixelRenderer(const String& data, Info _info)
-: sixelstream(data)
+: SixelRenderer(data)
 {
-	Clear();
 	info = _info;
-	SetSize(info.size);
 }
 
 void SixelRenderer::Clear()
 {
-	info   = Info();
-	ink    = SColorText;
+	colortable = {
+		{ 0,  Black()    },
+		{ 1,  Blue()     },
+		{ 2,  Red()      },
+		{ 3,  Green()    },
+		{ 4,  Magenta()  },
+		{ 5,  Cyan()     },
+		{ 6,  Yellow()   },
+		{ 7,  White()    },
+		{ 8,  Gray()     },
+		{ 9,  LtBlue()   },
+		{ 10, LtRed()    },
+		{ 11, LtGreen()  },
+		{ 12, LtMagenta()},
+		{ 13, LtCyan()   },
+		{ 14, LtYellow() },
+		{ 15, White()    },
+	};
+
+	info = Info();
+	ink  = SColorText;
+	init = false;
 	repeatcount = 1;
+	
+	if(!buffer.IsEmpty())
+		buffer.Clear();
 }
 
-SixelRenderer& SixelRenderer::SetSize(Size sz)
+void SixelRenderer::SetCanvas()
 {
-	buffer.Create((info.size = sz));
-	return *this;
+	info.size = Nvl(info.size, Size(640, 480));
+	buffer.Create(info.size);
+	if(info.nohole)
+		Fill(buffer, info.size, paper);
+	if(colortable.HasUnlinked())
+		colortable.Sweep();
+	init = true;
 }
 
 Image SixelRenderer::Get()
 {
 	cursor = Point(0, 0);
-
-	FillBuffer();
 
 	LTIMING("SixelRenderer::Get");
 	
@@ -73,7 +96,7 @@ Image SixelRenderer::Get()
 			break;
 		}
 	}
-
+	
 	Premultiply(buffer);
 	Image img = buffer;
 	return pick(img);
@@ -96,26 +119,6 @@ Color HslColorf(double h, double s, double l)
 
 void SixelRenderer::SetColors()
 {
-ONCELOCK {
-	colortable = {
-		{ 0,  Black()    },
-		{ 1,  Blue()     },
-		{ 2,  Red()      },
-		{ 3,  Green()    },
-		{ 4,  Magenta()  },
-		{ 5,  Cyan()     },
-		{ 6,  Yellow()   },
-		{ 7,  White()    },
-		{ 8,  Gray()     },
-		{ 9,  LtBlue()   },
-		{ 10, LtRed()    },
-		{ 11, LtGreen()  },
-		{ 12, LtMagenta()},
-		{ 13, LtCyan()   },
-		{ 14, LtYellow() },
-		{ 15, White()    },
-	};
-}
 	Vector<int> params;
 	
 	GetNumericParameters(params, ';');
@@ -139,7 +142,8 @@ ONCELOCK {
 	else
 	if(params.GetCount() == 1) {
 		Color *c = colortable.FindPtr(params[0]);
-		if(c) ink = *c;
+		if(c)
+			ink = *c;
 	}
 }
 
@@ -160,10 +164,8 @@ void SixelRenderer::SetRasterInfo()
 	if(params.GetCount() == 4) {
 		info.aspectratio = max(params[0] / params[1], 1);
 		Size size = Size(params[2], params[3]);
-		if(GetSize() != size) {
+		if(GetSize() != size)
 			SetSize(size);
-			FillBuffer();
-		}
 	}
 }
 
@@ -179,10 +181,8 @@ void SixelRenderer::SetRepeatCount()
 
 void SixelRenderer::DrawSixel(int c)
 {
-	if(buffer.IsEmpty()) {
-		SetSize(Size(640, 480));
-		FillBuffer();
-	}
+	if(!init)
+		SetCanvas();
 	
 	repeatcount = max(1, repeatcount);
 	int ratio   = max(info.aspectratio, 1);
@@ -221,12 +221,6 @@ void SixelRenderer::GetNumericParameters(Vector<int>& v, int delimiter)
 	}
 }
 
-void SixelRenderer::FillBuffer()
-{
-	if(info.nohole)
-		Fill(buffer, info.size, paper);
-}
-
 Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper)
 {
 	VTInStream vts;
@@ -234,17 +228,22 @@ Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color pape
 	
 	vts.WhenDcs = [&img, &sizehint, &paper](const VTInStream::Sequence& seq)
 	{
+		if(seq.opcode != 'q' || !seq.intermediate.IsEmpty()) // Check if the DCS is DECSIXEL
+			return;
+		
 		bool nohole = seq.GetInt(2, 0) != 1;
 		int  grid   = seq.GetInt(3, 0); // Omitted.
 		int  ratio = 1;
 	
 		switch(seq.GetInt(1, 1)) {
-		case 0 ... 1:
 		case 5 ... 6:
 			ratio = 2;
 			break;
 		case 3 ... 4:
 			ratio = 3;
+			break;
+		case 2:
+			ratio = 5;
 			break;
 		default:
 			ratio = 1;

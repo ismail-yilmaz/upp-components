@@ -18,17 +18,14 @@ public:
         Size   size        = Null;
     };
     
-    SixelRenderer()                                 { Clear(); }
     SixelRenderer(const String& data);
     SixelRenderer(const String& data, Size sz);
     SixelRenderer(const String& data, Info info);
-
-    void            Clear();
     
     Image           Get();
     operator        Image()                         { return Get(); }
     
-    SixelRenderer&  SetSize(Size sz);
+    SixelRenderer&  SetSize(Size sz)                { info.size = sz; return *this; }
     Size            GetSize() const                 { return info.size; }
 
     SixelRenderer&  SetPaper(Color c)               { paper = c; return *this; }
@@ -39,13 +36,14 @@ public:
     SixelRenderer&  NoColorHole(bool b = true)      { info.nohole = b; return *this; }
     
 private:
+    void            SetCanvas();
     void            SetColors();
     void            SetRasterInfo();
     void            SetRepeatCount();
     void            DrawSixel(int c);
     void            GetNumericParameters(Vector<int>& v, int delimiter = Null);
     void            SetColorRegister(int i, const Color& c);
-    void            FillBuffer();
+    void            Clear();
     
     VectorMap<int, Color> colortable;
     StringStream    sixelstream;
@@ -55,11 +53,12 @@ private:
     Color           paper;
     ImageBuffer     buffer;
     Info            info;
+    bool            init;
 };
 
 using SixelInfo = SixelRenderer::Info;
 
-// Note that this hepler function is meant to be used separately.
+// Note that this helper function is meant to be used separately.
 // It contains  a  VTInStream  instance of its  own, and  filters
 // sequences when required.  And this is  completely  unnecessary
 // for Terminal ctrl since it does its own parsing before passing

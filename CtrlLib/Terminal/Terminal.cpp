@@ -716,6 +716,7 @@ void Terminal::Serialize(Stream& s)
 		s % nobackground;
 		s % alternatescroll;
 		s % metakeyflags;
+		s % sixelgraphics;
 		for(int i = 0; i < 20; i++)
 			s % colortable[i];
 		Console::Serialize(s);
