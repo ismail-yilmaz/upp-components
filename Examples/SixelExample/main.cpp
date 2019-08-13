@@ -2,7 +2,10 @@
 #include <Terminal/Sixel.h>
 
 // This example demonstrates the SixelRenderer class of Terminal package.
-// Try to load the sixels files in the upp-components/CtrlLib/Images directory.
+// Two sixel images are provided with this example:
+// 1) scientia.sixel
+// 2) van-gogh.sixel
+// These sixels can be found in the upp-components/CtrlLib/Images directory.
 
 using namespace Upp;
 
@@ -18,7 +21,7 @@ struct SixelViewer : TopWindow {
 	SixelViewer(const String& data)
 	{
 		Title(t_("Sixel Viewer")).Sizeable().Zoomable().CenterScreen();
-		img = RenderSixelImage(data, Size(800, 600), SBlack());
+		img = RenderSixelImage(data, Size(800, 600), SBlack(),  CheckUtf8(data));
 		SetRect(img.GetSize());
 	}
 };

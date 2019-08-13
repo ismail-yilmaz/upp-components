@@ -2,6 +2,11 @@
 #include <Terminal/PtyProcess.h>
 
 // This example demonstrates a virtual terminal with external sixel image  viewer.
+// Two sixel images are provided with this example:
+// 1) scientia.sixel
+// 2) van-gogh.sixel
+// These sixels can be found in the upp-components/CtrlLib/Images directory.
+// You can use the "cat" command to view them.
 
 using namespace Upp;
 
