@@ -70,13 +70,13 @@ private:
     void            NextState(State::Id sid);
     const State*    GetState(const int& c) const;
     void            Dispatch(const Event<const VTInStream::Sequence&>& fn);
-    void            Reset0(Vector<VTInStream::State>* st);
+    void            Reset0(const Vector<VTInStream::State>* st);
 
 private:
     Sequence    sequence;
     bool        waschr;
     String      collected;
-    Vector<VTInStream::State>*  state;
+    const Vector<VTInStream::State>*  state;
 };
 }
 #endif

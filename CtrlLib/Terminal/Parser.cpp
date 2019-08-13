@@ -10,7 +10,7 @@
 namespace Upp {
 
 #define VT_BEGIN_STATE_MAP(sname)                   \
-    static Vector<VTInStream::State> sname =  {
+    const static Vector<VTInStream::State> sname =  {
 
 #define VT_END_STATE_MAP                            \
     }
@@ -485,7 +485,7 @@ void VTInStream::Reset()
 	waschr = false;
 }
 
-void VTInStream::Reset0(Vector<VTInStream::State>* st)
+void VTInStream::Reset0(const Vector<VTInStream::State>* st)
 {
 	state = st;
 	sequence.Clear();

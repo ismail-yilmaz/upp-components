@@ -221,7 +221,7 @@ void SixelRenderer::GetNumericParameters(Vector<int>& v, int delimiter)
 	}
 }
 
-Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper)
+Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper, bool utf8)
 {
 	VTInStream vts;
 	Image img;
@@ -257,7 +257,7 @@ Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color pape
 							.NoColorHole(nohole);
 	};
 
-	vts.Parse(sixeldata, false);
+	vts.Parse(sixeldata, utf8);
 	return pick(img);
 }
 }

@@ -8,7 +8,7 @@ namespace Upp {
 #define NOREFRESH   false
 
 #define BEGIN_VT_CTL(table)         \
-    static VectorMap<               \
+   const static VectorMap<          \
         byte,                       \
         Tuple<                      \
             byte,                   \
@@ -69,7 +69,7 @@ Console::ControlId Console::FindControlId(byte ctl, byte level, bool& refresh)
 #undef VT_CTL
 
 #define BEGIN_VT_SEQUENCES(table)   \
-    static VectorMap<               \
+  const  static VectorMap<          \
         Tuple<                      \
             byte,                   \
             byte,                   \
@@ -265,7 +265,7 @@ Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStr
 #undef VT_DCS
 
 #define BEGIN_VT_MODES(table)       \
-    static VectorMap<               \
+   const static VectorMap<          \
         Tuple<                      \
             word,                   \
             byte                    \

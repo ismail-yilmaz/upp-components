@@ -65,6 +65,6 @@ using SixelInfo = SixelRenderer::Info;
 // the sixel data to client. Use the SixelRenderer class directly
 // with the Terminal ctrl.
 
-Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper);
+Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper, bool utf8 = true);
 }
 #endif

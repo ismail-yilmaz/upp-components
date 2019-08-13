@@ -583,8 +583,12 @@ With a several lines of extra code to the Terminal Example, we get a terminal em
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a virtual terminal with external.
-// sixel image  viewer.
+// This example demonstrates a virtual terminal with external sixel image  viewer.
+// Two sixel images are provided with this example:
+// 1) scientia.sixel
+// 2) van-gogh.sixel
+// These sixels can be found in the upp-components/CtrlLib/Images directory.
+// You can use cat command to view them.
 
 using namespace Upp;
 
@@ -604,10 +608,10 @@ struct SixelTerminalExample : TopWindow {
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
 		sviewer.Title(t_("Sixel Viewer")).Sizeable().Zoomable().Add(imgctrl.SizePos());
 
-		term.WhenBell   = [=]()			{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s)	{ Title(s);	};
-		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s)	{ PutGet(s); };
+		term.WhenBell   = [=]()	{ BeepExclamation(); };
+		term.WhenTitle  = [=](String s) { Title(s);	};
+		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s) { PutGet(s); };
 		term.WhenSixel  = THISFN(ShowSixelImage);
 		term.SixelGraphics();
 

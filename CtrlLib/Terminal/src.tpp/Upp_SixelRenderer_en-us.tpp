@@ -94,10 +94,11 @@ nfo] structure.&]
 [s3;%% &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Function List]]}}&]
 [s3; &]
-[s5;:Upp`:`:RenderSixelImage`(const Upp`:`:String`&`,const Upp`:`:Size`&`,Upp`:`:Color`): [_^Upp`:`:Image^ I
+[s3; &]
+[s5;:Upp`:`:RenderSixelImage`(const Upp`:`:String`&`,const Upp`:`:Size`&`,Upp`:`:Color`,bool`): [_^Upp`:`:Image^ I
 mage]_[* RenderSixelImage]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s
 ixeldata], [@(0.0.255) const]_[_^Upp`:`:Size^ Size][@(0.0.255) `&]_[*@3 sizehint], 
-[_^Upp`:`:Color^ Color]_[*@3 paper])&]
+[_^Upp`:`:Color^ Color]_[*@3 paper], [@(0.0.255) bool]_[*@3 utf8]_`=_[@(0.0.255) true])&]
 [s2;%% This convenience function should be preferred for any standalone 
 usage of SixelRenderer class. Unlike the SixelRenderer class, 
 which accepts only the DCS [/ payload ]as its data, this function 
@@ -108,7 +109,8 @@ be used to suggest a canvas size to the renderer. This value
 will be overridden by the renderer if the sixel data contains 
 a size information. [%-*@3 paper] can be used to set the background 
 color of the canvas. Again, the renderer can ignore the paper 
-color, depending on the color hole flag of sixel data.&]
+color, depending on the color hole flag of sixel data. UTF`-8 
+parsing can be enabled or disable by setting [%-*@3 utf8] flag.&]
 [s3;%% &]
 [s3;%% &]
 [ {{10000@(113.42.0) [s0;%% [*@7;4 SixelRenderer`::Info]]}}&]
@@ -140,5 +142,4 @@ by the renderer if the sixel data already contains a size information&]
 [s5;:Upp`:`:SixelInfo`:`:typedef: [* SixelInfo]&]
 [s2;%% This is an alias for [^topic`:`/`/Terminal`/src`/Upp`_SixelRenderer`_en`-us`#Upp`:`:SixelRenderer`:`:Info`:`:struct^ S
 ixelRenderer`::Info] structure.&]
-[s3; &]
-[s3;%% ]]
+[s3; ]]
