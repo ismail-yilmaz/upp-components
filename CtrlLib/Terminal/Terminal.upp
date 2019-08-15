@@ -10,6 +10,7 @@ file
 	Terminal.h,
 	Terminal.cpp,
 	Renderer.cpp,
+	Display.cpp,
 	Keys.cpp,
 	Console readonly separator,
 	Console.h,

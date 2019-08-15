@@ -6,6 +6,71 @@ namespace Upp {
 
 // WARNING: VTPage's interface is not yet stable. It is subject to change!
 
+void VTLine::Adjust(int cx, const VTCell& filler)
+{
+	if(cx < GetCount())
+		wrapped = false;
+	SetCount(cx, filler);
+	invalid = true;
+}
+
+void VTLine::ShiftLeft(int begin, int end, int n, const VTCell& filler)
+{
+	Insert(end, filler, n);
+	Remove(begin - 1, n);
+	wrapped = false;
+	invalid = true;
+}
+
+void VTLine::ShiftRight(int begin, int end, int n, const VTCell& filler)
+{
+	Insert(begin - 1, filler, n);
+	Remove(end, n);
+	wrapped = false;
+	invalid = true;
+}
+
+bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
+{
+	int n = GetCount();
+	begin = clamp(begin, 1, n);
+	end   = clamp(end,   1, n);
+
+	for(int i = begin; i <= end; i++)
+		At(i - 1).Fill(filler, flags);
+
+	NotSpecial();
+	
+	bool b = begin != end;
+	if(b) Invalidate();
+	return b;
+}
+
+void VTLine::SetSpecial(dword id_, word row_) const
+{
+	special = true;
+	invalid = true;
+	id  = id_;
+	row = row_;
+}
+
+void VTLine::NotSpecial() const
+{
+	special = false;
+	invalid = true;
+	id  = 0;
+	row = 0;
+}
+
+VTLine::VTLine()
+{
+	special = false;
+	invalid = true;
+	wrapped = false;
+	id  = 0;
+	row = 0;
+}
+
 VTPage& VTPage::OriginMode(bool b)
 {
 	cursor.relative = b;
@@ -30,15 +95,15 @@ VTPage& VTPage::History(bool b)
 
 void VTPage::SetCell(int x, int y, const VTCell& cell)
 {
-	Line& line    = lines[y - 1];
+	VTLine& line  = lines[y - 1];
 	line[x - 1]   = cell;
-	line.invalid  = true;
+	line.Invalidate();
 }
 
 int VTPage::AddCell(const VTCell& cell)
 {
 	if(cursor.wrap && cursor.eol) {
-		lines[cursor.y - 1].wrapped = true;
+		lines[cursor.y - 1].Wrap();
 		NewLine();
 	}
 	SetCell(cell);
@@ -111,19 +176,19 @@ void VTPage::GetTabs(Vector<int>& tabstops)
 
 VTPage& VTPage::EraseLine(dword flags)
 {
-	LineFill(cursor.y, 1, size.cx, cellattrs, flags);
+	FillLine(cursor.y, 1, size.cx, cellattrs, flags);
 	return *this;
 }
 
 VTPage& VTPage::EraseLeft(dword flags)
 {
-	LineFill(cursor.y, 1, cursor.x, cellattrs, flags);
+	FillLine(cursor.y, 1, cursor.x, cellattrs, flags);
 	return *this;
 }
 
 VTPage& VTPage::EraseRight(dword flags)
 {
-	LineFill(cursor.y, cursor.x, size.cx, cellattrs, flags);
+	FillLine(cursor.y, cursor.x, size.cx, cellattrs, flags);
 	return *this;
 }
 
@@ -147,6 +212,33 @@ VTPage& VTPage::EraseAfter(dword flags)
 	return *this;
 }
 
+VTPage& VTPage::FillLine(int pos, const VTCell& filler, dword flags)
+{
+	return FillLine(cursor.y, 1, size.cx, filler, flags);
+}
+
+VTPage& VTPage::FillLine(int pos, int b, int e, const VTCell& filler, dword flags)
+{
+	pos = clamp(pos - 1, 0, size.cy - 1);
+	if(lines[pos].Fill(b, e, filler, flags))
+		ClearEol();
+	return *this;
+}
+
+VTPage& VTPage::FillRect(const Rect& r, const VTCell& filler, dword flags)
+{
+	Rect rr = AdjustRect(r, MARGIN_VERT);
+	RectFill(rr, filler, flags);
+	return *this;
+}
+
+VTPage& VTPage::FillRect(const Rect& r, dword chr)
+{
+	VTCell filler = cellattrs;
+	filler.chr = chr;
+	return FillRect(r, filler, VTCell::FILL_NORMAL);
+}
+
 VTPage& VTPage::CopyRect(const Rect& r, const Point& pt)
 {
 	Rect rr = AdjustRect(r, MARGIN_VERT);
@@ -160,7 +252,7 @@ VTPage& VTPage::CopyRect(const Rect& r, const Point& pt)
 		if(pass == 1)
 			rr.Set(AdjustPoint(pt, MARGIN_VERT), rr.GetSize());
 		for(int i = rr.top; i <= rr.bottom; i++) {
-			Line& line = lines[i - 1];
+			VTLine& line = lines[i - 1];
 			for(int j = rr.left; j <= rr.right; j++) {
 				VTCell& a  = line[j - 1];
 				VTCell& b  = *(pcell + pos);
@@ -179,68 +271,37 @@ VTPage& VTPage::CopyRect(const Rect& r, const Point& pt)
 	return *this;
 }
 
-VTPage& VTPage::FillRect(const Rect& r, const VTCell& filler, dword flags)
-{
-	Rect rr = AdjustRect(r, MARGIN_VERT);
-	RectFill(rr, filler, flags);
-	return *this;
-}
-
-VTPage& VTPage::FillRect(const Rect& r, int chr)
-{
-	VTCell filler = cellattrs;
-	filler.chr = chr;
-	return FillRect(r, filler, VTCell::FILL_NORMAL);
-}
-
 VTPage& VTPage::FillStream(const Rect& r, const VTCell& filler, dword flags)
 {
 	Rect rr = AdjustRect(r, MARGIN_VERT);
 	Rect pr = GetRelRect();
 	for(int i = rr.top; i <= rr.bottom; i++) {
 		if(rr.top == rr.bottom)
-			LineFill(i, rr.left, rr.right, filler, flags);
+			FillLine(i, rr.left, rr.right, filler, flags);
 		else {
 			if(i == rr.top)
-				LineFill(i, rr.left, pr.right, filler, flags);
+				FillLine(i, rr.left, pr.right, filler, flags);
 			else
 			if(i == rr.bottom)
-				LineFill(i, pr.left, rr.right, filler, flags);
+				FillLine(i, pr.left, rr.right, filler, flags);
 			else
-				LineFill(i, pr.left, pr.right, filler, flags);
+				FillLine(i, pr.left, pr.right, filler, flags);
 		}
 	}
 	return *this;
 }
 
-VTPage& VTPage::FillStream(const Rect& r, int chr)
+VTPage& VTPage::FillStream(const Rect& r, dword chr)
 {
 	VTCell filler = cellattrs;
 	filler.chr = chr;
 	return FillStream(r, filler, VTCell::FILL_NORMAL);
 }
 
-void VTPage::LineFill(int pos, int b, int e, const VTCell& filler, dword flags)
-{
-	pos = clamp(pos - 1, 0, size.cy - 1);
-	b   = clamp(b, 1, size.cx);
-	e   = clamp(e, 1, size.cx);
-
-	Line& line = lines[pos];
-
-	for(int i = b; i <= e; i++)
-		line[i - 1].Fill(filler, flags);
-
-	if(b != e) {
-		line.Invalidate();
-		ClearEol();
-	}
-}
-
 void VTPage::RectFill(const Rect& r, const VTCell& filler, dword flags)
 {
 	for(int i = r.top; i <= r.bottom; i++)
-		LineFill(i, r.left, r.right, filler, flags);
+		FillLine(i, r.left, r.right, filler, flags);
 }
 
 void VTPage::GetRectArea(Rect r, Event<const VTCell&, const Point&> consumer)
@@ -248,7 +309,7 @@ void VTPage::GetRectArea(Rect r, Event<const VTCell&, const Point&> consumer)
 	Rect rr = AdjustRect(r, MARGIN_NONE);
 	
 	for(int i = rr.top; i <= rr.bottom; i++) {
-		const Line& line = lines[i - 1];
+		const VTLine& line = lines[i - 1];
 		for(int j = rr.left; j <= rr.right; j++)
 			consumer(line[j - 1], Point(j, i));
 	}
@@ -290,7 +351,8 @@ VTPage& VTPage::MoveHorz(int col, bool rel, bool scrl)
 		ScrollRight(col - margin.right);
 	else
 		ClearEol();
-	WhenCursor();
+	if(events)
+		WhenCursor();
 	return *this;
 }
 
@@ -304,64 +366,88 @@ VTPage& VTPage::MoveVert(int row, bool rel, bool scrl)
 		ScrollDown(row - margin.bottom);
 	else
 		ClearEol();
-	WhenCursor();
+	if(events)
+		WhenCursor();
 	return *this;
 }
 
-void VTPage::Insert(Element t, int pos, int n, bool pan)
+VTPage& VTPage::SpecialLines(int n, dword id)
 {
-	// TODO: Split and improve
-	if(t == Element::CELL && (n = AdjustHStep(pos, n)) > 0)
-	{
-		if(pan)
-			for(int y = margin.top; y <= margin.bottom; y++)
-				lines[y - 1].ShiftRight(pos, margin.right, n, cellattrs);
-		else lines[cursor.y - 1].ShiftRight(pos, margin.right, n, cellattrs);
+	bool b = events;
+	ForbidEvents();
+	for(int i = 0; i < n; i++) {
+		lines[cursor.y - 1].SetSpecial(id, i);
+		NewLine();
 	}
-	else
-	if(t == Element::LINE && (n = AdjustVStep(pos, n)) > 0)
-	{
+	PermitEvents(b);
+	if(events)
+		WhenScroll();
+	return *this;
+}
+
+void VTPage::LineInsert(int pos, int n, const VTCell& attrs)
+{
+	if((n = AdjustVStep(pos, n)) > 0) {
 		int scrolled = 0;
 		for(int i = 0; i < n; i++) {
-			Line& line = lines.Insert(pos - 1);
-			line.Adjust(size.cx, cellattrs);
+			VTLine& line = lines.Insert(pos - 1);
+			line.Adjust(size.cx, attrs);
 			lines.Remove(margin.bottom);
 			scrolled++;
 		}
 		Invalidate(pos - 1, margin.bottom);
-		if(scrolled)
+		if(events && scrolled > 0)
 			WhenScroll();
 	}
-	if(n) ClearEol();
+	if(n > 0)
+		ClearEol();
 }
 
-void VTPage::Remove(Element t, int pos, int n, bool pan)
+void VTPage::LineRemove(int pos, int n, const VTCell& attrs)
 {
-	// TODO: Split and improve
-	if(t == Element::CELL && (n = AdjustHStep(pos, n)) > 0)
-	{
-		if(pan)
-			for(int y = margin.top; y <= margin.bottom; y++)
-				lines[y - 1].ShiftLeft(pos, margin.right, n, cellattrs);
-		else lines[cursor.y - 1].ShiftLeft(pos, margin.right, n, cellattrs);
-	}
-	else
-	if(t == Element::LINE && (n = AdjustVStep(pos, n)) > 0)
-	{
+	if((n = AdjustVStep(pos, n)) > 0) {
 		int scrolled = 0;
 		for(int i = 0; i < n; i++) {
-			Line& line = lines.Insert(margin.bottom);
-			line.Adjust(size.cx, cellattrs);
+			VTLine& line = lines.Insert(margin.bottom);
+			line.Adjust(size.cx, attrs);
 			if(scrollback && GetRelY(pos) == 1)
 				AddToHistory(pos);
 			lines.Remove(pos - 1);
 			scrolled++;
 		}
 		Invalidate(pos - 1, margin.bottom);
-		if(scrolled)
+		if(events && scrolled > 0)
 			WhenScroll();
 	}
-	if(n) ClearEol();
+	if(n > 0)
+		ClearEol();
+}
+
+void VTPage::CellInsert(int pos, int n, const VTCell& attrs, bool pan)
+{
+	if((n = AdjustHStep(pos, n)) > 0) {
+		if(pan) {
+			for(int y = margin.top; y <= margin.bottom; y++)
+				lines[y - 1].ShiftRight(pos, margin.right, n, attrs);
+		}
+		else
+			lines[cursor.y - 1].ShiftRight(pos, margin.right, n, attrs);
+	}
+	if(n > 0)
+		ClearEol();
+}
+
+void VTPage::CellRemove(int pos, int n, const VTCell& attrs, bool pan)
+{
+	if((n = AdjustHStep(pos, n)) > 0) {
+		if(pan)
+			for(int y = margin.top; y <= margin.bottom; y++)
+				lines[y - 1].ShiftLeft(pos, margin.right, n, attrs);
+		else
+			lines[cursor.y - 1].ShiftLeft(pos, margin.right, n, attrs);
+	}
+	if(n > 0)
+		ClearEol();
 }
 
 int VTPage::AdjustCol(int& col, bool rel, bool scrl) const
@@ -413,7 +499,7 @@ Point VTPage::GetRelPos() const
 	return pt;
 }
 
-const VTPage::Line& VTPage::GetLine(int i) const
+const VTLine& VTPage::GetLine(int i) const
 {
 	ASSERT(i >= 0 && i < GetLineCount());
 
@@ -425,9 +511,9 @@ const VTPage::Line& VTPage::GetLine(int i) const
 	if(llen && i >= slen)
 		return lines[i - slen];
 	
-	static Line *l;
+	static VTLine *l;
 	ONCELOCK {
-		static Line empty;
+		static VTLine empty;
 		l = &empty;
 	}
 	return *l;
@@ -457,7 +543,7 @@ void VTPage::Sync()
 		cursor.Clear();
 	SyncPageWithHistory();
 	lines.SetCount(size.cy);
-	for(auto& line : lines)
+	for(VTLine& line : lines)
 		line.Adjust(size.cx, cellattrs);
 	if(tabsync)
 		SetTabs(tabsize);
@@ -503,6 +589,7 @@ VTPage& VTPage::Reset()
 	cursor = Null;
 	backup = Null;
 	tabsync = false;
+	events  = true;
 	SetTabs(tabsize);
 	SetSize(size);
 	WrapAround(false);
@@ -531,29 +618,5 @@ VTPage::VTPage()
 	historysize = 1024;
 	scrollback  = false;
 	Reset();
-}
-
-void VTPage::Line::Adjust(int cx, const VTCell& attrs)
-{
-	if(cx < GetCount())
-		wrapped = false;
-	SetCount(cx, attrs);
-	invalid = true;
-}
-
-void VTPage::Line::ShiftLeft(int b, int e, int n, const VTCell& attrs)
-{
-	Insert(e, attrs, n);
-	Remove(b - 1, n);
-	wrapped = false;
-	invalid = true;
-}
-
-void VTPage::Line::ShiftRight(int b, int e, int n, const VTCell& attrs)
-{
-	Insert(b - 1, attrs, n);
-	Remove(e, n);
-	wrapped = false;
-	invalid = true;
 }
 }

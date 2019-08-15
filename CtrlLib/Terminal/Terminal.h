@@ -88,6 +88,8 @@ public:
     Terminal&   LazyResize(bool b = true)                       { lazyresize = b; return *this; }
     Terminal&   NoLazyResize()                                  { return LazyResize(false);     }
 
+    Terminal&   SetDisplay(const Display& d)                    { display = &d; return *this;   }
+    
     Size        GetFontSize() const;
     Size        GetPageSize() const;
 
@@ -197,6 +199,7 @@ private:
 
     VScrollBar  sb;
     Scroller    scroller;
+    const Display *display;
     Font        font            = Monospace();
     Rect        caretrect;
     int         anchor          = -1;
@@ -222,5 +225,8 @@ private:
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;
 };
+
+const Display& LeftAlignedImageDisplay();
+const Display& RightAlignedImageDisplay();
 }
 #endif

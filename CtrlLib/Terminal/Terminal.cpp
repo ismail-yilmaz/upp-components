@@ -19,6 +19,7 @@ Terminal::Terminal() : Console()
 {
 	Unicode();
 	NoLegacyCharsets();
+	SetDisplay(LeftAlignedImageDisplay());
 	SetFrame(FieldFrame());
 	History();
 	ResetColors();
@@ -255,7 +256,7 @@ void Terminal::RefreshDisplay()
 	Vector<Rect> invalid;
 	
 	for(int i = pos; i < pos + psz.cy; i++) {
-		const auto& line = page->GetLine(i);
+		const VTLine& line = page->GetLine(i);
 		if(blinktext)
 			for(const VTCell& cell : line)
 				if(cell.IsBlinking()) {
@@ -603,8 +604,7 @@ WString Terminal::GetSelectedText()
 	
 	for(int line = r.top, i = 0; !IsNull(r) && line <= r.bottom; line++) {
 		if(line < page->GetLineCount()) {
-			const auto& ln = page->GetLine(line);
-			bool iswrapped = ln.wrapped;
+			const VTLine& ln = page->GetLine(line);
 			WString s = AsWString(ln);
 			if(IsNull(s)) {
 				i++;
@@ -621,7 +621,7 @@ WString Terminal::GetSelectedText()
 				 txt.Cat(s.Left(r.right));
 			else
 				txt.Cat(s);
-			if(!iswrapped)
+			if(!ln.IsWrapped())
 				PutCrLf();
 		}
 	}

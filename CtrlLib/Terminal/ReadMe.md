@@ -588,7 +588,7 @@ With a several lines of extra code to the Terminal Example, we get a terminal em
 // 1) scientia.sixel
 // 2) van-gogh.sixel
 // These sixels can be found in the upp-components/CtrlLib/Images directory.
-// You can use cat command to view them.
+// You can use the "cat" command to view them.
 
 using namespace Upp;
 

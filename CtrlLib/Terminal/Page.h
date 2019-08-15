@@ -6,7 +6,38 @@
 
 namespace Upp {
 
-// WARNING: VTPage's interface is not yet stable. It is subject to change!
+// WARNING: VTLine's and VTPage's interfaces are not yet stable. They are subject to change!
+
+class VTLine : public Moveable<VTLine, Vector<VTCell>> {
+public:
+    VTLine();
+
+    void         Adjust(int cx, const VTCell& filler);
+    void         ShiftLeft(int begin, int end, int n, const VTCell& filler);
+    void         ShiftRight(int begin, int end, int n, const VTCell& filler);
+    bool         Fill(int begin, int end, const VTCell& filler, dword flags = 0);
+
+    void         Validate(bool b = true) const           { invalid = false; }
+    void         Invalidate() const                      { invalid = true;  }
+    inline bool  IsInvalid() const                       { return invalid;  }
+
+    void         Wrap() const                            { wrapped = true;  }
+    void         Unwrap() const                          { wrapped = false; }
+    inline bool  IsWrapped() const                       { return wrapped;  }
+
+    void         SetSpecial(dword id_, word row_) const;
+    void         NotSpecial() const;
+    inline bool  IsSpecial() const                       { return special; }
+    inline dword GetSpecialId() const                    { return id;  }
+    inline word  GetRowNumber() const                    { return row; }
+
+private:
+    mutable bool  invalid:1;
+    mutable bool  wrapped:1;
+    mutable bool  special:1;
+    mutable word  row;
+    mutable dword id;
+};
 
 class VTPage : Moveable<VTPage> {
 
@@ -40,19 +71,7 @@ class VTPage : Moveable<VTPage> {
     enum class   Element { CELL, LINE };
 
 public:
-    struct Line : Moveable<Line, Vector<VTCell>> {
-        bool    wrapped;
-        mutable bool invalid;
-        void    Adjust(int cx, const VTCell& attrs);
-        void    ShiftLeft(int b, int e, int n, const VTCell& attrs);
-        void    ShiftRight(int b, int e, int n, const VTCell& attrs);
-        void    Validate() const                    { invalid = false; }
-        void    Invalidate() const                  { invalid = true;  }
-        bool    IsInvalid() const                   { return invalid;  }
-        Line()                                      { wrapped = false; invalid = true; }
-    };
-
-    using Lines = Vector<Line>;
+    using Lines = Vector<VTLine>;
 
     enum Metrics : int {
         MINCOL      = 2,
@@ -67,11 +86,14 @@ public:
     Event<> WhenCursor;
     Event<> WhenScroll;
 
+    VTPage&  PermitEvents(bool b = true)                 { events = b; return *this;     }
+    VTPage&  ForbidEvents()                              { events = false; return *this; }
+
     VTPage& OriginMode(bool b = true);
     VTPage& WrapAround(bool b = true);
     VTPage& History(bool b = true);
     VTPage& Attributes(const VTCell& attrs)             { cellattrs = attrs; return *this; }
-    
+
     bool    IsOriginMode() const                        { return cursor.relative; }
     bool    IsWrapAround() const                        { return cursor.wrap;     }
 
@@ -96,15 +118,16 @@ public:
     VTPage& MoveTopLeft()                               { return MoveTo(1, 1);          }
     VTPage& MoveBottomRight()                           { return MoveTo(size);          }
 
-    VTPage& ScrollUp(int n = 1)                         { Insert(Element::LINE, margin.top, n); return *this; }
-    VTPage& ScrollDown(int n = 1)                       { Remove(Element::LINE, margin.top, n); return *this; }
-    VTPage& ScrollLeft(int n = 1)                       { Insert(Element::CELL, margin.left, n, true); return *this; }
-    VTPage& ScrollRight(int n = 1)                      { Remove(Element::CELL, margin.left, n, true); return *this; }
+    VTPage& ScrollUp(int n = 1)                         { LineInsert(margin.top, n, cellattrs); return *this; }
+    VTPage& ScrollDown(int n = 1)                       { LineRemove(margin.top, n, cellattrs); return *this; }
+    VTPage& ScrollLeft(int n = 1)                       { CellInsert(margin.left, n, cellattrs, true); return *this; }
+    VTPage& ScrollRight(int n = 1)                      { CellRemove(margin.left, n, cellattrs, true); return *this; }
 
     VTPage& InsertLines(int n)                          { return InsertLines(cursor.y, n); }
-    VTPage& InsertLines(int pos, int n)                 { if(IsContained()) Insert(Element::LINE, pos, n); return MoveHome(); }
+    VTPage& InsertLines(int pos, int n)                 { if(IsContained()) LineInsert(pos, n, cellattrs); return MoveHome(); }
     VTPage& RemoveLines(int n)                          { return RemoveLines(cursor.y, n); }
-    VTPage& RemoveLines(int pos, int n)                 { if(IsContained()) Remove(Element::LINE, pos, n); return MoveHome(); }
+    VTPage& RemoveLines(int pos, int n)                 { if(IsContained()) LineRemove(pos, n, cellattrs); return MoveHome(); }
+    VTPage& SpecialLines(int n, dword id);
 
     VTPage& NextLine(int n = 1)                         { return MoveVert(n,  true, IsContained()); }
     VTPage& PrevLine(int n = 1)                         { return MoveVert(-n, true, IsContained()); }
@@ -113,10 +136,10 @@ public:
     VTPage& PrevColumn(int n = 1)                       { return MoveHorz(-n, true, IsContained()); }
 
     VTPage& InsertCells(int n)                          { return InsertCells(cursor.x, n); }
-    VTPage& InsertCells(int pos, int n)                 { if(IsHContained()) Insert(Element::CELL, pos, n); return *this; }
+    VTPage& InsertCells(int pos, int n)                 { if(IsHContained()) CellInsert(pos, n, cellattrs); return *this; }
     VTPage& RemoveCells(int n)                          { return RemoveCells(cursor.x, n); }
-    VTPage& RemoveCells(int pos, int n)                 { if(IsHContained()) Remove(Element::CELL, pos, n); return *this; }
-    VTPage& EraseCells(int n, dword flags = 0)          { LineFill(cursor.y, cursor.x, cursor.x + n - 1, cellattrs, flags); return *this; }
+    VTPage& RemoveCells(int pos, int n)                 { if(IsHContained()) CellRemove(pos, n, cellattrs); return *this; }
+    VTPage& EraseCells(int n, dword flags = 0)          { return FillLine(cursor.y, cursor.x, cursor.x + n - 1, cellattrs, flags); }
     VTPage& RepeatCell(int n);
 
     VTPage& NextTab(int n = 1);
@@ -126,7 +149,7 @@ public:
     VTPage& SetTabs(int tsz);
     VTPage& ClearTabs()                                 { tabs.Clear(); tabsync = false; return *this; }
     void    GetTabs(Vector<int>& tabstops);
-    
+
     VTPage& EraseLine(dword flags = 0);
     VTPage& EraseLeft(dword flags = 0);
     VTPage& EraseRight(dword flags = 0);
@@ -135,16 +158,18 @@ public:
     VTPage& EraseBefore(dword flags = 0);
     VTPage& EraseAfter(dword flags = 0);
 
-    VTPage& CopyRect(const Rect& r, const Point& pt);
+    VTPage& FillLine(int pos, const VTCell& filler, dword flags);
+    VTPage& FillLine(int pos, int b, int e, const VTCell& filler, dword flags);
     VTPage& FillRect(const Rect& r, const VTCell& filler, dword flags);
-    VTPage& FillRect(const Rect& r, int chr);
+    VTPage& FillRect(const Rect& r, dword chr);
     VTPage& EraseRect(const Rect& r, dword flags = 0)   { return FillRect(r, cellattrs, flags); }
+    VTPage& CopyRect(const Rect& r, const Point& pt);
 
     void    GetRectArea(Rect r, Event<const VTCell&, const Point&> consumer);
     void    GetRelRectArea(Rect r, Event<const VTCell&, const Point&> consumer);
 
     VTPage& FillStream(const Rect& r, const VTCell& filler, dword flags);
-    VTPage& FillStream(const Rect& r, int chr);
+    VTPage& FillStream(const Rect& r, dword chr);
 
     VTPage& SetVertMargins(int t, int b);
     VTPage& SetHorzMargins(int l, int r);
@@ -171,20 +196,20 @@ public:
     void    Invalidate(int begin, int end);
 
     void    Shrink();
-    
+
     const Lines& GetHistory() const                     { return saved; }
-    void  EraseHistory()                                { saved.Clear(); Shrink(); WhenScroll(); }
+    void  EraseHistory()                                { saved.Clear(); Shrink(); if(events) WhenScroll(); }
     bool  HasHistory() const                            { return scrollback; }
-    void  SetHistorySize(int sz)                        { historysize = max(1, sz); AdjustHistorySize(); WhenScroll(); }
+    void  SetHistorySize(int sz)                        { historysize = max(1, sz); AdjustHistorySize(); if(events) WhenScroll(); }
 
     // For easy enumeration
-    int  GetLineCount() const                           { return lines.GetCount() + saved.GetCount(); }
-    const Line& GetLine(int i) const;
+    int   GetLineCount() const                           { return lines.GetCount() + saved.GetCount(); }
+    const VTLine& GetLine(int i) const;
 
-    const Line* begin() const                           { return lines.begin(); }
-    Line*       begin()                                 { return lines.begin(); }
-    const Line* end() const                             { return lines.end();   }
-    Line*       end()                                   { return lines.end();   }
+    const VTLine* begin() const                           { return lines.begin(); }
+    VTLine*       begin()                                 { return lines.begin(); }
+    const VTLine* end() const                             { return lines.end();   }
+    VTLine*       end()                                   { return lines.end();   }
 
     virtual void Serialize(Stream& s);
 
@@ -195,9 +220,10 @@ public:
 private:
     VTPage& MoveHorz(int col, bool rel = false, bool scrl = false);
     VTPage& MoveVert(int row, bool rel = false, bool scrl = false);
-    void    Insert(Element t, int pos, int n, bool pan = false);
-    void    Remove(Element t, int pos, int n, bool pan = false);
-    void    LineFill(int pos, int b, int e, const VTCell& filler, dword flags = 0);
+    void    LineInsert(int pos, int n, const VTCell& attrs);
+    void    LineRemove(int pos, int n, const VTCell& attrs);
+    void    CellInsert(int pos, int n, const VTCell& attrs, bool pan = false);
+    void    CellRemove(int pos, int n, const VTCell& attrs, bool pan = false);
     void    RectFill(const Rect& r, const VTCell& filler, dword flags = 0);
     void    Sync();
     void    SyncPageWithHistory();
@@ -230,6 +256,7 @@ private:
     int     tabsize;
     int     historysize;
     bool    tabsync;
+    bool    events;
     bool    scrollback;
     VTCell  cellattrs;
 };

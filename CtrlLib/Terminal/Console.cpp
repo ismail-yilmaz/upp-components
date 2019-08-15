@@ -134,8 +134,8 @@ void Console::AlternateScreenBuffer(bool b)
 void Console::DisplayAlignmentTest()
 {
 	LLOG("Performing display alignment test...");
-	for(auto& line : *page)
-		for(auto& cell : line) {
+	for(VTLine& line : *page)
+		for(VTCell& cell : line) {
 			cell.Reset();
 			cell = 'E';
 		}
@@ -366,7 +366,7 @@ void Console::PutEol()
 	Put(modes[LNM] ? "\r\n" : "\r");
 }
 
-WString Console::AsWString(const VTPage::Line& line)
+WString Console::AsWString(const VTLine& line)
 {
 	WString s;
 	if(!line.IsEmpty()) {
