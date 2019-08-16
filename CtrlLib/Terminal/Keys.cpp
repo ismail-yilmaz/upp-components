@@ -259,7 +259,6 @@ bool Terminal::Key(dword key, int count)
 				? Console::PutUtf8(c, count)
 				: Console::Put(c, count);
 	}
-
 KeyAccepted:
 	PlaceCaret(true);
 	return true;
