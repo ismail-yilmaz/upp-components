@@ -1,7 +1,7 @@
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a virtual terminal with bot embedded and external sixel image viewer.
+// This example demonstrates a virtual terminal with both embedded and external sixel image viewer.
 // Two sixel images are provided with this example:
 // 1) scientia.sixel
 // 2) van-gogh.sixel
@@ -30,7 +30,7 @@ struct SixelTerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);	};
 		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
 		term.WhenOutput = [=](String s) { PutGet(s); };
-		term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for in-display sixels.
+	//	term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for in-display sixels.
 		term.SixelGraphics();
 
 		SetTimeCallback(-1, [=] { PutGet(); });

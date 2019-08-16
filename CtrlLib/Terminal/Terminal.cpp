@@ -28,7 +28,7 @@ Terminal::Terminal() : Console()
 	WhenBar = THISFN(StdBar);
 	sb.WhenScroll = THISFN(Scroll);
 	caret.WhenAction = [=] { PlaceCaret(); };
-	GetDefaultPage().WhenScroll = [=] { SyncPage(); RefreshDisplay();  };
+	GetDefaultPage().WhenScroll = [=] { SyncPage(); RefreshDisplay(); };
 }
 
 void Terminal::PreParse()

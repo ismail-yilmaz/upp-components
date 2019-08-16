@@ -661,6 +661,9 @@ Here is the result: Terminal Example displaying the well-known "chess.sixel" fil
 
 ![Terminal Example displaying the well-known "chess.sixel" file. (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-SixelViewer.png)
 
+Again, using the above SSH terminal example, we can have a sixel-capable SSH terminal on Windows.
+
+![SSH Terminal Example displaying a sixel image on Windows (using Upp/Core/SSH & openssh) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSHTerminal-Sixel-Windows.jpg)
 
 ## To Do
 There is always room for improvement and new features.
@@ -668,7 +671,7 @@ There is always room for improvement and new features.
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
 - ReGIS graphics.
-- Improve modifier keys handling.
+- Improve key handling on Windows.
 - Implement reverse wrap.
 - Improve legacy charsets support.
 - DEC locator support.

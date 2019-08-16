@@ -276,7 +276,7 @@ void Terminal::PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvases)
 			Rect r  = canvas.b;
 			Size isz = img->GetSize();
 			if(w.IsPainting(r)) {
-				VTCell cell = GetAttrs();
+				const VTCell& cell = GetAttrs();
 				Color ink, paper;
 				SetInkAndPaperColor(cell, ink, paper);
 				imgdisplay->Paint(w, r.Deflated(font.GetCy() / 2), *img, ink, paper, 0);
