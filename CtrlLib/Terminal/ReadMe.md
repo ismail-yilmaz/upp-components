@@ -11,6 +11,8 @@ Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual 
 
 It is not based on the existing terminal emulation libraries. It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
 
+![Sixel images, true color, image background support](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot.jpg)
+
 A short video demonstration of Terminal widget:
 https://vimeo.com/349761874
 	
@@ -29,15 +31,24 @@ This point is demonstrated with one of the provided  examples: While the PtyProc
 
 - **Terminal package is designed with simplicity in mind.**
  A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single file with 31 sLoC, and it can run complex/heavy applications such as GNU Emacs, vim, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
+
 - **Terminal package combines simplicity with configurability.** 
 Although it is easy to use and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
+
 - **Terminal widget is a regular ctrl.**
 It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
+
+- **Terminal widget supports embedded images.**
+Terminal ctrl has support for embedded images and image manipulation in general. Specifically, it can handle sixel graphics with 4/16/256 and high/true color. It uses Upp::Display objects to display the embedded images. 
+For example, Ultimate++ already comes with a handful of standard display objects and Terminal package adds two more to the arsenal: a left aligned scaled image display (default) and its right aligned counterpart. Client code can set the image display to  one of these pre-defined display objects on-the-fly, and the changes will take place immediately. Moreover, you can write your own display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it).
+It also supports an external mode, where the image data -sixels, currently- are handed onto client code for rendering and external viewing.
+
 - ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
 
 - **Terminal widget can also run inside a web browser such as Firefox and Chromium, or their derivatives.**
   Thanks to Ultimate++ team, it is possible to run U++ GUI applications from within a web browser that supports HTML-5 canvas and websockets. And Terminal package is no exception. Applications using Terminal ctrl can basically turn into a remote terminal that can be accessed via any decent web browser (even from a smartphone!) if compiled with the TURTLE flag. (See the *Examples* section).
+
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
 ## Features
@@ -51,13 +62,14 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports Unicode/UTF8.
 - Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).
 - Supports ANSI conformance levels.
+- Supports scalable fonts. (The changes in font size and/or face immediately take place.)
 - Supports various terminal state, device, and mode reports.
 - Supports DEC VT52 graphics charset, VT1xx line-drawing charset, VT2xx multinational charset, and VT3xx technical charset.
 - Supports VT52/VT1xx/VT2xx keyboard emulation with function keys.
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
-- Support sixel graphics with high/true color support. (Passes the sixel data to client for external processing (with SixelRenderer class). Embedded sixel image support is a TODO.)
-- Supports ANSI colors (16 colors palette).
+- Supports Upp::Display objects (i.e Terminal ctrl has embedded/scalable/customizable visual objects support.)
+- Supports sixel graphics with high/true color, with both in-display and external viewing.
 - Supports ISO colors (256 colors palette).
 - Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
 - Supports xterm dynamic colors (dynamic ink/paper/selection colors).
@@ -575,15 +587,15 @@ And here is the result: A basic, xterm compatible terminal multiplexer running h
 
 ### Terminal With Sixel Graphics Support
 
-This example demonstrates the sixel graphics support of the Terminal package. Terminal widget currently handles the sixel graphics externally, using the SixelRenderer class to render it into an image. Embedded sixel graphics is a TODO, and will be available soon.
+This example demonstrates the sixel graphics support of the Terminal package. Terminal widget can handles the sixel graphics both internally and externally.
 
-With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics in a non-blocking manner:
+With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics bot internally and externally:
 
 ```C++
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a virtual terminal with external sixel image  viewer.
+// This example demonstrates a virtual terminal with bot embedded and external sixel image viewer.
 // Two sixel images are provided with this example:
 // 1) scientia.sixel
 // 2) van-gogh.sixel
@@ -612,7 +624,7 @@ struct SixelTerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);	};
 		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
 		term.WhenOutput = [=](String s) { PutGet(s); };
-		term.WhenSixel  = THISFN(ShowSixelImage);
+		term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for embedded sixel images support.
 		term.SixelGraphics();
 
 		SetTimeCallback(-1, [=] { PutGet(); });
@@ -655,7 +667,7 @@ There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
-- In-display sixel images support and ReGIS graphics.
+- ReGIS graphics.
 - Improve modifier keys handling.
 - Implement reverse wrap.
 - Improve legacy charsets support.

@@ -17,7 +17,7 @@ public:
     void         ShiftRight(int begin, int end, int n, const VTCell& filler);
     bool         Fill(int begin, int end, const VTCell& filler, dword flags = 0);
 
-    void         Validate(bool b = true) const           { invalid = false; }
+    void         Validate(bool b = true) const           { invalid = !b;    }
     void         Invalidate() const                      { invalid = true;  }
     inline bool  IsInvalid() const                       { return invalid;  }
 

@@ -1,6 +1,7 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
@@ -19,7 +20,7 @@ Terminal::Terminal() : Console()
 {
 	Unicode();
 	NoLegacyCharsets();
-	SetDisplay(LeftAlignedImageDisplay());
+	SetImageDisplay(LeftAlignedImageDisplay());
 	SetFrame(FieldFrame());
 	History();
 	ResetColors();
@@ -251,29 +252,50 @@ void Terminal::RefreshDisplay()
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
-	int	 pos = GetSbPos();
+	int  pos = GetSbPos();
 	int blinking_cells = 0;
 	Vector<Rect> invalid;
+	Index<dword> imageids;
+
+	LTIMING("RefreshDisplay");
 	
-	for(int i = pos; i < pos + psz.cy; i++) {
+	int b = pos;
+	int e = pos + psz.cy;
+	if(!imagecache.IsEmpty()) {
+		b = 0;
+		e = page->GetLineCount();
+	}
+
+	for(int i = b; i < e; i++) {
 		const VTLine& line = page->GetLine(i);
-		if(blinktext)
-			for(const VTCell& cell : line)
-				if(cell.IsBlinking()) {
-					blinking_cells++;
-					line.Invalidate();
-					break;
-				}
-		if(line.IsInvalid()) {
-			line.Validate();
-			AddRefreshRect(invalid, RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
+		if(line.IsSpecial()) {
+			dword id = line.GetSpecialId();
+			if(imageids.Find(id) < 0) {
+				imageids.Add(id);
+			}
+		}
+		if(i >= pos && i < pos + psz.cy) {
+			if(blinktext)
+				for(const VTCell& cell : line)
+					if(cell.IsBlinking()) {
+						blinking_cells++;
+						line.Invalidate();
+						break;
+					}
+			if(line.IsInvalid()) {
+				line.Validate();
+				AddRefreshRect(invalid, RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
+			}
 		}
 	}
 
 	for(const Rect& r : invalid)
 		Refresh(r);
+	
 	PlaceCaret();
 	Blink(blinking_cells > 0);
+	
+	UpdateImageCache(imageids);
 }
 
 void Terminal::Blink(bool b)

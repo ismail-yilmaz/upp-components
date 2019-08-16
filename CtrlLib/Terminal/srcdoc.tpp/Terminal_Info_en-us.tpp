@@ -113,6 +113,23 @@ the generic Ctrl methods where applicable or makes sense. Of
 course, if you are determined enough, you can even do some “interesting” 
 things such as adding Terminal instances to a TreeCtrl or ArrayCtrl. 
 ;)&]
+[s5;i160;O0; [* Terminal widget supports embedded images.]&]
+[s5;l160; Terminal ctrl has support for embedded images and image 
+manipulation in general. Specifically, it can handle sixel graphics 
+with 4/16/256 and high/true color. It uses Upp`::Display objects 
+to display the embedded images. &]
+[s5;l160; For example, Ultimate`+`+ already comes with a handful 
+of standard display objects and Terminal package adds two more 
+to the arsenal: a left aligned scaled image display (default) 
+and its right aligned counterpart. Client code can set the image 
+display to  one of these pre`-defined display objects on`-the`-fly, 
+and the changes will take place immediately. Moreover, you can 
+write your own display objects that`'ll process or manipulate 
+the images before they are displayed (stretch/scale/colorize/flip/add 
+text, etc., you name it).&]
+[s5;l160; It also supports an external mode, where the image data 
+`-sixels, currently`- are handed onto client code for rendering 
+and external viewing.&]
 [s5;i150;O0; [*/ Everything belongs somewhere][*  rule runs through the 
 heart of Terminal package.]&]
 [s5;l160; There are no manual memory allocations/deallocations, no 
@@ -149,6 +166,8 @@ emulation modes.&]
 [s5;i150;O0; Supports user configurable, legacy “g`-set” (G0/G1/G2/G3), 
 and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).&]
 [s5;i150;O0; Supports ANSI conformance levels.&]
+[s5;i150;O0; Supports scalable fonts. (The changes in font size and/or 
+face immediately take place.)&]
 [s5;i150;O0; Supports various terminal state, device, and mode reports.&]
 [s5;i150;O0; Supports DEC VT52 graphics charset, VT1xx line`-drawing 
 charset, VT2xx multinational charset, and VT3xx technical charset.&]
@@ -156,9 +175,11 @@ charset, VT2xx multinational charset, and VT3xx technical charset.&]
 keys.&]
 [s5;i150;O0; Supports UDK (DEC’s user`-defined function keys feature).&]
 [s5;i150;O0; Supports user configurable blinking text and blink interval.&]
-[s5;i150;O0; Support sixel graphics. (Passes the sixel data to client 
-for external processing `[with SixelRenderer class`]. Embedded 
-sixel image support is a TODO.)&]
+[s0;i150;b42;a42;O0; Supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
+isplay] objects (i.e Terminal ctrl has embedded/scalable/customizable 
+visual objects support.)&]
+[s5;i150;O0; Supports sixel graphics with high/true color, with both 
+in`-display and external viewing.&]
 [s5;i150;O0; Supports ANSI colors (16 colors palette).&]
 [s5;i150;O0; Supports ISO indexed color mode (256 colors palette).&]
 [s5;i150;O0; Supports ISO direct/true color mode (16 million colors) 
@@ -764,20 +785,18 @@ and GNU nano simultaneously, and accessed via Firefox!]&]
 [s0; [*3 6.6 Terminal With Sixel Graphics Support]&]
 [s0;*3 &]
 [s0; This example demonstrates the sixel graphics support of the 
-Terminal package. Terminal widget currently handles the sixel 
-graphics externally, using the SixelRenderer class to render 
-it into an image. Embedded sixel graphics is a TODO, and will 
-be available soon.&]
+Terminal package. Terminal widget can handle sixel images both 
+internally and externally, using the SixelRenderer class.&]
 [s0; &]
 [s0; With a several lines of extra code to the Terminal Example, 
 we get a terminal emulator capable of displaying sixel graphics 
-in a non`-blocking manner:&]
+both internally and externally, in a non`-blocking manner:&]
 [s0; &]
 [s7; #include <Terminal/Terminal.h>&]
 [s7; #include <Terminal/PtyProcess.h>&]
 [s7; &]
-[s7; // This example demonstrates a virtual terminal with external 
-sixel image viewer.&]
+[s7; // This example demonstrates a virtual terminal with both internal 
+and external sixel image viewer.&]
 [s7; &]
 [s7; using namespace Upp;&]
 [s7; &]
@@ -803,7 +822,8 @@ sixel image viewer.&]
 [s7; -|-|term.WhenResize `= `[`=`]()-|-|`{ pty.SetSize(term.GetPageSize()); 
 `};&]
 [s7; -|-|term.WhenOutput `= `[`=`](String s)-|`{ PutGet(s); `};&]
-[s7; -|-|term.WhenSixel  `= THISFN(ShowSixelImage);&]
+[s7; -|-|term.WhenSixel  `= THISFN(ShowSixelImage); // Comment out 
+this line for embedded sixel images.&]
 [s7; -|-|term.SixelGraphics();&]
 [s7; -|-|&]
 [s7; -|-|SetTimeCallback(`-1, `[`=`] `{ PutGet(); `});&]
@@ -837,7 +857,7 @@ sdata)&]
 [s7; `}&]
 [s0; &]
 [s0;  &]
-[s0; -|Here is the result:&]
+[s0; -|Here is the result (external viewing):&]
 [s0; &]
 [s0;= 
 @@rawimage:2477&1620

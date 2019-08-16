@@ -104,8 +104,8 @@ depending on the VTInStream context.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:opcode: [_^Upp`:`:byte^ byte]_[* opcode]&]
-[s2;%% Also known as the `"final`" or `"terminator`" byte. Represents 
-the opcode of received function.&]
+[s2;%% Also known as the `"final`" or `"terminator`" byte. Usually 
+represents the opcode of received function.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:mode: [_^Upp`:`:byte^ byte]_[* mode]&]

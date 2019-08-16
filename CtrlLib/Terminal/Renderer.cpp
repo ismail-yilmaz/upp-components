@@ -88,6 +88,28 @@ void sVTTextRenderer::DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Co
 	xpos = _x + fsz.cx;
 }
 
+static void sAddCanvasRect(Vector<Tuple<dword, Rect>>& ca, const VTLine& line, Size fsz, Rect r)
+{
+	int id  = line.GetSpecialId();
+	int row = line.GetRowNumber();
+	
+	if(ca.IsEmpty()) {
+		if(row != 0)
+			r.top -= (row * fsz.cy);
+		ca.Add(MakeTuple(id, r));
+	}
+	else {
+		Rect& rr = ca.Top().b;
+		if(rr.bottom == r.top)
+			rr.bottom = r.bottom;
+		else {
+			if(row != 0)
+				r.top -= (row * fsz.cy);
+			ca.Add(MakeTuple(id, r));
+		}
+	}
+}
+
 void Terminal::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
@@ -96,27 +118,36 @@ void Terminal::Paint0(Draw& w, bool print)
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	Font fnt = font;
-	
+	Vector<Tuple<dword, Rect>> canvases;
+
 	w.Clip(wsz);
 	sVTRectRenderer rr(w);
 	sVTTextRenderer tr(w);
+
 	LTIMING("Terminal::Paint");
+
 	if(!nobackground)
 		w.DrawRect(wsz, colortable[COLOR_PAPER]);
-	for(int i = 0; i < pos + psz.cy; i++) {
+	int b = pos;
+	int e = pos + psz.cy;
+	if(!imagecache.IsEmpty()) {
+		b = 0;
+		e = page->GetLineCount();
+	}
+	for(int i = b; i < e; i++) {
 		int y = i * fsz.cy - (fsz.cy * pos);
-		if(w.IsPainting(0, y, wsz.cx, fsz.cy)) {
-			int pass = 0;
-			while(pass < 2) {
-				const auto& line = page->GetLine(i);
-				for(int j = 0; !line.IsEmpty() && j < psz.cx; j++) {
+		const VTLine& line = page->GetLine(i);
+		int pass = 0, end  = 2;
+		if(line.IsSpecial()) {
+			sAddCanvasRect(canvases, line, fsz, RectC(0, i * fsz.cy - (pos * fsz.cy), wsz.cx, fsz.cy));
+			end = 1;
+		}
+		if(!line.IsEmpty() && w.IsPainting(0, y, wsz.cx, fsz.cy)) {
+			while(i >= pos && i < pos + psz.cy && pass < end) {
+				for(int j = 0; j < psz.cx; j++) {
 					const VTCell& cell = j < line.GetCount() ? line[j] : GetAttrs();
-					Color ink = GetColorFromIndex(cell, COLOR_INK);
-					Color paper = GetColorFromIndex(cell, COLOR_PAPER);
-					if(cell.IsInverted())
-						Swap(ink, paper);
-					if(modes[DECSCNM])
-						Swap(ink, paper);
+					Color ink, paper;
+					SetInkAndPaperColor(cell, ink, paper);
 					int x = j * fsz.cx;
 					int n = i * psz.cx + j;
 					bool highlight = IsSelected(n);
@@ -127,8 +158,8 @@ void Terminal::Paint0(Draw& w, bool print)
 						bool defpcolor = cell.paper == 0xFFFF;
 					#endif
 						if(!nobackground || print || highlight || cell.IsInverted() || !defpcolor) {
-								int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
-								rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
+							int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
+							rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
 						}
 					}
 					else
@@ -144,12 +175,22 @@ void Terminal::Paint0(Draw& w, bool print)
 						}
 					}
 				}
-				rr.Flush();
-				tr.Flush();
+				if(pass == 0) {
+					rr.Flush();
+				}
+				else
+				if(pass == 1) {
+					tr.Flush();
+				}
 				pass++;
 			}
 		}
 	}
+
+	// Paint images.
+	if(sixelgraphics && !canvases.IsEmpty() && !imagecache.IsEmpty())
+		PaintImage(w, canvases);
+
 	// Paint a steady (non-blinking) caret, if enabled.
 	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
 		w.DrawRect(GetCaretRect(), InvertColor);
@@ -162,6 +203,16 @@ void Terminal::Paint0(Draw& w, bool print)
 		w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
 	}
 	w.End();
+}
+
+void Terminal::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
+{
+	ink = GetColorFromIndex(cell, COLOR_INK);
+	paper = GetColorFromIndex(cell, COLOR_PAPER);
+	if(cell.IsInverted())
+		Swap(ink, paper);
+	if(modes[DECSCNM])
+		Swap(ink, paper);
 }
 
 Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
@@ -217,6 +268,48 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
 }
 
+void Terminal::PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvases)
+{
+	for(const Tuple<dword, Rect>& canvas : canvases) {
+		Image *img = imagecache.FindPtr(canvas.a);
+		if(img) {
+			Rect r  = canvas.b;
+			Size isz = img->GetSize();
+			if(w.IsPainting(r)) {
+				VTCell cell = GetAttrs();
+				Color ink, paper;
+				SetInkAndPaperColor(cell, ink, paper);
+				imgdisplay->Paint(w, r.Deflated(font.GetCy() / 2), *img, ink, paper, 0);
+			}
+		}
+	}
+}
+
+void Terminal::UpdateImageCache(const Index<dword>& imageids)
+{
+	if(IsAlternatePage() || imagecache.IsEmpty())
+		return;
+
+	if(imageids.IsEmpty()) {
+		LLOG("Clearing image cache. Cached image count: " << imagecache.GetCount());
+		imagecache.Clear();
+	}
+	else {
+		// FIXME: or at least fix this. This is uglier than even me!..
+		Vector<dword> idkeys = clone(imageids.GetKeys());
+		Vector<dword> cached = clone(imagecache.GetKeys());
+		Sort(idkeys);
+		Sort(cached);
+		for(const dword& id : RemoveSorted(cached, idkeys)) {
+			int i = imagecache.Find(id);
+			if(i >= 0)
+				imagecache.Unlink(i);
+		}
+		if(imagecache.HasUnlinked())
+			imagecache.Sweep();
+	}
+}
+
 void Terminal::RenderSixel(const String& data, int ratio, bool nohole)
 {
 	if(!sixelgraphics)
@@ -229,8 +322,19 @@ void Terminal::RenderSixel(const String& data, int ratio, bool nohole)
 		si.aspectratio = ratio;
 		WhenSixel(si, data);
 	}
-	else {
-		// TODO
+	else {	// TODO: Lazy rendering (using worker threads) on MT environment.
+		dword   id = data.GetHashValue();
+		Image *img = imagecache.FindPtr(id);
+		if(!img) {
+			img = &imagecache.Add(
+					id,
+					SixelRenderer(data)
+						.SetAspectRatio(ratio)
+							.NoColorHole(nohole)
+								.SetPaper(Black()));
+		}
+		int cy = img->GetSize().cy / GetFontSize().cy;
+		page->SpecialLines(cy + 1, id);
 	}
 }
 }

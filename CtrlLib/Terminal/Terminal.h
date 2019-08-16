@@ -88,7 +88,8 @@ public:
     Terminal&   LazyResize(bool b = true)                       { lazyresize = b; return *this; }
     Terminal&   NoLazyResize()                                  { return LazyResize(false);     }
 
-    Terminal&   SetDisplay(const Display& d)                    { display = &d; return *this;   }
+    Terminal&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this;   }
+    const Display& GetImageDisplay() const                      { return *imgdisplay; }
     
     Size        GetFontSize() const;
     Size        GetPageSize() const;
@@ -149,6 +150,11 @@ private:
     void        PostParse() override;
 
     void        Paint0(Draw& w, bool print = false);
+    void        PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvas);
+    Color       GetColorFromIndex(const VTCell& cell, int which) const;
+    void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
+    void        UpdateImageCache(const Index<dword>& imageids);
+    
     void        RenderSixel(const String& data, int ratio, bool nohole) override;
 
     void        SyncPage(bool notify = true);
@@ -159,8 +165,6 @@ private:
 
     void        Blink(bool b);
     void        RefreshBlinkingText();
-
-    Color       GetColorFromIndex(const VTCell& cell, int which) const;
 
     void        Scroll();
     void        SyncSb();
@@ -199,7 +203,7 @@ private:
 
     VScrollBar  sb;
     Scroller    scroller;
-    const Display *display;
+    const Display *imgdisplay;
     Font        font            = Monospace();
     Rect        caretrect;
     int         anchor          = -1;
@@ -224,6 +228,7 @@ private:
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;
+    VectorMap<dword, Image> imagecache;
 };
 
 const Display& LeftAlignedImageDisplay();

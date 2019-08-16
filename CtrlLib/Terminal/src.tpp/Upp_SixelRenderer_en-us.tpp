@@ -14,8 +14,8 @@ topic "SixelRenderer";
 [s0; &]
 [s1;:Upp`:`:SixelRenderer`:`:class: [@(0.0.255)3 class][3 _][*3 SixelRenderer][3 _:_][@(0.0.255)3 p
 rivate][3 _][*@3;3 NoCopy]&]
-[s2;%% This helper class renders a [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
-ixel] image. It can handle both RGB and HSL color spaces, and 
+[s2;%% This helper class renders [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
+ixel] images. It can handle both RGB and HSL color spaces, and 
 has true color support. Sixel data must only contain the [/ payload 
 ]of a device control string (DCS).&]
 [s3; &]
