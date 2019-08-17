@@ -181,7 +181,7 @@ void Console::PutC(const String& s)
 		PutC(c);
 }
 
-void Console::Put(const char *s, int cnt)
+void Console::Put(const String& s, int cnt)
 {
 	while(cnt-- > 0)
 		PutC(s);
@@ -218,7 +218,7 @@ void Console::PutUtf8(int c, int cnt)
 	PutRaw(s, cnt);
 }
 
-void Console::PutRaw(const char *s, int cnt)
+void Console::PutRaw(const String& s, int cnt)
 {
 	while(cnt-- > 0)
 		out.Cat(s);

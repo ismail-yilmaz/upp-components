@@ -202,13 +202,8 @@ bool Terminal::Key(dword key, int count)
 		(!modes[DECARM] && count > 1))
 			return MenuBar::Scan(WhenBar, key);
 
-	if(key & K_KEYUP)	// We don't really need to handle key-ups...
-		return true;
-
-	bool meta  = key & K_ALT;
-	bool ctrl  = key & K_CTRL;
-	bool shift = key & K_SHIFT;
-
+	dword keyflags = 0;
+	
 	if(UDKey(key, count))
 		goto KeyAccepted;
 	else
@@ -220,45 +215,53 @@ bool Terminal::Key(dword key, int count)
 	else
 	if(VTKey(key, count))
 		goto KeyAccepted;
+
+	if(key & K_KEYUP)	// We don't really need to handle key-ups...
+		return true;
 	
-	switch(key &= ~(K_SHIFT|K_ALT|K_CTRL)) {
+	if((key & K_ALT_KEY) == K_ALT_KEY   ||
+	   (key & K_CTRL_KEY) == K_CTRL_KEY ||
+	   (key & K_SHIFT_KEY) == K_SHIFT_KEY)
+		return false;
+
+	keyflags = key & (K_ALT|K_CTRL);
+
+	switch(key &= ~(keyflags|K_SHIFT)) {
 	case K_RETURN:
 		Console::PutEol();
 		break;
-	case K_ALT_KEY:
-	case K_CTRL_KEY:
-	case K_SHIFT_KEY:
-		return true;
+	case K_BACKSPACE:
+		key = modes[DECBKM] ? 0x08 : 0x7F;
 	default:
-		if(key > 65535 && !ctrl && !meta)
-			return false;
-
-		bool utf8 = GetCharset() == CHARSET_UTF8;
-		
-		int c = ConvertToCharset(key &= ~K_DELTA, GetLegacyCharsets().Get(key, IsLevel2()));
-		if(c == DEFAULTCHAR)
+		if(key > 65535 && !keyflags)
 			return true;
 
-		if(ctrl)
-			c = ToAscii(c) & 0x1F;
+		key &= ~K_DELTA;
+		bool utf8 = GetCharset() == CHARSET_UTF8;
+	
+		key =  ConvertToCharset(key, GetLegacyCharsets().Get(key, IsLevel2()));
+		if(key == DEFAULTCHAR)
+			return true;
 		
-		if(c == K_BACKSPACE)
-			c = modes[DECBKM] ? c : 0x7F;
-
-		if(meta) {
+		if(keyflags & K_CTRL)
+			key = ToAscii(key) & 0x1F;
+		
+		if(key < 0x80 && keyflags & K_ALT) {
+			if(metakeyflags & MKEY_NONE)
+				return false;
 			if(metakeyflags & MKEY_SHIFT)
-				c |= 0x80;
-		
+				key |= 0x80;
 			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
 				utf8
-					? Console::PutESC(c, count)
-					: Console::Put(c, count);
+					? Console::PutESC(key, count)
+					: Console::Put(key, count);
 		}
 		else
 			utf8
-				? Console::PutUtf8(c, count)
-				: Console::Put(c, count);
+				? Console::PutUtf8(key, count)
+				: Console::Put(key, count);
 	}
+
 KeyAccepted:
 	PlaceCaret(true);
 	return true;

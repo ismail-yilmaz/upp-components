@@ -30,7 +30,7 @@ struct SixelTerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);	};
 		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
 		term.WhenOutput = [=](String s) { PutGet(s); };
-	//	term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for in-display sixels.
+		term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for in-display sixels.
 		term.SixelGraphics();
 
 		SetTimeCallback(-1, [=] { PutGet(); });

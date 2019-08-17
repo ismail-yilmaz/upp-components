@@ -93,10 +93,10 @@ protected:
     
     void            PutC(int c);
     void            PutC(const String& s1);
-    void            Put(const char *s, int cnt = 1);
+    void            Put(const String& s, int cnt = 1);
     void            Put(int c, int cnt = 1);
     void            PutUtf8(int c, int cnt = 1);
-    void            PutRaw(const char *s, int cnt = 1);
+    void            PutRaw(const String& s, int cnt = 1);
     void            PutESC(const String& s, int cnt = 1);
     void            PutESC(int c, int cnt = 1);
     void            PutCSI(const String& s, int cnt = 1);

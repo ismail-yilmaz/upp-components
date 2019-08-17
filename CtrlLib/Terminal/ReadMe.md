@@ -11,7 +11,7 @@ Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual 
 
 It is not based on the existing terminal emulation libraries. It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
 
-![Sixel images, true color, image background support](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot.jpg)
+![Cross-platform terminal ctrl, sixel images, true color, image background support](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Crossplatform.jpg)
 
 A short video demonstration of Terminal widget:
 https://vimeo.com/349761874
