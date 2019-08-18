@@ -279,7 +279,7 @@ void Terminal::PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvases)
 				const VTCell& cell = GetAttrs();
 				Color ink, paper;
 				SetInkAndPaperColor(cell, ink, paper);
-				imgdisplay->Paint(w, r.Deflated(font.GetCy() / 2), *img, ink, paper, 0);
+				imgdisplay->Paint(w, r.Deflated(8), *img, ink, paper, 0);
 			}
 		}
 	}
@@ -334,7 +334,7 @@ void Terminal::RenderSixel(const String& data, int ratio, bool nohole)
 								.SetPaper(Black()));
 		}
 		int cy = img->GetSize().cy / GetFontSize().cy;
-		page->SpecialLines(cy + 1, id);
+		page->SpecialLines(cy, id);
 	}
 }
 }
