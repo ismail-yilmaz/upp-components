@@ -554,8 +554,8 @@ VTPage& VTPage::SetSize(Size sz)
 
 bool VTPage::UnwindHistory(const Size& prevsize)
 {
-	int delta = size.cy - prevsize.cy;
-	if(saved.IsEmpty() || delta >= saved.GetCount())
+	int delta =  min(size.cy - prevsize.cy, saved.GetCount());
+	if(saved.IsEmpty() || delta <= 0)
 		return false;
 	while(delta-- > 0) {
 		lines.Insert(0, pick(saved.Top()));
@@ -567,7 +567,7 @@ bool VTPage::UnwindHistory(const Size& prevsize)
 
 bool VTPage::RewindHistory(const Size& prevsize)
 {
-	int delta = cursor.y - size.cy;
+	int delta = min(cursor.y - size.cy, lines.GetCount());
 	if(lines.IsEmpty() || delta <= 0)
 		return false;
 	while(delta-- > 0) {
