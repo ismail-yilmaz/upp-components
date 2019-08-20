@@ -529,37 +529,52 @@ void VTPage::Invalidate(int begin, int end)
 
 VTPage& VTPage::SetSize(Size sz)
 {
-	Size lsz = size;
+	Size prevsize = size;
 	size = Nvl(sz, Size(MINCOL, MINROW));
-	if(lsz != size)
+	if(prevsize != size)
 		margin.Set(1, 1, size.cx, size.cy);
-	Sync();
-	return *this;
-}
-
-void VTPage::Sync()
-{
 	if(lines.IsEmpty())
 		cursor.Clear();
-	SyncPageWithHistory();
-	lines.SetCount(size.cy);
+	bool b = HasHistory();
+	if(b){
+		if(prevsize.cy < size.cy)
+			b = UnwindHistory(prevsize);
+		else
+		if(prevsize.cy > size.cy)
+			b = RewindHistory(prevsize);
+	}
+	if(!b)
+		lines.SetCount(size.cy);
 	for(VTLine& line : lines)
 		line.Adjust(size.cx, cellattrs);
 	if(tabsync)
 		SetTabs(tabsize);
-	MoveTo(cursor);
+	return MoveTo(cursor);
 }
 
-void VTPage::SyncPageWithHistory()
+bool VTPage::UnwindHistory(const Size& prevsize)
 {
-	// TODO: This method is onlyp partially implemented...
+	int delta = size.cy - prevsize.cy;
+	if(saved.IsEmpty() || delta >= saved.GetCount())
+		return false;
+	while(delta-- > 0) {
+		lines.Insert(0, pick(saved.Top()));
+		saved.Drop();
+		MoveDown();
+	}
+	return true;
+}
+
+bool VTPage::RewindHistory(const Size& prevsize)
+{
 	int delta = cursor.y - size.cy;
-	if(!HasHistory() || delta <= 0)
-		return;
-	for(int i = 0; i < delta; i++) {
+	if(lines.IsEmpty() || delta <= 0)
+		return false;
+	while(delta-- > 0) {
 		saved.Add(pick(lines[0]));
 		lines.Remove(0, 1);
 	}
+	return true;
 }
 
 bool VTPage::AddToHistory(int pos)

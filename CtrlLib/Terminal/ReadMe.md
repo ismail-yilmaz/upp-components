@@ -589,13 +589,13 @@ And here is the result: A basic, xterm compatible terminal multiplexer running h
 
 This example demonstrates the sixel graphics support of the Terminal package. Terminal widget can handles the sixel graphics both internally and externally.
 
-With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics bot internally and externally:
+With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics both internally and externally:
 
 ```C++
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a virtual terminal with bot embedded and external sixel image viewer.
+// This example demonstrates a virtual terminal with both embedded and external sixel image viewer.
 // Two sixel images are provided with this example:
 // 1) scientia.sixel
 // 2) van-gogh.sixel

@@ -225,8 +225,8 @@ private:
     void    CellInsert(int pos, int n, const VTCell& attrs, bool pan = false);
     void    CellRemove(int pos, int n, const VTCell& attrs, bool pan = false);
     void    RectFill(const Rect& r, const VTCell& filler, dword flags = 0);
-    void    Sync();
-    void    SyncPageWithHistory();
+    bool    UnwindHistory(const Size& prevsize);
+    bool    RewindHistory(const Size& prevsize);
     bool    AddToHistory(int pos);
     void    AdjustHistorySize();
     int     AdjustCol(int& col, bool rel, bool scrl) const;
