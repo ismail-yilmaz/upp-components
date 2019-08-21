@@ -76,10 +76,10 @@ Client code can easily render the sixel data into a raw U`+`+
 [^topic`:`/`/Draw`/src`/Image`_en`-us`#Image`:`:class^ Image] object, 
 using these two parameters with [^topic`:`/`/Terminal`/src`/Upp`_SixelRenderer`_en`-us`#Upp`:`:SixelRenderer`:`:class^ S
 ixelRenderer] class, and alter the resulting image to suit its 
-needs. Setting this event to Null will switch the terminal back 
-to internal sixel rendering mode. Sixel graphics feature is disabled 
-by default It can be enabled or disabled run`-time by using the 
-[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
+needs. Setting this event to Null (or not defining it at all) 
+will switch the terminal back to internal sixel rendering mode. 
+Sixel graphics feature is disabled by default It can be enabled 
+or disabled run`-time by using the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
 ixelGraphics()] and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:NoSixelGraphics`(`)^ N
 oSixelGraphics()] methods.&]
 [s3;%% &]

@@ -254,7 +254,7 @@ public:
         Caret&      Beam(bool blink = true)                 { Set(BEAM, blink);  return *this; }
         Caret&      Underline(bool blink = true)            { Set(UNDERLINE, blink); return *this; }
         Caret&      Lock(bool b = true)                     { locked = b; return *this; }
-        Caret&      Unlock(bool b = true)                   { return Lock(false); }
+        Caret&      Unlock()                                { return Lock(false); }
         byte        GetStyle() const                        { return style;    }
         bool        IsBlinking() const                      { return blinking; }
         bool        IsLocked() const                        { return locked;   }

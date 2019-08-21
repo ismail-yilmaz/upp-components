@@ -148,8 +148,8 @@ void Terminal::Layout()
 
 void Terminal::SyncSize(bool notify)
 {
-	if(resizing && !IsShown())
-		return;
+//	if(resizing && !IsShown())
+//		return;
 	
 	// Apparently, the window minimize event on Windows really minimizes
 	// the window. (I mean, really!?!?) This results in a damaged display.
@@ -265,8 +265,7 @@ void Terminal::RefreshDisplay()
 		b = 0;
 		e = page->GetLineCount();
 	}
-
-	for(int i = b; i < e; i++) {
+	for(int i = b; i < min(e, page->GetLineCount()); i++) {
 		const VTLine& line = page->GetLine(i);
 		if(line.IsSpecial()) {
 			dword id = line.GetSpecialId();

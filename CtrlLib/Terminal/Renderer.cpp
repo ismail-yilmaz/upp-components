@@ -134,7 +134,7 @@ void Terminal::Paint0(Draw& w, bool print)
 		b = 0;
 		e = page->GetLineCount();
 	}
-	for(int i = b; i < e; i++) {
+	for(int i = b; i < min(e, page->GetLineCount()); i++) {
 		int y = i * fsz.cy - (fsz.cy * pos);
 		const VTLine& line = page->GetLine(i);
 		int pass = 0, end  = 2;

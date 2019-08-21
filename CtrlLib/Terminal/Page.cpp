@@ -553,22 +553,20 @@ VTPage& VTPage::SetSize(Size sz)
 void VTPage::UnwindHistory(const Size& prevsize)
 {
 	int delta =  min(size.cy - prevsize.cy, saved.GetCount());
-	if(delta > 0)
-		while(delta-- > 0) {
-			lines.Insert(0, pick(saved.Top()));
-			saved.Drop();
-			cursor.y++;
-		}
+	while(delta-- > 0) {
+		lines.Insert(0, pick(saved.Top()));
+		saved.Drop();
+		cursor.y++;
+	}
 }
 
 void VTPage::RewindHistory(const Size& prevsize)
 {
 	int delta = min(cursor.y - size.cy, lines.GetCount());
-	if(delta > 0)
-		while(delta-- > 0) {
-			saved.Add(pick(lines[0]));
-			lines.Remove(0, 1);
-		}
+	while(delta-- > 0) {
+		saved.Add(pick(lines[0]));
+		lines.Remove(0, 1);
+	}
 }
 
 bool VTPage::AddToHistory(int pos)
