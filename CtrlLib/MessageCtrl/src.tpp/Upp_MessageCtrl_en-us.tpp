@@ -32,8 +32,7 @@ be less intrusive, and non`-blocking.&]
 [s2;#i150;O0; [* Information]: Should be used to display common information.&]
 [s2;#i150;O0; [* Warning]: Should be used to report non`-critical issues, 
 to inform not everything is all right.&]
-[s2;#i150;O0; [* Success]: Should be used to display successful operations. 
-Essentially this is an information notification.&]
+[s2;#i150;O0; [* OK]: Should be used to display successful operations.&]
 [s2;#i150;O0; [* Question]: Should be used to ask for some interaction.&]
 [s2;#i150;O0; [* Error]: Should be used to display critical application 
 errors&]
@@ -85,8 +84,8 @@ essageCtrl][@(0.0.255) `&]_[* Warning]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
 [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 l
 ink])&]
-[s5;:Upp`:`:MessageCtrl`:`:Success`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`):%- [_^Upp`:`:Message^ M
-essageCtrl][@(0.0.255) `&]_[* Success]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c], 
+[s5;:Upp`:`:MessageCtrl`:`:OK`(Upp`:`:Ctrl`&`,const Upp`:`:String`&`,Upp`:`:Event`<const Upp`:`:String`&`>`):%- [_^Upp`:`:MessageCtrl^ M
+essageCtrl][@(0.0.255) `&]_[* OK]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
 [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 l
 ink])&]
@@ -96,7 +95,7 @@ essageCtrl][@(0.0.255) `&]_[* Error]([_^Upp`:`:Ctrl^ Ctrl][@(0.0.255) `&]_[*@3 c
 [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]>_[*@3 l
 ink])&]
 [s2; Adds an informative message to [%-*@3 c] with the text [%-*@3 s]. 
-[%-*@3 link] can be used to set a setup an hyperlink action. [%-*@3 secs] 
+[%-*@3 link] can be used to set an hyperlink action. [%-*@3 secs] 
 parameter is only available with the plain information message 
 type, and can be used to specify the duration of display (in 
 seconds). Returns `*this for method chaining.&]

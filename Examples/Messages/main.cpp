@@ -32,7 +32,7 @@ public:
 			msg.Animation()
 			  .Top()
 			  .Information(*this, "This is a time-constrained information message. It will disappear in 5 seconds.", Null, 5)
-			  .Success(*this, "This is a success message.")
+			  .OK(*this, "This is a success message.")
 			  .Warning(*this, "This is a warning message.")
 			  .Error(*this, "This is an error message.")
 			  .Bottom()

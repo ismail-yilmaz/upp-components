@@ -77,7 +77,7 @@ public:
     // Informative messages.
     MessageCtrl&    Information(Ctrl& c, const String& s, Event<const String&> link = Null, int secs = 0);
     MessageCtrl&    Warning(Ctrl& c, const String& s, Event<const String&> link = Null);
-    MessageCtrl&    Success(Ctrl& c, const String& s, Event<const String&> link = Null);
+    MessageCtrl&    OK(Ctrl& c, const String& s, Event<const String&> link = Null);
     MessageCtrl&    Error(Ctrl& c, const String& s, Event<const String&> link = Null);
 
     // Interactive messages.

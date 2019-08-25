@@ -179,7 +179,7 @@ MessageCtrl& MessageCtrl::Warning(Ctrl& c, const String& s, Event<const String&>
 	return *this;
 }
 
-MessageCtrl& MessageCtrl::Success(Ctrl& c, const String& s, Event<const String&> link)
+MessageCtrl& MessageCtrl::OK(Ctrl& c, const String& s, Event<const String&> link)
 {
 	auto& msg = Create();
 	msg.MessageType(MessageBox::Type::SUCCESS);

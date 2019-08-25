@@ -67,7 +67,7 @@ bool Terminal::VTKey(dword key, int count)
 				case VTKEY_NUMPAD:
 					if(!modes[DECKPAM])
 						return false;
-					PutESC(Format("?%s", *k->d), count);
+					PutESC(Format("?%s", k->d), count);
 					break;
 				case VTKEY_FUNCTION:
 					if(k->c == LEVEL_0) // VT52 has only PF1 to PF4.
