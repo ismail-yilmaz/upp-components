@@ -322,8 +322,6 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 
 bool PtyProcess::Read(String& s)
 {
-	s = wread;
-	wread.Clear();
 	String rread;
 	bool running = IsRunning() || master >= 0;
 	fd_set rd, ex;
@@ -366,10 +364,6 @@ void PtyProcess::Write(String s)
 	if (master >= 0) {
 		int ret = 1;
 		for(int wn = 0; (ret > 0 || errno == EINTR) && wn < wbuffer.GetLength(); wn += ret) {
-			String ho = wread;
-			wread = Null;
-			Read(wread);
-			wread = ho + wread;
 			ret = write(master, ~wbuffer + wn, wbuffer.GetLength() - wn);
 			if(ret > 0)
 				wbuffer.Remove(0, ret);
