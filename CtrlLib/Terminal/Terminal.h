@@ -149,6 +149,8 @@ private:
     void        PreParse() override;
     void        PostParse() override;
 
+    void        ReportWindowProperties(int opcode) override;
+    
     void        Paint0(Draw& w, bool print = false);
     void        PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvas);
     Color       GetColorFromIndex(const VTCell& cell, int which) const;

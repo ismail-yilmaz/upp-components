@@ -32,6 +32,17 @@ public:
         LED_SCRLOCK  = 2,
         LED_ALL      = 3
     };
+
+    enum WindowReports : word {
+        WINDOW_REPORT_POSITION      = 0x0D00,
+        WINDOW_REPORT_VIEW_POSITION = 0x0D02,
+        WINDOW_REPORT_SIZE          = 0x0E00,
+        WINDOW_REPORT_VIEW_SIZE     = 0x0E02,
+        WINDOW_REPORT_PAGE_SIZE     = 0x1200,
+        WINDOW_REPORT_CELL_SIZE     = 0x0100,
+        WINDOW_REPORT_STATE         = 0x0B00,
+        WINDOW_REPORT_TITLE         = 0x1500
+    };
     
     Console();
     virtual ~Console() {}
@@ -80,6 +91,8 @@ protected:
     virtual void    PreParse()                              {}
     virtual void    PostParse()                             {}
 
+    virtual void    ReportWindowProperties(int opcode)      {}
+    
     virtual void    RefreshPage(bool full = false)          {}
     virtual void    SwapPage()                              {}
 
@@ -146,7 +159,8 @@ private:
     void            ReportControlFunctionSettings(const VTInStream::Sequence& seq);
     void            ReportRectAreaChecksum(const VTInStream::Sequence &seq);
     void            ReportPresentationState(const VTInStream::Sequence& seq);
-
+    void            ReportWindowProperties(const VTInStream::Sequence& seq);
+    
     void            RestorePresentationState(const VTInStream::Sequence& seq);
 
     void            SelectGraphicsRendition(const VTInStream::Sequence& seq);

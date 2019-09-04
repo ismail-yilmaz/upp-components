@@ -148,9 +148,6 @@ void Terminal::Layout()
 
 void Terminal::SyncSize(bool notify)
 {
-//	if(resizing && !IsShown())
-//		return;
-	
 	// Apparently, the window minimize event on Windows really minimizes
 	// the window. (I mean, really!?!?) This results in a damaged display.
 	// We check the new page size to prevent this and don't attemp resize
@@ -705,6 +702,51 @@ Terminal& Terminal::ResetColors()
 	colortable[COLOR_PAPER] = SColorPaper;
 	colortable[COLOR_PAPER_SELECTED] = SColorHighlight;
 	return *this;
+}
+
+void Terminal::ReportWindowProperties(int opcode)
+{
+	Rect r;
+	Size sz;
+	TopWindow *win = GetTopWindow();
+	
+	switch(opcode) {
+	case WINDOW_REPORT_POSITION:
+		if(!win) return;
+		r = win->GetRect();
+		PutCSI(Format("3;%d;%d`t", r.left, r.top));
+		break;
+	case WINDOW_REPORT_VIEW_POSITION:
+		r = GetView();
+		PutCSI(Format("3;%d;%d`t", r.left, r.top));
+		break;
+	case WINDOW_REPORT_SIZE:
+		sz = GetSize();
+		PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
+		break;
+	case WINDOW_REPORT_VIEW_SIZE:
+		sz = GetView().GetSize();
+		PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
+		break;
+	case WINDOW_REPORT_PAGE_SIZE:
+		sz = GetPageSize();
+		PutCSI(Format("8;%d;%d`t", sz.cy, sz.cx));
+		break;
+	case WINDOW_REPORT_CELL_SIZE:
+		sz = GetFontSize();
+		PutCSI(Format("6;%d;%d`t", sz.cy, sz.cx));
+		break;
+	case WINDOW_REPORT_STATE:
+		if(!win) return;
+		PutCSI(Format("%d`t", win->IsMinimized() ? 2 : 1));
+		break;
+	case WINDOW_REPORT_TITLE:
+		PutOSC("1;");	// Always empty for security reasons.
+		break;
+	default:
+		LLOG("Unhandled window op: " << opcode);
+		return;
+	}
 }
 
 Image Terminal::CursorImage(Point p, dword keyflags)

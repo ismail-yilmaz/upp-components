@@ -193,8 +193,8 @@ void Console::ParseCommandSequences(const VTInStream::Sequence& seq)
 		WhenSetColumns(seq.GetInt(1) != 132 ? 80 : 132);
 		break;
 	case SequenceId::DECSLPP:
-		if(seq.GetInt(1) < 24)
-			break;
+		ReportWindowProperties(seq);
+		break;
 	case SequenceId::DECSNLS:
 		WhenSetLines(max(seq.GetInt(1), 1));
 		break;
@@ -469,6 +469,16 @@ void Console::ReportPresentationState(const VTInStream::Sequence& seq)
 
 		PutDCS(Format("2$u%s", Join(reply, "/")));
 	}
+}
+
+void Console::ReportWindowProperties(const VTInStream::Sequence& seq)
+{
+    int opcode = seq.GetInt(1, 0);
+    if(opcode < 24) {
+		opcode  = (opcode << 8) | seq.GetInt(2,  0);
+	    ReportWindowProperties(opcode & 0xFFFF);
+    }
+    else WhenSetLines(max(opcode, 1));
 }
 
 void Console::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
