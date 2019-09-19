@@ -4,67 +4,60 @@
 #include <Core/Core.h>
 #include <Draw/Draw.h>
 
-#include "Parser.h"
-
 // TODO: Needs optimixation.
 
 namespace Upp{
-    
+
 class SixelRenderer : NoCopy {
 public:
-    struct Info {
-        int    aspectratio = 1;
-        bool   nohole      = true;
-        Size   size        = Null;
-    };
-    
-    SixelRenderer(const String& data);
-    SixelRenderer(const String& data, Size sz);
-    SixelRenderer(const String& data, Info info);
-    
+    SixelRenderer(Stream& sdata);
+
     Image           Get();
     operator        Image()                         { return Get(); }
-    
-    SixelRenderer&  SetSize(Size sz)                { info.size = sz; return *this; }
-    Size            GetSize() const                 { return info.size; }
-
-    SixelRenderer&  SetPaper(Color c)               { paper = c; return *this; }
-
-    SixelRenderer&  SetAspectRatio(int r)           { info.aspectratio = r; return *this; }
-    int             GetAspectRatio() const          { return info.aspectratio; }
-
-    SixelRenderer&  NoColorHole(bool b = true)      { info.nohole = b; return *this; }
+    Size            GetSize() const                 { return size;  }
+    int             GettRatio() const               { return aspectratio; }
     
 private:
-    void            SetCanvas();
-    void            SetColors();
-    void            SetRasterInfo();
-    void            SetRepeatCount();
-    void            DrawSixel(int c);
-    void            GetNumericParameters(Vector<int>& v, int delimiter = Null);
-    void            SetColorRegister(int i, const Color& c);
     void            Clear();
-    
-    VectorMap<int, Color> colortable;
-    StringStream    sixelstream;
+    inline void     Return();
+    inline void     LineFeed();
+    void            SetPalette();
+    void            GetRasterInfo();
+    void            GetRepeatCount();
+    void            ParseEsc(int c);
+    void            SetOptions();
+    bool            InitBuffer(ImageBuffer& ib);
+    void            DrawSixel(ImageBuffer& ib, int c);
+    void            GetNumericParams(Vector<int>& v, int delim = Null);
+
+private:
+    Stream&         sstream;
+    Vector<RGBA>    palette;
+    int             datapos;
     int             repeatcount;
+    int             aspectratio;
+    int             pass;
+    Rect            rect;
+    Size            size;
     Point           cursor;
-    Color           ink;
-    Color           paper;
-    ImageBuffer     buffer;
-    Info            info;
+    bool            nohole;
     bool            init;
+    Color           ink;
 };
 
-using SixelInfo = SixelRenderer::Info;
+class SixelRaster : public StreamRaster {
+public:
+    SixelRaster()                       {}
 
-// Note that this helper function is meant to be used separately.
-// It contains  a  VTInStream  instance of its  own, and  filters
-// sequences when required.  And this is  completely  unnecessary
-// for Terminal ctrl since it does its own parsing before passing
-// the sixel data to client. Use the SixelRenderer class directly
-// with the Terminal ctrl.
+    virtual bool    Create();
+    virtual Size    GetSize();
+    virtual Info    GetInfo();
+    virtual Line    GetLine(int line);
+    
+private:
+    One<ImageRaster> imgraster;
+};
 
-Image RenderSixelImage(const String& sixeldata, const Size& sizehint, Color paper, bool utf8 = true);
+INITIALIZE(SixelRaster);
 }
 #endif

@@ -6,7 +6,8 @@
 
 namespace Upp {
 
-// WARNING: VTLine's and VTPage's interfaces are not yet stable. They are subject to change!
+// WARNING: VTLine's and VTPage's interfaces are not stable.
+// They are subject to change!
 
 class VTLine : public Moveable<VTLine, Vector<VTCell>> {
 public:
@@ -25,18 +26,13 @@ public:
     void         Unwrap() const                          { wrapped = false; }
     inline bool  IsWrapped() const                       { return wrapped;  }
 
-    void         SetSpecial(dword id_, word row_) const;
-    void         NotSpecial() const;
-    inline bool  IsSpecial() const                       { return special; }
-    inline dword GetSpecialId() const                    { return id;  }
-    inline word  GetRowNumber() const                    { return row; }
+    void         HasData(bool b) const					 { hasdata = b;     }
+    inline bool  HasData() const                         { return hasdata;  }
 
 private:
     mutable bool  invalid:1;
     mutable bool  wrapped:1;
-    mutable bool  special:1;
-    mutable word  row;
-    mutable dword id;
+    mutable bool  hasdata:1;
 };
 
 class VTPage : Moveable<VTPage> {
@@ -127,7 +123,6 @@ public:
     VTPage& InsertLines(int pos, int n)                 { if(IsContained()) LineInsert(pos, n, cellattrs); return MoveHome(); }
     VTPage& RemoveLines(int n)                          { return RemoveLines(cursor.y, n); }
     VTPage& RemoveLines(int pos, int n)                 { if(IsContained()) LineRemove(pos, n, cellattrs); return MoveHome(); }
-    VTPage& SpecialLines(int n, dword id);
 
     VTPage& NextLine(int n = 1)                         { return MoveVert(n,  true, IsContained()); }
     VTPage& PrevLine(int n = 1)                         { return MoveVert(-n, true, IsContained()); }
@@ -171,6 +166,8 @@ public:
     VTPage& FillStream(const Rect& r, const VTCell& filler, dword flags);
     VTPage& FillStream(const Rect& r, dword chr);
 
+	VTPage& AddImage(Size sz, dword imageid, bool scroll);
+		
     VTPage& SetVertMargins(int t, int b);
     VTPage& SetHorzMargins(int l, int r);
     VTPage& SetMargins(const Rect& r)                   { return SetMargins(r.left, r.top, r.right, r.bottom); }

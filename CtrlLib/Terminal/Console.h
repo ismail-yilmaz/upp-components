@@ -32,7 +32,7 @@ public:
         LED_SCRLOCK  = 2,
         LED_ALL      = 3
     };
-
+    
     enum WindowReports : word {
         WINDOW_REPORT_POSITION      = 0x0D00,
         WINDOW_REPORT_VIEW_POSITION = 0x0D02,
@@ -43,7 +43,7 @@ public:
         WINDOW_REPORT_STATE         = 0x0B00,
         WINDOW_REPORT_TITLE         = 0x1500
     };
-    
+      
     Console();
     virtual ~Console() {}
 
@@ -102,7 +102,7 @@ protected:
     VTPage&         GetAlternatePage()                      { return apage; }
     bool            IsAlternatePage() const                 { return page == &apage; }
 
-    virtual void    RenderSixel(const String& data, int ratio, bool nohole) {}
+    virtual void    RenderImage(const String& data)         {}
     
     void            PutC(int c);
     void            PutC(const String& s1);

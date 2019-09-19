@@ -38,6 +38,8 @@ void VTCell::Fill(const VTCell& filler, dword flags)
 		chr = filler.chr;
 	if(flags & FILL_ATTRS)
 		attrs = filler.attrs;
+	if(flags & FILL_DATA)
+		data = filler.data;
 	if(flags & FILL_INK)
 		ink = filler.ink;
 	if(flags & FILL_PAPER)
@@ -59,6 +61,7 @@ void VTCell::Reset()
 	paper = 0xFFFF;
 #endif
 	sgr   = SGR_NORMAL;
+	data  = 0;
 }
 
 bool VTCell::IsNullInstance() const
@@ -72,7 +75,8 @@ bool VTCell::IsNullInstance() const
             ink   == 0xFFFF     &&
             paper == 0xFFFF     &&
 #endif
-            chr == 0;
+            chr  == 0			&&
+            data == 0;
 }
 
 void VTCell::Serialize(Stream& s)
@@ -81,6 +85,7 @@ void VTCell::Serialize(Stream& s)
 	s / version;
 	if(version >= 1) {
 		s % chr;
+		s % data;
 		s % attrs;
 		s % sgr;
 		s % ink;
@@ -92,6 +97,4 @@ VTCell::VTCell()
 {
 	Clear();
 }
-
-
 }

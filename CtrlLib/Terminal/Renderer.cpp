@@ -1,7 +1,7 @@
 #include "Terminal.h"
 
-#define LLOG(x)	    // RLOG("Terminal: " << x)
-#define LTIMING(x)  // RTIMING(x)
+#define LLOG(x)	   // RLOG("Terminal: " << x)
+#define LTIMING(x)  RTIMING(x)
 
 namespace Upp {
 
@@ -88,28 +88,6 @@ void sVTTextRenderer::DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Co
 	xpos = _x + fsz.cx;
 }
 
-static void sAddCanvasRect(Vector<Tuple<dword, Rect>>& ca, const VTLine& line, Size fsz, Rect r)
-{
-	int id  = line.GetSpecialId();
-	int row = line.GetRowNumber();
-	
-	if(ca.IsEmpty()) {
-		if(row != 0)
-			r.top -= (row * fsz.cy);
-		ca.Add(MakeTuple(id, r));
-	}
-	else {
-		Rect& rr = ca.Top().b;
-		if(rr.bottom == r.top)
-			rr.bottom = r.bottom;
-		else {
-			if(row != 0)
-				r.top -= (row * fsz.cy);
-			ca.Add(MakeTuple(id, r));
-		}
-	}
-}
-
 void Terminal::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
@@ -118,9 +96,10 @@ void Terminal::Paint0(Draw& w, bool print)
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	Font fnt = font;
-	Vector<Tuple<dword, Rect>> canvases;
-
+	ImageParts imageparts;
+	
 	w.Clip(wsz);
+
 	sVTRectRenderer rr(w);
 	sVTTextRenderer tr(w);
 
@@ -130,18 +109,10 @@ void Terminal::Paint0(Draw& w, bool print)
 		w.DrawRect(wsz, colortable[COLOR_PAPER]);
 	int b = pos;
 	int e = pos + psz.cy;
-	if(!imagecache.IsEmpty()) {
-		b = 0;
-		e = page->GetLineCount();
-	}
 	for(int i = b; i < min(e, page->GetLineCount()); i++) {
 		int y = i * fsz.cy - (fsz.cy * pos);
 		const VTLine& line = page->GetLine(i);
 		int pass = 0, end  = 2;
-		if(line.IsSpecial()) {
-			sAddCanvasRect(canvases, line, fsz, RectC(0, i * fsz.cy - (pos * fsz.cy), wsz.cx, fsz.cy));
-			end = 1;
-		}
 		if(!line.IsEmpty() && w.IsPainting(0, y, wsz.cx, fsz.cy)) {
 			while(i >= pos && i < pos + psz.cy && pass < end) {
 				for(int j = 0; j < psz.cx; j++) {
@@ -150,7 +121,7 @@ void Terminal::Paint0(Draw& w, bool print)
 					SetInkAndPaperColor(cell, ink, paper);
 					int x = j * fsz.cx;
 					int n = i * psz.cx + j;
-					bool highlight = IsSelected(n);
+					bool highlight = pass < 2 && IsSelected(n);
 					if(pass == 0) {
 					#ifdef flagTRUECOLOR
 						bool defpcolor = IsNull(cell.paper);
@@ -164,13 +135,17 @@ void Terminal::Paint0(Draw& w, bool print)
 					}
 					else
 					if(pass == 1) {
-						fnt.Bold(cell.IsBold());
-						fnt.Italic(cell.IsItalic());
-						fnt.Strikeout(cell.IsStrikeout());
-						fnt.Underline(cell.IsUnderlined());
-						if(!cell.IsConcealed()) {
-							if(!cell.IsBlinking() || highlight || print || (cell.IsBlinking() && !blinking)) {
-								tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
+						if(cell.IsImage())
+							AddImagePart(imageparts, x, y, cell, fsz);
+						else {
+							fnt.Bold(cell.IsBold());
+							fnt.Italic(cell.IsItalic());
+							fnt.Strikeout(cell.IsStrikeout());
+							fnt.Underline(cell.IsUnderlined());
+							if(!cell.IsConcealed()) {
+								if(!cell.IsBlinking() || highlight || print || (cell.IsBlinking() && !blinking)) {
+									tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
+								}
 							}
 						}
 					}
@@ -187,10 +162,9 @@ void Terminal::Paint0(Draw& w, bool print)
 		}
 	}
 
-	// Paint images.
-	if(sixelgraphics && !canvases.IsEmpty() && !imagecache.IsEmpty())
-		PaintImage(w, canvases);
-
+	// Paint images
+	PaintImages(w, imageparts, fsz);
+	
 	// Paint a steady (non-blinking) caret, if enabled.
 	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
 		w.DrawRect(GetCaretRect(), InvertColor);
@@ -268,21 +242,51 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
 }
 
-void Terminal::PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvases)
+void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
 {
-	for(const Tuple<dword, Rect>& canvas : canvases) {
-		Image *img = imagecache.FindPtr(canvas.a);
-		if(img) {
-			Rect r  = canvas.b;
-			Size isz = img->GetSize();
-			if(w.IsPainting(r)) {
-				const VTCell& cell = GetAttrs();
-				Color ink, paper;
-				SetInkAndPaperColor(cell, ink, paper);
-				imgdisplay->Paint(w, r.Deflated(8), *img, ink, paper, 0);
-			}
+	dword id = cell.chr;
+	Point pt, coords = Point(x, y);
+	pt.x = (cell.data & 0xFFFF0000) >> 16;
+	pt.y = (cell.data & 0xFFFF);
+	Rect  ir = RectC(pt.x * fsz.cx, pt.y * fsz.cy, fsz.cx, fsz.cy);
+	if(!parts.IsEmpty()) {
+		ImagePart& part = parts.Top();
+		if(id == part.a && part.b.y == coords.y && part.c.right == ir.left) {
+			part.c.right = ir.right;
+			return;
 		}
 	}
+
+	parts.Add(MakeTuple(id, coords, ir));
+}
+
+void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
+{
+	if(parts.IsEmpty() || imagecache.IsEmpty())
+		return;
+
+	LTIMING("Terminal::PaintImages");
+	
+	Color ink, paper;
+	SetInkAndPaperColor(GetAttrs(), ink, paper);
+
+	for(const ImagePart& part : parts) {
+		const dword& id = part.a;
+		const Point& pt = part.b;
+		const Rect&  rr = part.c;
+		Rect r = Rect(pt, rr.GetSize());
+		const Tuple<Size, Image> *imgdata = imagecache.FindPtr(id);
+		if(imgdata && w.IsPainting(r)) {
+			ValueArray va;
+			va.Add(imgdata->b);
+			va.Add(imgdata->a);
+			va.Add(fsz);
+			va.Add(rr);
+			imgdisplay->Paint(w, r, va, ink, paper, 0);
+		}
+	}
+	
+	parts.Clear();
 }
 
 void Terminal::UpdateImageCache(const Index<dword>& imageids)
@@ -291,7 +295,7 @@ void Terminal::UpdateImageCache(const Index<dword>& imageids)
 		return;
 
 	if(imageids.IsEmpty()) {
-		LLOG("Clearing image cache. Cached image count: " << imagecache.GetCount());
+		LLOG("Clearing the image cache...");
 		imagecache.Clear();
 	}
 	else {
@@ -302,39 +306,43 @@ void Terminal::UpdateImageCache(const Index<dword>& imageids)
 		Sort(cached);
 		for(const dword& id : RemoveSorted(cached, idkeys)) {
 			int i = imagecache.Find(id);
-			if(i >= 0)
+			if(i >= 0) {
 				imagecache.Unlink(i);
+				LLOG("Image #" << id << " is removed from the image cache. "
+				     "Cached image count: " << imagecache.GetCount());
+			}
 		}
 		if(imagecache.HasUnlinked())
 			imagecache.Sweep();
 	}
 }
 
-void Terminal::RenderSixel(const String& data, int ratio, bool nohole)
+static Size sGetRoundSize(Sizef isz, Sizef fsz)
+{
+	Sizef csz = isz / fsz;
+	return Size(fround(csz.cx), fround(csz.cy));
+}
+
+void Terminal::RenderImage(const String& data)
 {
 	if(!sixelgraphics)
 		return;
-	
-	if(WhenSixel) {
-		SixelInfo si;
-		si.size = GetSize();	// Sixe hint.
-		si.nohole = nohole;
-		si.aspectratio = ratio;
-		WhenSixel(si, data);
-	}
-	else {	// TODO: Lazy rendering (using worker threads) on MT environment.
-		dword   id = data.GetHashValue();
-		Image *img = imagecache.FindPtr(id);
-		if(!img) {
-			img = &imagecache.Add(
-					id,
-					SixelRenderer(data)
-						.SetAspectRatio(ratio)
-							.NoColorHole(nohole)
-								.SetPaper(Black()));
+
+	if(WhenImage)
+		WhenImage(data);
+	else {
+		dword id = GetHashValue(data);
+		auto *imgdata = imagecache.FindPtr(id);
+		if(!imgdata) {
+			RTIMING("Terminal::RenderImage");
+			imgdata = &imagecache.Add(id);
+			imgdata->b = StreamRaster::LoadStringAny(data);
+			imgdata->a = sGetRoundSize(imgdata->b.GetSize(), GetFontSize());
+			LLOG("Image #" << id << " is added to the image cache. "
+				 "Cached image count: " << imagecache.GetCount());
 		}
-		int cy = img->GetSize().cy / GetFontSize().cy;
-		page->SpecialLines(cy, id);
+		page->AddImage(imgdata->a, id, modes[DECSDM]);
+		RefreshDisplay();
 	}
 }
 }

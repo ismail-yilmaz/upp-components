@@ -270,13 +270,12 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 			if(pos > 0)
 				page->SetTabAt(pos, true);
 		}
-			
 	}
 }
 
 void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
-	bool nohole = seq.GetInt(2, 0) != 1;
+	int  nohole = seq.GetInt(2, 0);
 	int  grid   = seq.GetInt(3, 0); // Omitted.
 	int  ratio = 1;
 
@@ -294,7 +293,7 @@ void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 		ratio = 1;
 		break;
 	}
-
-	RenderSixel(seq.payload, ratio, nohole);
+	
+	RenderImage(Format("\x1B\x50`%d;%d;q%s`\x1B\x5C", ratio, nohole, seq.payload));
 }
 }

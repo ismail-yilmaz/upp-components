@@ -63,26 +63,16 @@ whitespace characters, from the clip`'s content. &]
 function. (This is the default behavior.).&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:Terminal`:`:WhenSixel: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_SixelInfo[@(0.0.255) `&
-], [@(0.0.255) const]_String[@(0.0.255) `&]>_[* WhenSixel]&]
-[s2;%% This event is dispatched whenever the host sends a [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
-ixel graphics] to terminal. When this event is defined, Terminal 
-ctrl will switch to external sixel rendering mode, allowing the 
-client code to handle (process/save/modify/show, etc.) sixel 
-graphics externally. It has two parameters: a [^topic`:`/`/Terminal`/src`/Upp`_SixelRenderer`_en`-us`#Upp`:`:SixelRenderer`:`:Info`:`:struct^ S
-ixelInfo] structure that contains the basic information about 
-the sixel image, and a string containing the actual sixel data. 
-Client code can easily render the sixel data into a raw U`+`+ 
-[^topic`:`/`/Draw`/src`/Image`_en`-us`#Image`:`:class^ Image] object, 
-using these two parameters with [^topic`:`/`/Terminal`/src`/Upp`_SixelRenderer`_en`-us`#Upp`:`:SixelRenderer`:`:class^ S
-ixelRenderer] class, and alter the resulting image to suit its 
-needs. Setting this event to Null (or not defining it at all) 
-will switch the terminal back to internal sixel rendering mode. 
-Sixel graphics feature is disabled by default It can be enabled 
-or disabled run`-time by using the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SixelGraphics`(bool`)^ S
-ixelGraphics()] and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:NoSixelGraphics`(`)^ N
-oSixelGraphics()] methods.&]
-[s3;%% &]
+[s5;:Upp`:`:Terminal`:`:WhenImage: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_String[@(0.0.255) `&
+]>_[* WhenImage]&]
+[s2;%% This event is dispatched when the host sends an image to the 
+terminal. Defining this event will switch the terminal to external 
+image rendering mode. This allows the client code to handle the 
+incoming image in a format agnostic way, using the registered 
+U`+`+ image decoders (e.g. the StreamRaster interface.). Currently 
+only [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel] 
+images are supported.&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:History`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* Hi
 story]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
@@ -525,19 +515,15 @@ isplay] and its possible custom derivatives for displaying specific
 objects. [%% Terminal ctrl merely stores a pointer to the provided 
 Display; it is up to client code to keep the display object alive 
 as long as necessary. ]Currenlty, only displays for image objects 
-are supported. There are two predefined displays [/ sans ][^topic`:`/`/Draw`/src`/Display`_en`-us`#StdDisplay^ s
-tandard displays]:&]
+are supported. There are two predefined terminal displays &]
 [s0; &]
-[s5;:Upp`:`:LeftAlignedImageDisplay`(`): [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&
-]_[* LeftAlignedImageDisplay]()&]
-[s2;%% The default image display used by the Terminal ctrl. This 
-display aligns the image to left border, and scales it fit the 
-page, using the terminal font/page metrics.&]
+[s4; [@(0.0.255) c]&]
+[s5;:Upp`:`:NormalImageCellDisplay`(`): [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&
+]_[* NormalImageCellDisplay]()&]
+[s2;%% The default image cell display used by the Terminal ctrl.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:RightAlignedImageDisplay`(`): [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&
-]_[* RightAlignedImageDisplay]()&]
-[s2;%% This display aligns the image to right border, and scales 
-it to fit the page, using the the terminal font/page metrics.&]
-[s3; &]
-[s0;%% ]]
+[s5;:Upp`:`:ScaledImageCellDisplay`(`): [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&
+]_[* ScaledImageCellDisplay]()&]
+[s2;%% Automatically rescales the image to fit the current cell dimensions.&]
+[s3; ]]

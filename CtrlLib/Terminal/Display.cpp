@@ -4,39 +4,45 @@
 
 namespace Upp {
 
-class LeftAlignedImageDisplayCls : public Display {
+class NormalImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		Image m = q;
-		if(!IsNull(m)) {
-			Size sz = GetFitSize(m.GetSize(), r.Size());
-			w.DrawImage(r.left, r.top, Rescale(m, sz));
+		const Image& img = q[0];	// Image.
+		const Rect&  irr = q[3];	// The section of the image to paint.
+	
+		if(!IsNull(img)) {
+			w.DrawImage(r.left, r.top, img, irr);
 		}
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		return Image(q).GetSize();
+		return Image(q[0]).GetSize();
 	}
+	
 };
 
-const Display& LeftAlignedImageDisplay() { return Single<LeftAlignedImageDisplayCls>(); }
+const Display& NormalImageCellDisplay() { return Single<NormalImageCellDisplayCls>(); }
 
-class RightAlignedImageDisplayCls : public Display {
+class ScaledImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		Image m = q;
-		if(!IsNull(m)) {
-			Size sz = GetFitSize(m.GetSize(), r.Size());
-			w.DrawImage(r.right - sz.cx, r.top, Rescale(m, sz));
+		const Image& img = q[0];	// Image.
+		const Size&  isz = q[1];	// Image size (in cells).
+		const Size&  csz = q[2];	// Current cell size (in pixels).
+		const Rect&  irr = q[3];	// The section of the image to paint.
+		
+		if(!IsNull(img)) {
+			Size sz = GetFitSize(img.GetSize(), isz * csz);
+			w.DrawImage(r, CachedRescale(img, sz), irr);
 		}
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		return Image(q).GetSize();
+		return Image(q[0]).GetSize();
 	}
 };
 
-const Display& RightAlignedImageDisplay() { return Single<RightAlignedImageDisplayCls>(); }
+const Display& ScaledImageCellDisplay() { return Single<ScaledImageCellDisplayCls>(); }
 }

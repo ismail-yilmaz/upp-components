@@ -67,6 +67,7 @@ void Console::Reset(bool full)
 	modes.Set(DECTCEM);
 	modes.Set(DECANM);
 	modes.Set(DECAWM);
+	modes.Set(DECSDM);
 
 	dpage.SetTabs(8);
 	dpage.OriginMode(false);
@@ -372,7 +373,7 @@ WString Console::AsWString(const VTLine& line)
 	if(!line.IsEmpty()) {
 		int i = 0;
 		for(const VTCell& cell : line) {
-			if(cell.chr == 0) i++;
+			if(cell.chr == 0 || cell.IsImage()) i++;
 			else {
 				if(i) {
 					s.Cat(' ', i);

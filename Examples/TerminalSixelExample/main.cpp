@@ -30,7 +30,7 @@ struct SixelTerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);	};
 		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
 		term.WhenOutput = [=](String s) { PutGet(s); };
-		term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for in-display sixels.
+	//	term.WhenImage  = THISFN(ShowImage); // Comment out this line for in-display sixels.
 		term.SixelGraphics();
 
 		SetTimeCallback(-1, [=] { PutGet(); });
@@ -39,15 +39,15 @@ struct SixelTerminalExample : TopWindow {
 
 	void PutGet(String out = Null)
 	{
-		term.CheckWriteUtf8(pty.Get());
+		term.WriteUtf8(pty.Get());
 		pty.Write(out);
 		if(!pty.IsRunning())
 			Break();
 	}
 
-	void ShowSixelImage(const SixelInfo& sinfo, const String& sdata)
+	void ShowImage(const String& data)
 	{
-		Image img = SixelRenderer(sdata, sinfo).SetPaper(Black());
+		Image img = StreamRaster::LoadStringAny(data);
 		imgctrl.SetImage(img);
 		if(!sviewer.IsOpen()) {
 			sviewer.SetRect(img.GetSize());

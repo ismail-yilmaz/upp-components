@@ -34,41 +34,23 @@ bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
 {
 	int n = GetCount();
 	begin = clamp(begin, 1, n);
-	end   = clamp(end,   1, n);
-
-	for(int i = begin; i <= end; i++)
-		At(i - 1).Fill(filler, flags);
-
-	NotSpecial();
+	end   = clamp(end, 1, n);
 	
-	bool b = begin != end;
+	for(int i = begin; i <= end; i++) {
+		VTCell& cell = At(i - 1);
+		cell.Fill(filler, flags);
+	}
+
+	bool b = begin <= end;
 	if(b) Invalidate();
 	return b;
 }
 
-void VTLine::SetSpecial(dword id_, word row_) const
-{
-	special = true;
-	invalid = true;
-	id  = id_;
-	row = row_;
-}
-
-void VTLine::NotSpecial() const
-{
-	special = false;
-	invalid = true;
-	id  = 0;
-	row = 0;
-}
-
 VTLine::VTLine()
 {
-	special = false;
+	hasdata = false;
 	invalid = true;
 	wrapped = false;
-	id  = 0;
-	row = 0;
 }
 
 VTPage& VTPage::OriginMode(bool b)
@@ -320,6 +302,37 @@ void VTPage::GetRelRectArea(Rect r, Event<const VTCell&, const Point&> consumer)
 	GetRectArea(AdjustRect(r, MARGIN_VERT), consumer);
 }
 
+VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll)
+{
+	bool b = events;
+	ForbidEvents();
+	if(!scroll)
+		sz = min(sz, size);
+	Point pt;
+	for(int i = 0; i < sz.cy; i++) {
+		if(scroll)
+			pt = Point(cursor.x -1, cursor.y - 1);
+		else
+			pt = Point(0, i);
+		VTLine& line = lines[pt.y];
+		for(int j = 0; j < sz.cx; j++) {
+			VTCell& cell = line[min(pt.x + j, size.cx - 1)];
+			cell.Image();
+			cell.chr   = imageid;
+			cell.data  = (j & 0xFFFF) << 16;
+			cell.data |= (i & 0xFFFF);
+		}
+		line.HasData(true);
+		line.Invalidate();
+		if(scroll)
+			NextLine();
+	}
+	PermitEvents(b);
+	if(events)
+		WhenScroll();
+	return *this;
+}
+
 VTPage& VTPage::SetVertMargins(int t, int b)
 {
 	margin.top = max(1, t);
@@ -368,20 +381,6 @@ VTPage& VTPage::MoveVert(int row, bool rel, bool scrl)
 		ClearEol();
 	if(events)
 		WhenCursor();
-	return *this;
-}
-
-VTPage& VTPage::SpecialLines(int n, dword id)
-{
-	bool b = events;
-	ForbidEvents();
-	for(int i = 0; i < n; i++) {
-		lines[cursor.y - 1].SetSpecial(id, i);
-		NewLine();
-	}
-	PermitEvents(b);
-	if(events)
-		WhenScroll();
 	return *this;
 }
 

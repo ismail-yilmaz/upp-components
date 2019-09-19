@@ -22,10 +22,10 @@ public:
     Terminal();
     virtual ~Terminal()                                         {}
 
-    Event<>          WhenResize;
-    Event<Bar&>      WhenBar;
+    Event<> WhenResize;
+    Event<Bar&> WhenBar;
     Gate<PasteClip&> WhenClip;
-    Event<const SixelInfo&, const String&> WhenSixel;
+    Event<const String&> WhenImage;
 
     Terminal&   History(bool b = true)                          { GetDefaultPage().History(b); return *this; }
     Terminal&   NoHistory()                                     { return History(false); }
@@ -149,20 +149,25 @@ private:
     void        PreParse() override;
     void        PostParse() override;
 
-    void        ReportWindowProperties(int opcode) override;
-    
+	using		ImagePart  = Tuple<dword, Point, Rect>;
+	using		ImageParts = Vector<ImagePart>;
+	using		ImageCache = VectorMap<dword, Tuple<Size, Image>>;
+
     void        Paint0(Draw& w, bool print = false);
-    void        PaintImage(Draw& w, Vector<Tuple<dword, Rect>>& canvas);
     Color       GetColorFromIndex(const VTCell& cell, int which) const;
     void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
+    void		AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
+    void		PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
     void        UpdateImageCache(const Index<dword>& imageids);
     
-    void        RenderSixel(const String& data, int ratio, bool nohole) override;
+    void        RenderImage(const String& data) override;
 
     void        SyncPage(bool notify = true);
     void        SwapPage() override;
     void        RefreshPage(bool full = false) override;
 
+    void        ReportWindowProperties(int opcode) override;
+    
     void        DoDelayedRefresh();
 
     void        Blink(bool b);
@@ -205,7 +210,9 @@ private:
 
     VScrollBar  sb;
     Scroller    scroller;
+    Point		mousepos;
     const Display *imgdisplay;
+    ImageCache  imagecache;
     Font        font            = Monospace();
     Rect        caretrect;
     int         anchor          = -1;
@@ -230,10 +237,9 @@ private:
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;
-    VectorMap<dword, Image> imagecache;
 };
 
-const Display& LeftAlignedImageDisplay();
-const Display& RightAlignedImageDisplay();
+const Display& NormalImageCellDisplay();
+const Display& ScaledImageCellDisplay();
 }
 #endif

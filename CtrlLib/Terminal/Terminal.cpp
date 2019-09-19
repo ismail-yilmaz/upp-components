@@ -20,7 +20,7 @@ Terminal::Terminal() : Console()
 {
 	Unicode();
 	NoLegacyCharsets();
-	SetImageDisplay(LeftAlignedImageDisplay());
+	SetImageDisplay(NormalImageCellDisplay());
 	SetFrame(FieldFrame());
 	History();
 	ResetColors();
@@ -251,42 +251,43 @@ void Terminal::RefreshDisplay()
 	Size fsz = GetFontSize();
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
-	Vector<Rect> invalid;
 	Index<dword> imageids;
-
-	LTIMING("RefreshDisplay");
+	
+	LTIMING("Terminal::RefreshDisplay");
 	
 	int b = pos;
 	int e = pos + psz.cy;
+	
 	if(!imagecache.IsEmpty()) {
 		b = 0;
 		e = page->GetLineCount();
 	}
+
 	for(int i = b; i < min(e, page->GetLineCount()); i++) {
 		const VTLine& line = page->GetLine(i);
-		if(line.IsSpecial()) {
-			dword id = line.GetSpecialId();
-			if(imageids.Find(id) < 0) {
-				imageids.Add(id);
+		bool  visible = i >= pos && i < pos + psz.cy;
+		if(line.HasData() || visible) {
+			int image_parts = 0;
+			for(const VTCell& cell : line) {
+				if(cell.IsImage()) {
+					imageids.FindAdd(cell.chr);
+					image_parts++;
+				}
+				else
+				if(visible && blinktext && cell.IsBlinking()) {
+					blinking_cells++;
+				}
 			}
+			if(line.HasData())
+				line.HasData(image_parts > 0);
+			if(blinking_cells)
+				line.Invalidate();
 		}
-		if(i >= pos && i < pos + psz.cy) {
-			if(blinktext)
-				for(const VTCell& cell : line)
-					if(cell.IsBlinking()) {
-						blinking_cells++;
-						line.Invalidate();
-						break;
-					}
-			if(line.IsInvalid()) {
-				line.Validate();
-				AddRefreshRect(invalid, RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
-			}
+		if(line.IsInvalid()) {
+			line.Validate();
+			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
 		}
 	}
-
-	for(const Rect& r : invalid)
-		Refresh(r);
 	
 	PlaceCaret();
 	Blink(blinking_cells > 0);
@@ -479,12 +480,16 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 	bool buttondown = (event & UP) != UP; // Combines everything else with a button-down event
 	int  mouseevent = 0;
 	
+	p = GetMousePos(p) + 1;
+	
 	switch(event) {
 	case LEFTUP:
 	case LEFTDOWN:
 		mouseevent = 0x00;
 		break;
 	case LEFTDRAG:
+		if(p == mousepos)
+			return;
 		mouseevent = 0x20;
 		break;
 	case MIDDLEUP:
@@ -496,6 +501,8 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		mouseevent = 0x02;
 		break;
 	case MOUSEMOVE:
+		if(p == mousepos)
+			return;
 		mouseevent = 0x23;
 		break;
 	case MOUSEWHEEL:
@@ -505,11 +512,12 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		return;
 	}
 
+	mousepos = p;
+	
 	if(keyflags & K_SHIFT) mouseevent |= 0x04;
 	if(keyflags & K_ALT)   mouseevent |= 0x08;
 	if(keyflags & K_CTRL)  mouseevent |= 0x10;
 	
-	p = GetMousePos(p) + 1;
 
 	if(modes[XTSGRMM])
 		PutCSI(Format("<%d;%d;%d%[1:M;m]s", mouseevent, p.x, p.y, buttondown));
@@ -527,7 +535,6 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		else
 			PutCSI(Format("M%c%c%c", mouseevent, p.x, p.y));
 	}
-	RefreshDisplay();
 }
 
 bool Terminal::IsTrackingEnabled() const
