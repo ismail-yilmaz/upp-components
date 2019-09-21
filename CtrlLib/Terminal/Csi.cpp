@@ -382,7 +382,7 @@ void Console::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 	}
 	else
 	if(seq.mode == '>')
-		PutCSI(">1;1;0c");
+		PutCSI(">41;2;0c");
 	else
 	if(seq.mode == '=')
 		PutDCS(VTID_UNIT);	// DECREPTUI

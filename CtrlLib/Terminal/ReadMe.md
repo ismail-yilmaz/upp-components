@@ -1,21 +1,37 @@
 # Terminal Package for Ultimate++
 
-*Copyright © 2019, İsmail  Yılmaz*
+*Copyright © 2019, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
 
-E-mail: iylmz.iylmz@gmail.com
 
-![From left to right: Emacs, Lynx, mapscii](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Screenshot-1.png)
+![ ](../Images/terminal_header_screenshot.png)
 ## Introduction
 
-Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation library and widget written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).
+Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation widget and library written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).  
 
-It is not based on the existing terminal emulation libraries. It is designed from the ground up with modularity and maintainability in mind. In this respect the package consists of several re-usable classes, only one being the Terminal widget. (See the *Classes* section for the brief descriptions of these classes.)
+Terminal package is designed from the ground up with modularity and maintainability in mind, and it is not based on the existing terminal emulation libraries.
 
-![Cross-platform terminal ctrl, sixel images, true color, image background support](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Crossplatform.jpg)
+![ ](../Images/terminal_crossplatform_screenshot.jpg)
 
-A short video demonstration of Terminal widget:
-https://vimeo.com/349761874
-	
+### Demo videos
+The three short videos below show the basic capabilities of Terminal package in general, and Terminal widget in particular, on various platforms. See also *Highlights*, *Features*, and *Examples* sections for more details.
+
+#### On Linux
+- A basic terminal example with sixel graphics, and mouse tracking support.
+- Used apps and tools: Jexer text user interface (TUI), GNUPlot, Emacs, Nano, htop, ncurses demos.
+- Link: https://vimeo.com/359241367
+
+#### On Windows
+- A basic SSH2 terminal example with sixel graphics, and mouse tracking support.
+- Used apps and tools: Jexer text user interface.
+- Link: https://vimeo.com/361556973
+
+#### On Turtle HTML-5 backend (in a web browser)
+- A basic terminal example with sixel graphics, and mouse tracking support.
+- Used apps and tools: Jexer text user interface.
+- Link:https://vimeo.com/361558519
+
+Note that the example code used in these videos can be found in the *Examples* section. 
+
 ## Requirements
 
 - Ultimate++ (ver. >= 2019.1)
@@ -26,22 +42,19 @@ https://vimeo.com/349761874
 ## Highlights
 
 - **Terminal package completely separates the virtual terminal from the pseudo-terminal process (pty)**.
-As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the ctrl on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible.
-This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal with no code modification required on Windows and Linux. (See the *Examples* section.)
+As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the Terminal widget on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible. This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
- A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single file with 31 sLoC, and it can run complex/heavy applications such as GNU Emacs, vim, Lynx web browser (with mouse tracking), and even [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for  [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulators, with ease. (See the *Examples* section) 
+A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single .cpp file with 29 sLoC, and it can run complex/heavy applications with mouse tracking and embedded images support, such as [GNU Emacs](https://www.gnu.org/software/emacs/), [Lynx](https://lynx.browser.org/), [GNUPlot](http://www.gnuplot.info/), or [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulator, or even [Jexer](https://jexer.sourceforge.io/), a java-based modern and slick text user interface (TUI) and windowing system for modern terminal emulators, with ease.
 
 - **Terminal package combines simplicity with configurability.** 
-Although it is easy to use and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
+Although it is easy to use, and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
 
 - **Terminal widget is a regular ctrl.**
 It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
 
-- **Terminal widget supports embedded images.**
-Terminal ctrl has support for embedded images and image manipulation in general. Specifically, it can handle sixel graphics with 4/16/256 and high/true color. It uses Upp::Display objects to display the embedded images. 
-For example, Ultimate++ already comes with a handful of standard display objects and Terminal package adds two more to the arsenal: a left aligned scaled image display (default) and its right aligned counterpart. Client code can set the image display to  one of these pre-defined display objects on-the-fly, and the changes will take place immediately. Moreover, you can write your own display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it).
-It also supports an external mode, where the image data -sixels, currently- are handed onto client code for rendering and external viewing.
+- **Terminal widget supports inline images.**
+Terminal widget has support for embedded images and image manipulation in general. Specifically, it can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 and high/true color. Adding support for other inline image protocols, such as [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html), is also planned. Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
 
 - ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
@@ -68,8 +81,9 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports VT52/VT1xx/VT2xx keyboard emulation with function keys.
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
-- Supports Upp::Display objects (i.e Terminal ctrl has embedded/scalable/customizable visual objects support.)
-- Supports sixel graphics with high/true color, with both in-display and external viewing.
+- Supports Display objects.
+- Supports embedded images with true color (currently, only sixel graphics).
+- Supports external handling of images.
 - Supports ISO colors (256 colors palette).
 - Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
 - Supports xterm dynamic colors (dynamic ink/paper/selection colors).
@@ -99,107 +113,16 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports per-widget customization (i.e no global variables or properties are used).
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 
-
-## Classes
-This section briefly describes the classes of the Terminal package. Some of them have a stable and/or growing APIs (e.g. PtyProcess, VTInStream, Console, Terminal) and the others’ (VTPage, VTCell, SixelRenderer) are subject to change..
-
-*Full API documentation is high on my TODO list.*
-
-### VTInStream
-A reliable and high-performance  VT500 series "lexical" parser designed specifically for handling
-DEC & ANSI escape sequences. It can easily handle CTL, ESC, CSI, DCS, OSC sequences in both
-7-bits and 8-bits forms, and allows switching between UTF8 and non-UTF8 modes on-the-fly
-(e.g. using Upp::CheckUtf8() heuristic method). It is actually a finite state machine built upon a very
-fast input stream object (Upp::MemReadStream), and is based on [the UML state diagram provided
-by Paul-Flo Williams](https://vt100.net/emu/dec_ansi_parser).
-
-#### Notes:
-- VTInstream is separately available. All you need to do is include the "Terminal/Parser.h" file in
-your application
-
-#### Related files:
-	Parser.h, Parser.cpp
-
-#### Dependencies:
-None other than Upp/Core
-
----
-### VTPage
-This class represents the display logic of a virtual terminal. It is responsible for page, line, cell, and cursor manipulation. It supports both absolute and relative positioning, horizontal and vertical margins, horizontal and vertical scroll, various cell, line and page erasure modes, various rectangular area operations such as copy, fill, erase, invert, and checksum reporting, etc. It is also responsible for history (scrollback) buffer management.
-
-#### Notes:
-- VTPage is separately available, but its API is currently unstable.
-
-
-#### Related files:
-	Page.h, Page.cpp, Cell.h, Cell.cpp
-
-#### Dependencies:
-VTCell and Upp/Core
-
-----
-### Console 
-This is the actual virtual terminal emulator. It processes the terminal sequences pumped by the VTInStream, by translating those events into page logic, using lookup tables, and finally commanding the VTPage instance to manipulate the terminal display as per request.
-
-#### Notes:
-- Console is technically a back-end for, or head-less version of Terminal widget.
-- It does everyhing except drawing and input handling.
-- It is specifically designed this way so as to be used separately in MT/MP environments,
-  and/or over the network, or it can be used for terminal multiplexing.
-
-#### Related files:
-	Console.h, Console.cpp, Tables.cpp, Modes.cpp, Charsets.cpp,
-	Colors.cpp, Ctl.cpp, Esc.cpp, Csi.cpp, Dcs.cpp, Osc.cpp, Sgr.cpp,
-
-#### Dependencies:
-VTInStream, VTCell, VTPage, and Upp/Core
-
----
-### SixelRenderer 
-This simple helper class parses and renders sixel data into raw images (U++ Image objects, to be specific). It can handle both RGB and HSL color spaces, supports high color, i.e it does not limit the color registers to 4, 16, or 256: It is possible to use more color register with SixelRenderer, for it uses a VectorMap to hold the color table.
-#### Notes:
-- This class can be used as a standalone renderer. It has a stable public API
-
-#### Related files:
-	Upp/Core, Upp/Draw, VTInStream.
-
-#### Dependencies:
-Sixel.h, Sixel.cpp
-
----
-### Terminal
-This is the virtual terminal emulation ctrl. It is responsible for painting the content of VTPage onto computer screen, and handling the key and mouse events, clipboard and dnd operations. Since it is designed as a regular ctrl, it can be used in any place where a U++ ctrl can be used. It is also responsible for user configuration such as cursor styles, colors, resize behaviour, etc.
-
-#### Notes:
-- Terminal is a graphical front-end for Console.
-
-#### Related files:
-	Terminal.h, Terminal.cpp, Renderer.cpp, Keys.cpp, Sixel.h, Sixel.cpp
-
-#### Dependencies:
-VTInStream, VTCell, VTPage, Console, SixelRenderer, Upp/Core, Upp/Draw, and Upp/CtrlLib	
-
 ## Examples
-As it is already noted above, one of the strengths of the Terminal package, and Ultimate++, is that you can do more with less with these tools. Currently 6 basic examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Four examples are provided with the package:
 
-1 Terminal Example
+1. Basic terminal
+2. Ssh terminal
+3. Terminal in a web browser
+4. Terminal splitter
 
-2 Ssh Terminal Example
-
-3 Terminal In a Web Browser Example
-
-4 Terminal Multiplexing Example
-
-5 Terminal Multiplexing In a Web Browser Example
-
-6 Terminal With Sixel Graphics Support
-
-### Terminal Example
-
-This example demonstrates the basic usage of, and interaction between, Terminal and PtyProcess classes. Since PtyProcess class currently runs only on POSIX-compliant systems, this code will be a POSIX-only example for the time being. (This will change in the near future. A Windows power-shell encapsulation is on its way.)
-
-Here is an xterm compatible terminal emulator in 31 sLoC:
-	
+### Basic Terminal Example
+This example demonstrates the basic usage of the Terminal widget and its interaction with the PtyProcess class. Creating an xterm-compatible virtual terminal emulator with inline images and mouse tracking support requires only 29 sLoC:	
 ```C++    	
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
@@ -209,29 +132,25 @@ using namespace Upp;
 const char *nixshell = "/bin/bash";
 
 struct TerminalExample : TopWindow {
-	Terminal  term;
-	PtyProcess pty;	// This class is completely optional
+	Terminal term;
+	PtyProcess pty;
 	
 	TerminalExample()
 	{
-		SetRect(term.GetStdSize()); // 80 x 24 cells (scaled)
+		SetRect(term.GetStdSize());  // 80 x 24 cells (scaled).
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-
-		term.WhenBell   = [=]()		{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s)	{ Title(s);  };
-		term.WhenResize = [=]()		{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s)	{ PutGet(s); };
-
-		SetTimeCallback(-1, [=] { PutGet(); });
+		term.WhenBell   = [=]()         { BeepExclamation(); };
+		term.WhenTitle  = [=](String s) { Title(s);          };
+		term.WhenOutput = [=](String s) { pty.Write(s);      };
+		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
+		term.SixelGraphics();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
-	}
-	
-	void PutGet(String out = Null)
-	{
-		term.WriteUtf8(pty.Get());
-		pty.Write(out);
-		if(!pty.IsRunning())
-			Break();
+		SetTimeCallback(-1, [=] ()
+		{
+			term.WriteUtf8(pty.Get());
+			 if(!pty.IsRunning())
+				Break();
+		});
 	}
 };
 
@@ -240,20 +159,23 @@ GUI_APP_MAIN
 	TerminalExample().Run();
 }
 ```
-
 Yup, that's all.
 
-And here is the result (Lynx web browser running on the Terminal Example (Linux)):
+#### Screenshots
+Jexer with sixel support, running on the basic terminal example. (Linux)
+![ ](../Images/terminal_jexer_linux_screenshot.png)
 
-![Lynx web browser running on the Terminal Example (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TerminalExample-Screenshot.png)
+GNUPlot with sixel support, running on the basic terminal example. (Linux)
+![ ](../Images/terminal_gnuplot_linux_screenshot.png)
+
+Lynx web browser running on the basic terminal example. (Linux)
+![ ](../Images/terminal_lynx_linux_screenshot.png)
+
 ---	
 ### Ssh Terminal Example
+This example demonstrates the basic interaction between the Terminal and SshShell classes. Thus, it is also illustrating the first point put forth in the *Highlights* section above, since the SSH package of Ultimate++ can run on Windows, Linux, and MacOS.
 
-This example demonstrates the basic usage of, and interaction between, Terminal and SshShell classes. It also exemplifies the first point put forth in the *Highlights* section, since Core/SSH package can run on Windows, Linux and MacOS.
-
-Here is a cross-platform, xterm compatible, basic SSH terminal in only 43 sLoC:
-	
-	
+Creating an xterm-compatible virtual SSH terminal with inline images and mouse tracking support requires only 43 sLoC:
 ```C++
 #include <Core/Core.h>
 #include <Core/SSH/SSH.h>
@@ -305,16 +227,19 @@ GUI_APP_MAIN
 	SshTerminalExample().Run();
 }
 ```
+#### Screenshots
+Jexer with sixel support, running on the ssh terminal example. (Windows)
+![ ](../Images/terminal_jexer_windows_screenshot.jpg)
 
-On the left is PuTTY and on the right is Ssh Terminal Example (on Windows):
+On the left is PuTTY and on the right is the ssh terminal example (Windows):
+![ ](../Images/terminal_ssh_windows_screenshot.png)
 
-![On the left is PuTTY, and on the right is the Ssh Terminal Example (on Windows)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSTerminalExample-Screenshot.png)
 ---
 ### Terminal in a Web Browser Example
 
 Now some cool stuff.
-Turtle package allows any U++ GUI app to be accessed via decent web browser. To demonstrate this point we'll use the Terminal Example above.
-A few lines of code will turn it into a remote terminal:
+
+Ultimate++ has a package named "Turtle", which allows any U++ GUI application to be accessed via a web browser that supports websockets and HTML-5 canvas. It is basically an HTML-5 backend for GUI apps. To demonstrate this point, let's use the source code of the basic terminal example above. A few lines of extra code will turn it into a remote terminal that can be accessed via any decent web browser, such as Firefox or Chromium!
 
 ```C++
 #include <Terminal/Terminal.h>
@@ -325,29 +250,25 @@ using namespace Upp;
 const char *nixshell = "/bin/bash";
 
 struct TerminalExample : TopWindow {
-	Terminal  term;
-	PtyProcess pty;			// This class is completely optional
-
+	Terminal term;
+	PtyProcess pty;
+	
 	TerminalExample()
 	{
-		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled).
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-
-		term.WhenBell   = [=]()			{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s)	{ Title(s);	};
-		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s)	{ PutGet(s); };
-
-		SetTimeCallback(-1, [=] { PutGet(); });
-		pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
-	}
-
-	void PutGet(String out = Null)
-	{
-		term.CheckWriteUtf8(pty.Get());
-		pty.Write(out);
-		if(!pty.IsRunning())
-			Break();
+		term.WhenBell   = [=]()         { BeepExclamation(); };
+		term.WhenTitle  = [=](String s) { Title(s);          };
+		term.WhenOutput = [=](String s) { pty.Write(s);      };
+		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
+		term.SixelGraphics();
+		pty.Start(nixshell, Environment(), GetHomeDirectory());
+		SetTimeCallback(-1, [=] ()
+		{
+			term.WriteUtf8(pty.Get());
+			 if(!pty.IsRunning())
+				Break();
+		});
 	}
 };
 
@@ -367,7 +288,7 @@ CONSOLE_APP_MAIN
 	Ctrl::connection_limit = 15; // Maximum number of concurrent users (preventing DDoS)
 
 #ifdef _DEBUG
-	Ctrl::debugmode = true;		 // Only single session in debug (no forking)
+	Ctrl::debugmode = true;      // Only single session in debug (no forking)
 #endif
 	if(Ctrl::StartSession()) {
 		Main();
@@ -382,288 +303,105 @@ GUI_APP_MAIN
 }
 #endif
 ```
+#### Screenshots
+Jexer with sixel support, running on the terminal example compiled with the TURTLE flag. (Accessed via Firefox)
+![ ](../Images/terminal_jexer_turtle_screenshot.png)
 
-The result is "browserception": Lynx running on Terminal accessed from within Firefox!
 
-![The result is "browserception": Lynx running on Terminal accessed from within Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/TerminalExample-Turtle.png)
+### Terminal Splitter Example
 
-### Terminal Multiplexing Example
+As it is already mentioned in the *Highlights* section, Terminal ctrl is a regular widget, i.e it is not much different from other UI elements such as buttons, treeviews, lists, arrays, color pickers, etc., albeit a more complex one. It follows the ingenious design of the Ultimate++ widget library as closely as possible.
 
-As it is already mentioned in the *Highlights* section, Terminal widget is a regular ctrl: It follows the ingenious design of the Ultimate++ ctrl library as closely as possible. This example demonstrates how a terminal multiplexing can be achieved simply by using a splitter widget. Splitter is a container ctrl that can be used to split any parent ctrl into resizeable horizontal and/or vertical panes. It also demonstrates the usage of NTL containers with Terminal widget:
+Below two example illustrate a way of creating more advanced user interfaces with the Terminal package, simply by using a splitter widget. A splitter is a container widget that can be used to split any parent widget into resizable horizontal or vertical panes. The second terminal splitter example is basically a variant of the first one except that it has the same extra code as in basic terminal example above, and runs on the Turtle HTML-5 backend:
 
+(Note that you can also use tabs *instead of/with* splitters: A tabbed terminals example is also provided with package.)
 ```C++
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a barebone terminal multiplexer.
+// This example demonstrates a simple terminal splitter.
 // It uses PtyProcess, therefore it is currently POSIX-only.
 
 const char *nixshell = "/bin/bash";
-const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
+const int  PANECOUNT = 4;  // You can increase the number of panes if you like.
 
 using namespace Upp;
 
 struct TerminalPane : Terminal, PtyProcess {
 	TerminalPane()
 	{
-		WhenBell   = [=]()		{ BeepExclamation(); };
-		WhenResize = [=]()		{ PtyProcess::SetSize(GetPageSize()); };
-		WhenOutput = [=](String s)	{ Do(s); };
-		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
-	};
+		SixelGraphics();
+		WhenBell   = [=]()         { BeepExclamation();    };
+		WhenOutput = [=](String s) { PtyProcess::Write(s); };
+		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
+		Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+	}
 	
-	bool Do(String out = Null)
+	bool Do()
 	{
 		WriteUtf8(PtyProcess::Get());
-		PtyProcess::Write(out);
 		return PtyProcess::IsRunning();
+	}
+	
+	bool Key(dword key, int count) override
+	{
+		// Let the parent handle the SHIFT + CTRL + T key.
+		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
 	}
 };
 
-class TerminalMultiplexerExample : public TopWindow {
+struct TerminalSplitter : public TopWindow {
 	Splitter splitter;
-	Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
-public:
-	void SetupSplitter()
-	{
-		Add(splitter.Horz());
-		for(int i = 0; i < PANECOUNT; i++)
-			splitter.Add(terminals.Add().SizePos());
-	}
+	Array<TerminalPane> panes;
 	
-	void RemovePane(int i, Ctrl& c)
+	void AddPane()
 	{
-		splitter.Remove(c);
-		splitter.RefreshLayoutDeep();
-		terminals.Remove(i);
+		if(splitter.GetCount() < PANECOUNT)
+			splitter.Add(panes.Add().SizePos());
 	}
-	
+
+	bool Key(dword key, int count) override
+	{
+		if(key == K_SHIFT_CTRL_T) AddPane();
+		return false;
+	}
+
 	void Run()
 	{
-		Title(t_("Terminal Multiplexing Example"));
-		SetRect(0, 0, 1024, 600);
-		Sizeable().Zoomable().CenterScreen();
-		SetupSplitter();
+		Title(t_("Terminal splitter. Press CTRL + T to split the view"));
+		Sizeable().Zoomable().CenterScreen().SetRect(0, 0,  1024, 600);
+		Add(splitter.Horz());
+		AddPane();
 		OpenMain();
-		while(IsOpen() && !terminals.IsEmpty()) {
+		while(IsOpen() && !panes.IsEmpty()) {
 			ProcessEvents();
-			for(int i = 0; i < terminals.GetCount(); i++) {
-				TerminalPane& pane = terminals[i];
+			for(int i = 0; i < panes.GetCount(); i++) {
+				TerminalPane& pane = panes[i];
 				if(!pane.Do()) {
-					RemovePane(i, pane);
+					splitter.Remove(pane);
+					splitter.Layout();
+					panes.Remove(i);
 					i--;
 				}
 			}
-			Sleep(1);
+			Sleep(10);
 		}
 	}
 };
 
 GUI_APP_MAIN
 {
-	TerminalMultiplexerExample().Run();
+	TerminalSplitter().Run();
 }
 ```
+#### Screenshots
 
-Here is the result: On the left is htop, and on the right is GNU nano running on Terminal Multiplexing Example (Linux)
+On the left is htop, and on the right is GNU nano running simultaneously on the terminal splitter example. (Linux)
+![ ](../Images/terminal_splitter_linux_screenshot.png)
 
-![On the left is htop, and on the right is GNU nano running on Terminal Multiplexing Example (Linux)](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Multiplexer.png)
+The same terminal splitter example compiled with Ultimate++'s Turtle HTML-5 backend. (Accessed via Firefox)
 
-- *P.s. The two Terminal panes in the above screenshot do not have to share any configuration.
-For example one can have a Courier (16) font,and the other can have Liberation Mono (8) at the same time. This is also true for their color settings and other properties.*
-
-
-### Terminal Multiplexing In a Web Browser Example
-
-Now, let's compile the above multiplexing example with TURTLE flag, and access it via a web browser:
-
-```C++
-#include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
-
-// This example demonstrates a barebone terminal multiplexer that can be accessed via a web borwser.
-// It uses PtyProcess, therefore it is currently POSIX-only.
-
-
-const char *nixshell = "/bin/bash";
-const int  PANECOUNT = 2;				// You can increase the number of panes if you like.
-
-using namespace Upp;
-
-struct TerminalPane : Terminal, PtyProcess {
-	TerminalPane()
-	{
-		WhenBell   = [=]()			{ BeepExclamation(); };
-		WhenResize = [=]()			{ PtyProcess::SetSize(GetPageSize()); };
-		WhenOutput = [=](String s)	{ Do(s); };
-		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
-	};
-	
-	bool Do(String out = Null)
-	{
-		WriteUtf8(PtyProcess::Get());
-		PtyProcess::Write(out);
-		return PtyProcess::IsRunning();
-	}
-};
-
-class TerminalMultiplexerExample : public TopWindow {
-	Splitter splitter;
-	Array<TerminalPane> terminals;	// Let's dynamically create the TerminalPane instances.
-public:
-	
-	void SetupSplitter()
-	{
-		Add(splitter.Horz());
-		for(int i = 0; i < PANECOUNT; i++)
-			splitter.Add(terminals.Add().SizePos());
-	}
-	
-	void RemovePane(int i, Ctrl& c)
-	{
-		splitter.Remove(c);
-		splitter.RefreshLayoutDeep();
-		terminals.Remove(i);
-	}
-	
-	void Run()
-	{
-		Title(t_("Terminal Multiplexing Example"));
-		SetRect(0, 0, 1024, 600);
-		Sizeable().Zoomable().CenterScreen();
-		SetupSplitter();
-		OpenMain();
-		while(IsOpen() && !terminals.IsEmpty()) {
-			ProcessEvents();
-			for(int i = 0; i < terminals.GetCount(); i++) {
-				TerminalPane& pane = terminals[i];
-				if(!pane.Do()) {
-					RemovePane(i, pane);
-					i--;
-				}
-			}
-			Sleep(1);
-		}
-	}
-};
-
-void Main()
-{
-	TerminalMultiplexerExample().Run();
-}
-
-#ifdef flagTURTLE
-CONSOLE_APP_MAIN
-{
-	StdLogSetup(LOG_COUT|LOG_FILE);
-
-	MemoryLimitKb(100000000);
-	Ctrl::host = "localhost";
-	Ctrl::port = 8888;
-	Ctrl::connection_limit = 15;	// Maximum number of concurrent users (preventing DDoS)
-
-#ifdef _DEBUG
-	Ctrl::debugmode = true;			// Only single session in debug (no forking)
-#endif
-	if(Ctrl::StartSession()) {
-		Main();
-		Ctrl::EndSession();
-	}
-	LOG("Session Finished");
-}
-#else
-GUI_APP_MAIN
-{
-	Main();
-}
-#endif
-```
-
-Extra code added to the source is basically the same as in example 3. 
-
-And here is the result: A basic, xterm compatible terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox! (Linux)
-
-![terminal multiplexer running htop and GNU nano simultaneously, and accessed via Firefox](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-Multiplexer-in-web-browser.png)
-
-### Terminal With Sixel Graphics Support
-
-This example demonstrates the sixel graphics support of the Terminal package. Terminal widget can handles the sixel graphics both internally and externally.
-
-With a several lines of extra code to the Terminal Example, we get a terminal emulator capable of displaying sixel graphics both internally and externally:
-
-```C++
-#include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
-
-// This example demonstrates a virtual terminal with both embedded and external sixel image viewer.
-// Two sixel images are provided with this example:
-// 1) scientia.sixel
-// 2) van-gogh.sixel
-// These sixels can be found in the upp-components/CtrlLib/Images directory.
-// You can use the "cat" command to view them.
-
-using namespace Upp;
-
-const char *nixshell = "/bin/bash";
-
-struct SixelTerminalExample : TopWindow {
-	Terminal	term;
-	PtyProcess	pty;				// This class is completely optional
-	TopWindow	sviewer;
-	ImageCtrl	imgctrl;
-
-	typedef SixelTerminalExample CLASSNAME;
-
-	SixelTerminalExample()
-	{
-		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
-		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-		sviewer.Title(t_("Sixel Viewer")).Sizeable().Zoomable().Add(imgctrl.SizePos());
-
-		term.WhenBell   = [=]()	{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s) { Title(s);	};
-		term.WhenResize = [=]()	{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s) { PutGet(s); };
-		term.WhenSixel  = THISFN(ShowSixelImage); // Comment out this line for embedded sixel images support.
-		term.SixelGraphics();
-
-		SetTimeCallback(-1, [=] { PutGet(); });
-		pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
-	}
-
-	void PutGet(String out = Null)
-	{
-		term.CheckWriteUtf8(pty.Get());
-		pty.Write(out);
-		if(!pty.IsRunning())
-			Break();
-	}
-
-	void ShowSixelImage(const SixelInfo& sinfo, const String& sdata)
-	{
-		Image img = SixelRenderer(sdata, sinfo).SetPaper(Black());
-		imgctrl.SetImage(img);
-		if(!sviewer.IsOpen()) {
-			sviewer.SetRect(img.GetSize());
-			sviewer.CenterOwner().Open(this);
-		}
-	}
-};
-
-GUI_APP_MAIN
-{
-	SixelTerminalExample().Run();
-}
-
-```
-
-Here is the result: Terminal Example displaying the well-known "chess.sixel" file. (Linux)
-
-![Terminal Example displaying the well-known "chess.sixel" file. (Linux) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/Terminal-SixelViewer.png)
-
-Again, using the above SSH terminal example, we can have a sixel-capable SSH terminal on Windows.
-
-![SSH Terminal Example displaying a sixel image on Windows (using Upp/Core/SSH & openssh) ](https://github.com/ismail-yilmaz/upp-components/blob/master/CtrlLib/Images/SSHTerminal-Sixel-Windows.jpg)
+![ ](../Images/terminal_splitter_turtle_screenshot.png)
 
 ## To Do
 There is always room for improvement and new features.
@@ -691,11 +429,20 @@ Nothing is perfect and Terminal package is no exception. Known major issues are 
 
 - Index and back index commands don't obey horizontal margins.
 - At the moment VT3xx screen panning feature does not really work (it is imitated using scroll).
+- Function keys and editor keys are not handled properly on some notebooks.
+- Image zoom in and out keys are not working with jexer (v0.3.2)
 
 ## Version
 
-Terminal package is currently at v0.1. (It is considered a beta until v1.0)
+Terminal package is currently at v0.2. (It is considered a beta until v1.0)
 
+## Acknowledgements
+
+*Note that below list is incomplete and to be written...*
+- vttest, and other test scripts written for xterm are extensively used for testing of the Terminal ctrl.
+- ncurses, its demos and tests are also used in developing the Terminal package.
+- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and window manager for terminal emulators, is heavily used as a test-bed for polishing the inline images support for the v0.2 of Terminal ctrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [@Kevin](https://gitlab.com/klamonte)!)
+ 
 ## License
 
 	Copyright (c) 2019, İsmail Yılmaz

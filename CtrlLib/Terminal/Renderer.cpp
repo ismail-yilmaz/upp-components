@@ -1,7 +1,7 @@
 #include "Terminal.h"
 
 #define LLOG(x)	   // RLOG("Terminal: " << x)
-#define LTIMING(x)  RTIMING(x)
+#define LTIMING(x) // RTIMING(x)
 
 namespace Upp {
 
@@ -15,33 +15,41 @@ class sVTRectRenderer {
 	Color color;
 
 public:
-	void DrawRect(const Rect& r, Color color);
-	void DrawRect(int x, int y, int cx, int cy, Color color) { DrawRect(RectC(x, y, cx, cy), color); }
-	void Flush();
-
-	sVTRectRenderer(Draw& w) : w(w) { cr = Null; color = Null; }
-	~sVTRectRenderer()              { Flush(); }
+	void DrawRect(const Rect& r, Color c)
+	{
+		if(cr.top == r.top && cr.bottom == r.bottom && cr.right == r.left && c == color) {
+			cr.right = r.right;
+			return;
+		}
+		Flush();
+		cr = r;
+		color = c;
+	}
+	
+	void DrawRect(int x, int y, int cx, int cy, Color c)
+	{
+		DrawRect(RectC(x, y, cx, cy), c);
+	
+	}
+	void Flush()
+	{
+		if(!IsNull(cr)) {
+			LTIMING("Terminal::VTRectRenderer");
+			w.DrawRect(cr, color);
+			cr = Null;
+		}
+	}
+	
+	sVTRectRenderer(Draw& w) : w(w)
+	{
+		cr = Null; color = Null;
+	}
+	
+	~sVTRectRenderer()
+	{
+		Flush();
+	}
 };
-
-void sVTRectRenderer::Flush()
-{
-	if(!IsNull(cr)) {
-		LTIMING("Terminal::VTRectRenderer");
-		w.DrawRect(cr, color);
-		cr = Null;
-	}
-}
-
-void sVTRectRenderer::DrawRect(const Rect& r, Color c)
-{
-	if(cr.top == r.top && cr.bottom == r.bottom && cr.right == r.left && c == color) {
-		cr.right = r.right;
-		return;
-	}
-	Flush();
-	cr = r;
-	color = c;
-}
 
 class sVTTextRenderer {
 	Draw&       w;
@@ -53,40 +61,44 @@ class sVTTextRenderer {
 	Color       color;
 
 public:
-	void DrawChar(int x, int y, int chr, Size fsz, Font afont, Color acolor);
-	void Flush();
-
-	sVTTextRenderer(Draw& w) : w(w) { y = Null; }
-	~sVTTextRenderer()              { Flush(); }
-};
-
-void sVTTextRenderer::Flush()
-{
-	if(text.GetCount() == 0)
-		return;
-	LTIMING("Terminal::VTTextRenderer");
-	w.DrawText(x, y, text, font, color, dx);
-	y = Null;
-	text.Clear();
-	dx.Clear();
-}
-
-void sVTTextRenderer::DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Color _color)
-{
-	if(y == _y && chr == 0 && font == _font && color == _color && dx.GetCount() && _x >= xpos - dx.Top())
-		dx.Top() += _x - xpos;
-	else {
-		Flush();
-		x = _x;
-		y = _y;
-		font = _font;
-		color = _color;
+	void DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Color _color)
+	{
+		if(y == _y && chr == 0 && font == _font && color == _color && dx.GetCount() && _x >= xpos - dx.Top())
+			dx.Top() += _x - xpos;
+		else {
+			Flush();
+			x = _x;
+			y = _y;
+			font = _font;
+			color = _color;
+		}
+		dx.Add(fsz.cx);
+		if(chr)
+			text.Cat(chr);
+		xpos = _x + fsz.cx;
 	}
-	dx.Add(fsz.cx);
-	if(chr)
-		text.Cat(chr);
-	xpos = _x + fsz.cx;
-}
+	
+	void Flush()
+	{
+		if(text.IsEmpty())
+			return;
+		LTIMING("Terminal::VTTextRenderer");
+		w.DrawText(x, y, text, font, color, dx);
+		y = Null;
+		text.Clear();
+		dx.Clear();
+	}
+
+	sVTTextRenderer(Draw& w) : w(w)
+	{
+		y = Null;
+	}
+	
+	~sVTTextRenderer()
+	{
+		Flush();
+	}
+};
 
 void Terminal::Paint0(Draw& w, bool print)
 {
@@ -107,21 +119,19 @@ void Terminal::Paint0(Draw& w, bool print)
 
 	if(!nobackground)
 		w.DrawRect(wsz, colortable[COLOR_PAPER]);
-	int b = pos;
-	int e = pos + psz.cy;
-	for(int i = b; i < min(e, page->GetLineCount()); i++) {
+	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		int y = i * fsz.cy - (fsz.cy * pos);
 		const VTLine& line = page->GetLine(i);
 		int pass = 0, end  = 2;
 		if(!line.IsEmpty() && w.IsPainting(0, y, wsz.cx, fsz.cy)) {
-			while(i >= pos && i < pos + psz.cy && pass < end) {
+			while(pass < end) {
 				for(int j = 0; j < psz.cx; j++) {
 					const VTCell& cell = j < line.GetCount() ? line[j] : GetAttrs();
 					Color ink, paper;
 					SetInkAndPaperColor(cell, ink, paper);
 					int x = j * fsz.cx;
 					int n = i * psz.cx + j;
-					bool highlight = pass < 2 && IsSelected(n);
+					bool highlight = IsSelected(n);
 					if(pass == 0) {
 					#ifdef flagTRUECOLOR
 						bool defpcolor = IsNull(cell.paper);
@@ -162,7 +172,7 @@ void Terminal::Paint0(Draw& w, bool print)
 		}
 	}
 
-	// Paint images
+	// Paint inline images, if any
 	PaintImages(w, imageparts, fsz);
 	
 	// Paint a steady (non-blinking) caret, if enabled.
@@ -245,9 +255,8 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
 {
 	dword id = cell.chr;
-	Point pt, coords = Point(x, y);
-	pt.x = (cell.data & 0xFFFF0000) >> 16;
-	pt.y = (cell.data & 0xFFFF);
+	Point coords = Point(x, y);
+	Point pt(HIWORD(cell.data), LOWORD(cell.data));
 	Rect  ir = RectC(pt.x * fsz.cx, pt.y * fsz.cy, fsz.cx, fsz.cy);
 	if(!parts.IsEmpty()) {
 		ImagePart& part = parts.Top();
@@ -262,7 +271,7 @@ void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell,
 
 void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 {
-	if(parts.IsEmpty() || imagecache.IsEmpty())
+	if(parts.IsEmpty())
 		return;
 
 	LTIMING("Terminal::PaintImages");
@@ -275,52 +284,17 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 		const Point& pt = part.b;
 		const Rect&  rr = part.c;
 		Rect r = Rect(pt, rr.GetSize());
-		const Tuple<Size, Image> *imgdata = imagecache.FindPtr(id);
-		if(imgdata && w.IsPainting(r)) {
-			ValueArray va;
-			va.Add(imgdata->b);
-			va.Add(imgdata->a);
-			va.Add(fsz);
-			va.Add(rr);
-			imgdisplay->Paint(w, r, va, ink, paper, 0);
+		if(w.IsPainting(r)) {
+			ImageData imd = GetCachedImageData(id, Null, fsz);
+			if(!IsNull(imd.image)) {
+				imd.fitsize *= fsz;
+				imd.paintrect = rr;
+				imgdisplay->Paint(w, r, RawPickToValue(pick(imd)), ink, paper, 0);
+			}
 		}
 	}
 	
 	parts.Clear();
-}
-
-void Terminal::UpdateImageCache(const Index<dword>& imageids)
-{
-	if(IsAlternatePage() || imagecache.IsEmpty())
-		return;
-
-	if(imageids.IsEmpty()) {
-		LLOG("Clearing the image cache...");
-		imagecache.Clear();
-	}
-	else {
-		// FIXME: or at least fix this. This is uglier than even me!..
-		Vector<dword> idkeys = clone(imageids.GetKeys());
-		Vector<dword> cached = clone(imagecache.GetKeys());
-		Sort(idkeys);
-		Sort(cached);
-		for(const dword& id : RemoveSorted(cached, idkeys)) {
-			int i = imagecache.Find(id);
-			if(i >= 0) {
-				imagecache.Unlink(i);
-				LLOG("Image #" << id << " is removed from the image cache. "
-				     "Cached image count: " << imagecache.GetCount());
-			}
-		}
-		if(imagecache.HasUnlinked())
-			imagecache.Sweep();
-	}
-}
-
-static Size sGetRoundSize(Sizef isz, Sizef fsz)
-{
-	Sizef csz = isz / fsz;
-	return Size(fround(csz.cx), fround(csz.cy));
 }
 
 void Terminal::RenderImage(const String& data)
@@ -331,18 +305,98 @@ void Terminal::RenderImage(const String& data)
 	if(WhenImage)
 		WhenImage(data);
 	else {
+		LTIMING("Terminal::RenderImage");
 		dword id = GetHashValue(data);
-		auto *imgdata = imagecache.FindPtr(id);
-		if(!imgdata) {
-			RTIMING("Terminal::RenderImage");
-			imgdata = &imagecache.Add(id);
-			imgdata->b = StreamRaster::LoadStringAny(data);
-			imgdata->a = sGetRoundSize(imgdata->b.GetSize(), GetFontSize());
-			LLOG("Image #" << id << " is added to the image cache. "
-				 "Cached image count: " << imagecache.GetCount());
+		ImageData imd = GetCachedImageData(id, data, GetFontSize());
+		if(!IsNull(imd.image)) {
+			page->AddImage(imd.fitsize, id, modes[DECSDM]);
+			RefreshDisplay();
 		}
-		page->AddImage(imgdata->a, id, modes[DECSDM]);
-		RefreshDisplay();
 	}
+}
+
+// Shared image data cache support.
+
+static StaticMutex sCacheLock;
+static LRUCache<Terminal::ImageData> sImageDataCache;
+static int sCachedImageMaxSize =  4 * 1024 * 768 * 100;
+static int sCachedImageMaxCount =  1000;
+
+struct sVTImageMaker : ImageMaker {
+	const dword&	id;
+	const String&	data;
+	
+	String Key() const override
+	{
+		StringBuffer h;
+		RawCat(h, id);
+		return h;
+	}
+	
+	Image Make() const override
+	{
+		return StreamRaster::LoadStringAny(data);
+	}
+	
+	sVTImageMaker(const dword& id, const String& data)
+		: id(id)
+		, data(data)
+	{
+	}
+};
+
+struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
+	dword	id;
+	String	data;
+	Size	fontsize;
+	
+	String Key() const override
+	{
+		StringBuffer h;
+		RawCat(h, id);
+		return h;
+	}
+	
+	int Make(Terminal::ImageData& imagedata) const override
+	{
+		sVTImageMaker im(id, data);
+		imagedata.image = MakeImagePaintOnly(im);
+		if(!IsNull(imagedata.image))
+			imagedata.fitsize = AsCellSize(imagedata.image.GetSize());
+		return imagedata.image.GetLength() * 4;
+	}
+	
+	Size AsCellSize(Sizef isz) const
+	{
+		isz = isz / Sizef(fontsize);
+		return Size(fround(isz.cx), fround(isz.cy));
+	}
+};
+
+Terminal::ImageData Terminal::GetCachedImageData(dword id, const String& data, const Size& fsz)
+{
+	Mutex::Lock __(sCacheLock);
+	
+	LTIMING("Terminal::GetCachedImageData");
+
+	sVTImageDataMaker im;
+	im.id = id;
+	im.data = data;
+	im.fontsize = fsz;
+	sImageDataCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
+	return sImageDataCache.Get(im);
+}
+
+void Terminal::ClearImageCache()
+{
+	Mutex::Lock __(sCacheLock);
+	sImageDataCache.Clear();
+}
+
+void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
+{
+	Mutex::Lock __(sCacheLock);
+	sCachedImageMaxSize  = max(1, maxsize);
+	sCachedImageMaxCount = max(1, maxcount);
 }
 }

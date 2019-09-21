@@ -10,7 +10,13 @@ namespace Upp {
 
 class Terminal : public Console, public Ctrl {
 public:
-    enum TimerIds {
+   struct ImageData : Moveable<ImageData> {
+       Image image;
+       Size  fitsize;
+       Rect  paintrect;
+   };
+   
+   enum TimerIds {
         TIMEID_REFRESH = Ctrl::TIMEID_COUNT,
         TIMEID_SIZEHINT,
         TIMEID_BLINK,
@@ -26,7 +32,7 @@ public:
     Event<Bar&> WhenBar;
     Gate<PasteClip&> WhenClip;
     Event<const String&> WhenImage;
-
+    
     Terminal&   History(bool b = true)                          { GetDefaultPage().History(b); return *this; }
     Terminal&   NoHistory()                                     { return History(false); }
     Terminal&   ClearHistory()                                  { GetDefaultPage().EraseHistory(); return *this; }
@@ -145,20 +151,22 @@ public:
 
     void        Serialize(Stream& s) override;
 
+    static void ClearImageCache();
+    static void SetImageCacheMaxSize(int maxsize, int maxcount);
+    
 private:
     void        PreParse() override;
     void        PostParse() override;
 
-	using		ImagePart  = Tuple<dword, Point, Rect>;
-	using		ImageParts = Vector<ImagePart>;
-	using		ImageCache = VectorMap<dword, Tuple<Size, Image>>;
+    using       ImagePart  = Tuple<dword, Point, Rect>;
+    using       ImageParts = Vector<ImagePart>;
 
     void        Paint0(Draw& w, bool print = false);
     Color       GetColorFromIndex(const VTCell& cell, int which) const;
     void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
-    void		AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
-    void		PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
-    void        UpdateImageCache(const Index<dword>& imageids);
+    void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
+    void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
+    ImageData   GetCachedImageData(dword id, const String& data, const Size& fsz);
     
     void        RenderImage(const String& data) override;
 
@@ -210,9 +218,8 @@ private:
 
     VScrollBar  sb;
     Scroller    scroller;
-    Point		mousepos;
+    Point       mousepos;
     const Display *imgdisplay;
-    ImageCache  imagecache;
     Font        font            = Monospace();
     Rect        caretrect;
     int         anchor          = -1;

@@ -1,7 +1,7 @@
 #include "Sixel.h"
 
 #define LLOG(x)		// RLOG("SixelRenderer: " << x)
-#define LTIMING(x)	 RTIMING(x)
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
