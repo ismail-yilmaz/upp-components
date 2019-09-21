@@ -1,4 +1,4 @@
-description "Demonstrates a basic terminal multiplexer, using Terminal package.\377";
+description "Demonstrates a basic terminal splitter, using Terminal package.\377";
 
 uses
 	CtrlLib,

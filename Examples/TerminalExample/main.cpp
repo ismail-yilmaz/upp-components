@@ -6,28 +6,25 @@ using namespace Upp;
 const char *nixshell = "/bin/bash";
 
 struct TerminalExample : TopWindow {
-	Terminal  term;
-	PtyProcess pty;					// This class is completely optional
+	Terminal term;
+	PtyProcess pty;
 	
 	TerminalExample()
 	{
-		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled).
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-
-		term.WhenBell   = [=]()			{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s)	{ Title(s);	};
-		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s)	{ PutGet(s); };
-		SetTimeCallback(-1, [=] { PutGet(); });
-		pty.Start(nixshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
-	}
-	
-	void PutGet(String out = Null)
-	{
-		term.CheckWriteUtf8(pty.Get());
-		pty.Write(out);
-		if(!pty.IsRunning())
-			Break();
+		term.WhenBell	= [=]()         { BeepExclamation(); };
+		term.WhenTitle	= [=](String s) { Title(s);          };
+		term.WhenOutput	= [=](String s) { pty.Write(s);      };
+		term.WhenResize	= [=]()         { pty.SetSize(term.GetPageSize()); };
+		term.SixelGraphics();
+		pty.Start(nixshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
+		SetTimeCallback(-1, [=] ()
+		{
+			term.WriteUtf8(pty.Get());
+			 if(!pty.IsRunning())
+				Break();
+		});
 	}
 };
 

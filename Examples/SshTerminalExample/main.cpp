@@ -1,4 +1,3 @@
-#include <Core/Core.h>
 #include <Core/SSH/SSH.h>
 #include <Terminal/Terminal.h>
 

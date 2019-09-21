@@ -13,79 +13,79 @@ using namespace Upp;
 struct TerminalTab : Terminal, PtyProcess {
 	TerminalTab()
 	{
-		WhenBell   = [=] { BeepExclamation(); };
-		WhenResize = [=] { PtyProcess::SetSize(GetPageSize()); };
-		WhenOutput = [=](String s) { Do(s);   };
-		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());
+		SixelGraphics();
+		WhenBell   = [=]()         { BeepExclamation();    };
+		WhenOutput = [=](String s) { PtyProcess::Write(s); };
+		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
+		Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
 	}
-
-	bool Do(String out = Null)
+	
+	bool Do()
 	{
 		WriteUtf8(PtyProcess::Get());
-		PtyProcess::Write(out);
 		return PtyProcess::IsRunning();
 	}
 	
 	bool Key(dword key, int count) override
 	{
+		// Let the parent handle the SHIFT + CTRL + T key.
 		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
 	}
 };
 
-class TabbedTerminalExample : public TopWindow {
-	Array<TerminalTab> terminals;
-	TabBarCtrl tabs;
-public:
-	typedef TabbedTerminalExample CLASSNAME;
+struct TabbedTerminals : TopWindow {
+	TabBarCtrl tabbar;
+	Array<TerminalTab> tabs;
+
+	typedef TabbedTerminals CLASSNAME;
 
 	bool Key(dword key, int cnt) override
 	{
-		if(key == K_SHIFT_CTRL_T && terminals.GetCount() < MAXTABS) {
-			AddNewTab();
-			return true;
-		}
-		return false;
+		if(key == K_SHIFT_CTRL_T) AddTab();
+		return true;
 	}
 
-	void AddNewTab()
+	void AddTab()
 	{
-		TerminalTab& tt = terminals.Add();
-		int64 key = (int64) GetTickCount();
-		tabs.AddCtrl(tt.SizePos(), key,	Format("Terminal #%d", terminals.GetCount()));
+		if(tabs.GetCount() < MAXTABS) {
+			TerminalTab& tt = tabs.Add();
+			int64 key = (int64) GetTickCount();
+			tabbar.AddCtrl(tt.SizePos(), key, Format("Terminal #%d", tabs.GetCount()));
+		}
 	}
 
 	void CloseTab(Value key)
 	{
-		Ctrl *c = tabs.GetCtrl(key);
+		Ctrl *c = tabbar.GetCtrl(key);
 		if(c)
-			for(int i = 0; i < terminals.GetCount(); i++)
-				if(&terminals[i] == c) {
-					terminals.Remove(i);
+			for(int i = 0; i < tabs.GetCount(); i++)
+				if(&tabs[i] == c) {
+					tabs.Remove(i);
 					break;
 				}
 	}
 
 	void FocusTab()
 	{
-		tabs.GetCurrentCtrl()->SetFocus();
+		tabbar.GetCurrentCtrl()->SetFocus();
 	}
 
 	void Run()
 	{
-		Title(t_("Tabbed terminal example (Press SHIFT+CTRL+T to open a new tab)"));
+		Title(t_("Tabbed terminals example (Press SHIFT+CTRL+T to open a new tab)"));
+		Sizeable().Zoomable().CenterScreen().Add(tabbar.SortTabs().SizePos());
 		SetRect(0, 0, 1024, 640);
-		Sizeable().Zoomable().CenterScreen().Add(tabs.SortTabs().SizePos());
-		tabs.WhenClose  = THISFN(CloseTab);
-		tabs.WhenAction = THISFN(FocusTab);
-		AddNewTab();
+		tabbar.WhenClose  = THISFN(CloseTab);
+		tabbar.WhenAction = THISFN(FocusTab);
+		AddTab();
 		OpenMain();
-		while(IsOpen() && !terminals.IsEmpty()) {
+		while(IsOpen() && !tabs.IsEmpty()) {
 			ProcessEvents();
-			for(int i = 0; i < terminals.GetCount(); i++) {
-				auto& tt = terminals[i];
+			for(int i = 0; i < tabs.GetCount(); i++) {
+				TerminalTab& tt = tabs[i];
 				if(!tt.Do()) {
-					tabs.RemoveCtrl(tt);
-					terminals.Remove(i);
+					tabbar.RemoveCtrl(tt);
+					tabs.Remove(i);
 					i--;
 				}
 			}
@@ -96,5 +96,5 @@ public:
 
 GUI_APP_MAIN
 {
-	TabbedTerminalExample().Run();
+	TabbedTerminals().Run();
 }
