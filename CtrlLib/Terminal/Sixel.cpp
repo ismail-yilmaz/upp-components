@@ -185,8 +185,10 @@ void SixelRenderer::SetOptions()
 
 	GetNumericParams(params, ';');
 
-	if(sstream.Get() != 'q')
+	if(sstream.Get() != 'q') {
+		sstream.SetError();
 		return;
+	}
 
 	if(params.IsEmpty()) {
 		aspectratio = 1;
@@ -219,19 +221,26 @@ void SixelRenderer::SetOptions()
 	datapos = sstream.GetPos();
 }
 
-void SixelRenderer::ParseEsc(int c)
+void SixelRenderer::Validate()
 {
-	if(pass != 0 || datapos != 0)
-		return;
-
-	int cc = sstream.Peek();
-
-	if((c == 0x1B && (cc == 0x50 || cc == 0x5C)) || 0x90) {
-		if(c  != 0x90)
-			sstream.Skip(1);
-		if(cc != 0x5c)
+	bool valid = false;
+	
+	if(pass == 0) {
+		int c = sstream.Get();
+		valid = c == 0x90 || (c == 0x1B && sstream.Get() == 0x50);
+		if(valid)
 			SetOptions();
 	}
+	else
+	if(pass == 1) {
+		valid = datapos > 0 && datapos < sstream.GetSize();
+		if(valid) {
+			cursor = Point(0, 0);
+			sstream.Seek(datapos);
+		}
+	}
+	if(!valid)
+		sstream.SetError();
 }
 
 Image SixelRenderer::Get()
@@ -243,19 +252,10 @@ Image SixelRenderer::Get()
 	ImageBuffer buffer;
 
 	for(pass = 0; pass < 2 && !sstream.IsError(); pass++) {
-		if(pass == 1)
-		{
-			cursor = Point(0, 0);
-			sstream.Seek(datapos);
-		}
+		Validate();
 		while(!sstream.IsEof()) {
 			int c = sstream.Get();
 			switch(c) {
-			case 0x1B:
-			case 0x90:
-			case 0x9C:
-				ParseEsc(c);
-				break;
 			case 0x21:
 				GetRepeatCount();
 				break;
@@ -273,6 +273,8 @@ Image SixelRenderer::Get()
 				break;
 			case 0x3F ... 0x7E:
 				DrawSixel(buffer, c - 0x3F);
+				break;
+			default:
 				break;
 			}
 		}

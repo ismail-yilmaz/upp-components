@@ -24,8 +24,8 @@ private:
     void            SetPalette();
     void            GetRasterInfo();
     void            GetRepeatCount();
-    void            ParseEsc(int c);
     void            SetOptions();
+    void            Validate();
     bool            InitBuffer(ImageBuffer& ib);
     void            DrawSixel(ImageBuffer& ib, int c);
     void            GetNumericParams(Vector<int>& v, int delim = Null);

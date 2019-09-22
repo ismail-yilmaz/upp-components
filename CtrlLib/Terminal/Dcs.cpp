@@ -294,6 +294,6 @@ void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 		break;
 	}
 	
-	RenderImage(Format("\x1B\x50`%d;%d;q%s`\x1B\x5C", ratio, nohole, seq.payload));
+	RenderImage(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload));
 }
 }

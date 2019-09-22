@@ -28,7 +28,7 @@ struct SixelViewer : TopWindow {
 	bool Key(dword key, int count) override
 	{
 		if(key == K_CTRL_O) {
-			img = StreamRaster::LoadFileAny(SelectFileOpen("*.png *.bmp *.sixel"));
+			img = StreamRaster::LoadFileAny(SelectFileOpen("*.jpg *.png *.bmp *.sixel"));
 			if(!IsNull(img))
 				SetRect(Rect(GetRect().TopLeft(), img.GetSize()));
 		}
