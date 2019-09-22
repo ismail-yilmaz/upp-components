@@ -48,6 +48,7 @@ bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
 
 VTLine::VTLine()
 {
+	hasdata = false;
 	invalid = true;
 	wrapped = false;
 }
@@ -318,8 +319,10 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll)
 			VTCell& cell = line[min(pt.x + j, size.cx - 1)];
 			cell.Image();
 			cell.chr   = imageid;
-			cell.data  = MAKELONG(i, j);
+			cell.data  = (j & 0xFFFF) << 16;
+			cell.data |= (i & 0xFFFF);
 		}
+		line.HasData(true);
 		line.Invalidate();
 		if(scroll)
 			NextLine();

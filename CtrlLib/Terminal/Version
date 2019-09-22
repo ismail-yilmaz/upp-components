@@ -1,24 +1,5 @@
 Terminal Package for Ultimate++
 -------------------------------
 
-09/22/2019: Version 0.2:
-
-- Terminal: SixelRenderer class is rewritten;
-- Terminal: SixelRaster class, a StreamRaster interface for sixel images, is added to the package.
-- Terminal: A subset of xterm's window-op reports are implemented.
-- Terminal: An I/O synchronization issue with the PtyProcess class that led to artifacts on screen on some setups is fixed.
-- Terminal: Inline image support is improved.
-- Terminal: Room is made for other inline image protocols.
-- Terminal: WhenSixel event is removed in favor of a generic WhenImage event.
-- Terminal: Image rendering strategy is changed to cell-level rendering for further flexibility.
-- Terminal: An LRU-type shared image data cache is implemented.
-- Terminal: Support for Jexer, a modern text user interface (TUI) and windowing system for terminal emulators, is added.
-- VTCell:   A general purpose data variable is added to the cell structure.
-- VTCell:   SGR image flag is added.
-- Examples: Examples are further simplified.
-- Various optimizations and fixes.
-- Image gallery is updated.
-
 07/20/2019: Version 0.1:
-
 - Initial release.

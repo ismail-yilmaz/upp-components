@@ -335,9 +335,8 @@ Returns `*this for method chaining.&]
 ixel graphics] support. Returns `*this for method chaining. This 
 feature is disabled by default. Sixel images can be handled both 
 internally, as embedded images, or externally, by handing the 
-sixel data to client code for rendering and viewing. See also 
-[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenImage^ Wh
-enImage] event.&]
+sixel data to client code for rendering and viewing. See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenSixel^ W
+henSixel] event for details.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
@@ -502,20 +501,8 @@ stuff.&]
 [s5;:Upp`:`:Terminal`:`:Serialize`(Upp`:`:Stream`&`)override: [@(0.0.255) void]_[* Serial
 ize]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 s])_override&]
 [s2;%% Serializes the current configuration of Terminal to [%-*@3 s].&]
-[s3; &]
-[s4; &]
-[s5;:Upp`:`:Terminal`:`:ClearImageCache`(`): [@(0.0.255) static] [@(0.0.255) void]_[* Clear
-ImageCache]()&]
-[s2;%% Clears the shared image data cache.&]
-[s3; &]
-[s4; &]
-[s5;:Upp`:`:Terminal`:`:SetImageCacheMaxSize`(int`,int`): [@(0.0.255) static] 
-[@(0.0.255) void]_[* SetImageCacheMaxSize]([@(0.0.255) int]_[*@3 maxsize], 
-[@(0.0.255) int]_[*@3 maxcount])&]
-[s2;%% Sets the maximum size of image data to be stored in the shared 
-image data cache to [%-*@3 maxsize, ] and the maximum number of 
-items to [%-*@3 maxcount].&]
-[s3; &]
+[s3;%% &]
+[s0; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
 [s5;:Upp`:`:Terminal`:`:Terminal`(`): [* Terminal]()&]
@@ -530,7 +517,7 @@ Display; it is up to client code to keep the display object alive
 as long as necessary. ]Currenlty, only displays for image objects 
 are supported. There are two predefined terminal displays &]
 [s0; &]
-[s4;@(0.0.255) &]
+[s4; [@(0.0.255) c]&]
 [s5;:Upp`:`:NormalImageCellDisplay`(`): [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&
 ]_[* NormalImageCellDisplay]()&]
 [s2;%% The default image cell display used by the Terminal ctrl.&]

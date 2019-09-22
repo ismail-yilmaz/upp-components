@@ -32,7 +32,7 @@ private:
 
 private:
     Stream&         sstream;
-    Vector<Color>   palette;
+    Vector<RGBA>    palette;
     int             datapos;
     int             repeatcount;
     int             aspectratio;

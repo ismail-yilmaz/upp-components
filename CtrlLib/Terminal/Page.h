@@ -26,9 +26,13 @@ public:
     void         Unwrap() const                          { wrapped = false; }
     inline bool  IsWrapped() const                       { return wrapped;  }
 
+    void         HasData(bool b) const					 { hasdata = b;     }
+    inline bool  HasData() const                         { return hasdata;  }
+
 private:
     mutable bool  invalid:1;
     mutable bool  wrapped:1;
+    mutable bool  hasdata:1;
 };
 
 class VTPage : Moveable<VTPage> {

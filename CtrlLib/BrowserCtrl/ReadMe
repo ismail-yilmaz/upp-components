@@ -1,0 +1,15 @@
+BrowserCtrl package for U++
+----------------------------
+BrowserCtrl is a configurable and embeddable file selector widget similar to FileSel. 
+It provides a callback based uniform interface for building file system transparent
+file selectors and browsers.
+
+Todo:
+--------------------
+- Add custom view modes.
+- Add more high level methods.
+- Improve documentation.
+
+History:
+--------------------
+2017-11-17:  Initial public release.
