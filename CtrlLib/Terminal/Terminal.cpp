@@ -251,38 +251,20 @@ void Terminal::RefreshDisplay()
 	Size fsz = GetFontSize();
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
-	Index<dword> imageids;
+
 	
 	LTIMING("Terminal::RefreshDisplay");
-	
-	int b = pos;
-	int e = pos + psz.cy;
-	
-	if(!imagecache.IsEmpty()) {
-		b = 0;
-		e = page->GetLineCount();
-	}
 
-	for(int i = b; i < min(e, page->GetLineCount()); i++) {
+	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		const VTLine& line = page->GetLine(i);
-		bool  visible = i >= pos && i < pos + psz.cy;
-		if(line.HasData() || visible) {
-			int image_parts = 0;
+		if(blinktext)
 			for(const VTCell& cell : line) {
-				if(cell.IsImage()) {
-					imageids.FindAdd(cell.chr);
-					image_parts++;
-				}
-				else
-				if(visible && blinktext && cell.IsBlinking()) {
+				if(cell.IsBlinking()) {
 					blinking_cells++;
+					line.Invalidate();
+					break;
 				}
 			}
-			if(line.HasData())
-				line.HasData(image_parts > 0);
-			if(blinking_cells)
-				line.Invalidate();
-		}
 		if(line.IsInvalid()) {
 			line.Validate();
 			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
@@ -291,8 +273,6 @@ void Terminal::RefreshDisplay()
 	
 	PlaceCaret();
 	Blink(blinking_cells > 0);
-	
-	UpdateImageCache(imageids);
 }
 
 void Terminal::Blink(bool b)
