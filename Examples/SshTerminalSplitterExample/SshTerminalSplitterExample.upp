@@ -1,0 +1,15 @@
+description "Demonstrates a multithreaded ssh terminal splitter, using the Terminal and SSH packages.\377";
+
+uses
+	CtrlLib,
+	Terminal,
+	Core/SSH;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI MT .TRUECOLOR",
+	"" = "GUI MT .NOGTK .TRUECOLOR",
+	"" = "GUI MT";
+

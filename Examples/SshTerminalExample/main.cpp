@@ -10,9 +10,10 @@ struct SshTerminal : Terminal, SshShell {
 	{
 		SshShell::Timeout(Null);
 		SshShell::ChunkSize(65536);
-		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size); };
-		Terminal::WhenOutput = [=](String data) { SshShell::Send(data); };
-		Terminal::WhenResize = [=]() { SshShell::PageSize(Terminal::GetPageSize()); };
+		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size);                 };
+		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
+		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
+		Terminal::SixelGraphics();
 	}
 
 	void Run(const String& termtype)
