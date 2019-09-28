@@ -25,6 +25,10 @@ The three short videos below show the basic capabilities of Terminal package in 
 - Used apps and tools: Jexer text user interface.
 - Link: https://vimeo.com/361556973
 
+- A multithreaded SSH2 terminal splitter example, with sixel graphics and mouse tracking support.
+- Used apps and tools: Jexer text user interface, htop, GNU nano, ncurses demos.
+- Link: https://vimeo.com/362532208
+
 #### On Turtle HTML-5 backend (in a web browser)
 - A basic terminal example with sixel graphics, and mouse tracking support.
 - Used apps and tools: Jexer text user interface.
@@ -114,12 +118,13 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 
 ## Examples
-As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Four examples are provided with the package:
+As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Five examples are provided with the package:
 
 1. Basic terminal
 2. Ssh terminal
 3. Terminal in a web browser
 4. Terminal splitter
+5. Ssh terminal splitter
 
 ### Basic Terminal Example
 This example demonstrates the basic usage of the Terminal widget and its interaction with the PtyProcess class. Creating an xterm-compatible virtual terminal emulator with inline images and mouse tracking support requires only 29 sLoC:	
@@ -319,28 +324,33 @@ Below two example illustrate a way of creating more advanced user interfaces wit
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a simple terminal splitter.
+// This  example  demonstrates a  simple terminal  splitter.
 // It uses PtyProcess, therefore it is currently POSIX-only.
 
 const char *nixshell = "/bin/bash";
-const int  PANECOUNT = 4;  // You can increase the number of panes if you like.
+const int  MAXPANECOUNT = 4;  // You can increase the number of panes if you like.
 
 using namespace Upp;
 
 struct TerminalPane : Terminal, PtyProcess {
-	TerminalPane()
+	Splitter& parent;
+	TerminalPane(Splitter& ctrl) : parent(ctrl)
 	{
-		SixelGraphics();
-		WhenBell   = [=]()         { BeepExclamation();    };
-		WhenOutput = [=](String s) { PtyProcess::Write(s); };
-		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		Terminal::SixelGraphics();
+		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
+		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
+		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
+		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		parent.Add(Terminal::SizePos());
 	}
 	
-	bool Do()
+	void Do()
 	{
-		WriteUtf8(PtyProcess::Get());
-		return PtyProcess::IsRunning();
+		Terminal::WriteUtf8(PtyProcess::Get());
+		if(!PtyProcess::IsRunning()) {
+			parent.Remove(*this);
+			parent.Layout();
+		}
 	}
 	
 	bool Key(dword key, int count) override
@@ -350,40 +360,32 @@ struct TerminalPane : Terminal, PtyProcess {
 	}
 };
 
-struct TerminalSplitter : public TopWindow {
+struct TerminalSplitterExample : TopWindow {
 	Splitter splitter;
 	Array<TerminalPane> panes;
 	
-	void AddPane()
-	{
-		if(splitter.GetCount() < PANECOUNT)
-			splitter.Add(panes.Add().SizePos());
-	}
-
 	bool Key(dword key, int count) override
 	{
 		if(key == K_SHIFT_CTRL_T) AddPane();
 		return false;
 	}
 
+	void AddPane()
+	{
+		if(splitter.GetCount() < MAXPANECOUNT)
+			panes.Create<TerminalPane>(splitter);
+	}
+
 	void Run()
 	{
-		Title(t_("Terminal splitter. Press CTRL + T to split the view"));
+		Title(t_("Terminal splitter (Press CTRL + SHIFT + T to split the view)"));
 		Sizeable().Zoomable().CenterScreen().SetRect(0, 0,  1024, 600);
 		Add(splitter.Horz());
 		AddPane();
 		OpenMain();
-		while(IsOpen() && !panes.IsEmpty()) {
+		while(IsOpen() && splitter.GetCount()) {
 			ProcessEvents();
-			for(int i = 0; i < panes.GetCount(); i++) {
-				TerminalPane& pane = panes[i];
-				if(!pane.Do()) {
-					splitter.Remove(pane);
-					splitter.Layout();
-					panes.Remove(i);
-					i--;
-				}
-			}
+			for(TerminalPane& pane : panes) pane.Do();
 			Sleep(10);
 		}
 	}
@@ -391,7 +393,7 @@ struct TerminalSplitter : public TopWindow {
 
 GUI_APP_MAIN
 {
-	TerminalSplitter().Run();
+	TerminalSplitterExample().Run();
 }
 ```
 #### Screenshots
@@ -402,6 +404,109 @@ On the left is htop, and on the right is GNU nano running simultaneously on the 
 The same terminal splitter example compiled with Ultimate++'s Turtle HTML-5 backend. (Accessed via Firefox)
 
 ![ ](../Images/terminal_splitter_turtle_screenshot.png)
+
+### Ssh Terminal Splitter Example
+Given the flexiblity and power of Ultimate++, it is easy to modify the above splitter example, so that it can be used as a relatively fancy front-end for SSH2 shells. This example is cross-platform, and demonstrates the interaction between the Terminal widget and the Ultimate++'s Core/SSH package, in a multithreaded environment. 
+```C++
+#include <Core/SSH/SSH.h>
+#include <Terminal/Terminal.h>
+
+// This example demonstrates a multithreaded ssh terminal splitter
+// It is using the  Core/SSH package, therefore it can be compiled
+// for, and run on, Windows and  POSIX-compliant operating systems.
+
+using namespace Upp;
+
+String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
+
+const int MAXPANECOUNT = 4; // You can increase the number of panes if you like.
+
+struct SshTerminalPane : Terminal, SshShell {
+	Splitter& parent;
+	SshTerminalPane(SshSession& session, Splitter& ctrl) : SshShell(session), parent(ctrl)
+	{
+		SshShell::Timeout(Null);
+		SshShell::ChunkSize(65536);
+		SshShell::WhenOutput = [=](const void *data, int size) { GuiLock __; Terminal::Write(data, size);     };
+		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
+		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
+		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
+		Terminal::SixelGraphics();
+		parent.Add(Terminal::SizePos());
+	}
+	
+	void Run(const String& termtype)
+	{
+		SshShell::Run(termtype, Terminal::GetPageSize());
+		GuiLock __;
+		parent.Remove(*this);
+		parent.Layout();
+	}
+
+	bool Key(dword key, int count) override
+	{
+		// Let the parent handle the SHIFT + CTRL + T key.
+		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+	}
+};
+
+struct SshTerminalSplitterExample : TopWindow {
+	Splitter   splitter;
+	SshSession session;
+	CoWorkNX   workers; // Same as CoWork, but can be used as a member.
+
+	bool Key(dword key, int count) override
+	{
+		if(key == K_SHIFT_CTRL_T) AddPane();
+		return false;
+	}
+
+	void AddPane()
+	{
+		if(splitter.GetCount() < MAXPANECOUNT) {
+			workers & [=] {
+				EnterGuiMutex();                            // Note: Ctrl derived classes can only be
+				SshTerminalPane shell(session, splitter);   // initialized in main thread OR vith gui
+				LeaveGuiMutex();                            // mutex. (GuiLock)
+				shell.Run("xterm");
+			};
+		}
+	}
+
+	void Run()
+	{
+		if(!EditTextNotNull(url, "SSH server", "Url"))
+			Exit(1);
+
+		session.WhenWait = [=] { if(IsMainThread()) ProcessEvents(); };
+
+		if(!session.Timeout(10000).Connect(url)) {
+			ErrorOK(DeQtf(session.GetErrorDesc()));
+			Exit(1);
+		}
+
+		Title(t_("Ssh terminal splitter (Press CTRL + SHIFT + T to split the view)"));
+		Sizeable().Zoomable().CenterScreen().SetRect(0, 0,  1024, 600);
+		Add(splitter.Horz());
+		AddPane();
+		OpenMain();
+		while(IsOpen() && !workers.IsFinished()) {
+			ProcessEvents();
+			Sleep(10);
+		}
+		GuiUnlock __;
+		workers.Cancel();
+	}
+};
+
+GUI_APP_MAIN
+{
+	SshTerminalSplitterExample().Run();
+}
+```
+#### Screenshots
+From left to right: Jexer, htop, GNU nano, ncurses examples (worm, tclock), running simultaneously on the ssh terminal splitter example. (Windows)
+![ ](../Images/terminal_ssh_splitter_windows.jpg)
 
 ## To Do
 There is always room for improvement and new features.
