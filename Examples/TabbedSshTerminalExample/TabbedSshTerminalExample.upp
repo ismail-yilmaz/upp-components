@@ -1,0 +1,15 @@
+description "Demonstrates a multithreaded ssh terminal with tabs, using the Terminal and SSH packages\377";
+
+uses
+	CtrlLib,
+	Terminal,
+	Core/SSH,
+	TabBar;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI MT",
+	"" = "GUI MT .NOGTK";
+

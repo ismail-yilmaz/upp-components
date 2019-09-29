@@ -33,11 +33,11 @@ struct TerminalTab : Terminal, PtyProcess {
 	}
 };
 
-struct TabbedTerminals : TopWindow {
+struct TabbedTerminal : TopWindow {
 	TabBarCtrl tabbar;
 	Array<TerminalTab> tabs;
 
-	typedef TabbedTerminals CLASSNAME;
+	typedef TabbedTerminal CLASSNAME;
 
 	bool Key(dword key, int cnt) override
 	{
@@ -96,5 +96,5 @@ struct TabbedTerminals : TopWindow {
 
 GUI_APP_MAIN
 {
-	TabbedTerminals().Run();
+	TabbedTerminal().Run();
 }
