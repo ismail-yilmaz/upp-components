@@ -9,7 +9,6 @@
 using namespace Upp;
 
 String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
-
 const int MAXTABCOUNT = 8; // You can increase the number of tabs if you like.
 
 struct SshTerminalTab : Terminal, SshShell {
