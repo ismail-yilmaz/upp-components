@@ -140,7 +140,10 @@ tring]>_[* GetAuthMethods]()&]
 [s0;l288;%% Returns a list of supported user authentication methods. 
 Returns an empty vector on failure. The following four authentication 
 methods are currently supported: `"password`", `"publickey`", 
-`"hostbased`", `"keyboard`-interactive`".&]
+`"hostbased`", `"keyboard`-interactive`", and `"none`". The `"none`" 
+method allows logging in without an authentication scheme. It 
+is rarely used by the servers, and handled automatically by the 
+session.&]
 [s3;^Upp`:`:SFtp^ &]
 [s4;^Upp`:`:SFtp^ &]
 [s5;:Upp`:`:SshSession`:`:CreateSFtp`(`): [_^Upp`:`:SFtp^ SFtp]_[* CreateSFtp]()&]
