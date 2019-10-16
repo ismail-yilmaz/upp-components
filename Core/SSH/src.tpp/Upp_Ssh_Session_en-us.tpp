@@ -32,9 +32,11 @@ inherit their default timeout values from their session.&]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:HashType`(Hash`): [_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&
 ]_[* HashType](Hash_[*@3 h])&]
+[s2;%% [/^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:GetMD5Fingerprint`(`)const^ D
+eprecated. Use the relevant fingerprint methods][/ .]&]
 [s2;%% Sets the requested hash type for server fingerprint. Can be 
-[C HASH`_MD5 ]or [C HASH`_SHA1]. SHA1 is the default hash algorithm. 
-Returns `*this for method chaining.&]
+[C HASH`_MD5, HASH`_SHA1, or HASH`_SHA256]. SHA256 is the default 
+hash algorithm. Returns `*this for method chaining.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:Keys`(const Upp`:`:String`&`,const Upp`:`:String`&`,const Upp`:`:String`&`,bool`): [_^Upp`:`:SshSession^ S
@@ -112,14 +114,27 @@ NULL on failure.&]
 onst]&]
 [s2;%% Returns the servers banner if available.&]
 [s3; &]
+[s4;^Upp`:`:String^ &]
+[s5;:Upp`:`:SshSession`:`:GetMD5Fingerprint`(`)const: [_^Upp`:`:String^ String]_[* GetMD5
+Fingerprint]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:SshSession`:`:GetSHA1Fingerprint`(`)const: [_^Upp`:`:String^ String]_[* GetSH
+A1Fingerprint]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:SshSession`:`:GetSHA256Fingerprint`(`)const: [_^Upp`:`:String^ String]_[* Get
+SHA256Fingerprint]()_[@(0.0.255) const]&]
+[s2;%% These methods return the computed digest of the server`'s 
+hostkey on success, or.Null on failure Note that The fingerprint 
+consists of raw binary bytes, not hex digits, so it is not directly 
+printable.&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetFingerprint`(`)const: [_^Upp`:`:String^ String]_[* GetFinger
 print]()_[@(0.0.255) const]&]
+[s2;%% [/^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:GetMD5Fingerprint`(`)const^ D
+eprecated. Use the relevant fingerprint methods].&]
 [s2;%% Returns the computed digest of the server`'s host key (in 
 raw bytes) on success, or an empty String on failure (e.g. requested 
 hash algorithm might not be available). Hash type can be set 
-using the [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Session`_en`-us`#Upp`:`:SshSession`:`:HashType`(Hash`)^ H
-ashType()] method.&]
+using the HashType() method.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:SshSession`:`:GetSocket`(`): [_^Upp`:`:TcpSocket^ TcpSocket][@(0.0.255) `&]_[* G
@@ -342,5 +357,13 @@ the connection attempt.&]
 :: [s0; ]
 :: [s0;%% [C hmac`-ripemd160 (hmac`-ripemd160`@openssh.com)]]
 :: [s0; ]
-:: [s0;%% [C none]]}}&]
+:: [s0;%% [C none]]
+::l/26r/26t/14b/14@1-1 [s0;=%% [* Language (Client and/or Server)]]
+::l/25r/25t/15b/15@2 [s0; ]
+::l/26r/26t/14b/14@(178) [s0;=%% Key]
+:: [s0;=%% Value(s)]
+::l/25r/25t/15b/15@2 [s0;=%% [*C SshSession`::METHOD`_CLANGUAGE]&]
+[s0;=%% [*C SshSession`::METHOD`_SLANGUAGE]]
+:: [s0;%% [C See ][C^https`:`/`/tools`.ietf`.org`/html`/rfc4646^ RFC`-4646][C  
+for details.]]}}&]
 [s0;%% ]]
