@@ -400,7 +400,7 @@ void Console::Serialize(Stream& s)
 		s % use_gsets;
 		s % udkenabled;
 		s % caret;
-		for(int i = 0; i < 21; i++)
+		for(int i = 0; i < MAX_COLOR_COUNT; i++)
 			s % colortable[i];
 	}
 }

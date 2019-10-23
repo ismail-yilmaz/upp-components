@@ -13,7 +13,7 @@ Terminal package is designed from the ground up with modularity and maintainabil
 ![ ](../Images/terminal_crossplatform_screenshot.jpg)
 
 ### Demo videos
-The three short videos below show the basic capabilities of Terminal package in general, and Terminal widget in particular, on various platforms. See also *Highlights*, *Features*, and *Examples* sections for more details.
+The four short videos below show the basic capabilities of Terminal package in general, and Terminal widget in particular, on various platforms. See also *Highlights*, *Features*, and *Examples* sections for more details.
 
 #### On Linux
 - A basic terminal example with sixel graphics, and mouse tracking support.

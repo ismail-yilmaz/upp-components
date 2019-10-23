@@ -231,7 +231,8 @@ public:
         COLOR_INK,
         COLOR_INK_SELECTED,
         COLOR_PAPER,
-        COLOR_PAPER_SELECTED
+        COLOR_PAPER_SELECTED,
+        MAX_COLOR_COUNT
     };
 
 protected:
@@ -245,7 +246,7 @@ protected:
     void            ResetColors();
 
 protected:
-    Color           colortable[21];
+    Color           colortable[MAX_COLOR_COUNT];
 
 private:
     VectorMap<int, Color> savedcolors;
@@ -258,7 +259,7 @@ public:
         bool        locked;
     public:
         enum : byte {
-            BLOCK,
+            BLOCK = 0,
             BEAM,
             UNDERLINE
         };

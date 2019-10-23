@@ -749,6 +749,8 @@ void Terminal::State(int reason)
 
 void Terminal::Serialize(Stream& s)
 {
+	GuiLock __;
+	
 	int version = 1;
 	s / version;
 	if(version >= 1) {
@@ -767,8 +769,6 @@ void Terminal::Serialize(Stream& s)
 		s % alternatescroll;
 		s % metakeyflags;
 		s % sixelgraphics;
-		for(int i = 0; i < 20; i++)
-			s % colortable[i];
 		Console::Serialize(s);
 	}
 	if(s.IsLoading())
