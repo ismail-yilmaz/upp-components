@@ -171,7 +171,7 @@ void SixelRenderer::DrawSixel(ImageBuffer& ib, int c)
 			Point pt = cursor;
 			for(int n = 0; pt.y < cursor.y + 6; pt.y++, n++) {
 				if(pt.x < size.cx && pt.y < size.cy)
-					if( c & (1 << n))
+					if(c & (1 << n))
 						 ib[pt.y][pt.x] = ink;
 			}
 			cursor.x++;

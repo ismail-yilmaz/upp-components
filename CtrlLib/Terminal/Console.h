@@ -39,7 +39,7 @@ public:
         WINDOW_REPORT_SIZE          = 0x0E00,
         WINDOW_REPORT_VIEW_SIZE     = 0x0E02,
         WINDOW_REPORT_PAGE_SIZE     = 0x1200,
-        WINDOW_REPORT_CELL_SIZE     = 0x0100,
+        WINDOW_REPORT_CELL_SIZE     = 0x1000,
         WINDOW_REPORT_STATE         = 0x0B00,
         WINDOW_REPORT_TITLE         = 0x1500
     };
