@@ -15,24 +15,24 @@ SixelRenderer::SixelRenderer(Stream& sixelstream)
 
 void SixelRenderer::Clear()
 {
-	palette = {
-		{ Black()    },
-		{ Blue()     },
-		{ Red()      },
-		{ Green()    },
-		{ Magenta()  },
-		{ Cyan()     },
-		{ Yellow()   },
-		{ White()    },
-		{ Gray()     },
-		{ LtBlue()   },
-		{ LtRed()    },
-		{ LtGreen()  },
-		{ LtMagenta()},
-		{ LtCyan()   },
-		{ LtYellow() },
-		{ White()    },
-	};
+		palette = {
+			{ Black()    },
+			{ Blue()     },
+			{ Red()      },
+			{ Green()    },
+			{ Magenta()  },
+			{ Cyan()     },
+			{ Yellow()   },
+			{ White()    },
+			{ Gray()     },
+			{ LtBlue()   },
+			{ LtRed()    },
+			{ LtGreen()  },
+			{ LtMagenta()},
+			{ LtCyan()   },
+			{ LtYellow() },
+			{ White()    },
+		};
 
 	init = false;
 	rect   = Null;

@@ -15,7 +15,7 @@ public:
     Image           Get();
     operator        Image()                         { return Get(); }
     Size            GetSize() const                 { return size;  }
-    int             GettRatio() const               { return aspectratio; }
+    int             GetRatio() const                { return aspectratio; }
     
 private:
     void            Clear();

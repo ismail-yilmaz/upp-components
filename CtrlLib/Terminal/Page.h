@@ -7,7 +7,7 @@
 namespace Upp {
 
 // WARNING: VTLine's and VTPage's interfaces are not stable.
-// They are subject to change!
+// They are subject to change. do not use them! (Not yet.)
 
 class VTLine : public Moveable<VTLine, Vector<VTCell>> {
 public:
@@ -162,7 +162,7 @@ public:
     VTPage& FillStream(const Rect& r, const VTCell& filler, dword flags);
     VTPage& FillStream(const Rect& r, dword chr);
 
-	VTPage& AddImage(Size sz, dword imageid, bool scroll);
+	VTPage& AddImage(Size sz, dword imageid, bool scroll, bool relpos = false);
 		
     VTPage& SetVertMargins(int t, int b);
     VTPage& SetHorzMargins(int l, int r);

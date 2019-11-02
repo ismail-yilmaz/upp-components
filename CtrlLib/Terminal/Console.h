@@ -43,7 +43,7 @@ public:
         WINDOW_REPORT_STATE         = 0x0B00,
         WINDOW_REPORT_TITLE         = 0x1500
     };
-      
+	
     Console();
     virtual ~Console() {}
 
@@ -102,7 +102,7 @@ protected:
     VTPage&         GetAlternatePage()                      { return apage; }
     bool            IsAlternatePage() const                 { return page == &apage; }
 
-    virtual void    RenderImage(const String& data)         {}
+    virtual void    RenderImage(const Value& data, bool scroll) {}
     
     void            PutC(int c);
     void            PutC(const String& s1);
@@ -207,6 +207,15 @@ private:
     bool            eightbits;
     bool            streamfill;
 
+protected:
+	// Inline image protocols support
+	enum ImageProtocols : dword {
+		IMAGE_PROTOCOL_SIXEL  = 0x00000001,
+//		IMAGE_PROTOCOL_JEXER  = 0x00000002,
+		IMAGE_PROTOCOL_ALL    = 0xFFFFFFFF
+	};
+	dword			imageprotocols;
+	
 public:
     // ANSI, dynamic, and ISO colors support
     const int ANSI_COLOR_COUNT = 16;
@@ -337,6 +346,7 @@ protected:
         XTANYMM,
         XTFOCUSM,
         XTALTESCM,
+        XTSPREG,
         XTSRCM,
         XTSGRMM,
         XTUTF8MM,

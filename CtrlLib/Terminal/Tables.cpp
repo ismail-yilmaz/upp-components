@@ -305,7 +305,7 @@ int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(DECAWM,     7,      '?',    NOREFRESH, LEVEL_1),    // Autowrap mode
         VT_MODE(DECARM,     8,      '?',    NOREFRESH, LEVEL_1),    // Autorepeat mode
         VT_MODE(DECTCEM,    25,     '?',    DOREFRESH, LEVEL_2),    // Show/hide caret
-        VT_MODE(DECBKM,     67,     '?',    NOREFRESH, LEVEL_3),    // Send backspace when backarrow key is pressed.
+        VT_MODE(DECBKM,     67,     '?',    NOREFRESH, LEVEL_3),    // Send backspace when backarrow key is pressed
         VT_MODE(DECLRMM,    69,     '?',    NOREFRESH, LEVEL_4),    // Enable/disable horizontal margins
         VT_MODE(DECSDM,     80,     '?',    NOREFRESH, LEVEL_3),    // Enable/disable sixel scrolling
         // Private mode extensions
@@ -318,10 +318,11 @@ int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(XTUTF8MM,   1005,   '?',    NOREFRESH, LEVEL_1),    // Enable/disable UTF8 mouse tracking coordinates
         VT_MODE(XTSGRMM,    1006,   '?',    NOREFRESH, LEVEL_1),    // Enable/disable SGR mouse tracking coordinates
         VT_MODE(XTASCM,     1007,   '?',    NOREFRESH, LEVEL_1),    // Alternate scroll mode
-        VT_MODE(XTALTESCM,  1039,   '?',    NOREFRESH, LEVEL_1),    // Prefix the key with ESC when modified with Alt-key.
+        VT_MODE(XTALTESCM,  1039,   '?',    NOREFRESH, LEVEL_1),    // Prefix the key with ESC when modified with Alt-key
         VT_MODE(XTASBM,     1047,   '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 2)
         VT_MODE(XTSRCM,     1048,   '?',    NOREFRESH, LEVEL_1),    // Save/restore cursor
         VT_MODE(XTASBM,     1049,   '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 3)
+        VT_MODE(XTSPREG,    1070,   '?',    NOREFRESH, LEVEL_1),    // Use private color registers for each sixel (always set)
         VT_MODE(XTBRPM,     2004,   '?',    NOREFRESH, LEVEL_1)     // Bracketed paste mode
     END_VT_MODES;
         

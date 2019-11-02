@@ -662,7 +662,7 @@ void Console::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 		// a rectangular area's checksum. I was able to figure out that I
 		// have to negate the cells character codes, shich shoud be either
 		// GL or GR, but I wasn't able to figure out how to take the SGR
-		// values into account. Luckily, I found the anwser in xterm's code.
+		// values into account. Luckily, I found the answer in xterm's code.
 		// See: xterm/screen.c, ln 2719-2817 (xtermCheckRect() function)
 		// Credits should go to Thomas E. Dickey (xterm's maintainer) et al.
 		

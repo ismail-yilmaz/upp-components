@@ -101,6 +101,9 @@ void Console::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case XTASBM:
 			XTasbm(modenum, enable);
 			break;
+		case XTSPREG:
+			// Permanently set.
+			break;
 		default:
 			LLOG(Format("Unhandled %[0:ANSI;private]s mode: %d", seq.mode, modenum));
 			break;
@@ -125,8 +128,14 @@ void Console::ReportMode(const VTInStream::Sequence& seq)
 	int reply = 0;
 
 	if(mid >= 0)
-		reply = modes[mid] ? 1 : 2;
-
+		switch(mid) {
+		case XTSPREG:	// We don't support shared color registers for sixel images.
+			reply = 3;
+			break;
+		default:
+			reply = modes[mid] ? 1 : 2;
+			break;
+		}
 	PutCSI(Format("%[1:?;]s%d;%d`$y", seq.mode == '?', modenum, reply));
 }
 

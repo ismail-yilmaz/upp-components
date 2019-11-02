@@ -23,7 +23,7 @@ topic "Terminal";
 [s0;%% &]
 [s2;%% This class implements a 256/16M colors virtual terminal emulator 
 ctrl compatible with DEC VT series and xterm. It supports xterm`-style 
-mouse tracking, and embedded images.&]
+mouse tracking, and inline images.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -65,13 +65,12 @@ function. (This is the default behavior.).&]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:WhenImage: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_String[@(0.0.255) `&
 ]>_[* WhenImage]&]
-[s2;%% This event is dispatched when the host sends an image to the 
-terminal. Defining this event will switch the terminal to external 
-image rendering mode. This allows the client code to handle the 
-incoming image in a format agnostic way, using the registered 
-U`+`+ image decoders (e.g. the StreamRaster interface.). Currently 
-only [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel] 
-images are supported.&]
+[s2;%% This event is dispatched when the host sends an image `-with 
+a recognized inline image format`- to the terminal. Defining 
+this event will switch the terminal to external image rendering 
+mode. This allows the client code to handle the incoming image 
+in a format agnostic way, using the registered U`+`+ image decoders 
+(e.g. the StreamRaster interface.). &]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:History`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* Hi
@@ -329,15 +328,30 @@ requires the history buffer to be enabled.&]
 Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:InlineImages`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* InlineImages]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Enables or disables the inline images support of Terminal 
+ctrl as a whole. Returns `*this for method chaining. When enabled, 
+terminal will attempt to display every inline image it recognizes. 
+Currently only [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel
+] images are recognized. This feature is disabled by default. 
+ Inline images can be handled both internally, as embedded images, 
+or externally, by handing the image data to client code for rendering 
+and viewing. See also [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenImage^ W
+henImage] event. &]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:NoInlineImages`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* NoInlineImages]()&]
+[s2;%% Disables the inline images support of Terminal ctrl. Returns 
+`*this for method chaining.&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:SixelGraphics`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%% Enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
+[s2;%% Individually enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
 ixel graphics] support. Returns `*this for method chaining. This 
-feature is disabled by default. Sixel images can be handled both 
-internally, as embedded images, or externally, by handing the 
-sixel data to client code for rendering and viewing. See also 
-[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenImage^ Wh
-enImage] event.&]
+feature is disabled by default.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_

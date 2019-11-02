@@ -275,6 +275,9 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 
 void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
+	if(!(imageprotocols & IMAGE_PROTOCOL_SIXEL))
+		return;
+	
 	int  nohole = seq.GetInt(2, 0);
 	int  grid   = seq.GetInt(3, 0); // Omitted.
 	int  ratio = 1;
@@ -294,6 +297,6 @@ void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 		break;
 	}
 	
-	RenderImage(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload));
+	RenderImage(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload), modes[DECSDM]);
 }
 }

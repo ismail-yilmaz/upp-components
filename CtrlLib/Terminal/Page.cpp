@@ -301,7 +301,7 @@ void VTPage::GetRelRectArea(Rect r, Event<const VTCell&, const Point&> consumer)
 	GetRectArea(AdjustRect(r, MARGIN_VERT), consumer);
 }
 
-VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll)
+VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll, bool relpos)
 {
 	bool b = events;
 	ForbidEvents();
@@ -309,7 +309,7 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll)
 		sz = min(sz, size);
 	Point pt;
 	for(int i = 0; i < sz.cy; i++) {
-		if(scroll)
+		if(scroll || relpos)
 			pt = Point(cursor.x -1, cursor.y - 1);
 		else
 			pt = Point(0, i);
@@ -323,6 +323,9 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll)
 		line.Invalidate();
 		if(scroll)
 			NextLine();
+		else
+		if(relpos)
+			MoveHome().MoveDown();
 	}
 	PermitEvents(b);
 	if(events)

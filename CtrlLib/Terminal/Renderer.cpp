@@ -297,21 +297,26 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 	parts.Clear();
 }
 
-void Terminal::RenderImage(const String& data)
+void Terminal::RenderImage(const Value& data, bool scroll)
 {
-	if(!sixelgraphics)
+	bool notsixel = IsValueArray(data);
+	
+	if(WhenImage) {
+		if(notsixel)
+			WhenImage(Base64Decode(data[0]));
+		else
+			WhenImage(data);
 		return;
+	}
 
-	if(WhenImage)
-		WhenImage(data);
-	else {
-		LTIMING("Terminal::RenderImage");
-		dword id = GetHashValue(data);
-		ImageData imd = GetCachedImageData(id, data, GetFontSize());
-		if(!IsNull(imd.image)) {
-			page->AddImage(imd.fitsize, id, modes[DECSDM]);
-			RefreshDisplay();
-		}
+	LTIMING("Terminal::RenderImage");
+
+	dword id = GetHashValue(data);
+
+	ImageData imd = GetCachedImageData(id, data, GetFontSize());
+	if(!IsNull(imd.image)) {
+		page->AddImage(imd.fitsize, id, scroll, notsixel);
+		RefreshDisplay();
 	}
 }
 
@@ -322,32 +327,10 @@ static LRUCache<Terminal::ImageData> sImageDataCache;
 static int sCachedImageMaxSize =  4 * 1024 * 768 * 100;
 static int sCachedImageMaxCount =  1000;
 
-struct sVTImageMaker : ImageMaker {
-	const dword&	id;
-	const String&	data;
-	
-	String Key() const override
-	{
-		StringBuffer h;
-		RawCat(h, id);
-		return h;
-	}
-	
-	Image Make() const override
-	{
-		return StreamRaster::LoadStringAny(data);
-	}
-	
-	sVTImageMaker(const dword& id, const String& data)
-		: id(id)
-		, data(data)
-	{
-	}
-};
-
 struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 	dword	id;
 	String	data;
+	Size	imgsize;
 	Size	fontsize;
 	
 	String Key() const override
@@ -359,21 +342,24 @@ struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 	
 	int Make(Terminal::ImageData& imagedata) const override
 	{
-		sVTImageMaker im(id, data);
-		imagedata.image = MakeImagePaintOnly(im);
-		if(!IsNull(imagedata.image))
-			imagedata.fitsize = AsCellSize(imagedata.image.GetSize());
+		LTIMING("sVTImageDataMaker::Make");
+
+		Image img = StreamRaster::LoadStringAny(data);
+		if(IsNull(img))
+			return 0;
+		imagedata.image = IsNull(imgsize) ? img : Rescale(img, imgsize);
+		imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
 		return imagedata.image.GetLength() * 4;
 	}
 	
-	Size AsCellSize(Sizef isz) const
+	Size ToCellSize(Sizef isz) const
 	{
 		isz = isz / Sizef(fontsize);
 		return Size(fround(isz.cx), fround(isz.cy));
 	}
 };
 
-Terminal::ImageData Terminal::GetCachedImageData(dword id, const String& data, const Size& fsz)
+Terminal::ImageData Terminal::GetCachedImageData(dword id, const Value& data, const Size& fsz)
 {
 	Mutex::Lock __(sCacheLock);
 	
@@ -381,7 +367,14 @@ Terminal::ImageData Terminal::GetCachedImageData(dword id, const String& data, c
 
 	sVTImageDataMaker im;
 	im.id = id;
-	im.data = data;
+	if(IsValueArray(data)) { // Png, jpg, bmp, etc.
+		im.data = Base64Decode(data[0]);
+		im.imgsize = (Size) data[1];
+	}
+	else { // Sixel
+		im.data = data;
+		im.imgsize.SetNull();
+	}
 	im.fontsize = fsz;
 	sImageDataCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
 	return sImageDataCache.Get(im);

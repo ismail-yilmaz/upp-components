@@ -16,7 +16,7 @@ topic "SixelRaster";
 rivate][3 _][*@3;3 NoCopy]&]
 [s2;%% This helper class renders [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
 ixel] images. It can handle both RGB and HSL color spaces, and 
-has true color support.&]
+has true color support. Shared palette is not supported.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -30,8 +30,8 @@ mage] object.&]
 onst]&]
 [s2;%% Returns the size of the image.&]
 [s3;%% &]
-[s4; &]
-[s5;:Upp`:`:SixelRenderer`:`:GettRatio`(`)const: [@(0.0.255) int]_[* GettRatio]()_[@(0.0.255) c
+[s4;@(0.0.255) &]
+[s5;:Upp`:`:SixelRenderer`:`:GetRatio`(`)const: [@(0.0.255) int]_[* GetRatio]()_[@(0.0.255) c
 onst]&]
 [s2;%% Returns the aspect ratio of the image. &]
 [s3; &]

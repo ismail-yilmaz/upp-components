@@ -17,7 +17,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle	= [=](String s) { Title(s);          };
 		term.WhenOutput	= [=](String s) { pty.Write(s);      };
 		term.WhenResize	= [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.SixelGraphics();
+		term.InlineImages();
 		pty.Start(nixshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
 		SetTimeCallback(-1, [=] ()
 		{

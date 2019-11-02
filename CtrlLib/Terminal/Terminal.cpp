@@ -148,9 +148,9 @@ void Terminal::Layout()
 
 void Terminal::SyncSize(bool notify)
 {
-	// Apparently, the window minimize event on Windows really minimizes
-	// the window. (I mean, really!?!?) This results in a damaged display.
-	// We check the new page size to prevent this and don't attemp resize
+	// Apparently, the window minimize event on Windows "really" minimizes
+	// the window. This results in a damaged terminal display. In order to
+	// avoid this, we check the  new page size, and  do not attempt resize
 	// the page if the requested page size is < 2 x 2 cells.
 
 	Size psz = GetPageSize();
@@ -668,22 +668,30 @@ Terminal& Terminal::ShowScrollBar(bool b)
 
 Terminal& Terminal::ResetColors()
 {
-	colortable[COLOR_BLACK] = SBlack;
-	colortable[COLOR_RED] = SRed;
-	colortable[COLOR_GREEN] = SGreen;
-	colortable[COLOR_YELLOW] = SYellow;
-	colortable[COLOR_BLUE] = SBlue;
-	colortable[COLOR_MAGENTA] = SMagenta;
-	colortable[COLOR_CYAN] = SCyan;
-	colortable[COLOR_WHITE] = SWhite;
-	colortable[COLOR_LTBLACK] = SGray;
-	colortable[COLOR_LTRED] = SLtRed;
-	colortable[COLOR_LTGREEN] = SLtGreen;
-	colortable[COLOR_LTYELLOW] = SLtYellow;
-	colortable[COLOR_LTBLUE] = SLtBlue;
-	colortable[COLOR_LTMAGENTA] = SLtMagenta;
-	colortable[COLOR_LTCYAN] = SLtCyan;
-	colortable[COLOR_LTWHITE] = SWhite;
+	// Note: The U++ color constants with 'S' prefix are automatically adjusted
+	//       to the color theme of OS. On the other hand, the 8 ANSI colors and
+	//       their brighter  counterparts are assumed to be constant. Therefore
+	//       it would be better if we avoid using the auto-adjusted versions by
+	//       default, and leave it up to client code to change them  on demand.
+	//       Note that this rule does not apply to the  default ink, paper, and
+	//       selection colors.
+	
+	colortable[COLOR_BLACK] = Black();
+	colortable[COLOR_RED] = Red();
+	colortable[COLOR_GREEN] = Green();
+	colortable[COLOR_YELLOW] = Yellow();
+	colortable[COLOR_BLUE] = Blue();
+	colortable[COLOR_MAGENTA] = Magenta();
+	colortable[COLOR_CYAN] = Cyan();
+	colortable[COLOR_WHITE] = White();
+	colortable[COLOR_LTBLACK] = Gray();
+	colortable[COLOR_LTRED] = LtRed();
+	colortable[COLOR_LTGREEN] = LtGreen();
+	colortable[COLOR_LTYELLOW] = LtYellow();
+	colortable[COLOR_LTBLUE] = LtBlue();
+	colortable[COLOR_LTMAGENTA] = LtMagenta();
+	colortable[COLOR_LTCYAN] = LtCyan();
+	colortable[COLOR_LTWHITE] = White();
 	colortable[COLOR_INK] = SColorText;
 	colortable[COLOR_INK_SELECTED] = SColorHighlightText;
 	colortable[COLOR_PAPER] = SColorPaper;
@@ -768,7 +776,6 @@ void Terminal::Serialize(Stream& s)
 		s % nobackground;
 		s % alternatescroll;
 		s % metakeyflags;
-		s % sixelgraphics;
 		Console::Serialize(s);
 	}
 	if(s.IsLoading())

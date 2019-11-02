@@ -6,9 +6,10 @@
 namespace Upp {
 
 Console::Console()
-: page(&dpage),
-  use_gsets(true),
-  streamfill(false)
+: page(&dpage)
+, use_gsets(true)
+, streamfill(false)
+, imageprotocols(0)
 {
 	SetLevel(LEVEL_4);
 	Set8BitsMode(false);
@@ -400,6 +401,7 @@ void Console::Serialize(Stream& s)
 		s % use_gsets;
 		s % udkenabled;
 		s % caret;
+		s % imageprotocols;
 		for(int i = 0; i < MAX_COLOR_COUNT; i++)
 			s % colortable[i];
 	}

@@ -85,8 +85,11 @@ public:
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(); }
 
-    Terminal&   SixelGraphics(bool b = true)                    { sixelgraphics = b; return *this; }
-    Terminal&   NoSixelGraphics()                               { return SixelGraphics(false); }
+    Terminal&   InlineImages(bool b = true)                     { imageprotocols =  IMAGE_PROTOCOL_ALL; return *this; }
+    Terminal&   NoInlineImages()                                { imageprotocols = ~IMAGE_PROTOCOL_ALL; return *this; }
+    
+    Terminal&   SixelGraphics(bool b = true)                    { imageprotocols |=  IMAGE_PROTOCOL_SIXEL; return *this; }
+    Terminal&   NoSixelGraphics()                               { imageprotocols &= ~IMAGE_PROTOCOL_SIXEL; return *this; }
     
     Terminal&   DelayedRefresh(bool b = true)                   { delayed = b; return *this;    }
     Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
@@ -166,9 +169,9 @@ private:
     void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
     void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
     void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
-    ImageData   GetCachedImageData(dword id, const String& data, const Size& fsz);
+    ImageData   GetCachedImageData(dword id, const Value& data, const Size& fsz);
     
-    void        RenderImage(const String& data) override;
+    void        RenderImage(const Value& data, bool scroll) override;
 
     void        SyncPage(bool notify = true);
     void        SwapPage() override;
@@ -240,7 +243,6 @@ private:
     bool        userdefinedkeys = true;
     bool        blinktext       = true;
     bool        blinking        = false;
-    bool        sixelgraphics   = false;
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;
