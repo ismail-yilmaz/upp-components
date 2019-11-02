@@ -16,7 +16,8 @@ topic "SixelRaster";
 rivate][3 _][*@3;3 NoCopy]&]
 [s2;%% This helper class renders [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
 ixel] images. It can handle both RGB and HSL color spaces, and 
-has true color support. Shared palette is not supported.&]
+has true color support.&]
+[s2;%% Shared palette is not supported.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]

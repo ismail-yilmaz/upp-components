@@ -28,9 +28,44 @@ void Console::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	case 119:	// Reset dynamic color (selection paper)
 		ChangeColors(opcode, seq.payload, opcode > 100);
 		break;
+	case 444:	// Parse jexer images (raw, png, jpg)
+		ParseJexerGraphics(seq);
+		break;
 	default:
 		LLOG(Format("Unhandled OSC opcode: %d", opcode));
 		break;
 	}
+}
+
+void Console::ParseJexerGraphics(const VTInStream::Sequence& seq)
+{
+	if(!(imageprotocols & IMAGE_PROTOCOL_JEXER))
+		return;
+	
+	// For mode information on Jexer image protocol, see:
+	// https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images
+
+	int type = seq.GetInt(2, Null);
+	if(type > 2)	// V1 defines 3 types (0-based).
+		return;
+
+	Value data;
+	Size  isz = Null;
+	bool  scroll = false;
+
+	if(type == 0) {	// Bitmap
+		isz.cx = min(seq.GetInt(3, 0), 10000);
+		isz.cy = min(seq.GetInt(4, 0), 10000);
+		scroll = seq.GetInt(5, 0) > 0;
+		data.Add(seq.GetStr(6));
+		data.Add(isz);
+	}
+	else { // Other image formats (jpg, png, etc.)
+		scroll = seq.GetInt(3, 0) > 0;
+		data.Add(seq.GetStr(4));
+		data.Add(isz);
+	}
+
+	RenderImage(data, scroll);
 }
 }

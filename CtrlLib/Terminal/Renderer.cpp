@@ -312,7 +312,6 @@ void Terminal::RenderImage(const Value& data, bool scroll)
 	LTIMING("Terminal::RenderImage");
 
 	dword id = GetHashValue(data);
-
 	ImageData imd = GetCachedImageData(id, data, GetFontSize());
 	if(!IsNull(imd.image)) {
 		page->AddImage(imd.fitsize, id, scroll, notsixel);

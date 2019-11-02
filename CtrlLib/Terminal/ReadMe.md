@@ -1,3 +1,4 @@
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -58,7 +59,7 @@ Although it is easy to use, and requires very little coding, Terminal ctrl is by
 It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
 
 - **Terminal widget supports inline images.**
-Terminal widget has support for embedded images and image manipulation in general. Specifically, it can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 and high/true color. Adding support for other inline image protocols, such as [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html), is also planned. Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
+Terminal widget has a flexible infrastructure and support for inline images and image manipulation in general. Currently it can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 colors, or high/true color.  It also supports [jexer image protocol](https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images), a simple and useful wire protocol which allows terminals to display popular true color image formats such as JPG, PNG, BMP, etc. In fact, since the terminal widget uses the common raster decoding api of Ultimate++, theoretically it can display any raster image that has a registered decoder. Adding support for other wire protocols for inline images, such as [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html), is also planned. Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
 
 - ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
@@ -86,7 +87,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
 - Supports Display objects.
-- Supports embedded images with true color (currently, only sixel graphics).
+- Supports inline images with true color (sixel, jpeg, png, bmp, tiff, etc).
 - Supports external handling of images.
 - Supports ISO colors (256 colors palette).
 - Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
@@ -128,6 +129,7 @@ As it is already noted above, one of the strengths of the Terminal Package is th
 
 ### Basic Terminal Example
 This example demonstrates the basic usage of the Terminal widget and its interaction with the PtyProcess class. Creating an xterm-compatible virtual terminal emulator with inline images and mouse tracking support requires only 29 sLoC:	
+
 ```C++    	
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
@@ -181,6 +183,7 @@ Lynx web browser running on the basic terminal example. (Linux)
 This example demonstrates the basic interaction between the Terminal and SshShell classes. Thus, it is also illustrating the first point put forth in the *Highlights* section above, since the SSH package of Ultimate++ can run on Windows, Linux, and MacOS.
 
 Creating an xterm-compatible virtual SSH terminal with inline images and mouse tracking support requires only 43 sLoC:
+
 ```C++
 #include <Core/Core.h>
 #include <Core/SSH/SSH.h>
@@ -320,6 +323,7 @@ As it is already mentioned in the *Highlights* section, Terminal ctrl is a regul
 Below two example illustrate a way of creating more advanced user interfaces with the Terminal package, simply by using a splitter widget. A splitter is a container widget that can be used to split any parent widget into resizable horizontal or vertical panes. The second terminal splitter example is basically a variant of the first one except that it has the same extra code as in basic terminal example above, and runs on the Turtle HTML-5 backend:
 
 (Note that you can also use tabs *instead of/with* splitters: A tabbed terminals example is also provided with package.)
+
 ```C++
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
@@ -407,6 +411,7 @@ The same terminal splitter example compiled with Ultimate++'s Turtle HTML-5 back
 
 ### Ssh Terminal Splitter Example
 Given the flexiblity and power of Ultimate++, it is easy to modify the above splitter example, so that it can be used as a relatively fancy front-end for SSH2 shells. This example is cross-platform, and demonstrates the interaction between the Terminal widget and the Ultimate++'s Core/SSH package, in a multithreaded environment. 
+
 ```C++
 #include <Core/SSH/SSH.h>
 #include <Terminal/Terminal.h>

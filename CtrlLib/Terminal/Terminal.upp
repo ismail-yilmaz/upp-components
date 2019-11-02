@@ -4,7 +4,8 @@ acceptflags
 	TRUECOLOR;
 
 uses
-	CtrlLib;
+	CtrlLib,
+	plugin/jpg;
 
 file
 	Terminal.h,

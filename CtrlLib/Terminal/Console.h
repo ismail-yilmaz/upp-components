@@ -169,6 +169,7 @@ private:
     String          GetGraphicsRenditionOpcodes(const VTCell& attrs);
 
     void            ParseSixelGraphics(const VTInStream::Sequence& seq);
+    void			ParseJexerGraphics(const VTInStream::Sequence& seq);
     
     void            ProtectAttributes(bool protect);
 
@@ -211,7 +212,7 @@ protected:
 	// Inline image protocols support
 	enum ImageProtocols : dword {
 		IMAGE_PROTOCOL_SIXEL  = 0x00000001,
-//		IMAGE_PROTOCOL_JEXER  = 0x00000002,
+		IMAGE_PROTOCOL_JEXER  = 0x00000002,
 		IMAGE_PROTOCOL_ALL    = 0xFFFFFFFF
 	};
 	dword			imageprotocols;

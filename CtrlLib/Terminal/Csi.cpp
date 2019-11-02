@@ -354,9 +354,9 @@ void Console::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 {
 	static constexpr const char* VTID_52   = "/Z";
 	static constexpr const char* VTID_1XX  = "?6c";
-	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;22c";
-	static constexpr const char* VTID_3XX  = "?63;1;4;6;8;9;15;22c";
-	static constexpr const char* VTID_4XX  = "?64;1;4;6;8;9;15;17;21;22c";
+	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;22;444c";
+	static constexpr const char* VTID_3XX  = "?63;1;4;6;8;9;15;22;444c";
+	static constexpr const char* VTID_4XX  = "?64;1;4;6;8;9;15;17;21;22;444c";
 	static constexpr const char* VTID_UNIT = "!|00000000";
 		
 	if(seq.mode == '\0') {

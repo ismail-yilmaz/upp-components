@@ -3,6 +3,10 @@
 
 #include <CtrlLib/CtrlLib.h>
 
+#include <plugin/bmp/bmp.h>
+#include <plugin/png/png.h>
+#include <plugin/jpg/jpg.h>
+
 #include "Console.h"
 #include "Sixel.h"
 
@@ -90,6 +94,9 @@ public:
     
     Terminal&   SixelGraphics(bool b = true)                    { imageprotocols |=  IMAGE_PROTOCOL_SIXEL; return *this; }
     Terminal&   NoSixelGraphics()                               { imageprotocols &= ~IMAGE_PROTOCOL_SIXEL; return *this; }
+
+    Terminal&   JexerGraphics(bool b = true)                    { imageprotocols |=  IMAGE_PROTOCOL_JEXER; return *this; }
+    Terminal&   NoJexerGraphics()                               { imageprotocols &= ~IMAGE_PROTOCOL_JEXER; return *this; }
     
     Terminal&   DelayedRefresh(bool b = true)                   { delayed = b; return *this;    }
     Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }

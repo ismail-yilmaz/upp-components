@@ -111,12 +111,18 @@ the generic Ctrl methods where applicable or makes sense. Of
 course, if you are determined enough, you can even do some “interesting” 
 things such as adding Terminal instances to a TreeCtrl or ArrayCtrl. 
 ;)&]
-[s5;i160;O0; [* Terminal widget supports embedded images.]&]
-[s5;#l160; Terminal ctrl has support for embedded images and image 
-manipulation in general. Specifically, it can handle sixel graphics 
-with 4/16/256 and high/true color. Adding support for other image 
-protocols, such as [^https`:`/`/iterm2`.com`/documentation`-images`.html^ iTerm2`'s
- inline images protocol], is also planned.&]
+[s5;i160;O0; [* Terminal widget supports inline images.]&]
+[s5;#l160; Terminal ctrl has a filexible infrastructure and support 
+for inline images and image manipulation in general. Specifically, 
+it can handle sixel graphics with 4/16/256 and high/true color. 
+It also supports [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer image protocol], a simple and useful wire protocol which 
+allows terminals to display popular image formats with true color 
+support, such as JPG, PNG, BMP, etc. Since terminal ctrl uses 
+the common raster decoding api of Ultimate`+`+, theoretically 
+it can display any raster image that has a registered decoder. 
+Adding support for other image protocols, such as [^https`:`/`/iterm2`.com`/documentation`-images`.html^ i
+Term2`'s inline images protocol], is also planned.&]
 [s5;#l160; Terminal ctrl uses Upp`::Display objects to display the 
 embedded images. Client code can set the image display to one 
 of the predefined display objects that`'ll process or manipulate 
@@ -172,8 +178,8 @@ keys.&]
 [s5;i150;O0; Supports user configurable blinking text and blink interval.&]
 [s0;i150;b42;a42;O0; Supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
 isplay] objects.&]
-[s5;i150;O0; Supports embedded images with true color (currently 
-only sixel graphics).&]
+[s5;i150;O0; Supports inline images with true color (sixel, jpeg, 
+png, bmp, tiff, etc.).&]
 [s5;i150;O0; Supports external handling of images.&]
 [s5;i150;O0; Supports ANSI colors (16 colors palette).&]
 [s5;i150;O0; Supports ISO indexed color mode (256 colors palette).&]

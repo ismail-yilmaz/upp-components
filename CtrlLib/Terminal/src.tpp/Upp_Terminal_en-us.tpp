@@ -360,6 +360,20 @@ feature is disabled by default.&]
 graphics] support. Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:JexerGraphics`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* JexerGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Individually enable or disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer inline images protocol] support. Return `* this for method 
+chaining. This feature is disabled by default.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:NoJexerGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* NoJexerGraphics]()&]
+[s2;%% Disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer inline images protocol] support. Returns `*this for method 
+chaining.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:DelayedRefresh`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* DelayedRefresh]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2;%% Enables or disables buffered display refresh. Returns `*this 
