@@ -2,9 +2,6 @@
 #define _Terminal_Terminal_h
 
 #include <CtrlLib/CtrlLib.h>
-
-#include <plugin/bmp/bmp.h>
-#include <plugin/png/png.h>
 #include <plugin/jpg/jpg.h>
 
 #include "Console.h"

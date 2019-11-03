@@ -1,6 +1,5 @@
 #include "Console.h"
 
-
 #define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
@@ -42,11 +41,11 @@ void Console::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	if(!(imageprotocols & IMAGE_PROTOCOL_JEXER))
 		return;
 	
-	// For mode information on Jexer image protocol, see:
+	// For more information on Jexer image protocol, see:
 	// https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images
 
 	int type = seq.GetInt(2, Null);
-	if(type > 2)	// V1 defines 3 types (0-based).
+	if(type > 2 || IsNull(type))	// V1 defines 3 types (0-based).
 		return;
 
 	Value data;

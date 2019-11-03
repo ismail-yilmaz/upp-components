@@ -43,7 +43,7 @@ public:
         WINDOW_REPORT_STATE         = 0x0B00,
         WINDOW_REPORT_TITLE         = 0x1500
     };
-	
+    
     Console();
     virtual ~Console() {}
 
@@ -169,7 +169,7 @@ private:
     String          GetGraphicsRenditionOpcodes(const VTCell& attrs);
 
     void            ParseSixelGraphics(const VTInStream::Sequence& seq);
-    void			ParseJexerGraphics(const VTInStream::Sequence& seq);
+    void            ParseJexerGraphics(const VTInStream::Sequence& seq);
     
     void            ProtectAttributes(bool protect);
 
@@ -209,14 +209,14 @@ private:
     bool            streamfill;
 
 protected:
-	// Inline image protocols support
-	enum ImageProtocols : dword {
-		IMAGE_PROTOCOL_SIXEL  = 0x00000001,
-		IMAGE_PROTOCOL_JEXER  = 0x00000002,
-		IMAGE_PROTOCOL_ALL    = 0xFFFFFFFF
-	};
-	dword			imageprotocols;
-	
+    // Inline image protocols support
+    enum ImageProtocols : dword {
+        IMAGE_PROTOCOL_SIXEL  = 0x00000001,
+        IMAGE_PROTOCOL_JEXER  = 0x00000002,
+        IMAGE_PROTOCOL_ALL    = 0xFFFFFFFF
+    };
+    dword           imageprotocols;
+    
 public:
     // ANSI, dynamic, and ISO colors support
     const int ANSI_COLOR_COUNT = 16;
