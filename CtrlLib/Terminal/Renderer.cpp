@@ -323,8 +323,8 @@ void Terminal::RenderImage(const Value& data, bool scroll)
 
 static StaticMutex sCacheLock;
 static LRUCache<Terminal::ImageData> sImageDataCache;
-static int sCachedImageMaxSize =  4 * 1024 * 768 * 100;
-static int sCachedImageMaxCount =  1000;
+static int sCachedImageMaxSize =  1024 * 1024 * 4 * 128;
+static int sCachedImageMaxCount =  256000;
 
 struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 	dword	id;

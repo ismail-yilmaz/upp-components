@@ -540,9 +540,13 @@ ImageCache]()&]
 [s5;:Upp`:`:Terminal`:`:SetImageCacheMaxSize`(int`,int`): [@(0.0.255) static] 
 [@(0.0.255) void]_[* SetImageCacheMaxSize]([@(0.0.255) int]_[*@3 maxsize], 
 [@(0.0.255) int]_[*@3 maxcount])&]
-[s2;%% Sets the maximum size of image data to be stored in the shared 
-image data cache to [%-*@3 maxsize, ] and the maximum number of 
-items to [%-*@3 maxcount].&]
+[s2;%% Terminal ctrl uses a [/ shared ]data cache to store its inline 
+images. This method sets the maximum size of image data to be 
+stored in the shared cache to [%-*@3 maxsize, ]and the maximum 
+number of items to [%-*@3 maxcount]. The maximum cache size has 
+to be provided in pixels. The default [%-*@3 maxsize ]is [C `[1024 
+x 1024 x 4`] x 128] pixels (512 MB), and the default [%-*@3 maxcount] 
+is 256000 entries.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]

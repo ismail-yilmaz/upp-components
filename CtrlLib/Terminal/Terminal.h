@@ -84,7 +84,7 @@ public:
     Terminal&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
 
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
-    Terminal&   NoKeyNavigation()                               { return KeyNavigation(); }
+    Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
 
     Terminal&   InlineImages(bool b = true)                     { imageprotocols =  IMAGE_PROTOCOL_ALL; return *this; }
     Terminal&   NoInlineImages()                                { imageprotocols = ~IMAGE_PROTOCOL_ALL; return *this; }
