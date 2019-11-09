@@ -525,7 +525,7 @@ bool Terminal::IsTrackingEnabled() const
 	       modes[XTDRAGM];
 }
 
-Point Terminal::GetMousePos(Point p)
+Point Terminal::GetMousePos(Point p) const
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
@@ -534,7 +534,7 @@ Point Terminal::GetMousePos(Point p)
 	return p;
 }
 
-int Terminal::GetMouseSelPos(Point p)
+int Terminal::GetMouseSelPos(Point p) const
 {
 	return sGetPos(GetMousePos(p), GetPageSize());
 }
@@ -546,7 +546,7 @@ void Terminal::SetSelection(int l, int h)
 	Refresh();
 }
 
-bool Terminal::GetSelection(int& l, int& h)
+bool Terminal::GetSelection(int& l, int& h) const
 {
 	if(anchor < 0 || anchor == selpos) {
 		l = h = selpos;
@@ -557,7 +557,7 @@ bool Terminal::GetSelection(int& l, int& h)
 	return true;
 }
 
-Rect Terminal::GetSelectionRect()
+Rect Terminal::GetSelectionRect() const
 {
 	Rect r = Null;
 	int l, h;
@@ -586,13 +586,13 @@ void Terminal::ReCalcSelection()
 	}
 }
 
-bool Terminal::IsSelected(int pos)
+bool Terminal::IsSelected(int pos) const
 {
 	int l, h;
 	return GetSelection(l, h) && pos >= l && pos < h;
 }
 
-WString Terminal::GetSelectedText()
+WString Terminal::GetSelectedText() const
 {
 	WString txt;
 	Rect r = GetSelectionRect();

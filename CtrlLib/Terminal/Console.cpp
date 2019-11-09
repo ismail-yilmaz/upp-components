@@ -368,7 +368,7 @@ void Console::PutEol()
 	Put(modes[LNM] ? "\r\n" : "\r");
 }
 
-WString Console::AsWString(const VTLine& line)
+WString Console::AsWString(const VTLine& line) const
 {
 	WString s;
 	if(!line.IsEmpty()) {

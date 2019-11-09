@@ -201,20 +201,20 @@ private:
     Rect        GetCaretRect();
     void        PlaceCaret(bool scroll = false);
 
-    int         GetSbPos()                                      { return IsAlternatePage() ? 0 : sb; }
+    int         GetSbPos() const                                { return IsAlternatePage() ? 0 : sb; }
 
-    Point       GetCursorPos()                                  { return --page->GetPos(); /* VT cursor position is 1-based */ }
+    Point       GetCursorPos() const                            { return --page->GetPos(); /* VT cursor position is 1-based */ }
 
-    Point       GetMousePos(Point p);
-    int         GetMouseSelPos(Point p);
+    Point       GetMousePos(Point p) const;
+    int         GetMouseSelPos(Point p) const;
 
     void        SetSelection(int l, int h);
-    bool        GetSelection(int& l, int& h);
+    bool        GetSelection(int& l, int& h) const;
     void        ClearSelection();
     void        ReCalcSelection();
-    bool        IsSelected(int pos);
-    Rect        GetSelectionRect();
-    WString     GetSelectedText();
+    bool        IsSelected(int pos) const;
+    Rect        GetSelectionRect() const;
+    WString     GetSelectedText() const;
 
 private:
     enum ModifierKeyFlags : dword {

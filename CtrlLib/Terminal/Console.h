@@ -131,7 +131,7 @@ protected:
 
     void            DisplayAlignmentTest();
 
-    WString         AsWString(const VTLine& line);
+    WString         AsWString(const VTLine& line) const;
 
 protected:
     VTPage*         page;

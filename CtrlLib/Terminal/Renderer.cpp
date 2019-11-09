@@ -321,7 +321,7 @@ void Terminal::RenderImage(const Value& data, bool scroll)
 
 // Shared image data cache support.
 
-static StaticMutex sCacheLock;
+static StaticMutex sImageCacheLock;
 static LRUCache<Terminal::ImageData> sImageDataCache;
 static int sCachedImageMaxSize =  1024 * 1024 * 4 * 128;
 static int sCachedImageMaxCount =  256000;
@@ -360,7 +360,7 @@ struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 
 Terminal::ImageData Terminal::GetCachedImageData(dword id, const Value& data, const Size& fsz)
 {
-	Mutex::Lock __(sCacheLock);
+	Mutex::Lock __(sImageCacheLock);
 	
 	LTIMING("Terminal::GetCachedImageData");
 
@@ -381,13 +381,13 @@ Terminal::ImageData Terminal::GetCachedImageData(dword id, const Value& data, co
 
 void Terminal::ClearImageCache()
 {
-	Mutex::Lock __(sCacheLock);
+	Mutex::Lock __(sImageCacheLock);
 	sImageDataCache.Clear();
 }
 
 void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
 {
-	Mutex::Lock __(sCacheLock);
+	Mutex::Lock __(sImageCacheLock);
 	sCachedImageMaxSize  = max(1, maxsize);
 	sCachedImageMaxCount = max(1, maxcount);
 }
