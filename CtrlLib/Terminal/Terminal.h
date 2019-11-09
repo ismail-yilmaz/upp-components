@@ -144,6 +144,8 @@ public:
     void        VTMouseEvent(Point p, dword event, dword keyflags, int zdelta = 0);
 
     bool        IsTrackingEnabled() const;
+    
+    bool        IsMouseOverImage() const                        { return IsMouseOverImage(GetMouseViewPos()); }
 
     void        DragAndDrop(Point p, PasteClip& d) override;
 
@@ -207,7 +209,7 @@ private:
 
     Point       GetMousePos(Point p) const;
     int         GetMouseSelPos(Point p) const;
-
+    
     void        SetSelection(int l, int h);
     bool        GetSelection(int& l, int& h) const;
     void        ClearSelection();
@@ -216,6 +218,9 @@ private:
     Rect        GetSelectionRect() const;
     WString     GetSelectedText() const;
 
+    bool        GetCellAtMousePos(VTCell& cell, Point p) const;
+    bool        IsMouseOverImage(Point p) const;
+    
 private:
     enum ModifierKeyFlags : dword {
         MKEY_NONE   = 0x00,

@@ -633,6 +633,24 @@ WString Terminal::GetSelectedText() const
 	return txt;
 }
 
+bool Terminal::GetCellAtMousePos(VTCell& cell, Point p) const
+{
+	if(p.y >= 0 && p.y < page->GetLineCount()) {
+		const VTLine& line = page->GetLine(p.y);
+		if(p.x >= 0 && p.x < line.GetCount()) {
+			cell = line[p.x];
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Terminal::IsMouseOverImage(Point p) const
+{
+	VTCell cell;
+	return GetCellAtMousePos(cell, p) && cell.IsImage();
+}
+
 void Terminal::StdBar(Bar& menu)
 {
 	menu.Add(t_("Read only"), [=] { SetEditable(IsReadOnly()); })
