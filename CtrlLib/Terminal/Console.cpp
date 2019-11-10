@@ -7,12 +7,12 @@ namespace Upp {
 
 Console::Console()
 : page(&dpage)
-, use_gsets(true)
 , streamfill(false)
-, imageprotocols(0)
+, consoleflags(0)
 {
 	SetLevel(LEVEL_4);
 	Set8BitsMode(false);
+	LegacyCharsets(true);
 	SetCharset(CHARSET_UNICODE);
 	parser.WhenChr = THISFN(PutChar);
 	parser.WhenCtl = THISFN(ParseControlChars);
@@ -47,6 +47,7 @@ Console& Console::SetLevel(int level)
 void Console::Reset(bool full)
 {
 	LLOG("Performing " << (full ? "full" : "soft") << " reset...");
+	
 	if(full) {
 		Put(0x13);	// XOFF
 		dpage.Reset();
@@ -393,15 +394,12 @@ void Console::Serialize(Stream& s)
 	s / version;
 	if(version >= 1) {
 		s % clevel;
-		s % eightbits;
+		s % consoleflags;
 		s % dpage;
 		s % apage;
 		s % charset;
 		s % gsets;
-		s % use_gsets;
-		s % udkenabled;
 		s % caret;
-		s % imageprotocols;
 		for(int i = 0; i < MAX_COLOR_COUNT; i++)
 			s % colortable[i];
 	}

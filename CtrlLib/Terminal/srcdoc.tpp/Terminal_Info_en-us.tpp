@@ -214,6 +214,8 @@ underscore, blinking/steady).&]
 [s5;i150;O0; Supports clipboard operations (copy/paste/select all 
 `- including history buffer) and basic drag`-and`-drop ops.&]
 [s5;i150;O0; Supports bracketed paste mode.&]
+[s5;i150;O0; Supports explicit [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ h
+yperlinks]&]
 [s5;i150;O0; Has a predefined, programmable context menu (right mouse 
 button menu).&]
 [s5;i150;O0; Supports window titles.&]

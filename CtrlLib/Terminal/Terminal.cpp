@@ -100,9 +100,8 @@ Rect Terminal::GetCaretRect()
 	return caretrect = RectC(p.x, p.y, fsz.cx, fsz.cy);
 }
 
-void Terminal::Copy()
+void Terminal::Copy(const WString& s)
 {
-	WString s = GetSelectedText();
 	if(!IsNull(s)) {
 		ClearClipboard();
 		AppendClipboardUnicodeText(s);
@@ -251,26 +250,39 @@ void Terminal::RefreshDisplay()
 	Size fsz = GetFontSize();
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
-
+	bool hyperlinks = consoleflags & FLAG_HYPERLINKS;
+	Vector<Rect> invalid;
 	
 	LTIMING("Terminal::RefreshDisplay");
 
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		const VTLine& line = page->GetLine(i);
-		if(blinktext)
-			for(const VTCell& cell : line) {
-				if(cell.IsBlinking()) {
-					blinking_cells++;
-					line.Invalidate();
-					break;
-				}
+		int y = i * fsz.cy - (fsz.cy * pos);
+		for(int j = 0; j < line.GetCount(); j++) {
+			int x = j * fsz.cx;
+			const VTCell& cell = line[j];
+			if(hyperlinks && cell.IsHyperlink() &&
+				(cell.data == activelink || cell.data == prevlink)) {
+					if(!line.IsInvalid())
+						AddRefreshRect(invalid, RectC(x, y, fsz.cx, fsz.cy));
 			}
+			else
+			if(blinktext && cell.IsBlinking()) {
+				if(!line.IsInvalid())
+					AddRefreshRect(invalid, RectC(x, y, fsz.cx, fsz.cy));
+				blinking_cells++;
+			}
+		}
 		if(line.IsInvalid()) {
 			line.Validate();
-			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
+			AddRefreshRect(invalid, RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
 		}
 	}
-	
+
+	if(invalid.GetCount())
+		for(const Rect& r : invalid)
+			Refresh(r);
+
 	PlaceCaret();
 	Blink(blinking_cells > 0);
 }
@@ -340,9 +352,9 @@ void Terminal::DragAndDrop(Point p, PasteClip& d)
 void Terminal::LeftDown(Point p, dword keyflags)
 {
 	SetFocus();
-	if(IsTrackingEnabled())
+	if(IsTracking())
 		VTMouseEvent(p, LEFTDOWN, keyflags);
-	else {
+	else{
 		int n = GetMouseSelPos(p);
 		if(IsSelected(n)) {
 			selclick = true;
@@ -356,7 +368,7 @@ void Terminal::LeftDown(Point p, dword keyflags)
 
 void Terminal::LeftUp(Point p, dword keyflags)
 {
-	if(IsTrackingEnabled()) {
+	if(IsTracking()) {
 		if(!modes[XTX10MM])
 			VTMouseEvent(p, LEFTUP, keyflags);
 	}
@@ -372,7 +384,7 @@ void Terminal::LeftUp(Point p, dword keyflags)
 void Terminal::LeftDrag(Point p, dword keyflags)
 {
 	int n = GetMouseSelPos(p);
-	if(!IsTrackingEnabled() && !HasCapture() && selclick && IsSelected(n)) {
+	if(!IsTracking() && !HasCapture() && selclick && IsSelected(n)) {
 		WString sample = GetSelectedText();
 		VectorMap<String, ClipData> data;
 		Append(data, sample);
@@ -385,10 +397,24 @@ void Terminal::LeftDrag(Point p, dword keyflags)
 	}
 }
 
+void Terminal::LeftDouble(Point p, dword keyflags)
+{
+	// TODO: Word selection.
+	
+	if(IsTracking())
+		Ctrl::LeftDouble(p, keyflags);
+	else {
+		ClearSelection();
+		String uri = GetHyperlinkURI(GetMousePos(p), keyflags & K_CTRL);
+		if(!IsNull(uri))
+			WhenLink(uri);
+	}
+}
+
 void Terminal::MiddleDown(Point p, dword keyflags)
 {
 	SetFocus();
-	if(IsTrackingEnabled())
+	if(IsTracking())
 		VTMouseEvent(p, MIDDLEDOWN, keyflags);
 	else
 		Paste();
@@ -396,14 +422,14 @@ void Terminal::MiddleDown(Point p, dword keyflags)
 
 void Terminal::MiddleUp(Point p, dword keyflags)
 {
-	if(IsTrackingEnabled() && !modes[XTX10MM])
+	if(IsTracking() && !modes[XTX10MM])
 		VTMouseEvent(p, MIDDLEUP, keyflags);
 }
 
 void Terminal::RightDown(Point p, dword keyflags)
 {
 	SetFocus();
-	if(IsTrackingEnabled())
+	if(IsTracking())
 		VTMouseEvent(p, RIGHTDOWN, keyflags);
 	else {
 		int n = GetMouseSelPos(p);
@@ -415,7 +441,7 @@ void Terminal::RightDown(Point p, dword keyflags)
 
 void Terminal::RightUp(Point p, dword keyflags)
 {
-	if(IsTrackingEnabled() && !modes[XTX10MM])
+	if(IsTracking() && !modes[XTX10MM])
 		VTMouseEvent(p, RIGHTUP, keyflags);
 }
 
@@ -425,7 +451,7 @@ void Terminal::MouseMove(Point p, dword keyflags)
 	p = clamp(p, r.TopLeft(), r.BottomRight());
 	
 	bool b = HasCapture();
-	if(IsTrackingEnabled()) {
+	if(IsTracking()) {
 		if(b && modes[XTDRAGM])
 			VTMouseEvent(p, LEFTDRAG, keyflags);
 		else
@@ -437,11 +463,15 @@ void Terminal::MouseMove(Point p, dword keyflags)
 		selpos = GetMouseSelPos(p);
 		Refresh();
 	}
+	else
+	if(consoleflags & FLAG_HYPERLINKS) {
+		HighlightHyperlink(GetMousePos(p));
+	}
 }
 
 void Terminal::MouseWheel(Point p, int zdelta, dword keyflags)
 {
-	bool b = IsTrackingEnabled();
+	bool b = IsTracking();
 	if(!b && page->HasHistory())
 		sb.Wheel(zdelta, wheelstep);
 	else
@@ -517,7 +547,7 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 	}
 }
 
-bool Terminal::IsTrackingEnabled() const
+bool Terminal::IsTracking() const
 {
 	return modes[XTX10MM]  ||
 	       modes[XTX11MM]  ||
@@ -651,7 +681,82 @@ bool Terminal::IsMouseOverImage(Point p) const
 	return GetCellAtMousePos(cell, p) && cell.IsImage();
 }
 
+bool Terminal::IsMouseOverHyperlink(Point p) const
+{
+	VTCell cell;
+	return GetCellAtMousePos(cell, p) && cell.IsHyperlink();
+}
+
+String Terminal::GetHyperlinkURI(Point p, bool modifier)
+{
+	String uri;
+	VTCell cell;
+	if(GetCellAtMousePos(cell, p) && cell.Hyperlink() && modifier) {
+		uri = GetCachedHyperlink(cell.data);
+		if(IsNull(uri))
+			LLOG("Unable to retrieve URI from link cache. Link id: " << cell.data);
+	}
+	return uri;
+}
+
+void Terminal::HighlightHyperlink(Point p)
+{
+	if(mousepos != p) {
+		mousepos = p;
+		VTCell cell;
+		if(!GetCellAtMousePos(cell, p))
+			return;
+		if(cell.IsHyperlink() || activelink > 0) {
+			if(cell.data != activelink) {
+				prevlink = activelink;
+				activelink = cell.data;
+				RefreshDisplay();
+			}
+			Tip(GetCachedHyperlink(activelink));
+		}
+	}
+}
+
 void Terminal::StdBar(Bar& menu)
+{
+	OptionsBar(menu);
+	if(IsMouseOverHyperlink()) {
+		menu.Separator();
+		LinksBar(menu);
+	}
+	menu.Separator();
+	EditBar(menu);
+}
+
+void Terminal::EditBar(Bar& menu)
+{
+	menu.Add(IsSelection(), t_("Copy"), CtrlImg::copy(), [=] { Copy(); })
+		.Key(K_SHIFT_CTRL_C);
+	menu.Add(IsEditable(), t_("Paste"), CtrlImg::paste(), [=] { Paste(); })
+		.Key(K_SHIFT_CTRL_V);
+	menu.Separator();
+	menu.Add(t_("Select all"), CtrlImg::select_all(), [=] { SelectAll(); })
+		.Key(K_SHIFT_CTRL_A);
+}
+
+void Terminal::LinksBar(Bar& menu)
+{
+	String uri = GetHyperlinkUri();
+	if(IsNull(uri))
+		return;
+
+	menu.Add(t_("Copy link to clipboard"), CtrlImg::copy(), [=] { Copy(uri.ToWString()); })
+		.Key(K_SHIFT_CTRL_H);
+	menu.Add(t_("Open link..."), CtrlImg::open(), [=] { WhenLink(uri); })
+		.Key(K_SHIFT_CTRL_O);
+}
+
+void Terminal::ImagesBar(Bar& menu)
+{
+	// TODO
+}
+
+void Terminal::OptionsBar(Bar& menu)
 {
 	menu.Add(t_("Read only"), [=] { SetEditable(IsReadOnly()); })
 		.Key(K_SHIFT_CTRL_L)
@@ -659,14 +764,6 @@ void Terminal::StdBar(Bar& menu)
 	menu.Add(t_("Scrollbar"), [=] { ShowScrollBar(!sb.IsChild()); })
 		.Key(K_SHIFT_CTRL_S)
 		.Check(sb.IsChild());
-	menu.Separator();
-	menu.Add(selclick, t_("Copy"), CtrlImg::copy(), [=] { Copy(); })
-		.Key(K_SHIFT_CTRL_C);
-	menu.Add(IsEditable(), t_("Paste"), CtrlImg::paste(), [=] { Paste(); })
-		.Key(K_SHIFT_CTRL_V);
-	menu.Separator();
-	menu.Add(t_("Select all"), CtrlImg::select_all(), [=] { SelectAll(); })
-		.Key(K_SHIFT_CTRL_A);
 }
 
 Terminal& Terminal::ShowScrollBar(bool b)
@@ -764,7 +861,13 @@ void Terminal::ReportWindowProperties(int opcode)
 
 Image Terminal::CursorImage(Point p, dword keyflags)
 {
-	return IsTrackingEnabled() ? Image::Arrow() : Image::IBeam();
+	if(IsTracking())
+		return Image::Arrow();
+	else
+	if(IsMouseOverHyperlink())
+		return CtrlImg::HandCursor();
+	else
+		return Image::IBeam();
 }
 
 void Terminal::State(int reason)

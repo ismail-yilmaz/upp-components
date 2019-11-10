@@ -7,7 +7,7 @@ namespace Upp {
 
 struct VTCell : Moveable<VTCell> {
     dword   chr;
-    dword	data;
+    dword   data;
     word    attrs;
     word    sgr;
 #ifdef flagTRUECOLOR
@@ -32,7 +32,8 @@ struct VTCell : Moveable<VTCell> {
         SGR_INVERTED    = 0x0020,
         SGR_HIDDEN      = 0x0040,
         SGR_FAINT       = 0x0080,
-        SGR_IMAGE       = 0x0100
+        SGR_IMAGE       = 0x0100,
+        SGR_HYPERLINK   = 0x0200
     };
 
     enum FillerFlags : dword {
@@ -56,25 +57,27 @@ struct VTCell : Moveable<VTCell> {
     VTCell& Strikeout(bool b = true)            { if(b) sgr |= SGR_STRIKEOUT; else sgr &= ~SGR_STRIKEOUT; return *this;       }
     VTCell& Invert(bool b = true)               { if(b) sgr |= SGR_INVERTED; else sgr &= ~SGR_INVERTED; return *this;         }
     VTCell& Conceal(bool b = true)              { if(b) sgr |= SGR_HIDDEN; else sgr &= ~SGR_HIDDEN; return *this;             }
-    VTCell& Image(bool b = true)				{ if(b) sgr |= SGR_IMAGE; else sgr &= ~SGR_IMAGE; return *this;               }
+    VTCell& Image(bool b = true)                { if(b) sgr |= SGR_IMAGE; else sgr &= ~SGR_IMAGE; return *this;               }
+    VTCell& Hyperlink(bool b = true)            { if(b) sgr |= SGR_HYPERLINK; else sgr &= ~SGR_HYPERLINK; return *this;       }
     VTCell& Protect(bool b = true)              { if(b) attrs |= ATTR_PROTECTED; else attrs &= ~ATTR_PROTECTED; return *this; }
 
     VTCell& Ink(int n);
     VTCell& Paper(int n);
 
-    bool    IsNormal() const                    { return sgr == SGR_NORMAL; }
-    bool    IsBold() const                      { return sgr & SGR_BOLD;    }
-    bool    IsFaint() const                     { return sgr & SGR_FAINT;   }
-    bool    IsItalic() const                    { return sgr & SGR_ITALIC;  }
-    bool    IsUnderlined() const                { return sgr & SGR_UNDERLINE;}
-    bool    IsBlinking() const                  { return sgr & SGR_BLINK;   }
-    bool    IsInverted() const                  { return sgr & SGR_INVERTED;}
-    bool    IsStrikeout() const                 { return sgr & SGR_STRIKEOUT;}
-    bool    IsConcealed() const                 { return sgr & SGR_HIDDEN;  }
-    bool	IsImage() const						{ return sgr & SGR_IMAGE;   }
+    bool    IsNormal() const                    { return sgr == SGR_NORMAL;     }
+    bool    IsBold() const                      { return sgr & SGR_BOLD;        }
+    bool    IsFaint() const                     { return sgr & SGR_FAINT;       }
+    bool    IsItalic() const                    { return sgr & SGR_ITALIC;      }
+    bool    IsUnderlined() const                { return sgr & SGR_UNDERLINE;   }
+    bool    IsBlinking() const                  { return sgr & SGR_BLINK;       }
+    bool    IsInverted() const                  { return sgr & SGR_INVERTED;    }
+    bool    IsStrikeout() const                 { return sgr & SGR_STRIKEOUT;   }
+    bool    IsConcealed() const                 { return sgr & SGR_HIDDEN;      }
+    bool    IsImage() const                     { return sgr & SGR_IMAGE;       }
+    bool    IsHyperlink() const                 { return sgr & SGR_HYPERLINK;   }
     bool    IsProtected() const                 { return attrs & ATTR_PROTECTED;}
     bool    IsNullInstance() const;
-	
+    
     void    Fill(const VTCell& filler, dword flags);
 
     void    Reset();

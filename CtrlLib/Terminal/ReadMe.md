@@ -109,6 +109,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports cursor locking.
 - Supports clipboard operations (copy/paste/select all - including history buffer) and basic drag-and-drop ops.
 - Supports bracketed paste mode.
+- Supports explicit hyperlinks. (OSC 8)
 - Has a predefined yet programmable context menu (right mouse button menu).
 - Supports window titles.
 - Supports bell notifications.

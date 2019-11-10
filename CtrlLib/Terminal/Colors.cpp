@@ -19,6 +19,9 @@ void Console::ReportDynamicColor(int opcode, const Color& c)
 
 void Console::ChangeColors(int opcode, const String& oscs, bool reset)
 {
+	if(!(consoleflags & FLAG_DYNAMIC_COLORS))
+		return;
+	
 	Vector<String> params = Split(oscs, ';', false);
 	VectorMap<int, String> colormap;
 

@@ -32,6 +32,7 @@ public:
     Event<> WhenResize;
     Event<Bar&> WhenBar;
     Gate<PasteClip&> WhenClip;
+    Event<const String&> WhenLink;
     Event<const String&> WhenImage;
     
     Terminal&   History(bool b = true)                          { GetDefaultPage().History(b); return *this; }
@@ -50,6 +51,8 @@ public:
     Terminal&   SetColor(int i, Color c)                        { colortable[i] = c; return *this; }
     void        SetRefreshColor(int i, Color c)                 { SetColor(i, c); Refresh(); }
     Color       GetColor(int i) const                           { return colortable[i]; }
+    Terminal&   DynamicColors(bool b = true)                    { SetFlags(consoleflags, FLAG_DYNAMIC_COLORS, b); return *this; }
+    Terminal&   NoDynamicColors()                               { return DynamicColors(false); }
     Terminal&   LightColors(bool b = true)                      { lightcolors = b; Refresh(); return *this; }
     Terminal&   NoLightColors()                                 { return LightColors(false); }
     Terminal&   AdjustColors(bool b = true)                     { adjustcolors = b; Refresh(); return *this; }
@@ -86,14 +89,17 @@ public:
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
 
-    Terminal&   InlineImages(bool b = true)                     { imageprotocols =  IMAGE_PROTOCOL_ALL; return *this; }
-    Terminal&   NoInlineImages()                                { imageprotocols = ~IMAGE_PROTOCOL_ALL; return *this; }
+    Terminal&   InlineImages(bool b = true)                     { SetFlags(consoleflags, FLAG_IMAGES, b); return *this; }
+    Terminal&   NoInlineImages()                                { return InlineImages(false);  }
     
-    Terminal&   SixelGraphics(bool b = true)                    { imageprotocols |=  IMAGE_PROTOCOL_SIXEL; return *this; }
-    Terminal&   NoSixelGraphics()                               { imageprotocols &= ~IMAGE_PROTOCOL_SIXEL; return *this; }
+    Terminal&   SixelGraphics(bool b = true)                    { SetFlags(consoleflags, FLAG_SIXEL , b); return *this; }
+    Terminal&   NoSixelGraphics()                               { return SixelGraphics(false); }
 
-    Terminal&   JexerGraphics(bool b = true)                    { imageprotocols |=  IMAGE_PROTOCOL_JEXER; return *this; }
-    Terminal&   NoJexerGraphics()                               { imageprotocols &= ~IMAGE_PROTOCOL_JEXER; return *this; }
+    Terminal&   JexerGraphics(bool b = true)                    { SetFlags(consoleflags, FLAG_JEXER, b); return *this; }
+    Terminal&   NoJexerGraphics()                               { return JexerGraphics(false); }
+    
+    Terminal&   Hyperlinks(bool b = true)                       { SetFlags(consoleflags, FLAG_HYPERLINKS, b); return *this; }
+    Terminal&   NoHyperlinks()                                  { return Hyperlinks(false);     }
     
     Terminal&   DelayedRefresh(bool b = true)                   { delayed = b; return *this;    }
     Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
@@ -111,13 +117,20 @@ public:
     Size        GetStdSize() const override                     { return AddFrameSize(Size(80, 24) * GetFontSize()); }
     Size        GetMaxSize() const override                     { return AddFrameSize(Size(132, 24) * GetFontSize());}
 
-    void        Copy();
+    void        Copy()                                          { Copy(GetSelectedText()); }
+    void        Copy(const WString& s);
     void        Paste();
     void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
+    
+    bool        IsSelection() const                             { return selclick; }
 
     void        StdBar(Bar& menu);
-
+    void        EditBar(Bar& menu);
+    void        LinksBar(Bar& menu);
+    void        ImagesBar(Bar& menu);
+    void        OptionsBar(Bar& menu);
+    
     void        Layout() override;
     
     void        Paint(Draw& w)  override                        { Paint0(w); }
@@ -135,6 +148,7 @@ public:
     void        LeftDown(Point p, dword keyflags) override;
     void        LeftUp(Point p, dword keyflags) override;
     void        LeftDrag(Point p, dword keyflags) override;
+    void        LeftDouble(Point p, dword keyflags) override;
     void        MiddleDown(Point p, dword keyflags) override;
     void        MiddleUp(Point p, dword keyflags) override;
     void        RightDown(Point p, dword keyflags) override;
@@ -142,11 +156,16 @@ public:
     void        MouseMove(Point p, dword keyflags) override;
     void        MouseWheel(Point p, int zdelta, dword keyflags) override;
     void        VTMouseEvent(Point p, dword event, dword keyflags, int zdelta = 0);
-
-    bool        IsTrackingEnabled() const;
     
-    bool        IsMouseOverImage() const                        { return IsMouseOverImage(GetMouseViewPos()); }
+    bool        IsMouseOverImage() const                        { return IsMouseOverImage(GetMousePos(GetMouseViewPos()));        }
+    bool        IsMouseOverHyperlink() const                    { return IsMouseOverHyperlink(GetMousePos(GetMouseViewPos()));    }
+ 
+    bool        IsTracking() const;
 
+    bool        GetCellAtMousePos(VTCell& cell) const           { return GetCellAtMousePos(cell, GetMousePos(GetMouseViewPos())); }
+    
+    String      GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
+        
     void        DragAndDrop(Point p, PasteClip& d) override;
 
     void        GotFocus() override;
@@ -163,6 +182,9 @@ public:
     static void ClearImageCache();
     static void SetImageCacheMaxSize(int maxsize, int maxcount);
     
+    static void ClearHyperlinkCache();
+    static void SetHyperlinkCacheMaxSize(int maxcount);
+    
 private:
     void        PreParse() override;
     void        PostParse() override;
@@ -178,6 +200,9 @@ private:
     ImageData   GetCachedImageData(dword id, const Value& data, const Size& fsz);
     
     void        RenderImage(const Value& data, bool scroll) override;
+    void        RenderHyperlink(const Value& uri) override;
+
+    String      GetCachedHyperlink(dword id, const Value& data = Null);
 
     void        SyncPage(bool notify = true);
     void        SwapPage() override;
@@ -219,7 +244,13 @@ private:
     WString     GetSelectedText() const;
 
     bool        GetCellAtMousePos(VTCell& cell, Point p) const;
+
+    bool        IsMouseOverText(Point p) const;
     bool        IsMouseOverImage(Point p) const;
+    bool        IsMouseOverHyperlink(Point p) const;
+    
+    void        HighlightHyperlink(Point p);
+    String      GetHyperlinkURI(Point p, bool modifier);
     
 private:
     enum ModifierKeyFlags : dword {
@@ -255,6 +286,8 @@ private:
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     dword       metakeyflags    = MKEY_ESCAPE;
+    dword       activelink      = 0;
+    dword       prevlink        = 0;
 };
 
 const Display& NormalImageCellDisplay();

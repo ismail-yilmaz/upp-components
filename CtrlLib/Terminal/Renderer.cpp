@@ -152,7 +152,7 @@ void Terminal::Paint0(Draw& w, bool print)
 							fnt.Italic(cell.IsItalic());
 							fnt.Strikeout(cell.IsStrikeout());
 							fnt.Underline(cell.IsUnderlined());
-							if(!cell.IsConcealed()) {
+							if(!cell.IsConcealed() || cell.IsHyperlink()) {
 								if(!cell.IsBlinking() || highlight || print || (cell.IsBlinking() && !blinking)) {
 									tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
 								}
@@ -196,6 +196,8 @@ void Terminal::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
 	if(cell.IsInverted())
 		Swap(ink, paper);
 	if(modes[DECSCNM])
+		Swap(ink, paper);
+	if(consoleflags & FLAG_HYPERLINKS && cell.IsHyperlink() && activelink == cell.data)
 		Swap(ink, paper);
 }
 
@@ -341,7 +343,7 @@ struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 	
 	int Make(Terminal::ImageData& imagedata) const override
 	{
-		LTIMING("sVTImageDataMaker::Make");
+		LTIMING("Terminal::ImageDataMaker");
 
 		Image img = StreamRaster::LoadStringAny(data);
 		if(IsNull(img))
@@ -390,5 +392,63 @@ void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
 	Mutex::Lock __(sImageCacheLock);
 	sCachedImageMaxSize  = max(1, maxsize);
 	sCachedImageMaxCount = max(1, maxcount);
+}
+
+void Terminal::RenderHyperlink(const Value& uri)
+{
+	GetCachedHyperlink(GetHashValue(uri), uri);
+}
+
+// Shared hyperlink cache support.
+
+static StaticMutex sLinkCacheLock;
+static LRUCache<String> sLinkCache;
+static int sCachedLinkMaxSize = 2084 * 100000;
+static int sCachedLinkMaxCount = 100000;
+
+struct sVTHyperlinkDataMaker : LRUCache<String>::Maker {
+	dword  id;
+	String url;
+
+	String Key() const override
+	{
+		StringBuffer h;
+		RawCat(h, id);
+		return h;
+	}
+
+	int Make(String& link) const override
+	{
+		LTIMING("Terminal::HyperlinkDataMaker");
+		
+		link = url;
+		return link.GetLength();
+	}
+};
+
+String Terminal::GetCachedHyperlink(dword id, const Value& data)
+{
+	Mutex::Lock __(sLinkCacheLock);
+
+	LTIMING("Terminal::GetCachedHyperlink");
+
+	sVTHyperlinkDataMaker hm;
+	hm.id  = id;
+	hm.url = data;
+	sLinkCache.Shrink(sCachedLinkMaxSize, sCachedLinkMaxCount);
+	return sLinkCache.Get(hm);
+}
+
+void Terminal::ClearHyperlinkCache()
+{
+	Mutex::Lock __(sLinkCacheLock);
+	sLinkCache.Clear();
+}
+
+void Terminal::SetHyperlinkCacheMaxSize(int maxcount)
+{
+	Mutex::Lock __(sLinkCacheLock);
+	sCachedLinkMaxSize  = max(2084, maxcount * 2084);
+	sCachedLinkMaxCount = max(1, maxcount);
 }
 }

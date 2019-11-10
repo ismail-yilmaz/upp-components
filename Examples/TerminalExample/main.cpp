@@ -13,11 +13,12 @@ struct TerminalExample : TopWindow {
 	{
 		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled).
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-		term.WhenBell	= [=]()         { BeepExclamation(); };
-		term.WhenTitle	= [=](String s) { Title(s);          };
-		term.WhenOutput	= [=](String s) { pty.Write(s);      };
-		term.WhenResize	= [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.InlineImages();
+		term.WhenBell	= [=]()                { BeepExclamation();  };
+		term.WhenTitle	= [=](String s)        { Title(s);           };
+		term.WhenOutput	= [=](String s)        { pty.Write(s);       };
+		term.WhenLink   = [=](const String& s) { PromptOK(DeQtf(s)); };
+		term.WhenResize	= [=]()   { pty.SetSize(term.GetPageSize()); };
+		term.InlineImages().Hyperlinks();
 		pty.Start(nixshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
 		SetTimeCallback(-1, [=] ()
 		{

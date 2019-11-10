@@ -1,6 +1,5 @@
 #include "Console.h"
 
-
 #define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
@@ -275,7 +274,7 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 
 void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
-	if(!(imageprotocols & IMAGE_PROTOCOL_SIXEL))
+	if(!(consoleflags & FLAG_SIXEL))
 		return;
 	
 	int  nohole = seq.GetInt(2, 0);
@@ -297,6 +296,8 @@ void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
 		break;
 	}
 	
+	cellattrs.Hyperlink(false);
+
 	RenderImage(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload), modes[DECSDM]);
 }
 }

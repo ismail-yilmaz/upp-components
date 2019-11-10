@@ -23,7 +23,7 @@ topic "Terminal";
 [s0;%% &]
 [s2;%% This class implements a 256/16M colors virtual terminal emulator 
 ctrl compatible with DEC VT series and xterm. It supports xterm`-style 
-mouse tracking, and inline images.&]
+mouse tracking, inline images, and hyperlinks.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -61,6 +61,10 @@ whitespace characters, from the clip`'s content. &]
 [s2;i150;O9;%% &]
 [s2;i150;O9;%% 3) Returning false disables the control`-byte filtering 
 function. (This is the default behavior.).&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:WhenLink: [_^Upp`:`:Event^ Event]<_String>_[* WhenLink]&]
+[s2;%% Returns the URI of the selected hyperlink.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:WhenImage: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_String[@(0.0.255) `&
@@ -159,6 +163,20 @@ instance keeps a 20`-color array. The first 16 colors of this
 array are the `"ANSI`" colors and the last 4 color are reserved 
 for ink/cursor/selection ink/selection paper.&]
 [s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:DynamicColors`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* DynamicColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Enables or disables xterm`'s dynamic colors feature. Returns 
+`*this for method chaining. This feature allows applications 
+to override the terminal`'s basic colors (ink, paper, selection, 
+and ANSI color table). Disabled by default.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:NoDynamicColors`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* NoDynamicColors]()&]
+[s2;%% Disables the dynamic colors feature. Same as DynamicColors(false). 
+Returns `*this for method chaining.&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:LightColors`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* LightColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
@@ -374,6 +392,21 @@ exer inline images protocol] support. Returns `*this for method
 chaining.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:Hyperlinks`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* Hyperlinks]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%% Enables or disables hyperlinks. Returns `*this for method 
+chaining. At the moment, terminal ctrl only allows text`-based 
+hyperlinks. And for security reasons, only the [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ e
+xplicit hyperlinks] protocol (OSC 8) is supported. This feature 
+is disabled by default. &]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:NoHyperlinks`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* N
+oHyperlinks]()&]
+[s2;%% Disables hyperlinks. Same as Hyperlinks(false). Returns `*this 
+for method chaining.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:DelayedRefresh`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* DelayedRefresh]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2;%% Enables or disables buffered display refresh. Returns `*this 
@@ -481,20 +514,62 @@ is true then the text content of the history buffer will be selected
 as well.&]
 [s3;%% &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:IsSelection`(`)const: [@(0.0.255) bool]_[* IsSelection]()_[@(0.0.255) c
+onst]&]
+[s2;%% Returns true if there is a selection.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:IsMouseOverImage`(`)const: [@(0.0.255) bool]_[* IsMouseOverImage](
+)_[@(0.0.255) const]&]
+[s2;%% Returns true if the mouse pointer is hovering over an inline 
+image cell.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:IsMouseOverHyperlink`(`)const: [@(0.0.255) bool]_[* IsMouseOverHy
+perlink]()_[@(0.0.255) const]&]
+[s2;%% Returns true if the mouse pointer is hovering over an hyperlink 
+cell.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:IsTracking`(`)const: [@(0.0.255) bool]_[* IsTracking]()_[@(0.0.255) c
+onst]&]
+[s2;%% Returns true if mouse tracking mode is enabled.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:StdBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* StdBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
-[s2;%% The standard Terminal menu. The standard Terminal menu consists 
-of the standard clipboard actions (select/copy/paste) and terminal 
-specific actions (enable/disable read`-only mode and show/hide 
-scrollbar). This menu is optional. It can be overridden, appended 
-or disabled simply by defining or nullifying the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenBar^ W
+[s2;%% The standard terminal menu. Standard terminal menu consists 
+of the standard clipboard actions for text, hyperlinks, and terminal 
+specific actions. This menu is completely optional. It can be 
+overridden, appended or disabled simply by defining or nullifying 
+the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenBar^ W
 henBar ]callback.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:EditBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* EditBar]([_^Upp`:`:Bar^ B
+ar][@(0.0.255) `&]_[*@3 menu])&]
+[s2;%% Edit menu consists of standard clipboard actions for text 
+(select/copy/paste), and is a part of standard menu. It can be 
+used separately.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:LinksBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* LinksBar]([_^Upp`:`:Bar^ B
+ar][@(0.0.255) `&]_[*@3 menu])&]
+[s2;%% Links menu consists of standard clipboard actions for hyperlinks 
+(copy/open), and is a part of standard menu. It can be used separately.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:OptionsBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* OptionsBar]([_^Upp`:`:Bar^ B
+ar][@(0.0.255) `&]_[*@3 menu])&]
+[s2;%% Options menu consists of terminal specific actions (read`-only/read`-write 
+mode, show/hide scrollbar), and is a part of standard menu. It 
+can be used separately.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:PaintPage`(Upp`:`:Draw`&`): [@(0.0.255) void]_[* PaintPage]([_^Upp`:`:Draw^ D
 raw][@(0.0.255) `&]_[*@3 w])&]
-[s2;%% Dumps the terminal screen to [%-*@3 w]. Useful for taking screenshots. 
-Note that this method works on WYSIWYG`-basis.&]
+[s2;%% Dumps the terminal screen to target [%-*@3 w]. Useful for taking 
+screenshots. Note that this method works on WYSIWYG`-basis.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:MetaEscapesKeys`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
@@ -514,11 +589,6 @@ chaining.&]
 ]_[* MetaKeyDoesNothing]()&]
 [s2;%% Disables shifting and prefixing of the `"Alt`" modified keys. 
 Returns `*this for method chaining.&]
-[s3; &]
-[s4; &]
-[s5;:Upp`:`:Terminal`:`:IsTrackingEnabled`(`)const: [@(0.0.255) bool]_[* IsTrackingEnable
-d]()_[@(0.0.255) const]&]
-[s2;%% Returns true if mouse tracking mode is enabled.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:RefreshDisplay`(`): [@(0.0.255) void]_[* RefreshDisplay]()&]
@@ -546,7 +616,22 @@ stored in the shared cache to [%-*@3 maxsize, ]and the maximum
 number of items to [%-*@3 maxcount]. The maximum cache size has 
 to be provided in pixels. The default [%-*@3 maxsize ]is [C `[1024 
 x 1024 x 4`] x 128] pixels (512 MB), and the default [%-*@3 maxcount] 
-is 256000 entries.&]
+is 256.000 entries.&]
+[s3;%% &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:ClearHyperlinkCache`(`): [@(0.0.255) static] 
+[@(0.0.255) void]_[* ClearHyperlinkCache]()&]
+[s2;%% Clears the shared hyperlink cache.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:Terminal`:`:SetHyperlinkCacheMaxSize`(int`): [@(0.0.255) void]_[* SetHyperlin
+kCacheMaxSize]([@(0.0.255) int]_[*@3 maxcount])&]
+[s2;%% Terminal ctrl uses a [/ shared ]hyperlink cache to store its 
+URIs. This method sets the maximum number of URIs to be stored 
+in the hyperlink cache to [%-*@3 maxcount]. The default [%-*@3 maxcount 
+]is 100.000 entries. The maximum length of a single entry can 
+be at most 2084 bytes.&]
+[s3;%% &]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]

@@ -104,7 +104,7 @@ EXITBLOCK
 
 int Console::ConvertToUnicode(int c, byte gset)
 {
-	byte cs = ResolveCharset(use_gsets ? gset : charset);
+	byte cs = ResolveCharset((consoleflags & FLAG_GSET) ? gset : charset);
 	
 	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
 	   gset == CHARSET_DEC_TCS ||
@@ -115,13 +115,13 @@ int Console::ConvertToUnicode(int c, byte gset)
 		c = ToAscii(c);
 	else
 	if(cs != CHARSET_UNICODE)
-		c = ToUnicode(c | (use_gsets ? 0x80 : 0x00), cs);
+		c = ToUnicode(c | ((consoleflags & FLAG_GSET) ? 0x80 : 0x00), cs);
 	return c != DEFAULTCHAR ? c : 0xFFFD;
 }
 
 int Console::ConvertToCharset(int c, byte gset)
 {
-	byte cs = ResolveCharset(use_gsets ? gset : charset);
+	byte cs = ResolveCharset((consoleflags & FLAG_GSET) ? gset : charset);
 	
 	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
 	   gset == CHARSET_DEC_TCS ||

@@ -7,6 +7,8 @@
 #include "Page.h"
 #include "Cell.h"
 
+// TODO: Restructure this header file for better readability.
+
 namespace Upp {
 
 extern byte CHARSET_DEC_VT52;   // DEC VT52 graphics character set.
@@ -32,7 +34,19 @@ public:
         LED_SCRLOCK  = 2,
         LED_ALL      = 3
     };
-    
+ 
+    enum ConsoleFlags : dword {
+        FLAG_8BIT           = 0x00000001,
+        FLAG_UDK            = 0x00000002,
+        FLAG_GSET           = 0x00000004,
+        FLAG_SIXEL          = 0x00000008,
+        FLAG_JEXER          = 0x00000010,
+        FLAG_HYPERLINKS     = 0x00000020,
+        FLAG_DYNAMIC_COLORS = 0x00000040,
+        FLAG_IMAGES         = FLAG_SIXEL | FLAG_JEXER,
+        FLAG_ALL            = 0xFFFFFFFF
+    };
+   
     enum WindowReports : word {
         WINDOW_REPORT_POSITION      = 0x0D00,
         WINDOW_REPORT_VIEW_POSITION = 0x0D02,
@@ -43,7 +57,7 @@ public:
         WINDOW_REPORT_STATE         = 0x0B00,
         WINDOW_REPORT_TITLE         = 0x1500
     };
-    
+ 
     Console();
     virtual ~Console() {}
 
@@ -59,9 +73,10 @@ public:
     void            WriteUtf8(const String& s)              { Write(s, true);         }
     void            CheckWriteUtf8(const String& s)         { Write(s, CheckUtf8(s)); }
 
-    Console&        Set8BitsMode(bool b = true)             { eightbits = b; return *this;    }
-    bool            Is8BitsMode() const                     { return IsLevel2() && eightbits; }
-    bool            Is7BitsMode() const                     { return !Is8BitsMode(); }
+    Console&        Set8BitsMode(bool b = true)             { SetFlags(consoleflags, FLAG_8BIT, b); return *this; }
+    Console&        No8BitsMode()                           { return Set8BitsMode(false);                         }
+    bool            Is8BitsMode() const                     { return IsLevel2() && consoleflags & FLAG_8BIT;      }
+    bool            Is7BitsMode() const                     { return !Is8BitsMode();                              }
 
     Console&        SetLevel(int level);
     bool            IsLevel0() const                        { return !modes[DECANM]; }
@@ -70,12 +85,12 @@ public:
     bool            IsLevel3() const                        { return modes[DECANM] && clevel >= LEVEL_3; }
     bool            IsLevel4() const                        { return modes[DECANM] && clevel >= LEVEL_4; }
 
-    Console&        EnableUDK(bool b = true)                { udkenabled = b; return *this; }
-    Console&        DisableUDK()                            { return EnableUDK(false);      }
-    Console&        LockUDK(bool b = true)                  { udklocked = b;  return *this; }
-    Console&        UnlockUDK()                             { return LockUDK(false); }
-    bool            IsUDKEnabled() const                    { return udkenabled; }
-    bool            IsUDKLocked() const                     { return udklocked;  }
+    Console&        EnableUDK(bool b = true)                { SetFlags(consoleflags, FLAG_UDK, b); return *this;  }
+    Console&        DisableUDK()                            { return EnableUDK(false);        }
+    Console&        LockUDK(bool b = true)                  { udklocked = b;  return *this;   }
+    Console&        UnlockUDK()                             { return LockUDK(false);          }
+    bool            IsUDKEnabled() const                    { return consoleflags & FLAG_UDK; }
+    bool            IsUDKLocked() const                     { return udklocked;               }
 
     inline void     HardReset()                             { Reset(true);  }
     inline void     SoftReset()                             { Reset(false); }
@@ -103,6 +118,7 @@ protected:
     bool            IsAlternatePage() const                 { return page == &apage; }
 
     virtual void    RenderImage(const Value& data, bool scroll) {}
+    virtual void    RenderHyperlink(const Value& data)          {}
     
     void            PutC(int c);
     void            PutC(const String& s1);
@@ -127,14 +143,18 @@ protected:
     void            PutEol();
 
     void            Flush();
-    void            CancelOut()                             { out.Clear(); }
+    void            CancelOut()                                { out.Clear(); }
 
     void            DisplayAlignmentTest();
 
     WString         AsWString(const VTLine& line) const;
 
+    template<class T, class R>
+    void SetFlags(T& field, const R& flags, bool b = true)    { if(b) field |= flags; else field &= ~flags; }
+    
 protected:
     VTPage*         page;
+    dword           consoleflags;
 
 private:
     void            PutChar(int c);
@@ -171,6 +191,8 @@ private:
     void            ParseSixelGraphics(const VTInStream::Sequence& seq);
     void            ParseJexerGraphics(const VTInStream::Sequence& seq);
     
+    void            ParseHyperlinks(const VTInStream::Sequence& seq);
+    
     void            ProtectAttributes(bool protect);
 
     void            SetCaretStyle(const VTInStream::Sequence& seq);
@@ -205,18 +227,8 @@ private:
     String          out;
     String          answerback;
     byte            clevel;
-    bool            eightbits;
     bool            streamfill;
-
-protected:
-    // Inline image protocols support
-    enum ImageProtocols : dword {
-        IMAGE_PROTOCOL_SIXEL  = 0x00000001,
-        IMAGE_PROTOCOL_JEXER  = 0x00000002,
-        IMAGE_PROTOCOL_ALL    = 0xFFFFFFFF
-    };
-    dword           imageprotocols;
-    
+  
 public:
     // ANSI, dynamic, and ISO colors support
     const int ANSI_COLOR_COUNT = 16;
@@ -622,7 +634,7 @@ public:
     
     void            SetLegacyCharsets(GSets newgsets)       { gsets = newgsets;  }
     const GSets&    GetLegacyCharsets() const               { return gsets;      }
-    Console&        LegacyCharsets(bool b = true)           { use_gsets = b; return *this; }
+    Console&        LegacyCharsets(bool b = true)           { SetFlags(consoleflags, FLAG_GSET, b); return *this; }
     Console&        NoLegacyCharsets()                      { return LegacyCharsets(false); }
     
 protected:
@@ -632,7 +644,6 @@ protected:
 private:
     GSets           gsets;
     GSets           gsets_backup;
-    bool            use_gsets;
     byte            charset;
 };
 
