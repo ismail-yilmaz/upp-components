@@ -245,7 +245,6 @@ private:
 
     bool        GetCellAtMousePos(VTCell& cell, Point p) const;
 
-    bool        IsMouseOverText(Point p) const;
     bool        IsMouseOverImage(Point p) const;
     bool        IsMouseOverHyperlink(Point p) const;
     

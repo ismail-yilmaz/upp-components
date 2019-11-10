@@ -151,7 +151,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);          };
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.SixelGraphics();
+		term.Inlineimages().Hyperlinks();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
@@ -178,6 +178,10 @@ GNUPlot with sixel support, running on the basic terminal example. (Linux)
 
 Lynx web browser running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_lynx_linux_screenshot.png)
+
+Hyperlinks support (via OSC 8). (Linux)
+
+![ ](https://media.giphy.com/media/Vd32ubXONJJdnhovpE/giphy.gif)
 
 ---	
 ### Ssh Terminal Example
@@ -270,7 +274,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);          };
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.SixelGraphics();
+		term.Inlineimages();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
@@ -341,7 +345,7 @@ struct TerminalPane : Terminal, PtyProcess {
 	Splitter& parent;
 	TerminalPane(Splitter& ctrl) : parent(ctrl)
 	{
-		Terminal::SixelGraphics();
+		Terminal::Inlineimages();
 		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
 		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
@@ -437,7 +441,7 @@ struct SshTerminalPane : Terminal, SshShell {
 		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
 		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
 		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::SixelGraphics();
+		Terminal::Inlineimages();
 		parent.Add(Terminal::SizePos());
 	}
 	
