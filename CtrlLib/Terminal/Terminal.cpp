@@ -691,7 +691,7 @@ String Terminal::GetHyperlinkURI(Point p, bool modifier)
 {
 	String uri;
 	VTCell cell;
-	if(GetCellAtMousePos(cell, p) && cell.Hyperlink() && modifier) {
+	if(GetCellAtMousePos(cell, p) && cell.IsHyperlink() && modifier) {
 		uri = GetCachedHyperlink(cell.data);
 		if(IsNull(uri))
 			LLOG("Unable to retrieve URI from link cache. Link id: " << cell.data);

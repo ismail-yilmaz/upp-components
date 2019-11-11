@@ -368,28 +368,27 @@ henImage] event. &]
 [s5;:Upp`:`:Terminal`:`:SixelGraphics`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2;%% Individually enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
-ixel graphics] support. Returns `*this for method chaining. This 
-feature is disabled by default.&]
+ixel graphics]. Returns `*this for method chaining. This feature 
+is disabled by default.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* NoSixelGraphics]()&]
 [s2;%% Disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel 
-graphics] support. Returns `*this for method chaining.&]
+graphics]. Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:JexerGraphics`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* JexerGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%% Individually enable or disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
-exer inline images protocol] support. Return `* this for method 
-chaining. This feature is disabled by default.&]
+[s2;%% Individually enables or disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer inline images protocol]. Return `* this for method chaining. 
+This feature is disabled by default.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:NoJexerGraphics`(`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* NoJexerGraphics]()&]
 [s2;%% Disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
-exer inline images protocol] support. Returns `*this for method 
-chaining.&]
+exer inline images protocol]. Returns `*this for method chaining.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:Hyperlinks`(bool`): [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
