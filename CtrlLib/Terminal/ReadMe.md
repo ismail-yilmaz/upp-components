@@ -107,7 +107,9 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports xterm style mouse tracking: button, wheel, motion, focus in/out events.
 - Supports user configurable cursor styles (block, beam, underscore, blinking/steady).
 - Supports cursor locking.
-- Supports basic clipboard operations (copy/paste/select all - including history buffer)  for texts, hyperlinks, and images, and basic drag-and-drop ops.
+- Supports basic clipboard operations on texts, hyperlinks, and images.
+- Supports basic drag and drop operations on texts, hyperlinks and images.
+- Shows drag and drop animations (i.e thumbnails/samples of images, hyperlinks and plain texts)
 - Supports rectangle selection.
 - Supports bracketed paste mode.
 - Supports explicit hyperlinks. (OSC 8)
@@ -152,7 +154,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);          };
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.Inlineimages().Hyperlinks();
+		term.InlineImages().Hyperlinks();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
@@ -180,13 +182,14 @@ GNUPlot with sixel support, running on the basic terminal example. (Linux)
 Lynx web browser running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_lynx_linux_screenshot.png)
 
-Rectangle selection, and programmable default right-click (context) menu. (Linux)
-
-![ ](../Images/terminal_rectangle_selection._linux_screenshot.jpg)
-
-Hyperlinks support (via OSC 8). (Linux)
+Hyperlinks support (via OSC 8) on basic terminal example. (Linux)
 
 ![ ](https://media.giphy.com/media/Vd32ubXONJJdnhovpE/giphy.gif)
+
+Drag and drop animation for inline images in action, on the basic terminal example (Linux)
+
+![ ](https://media.giphy.com/media/XZ0ohRJVbacfg0KFcc/giphy.gif)
+
 
 ---	
 ### Ssh Terminal Example
@@ -418,6 +421,10 @@ On the left is htop, and on the right is GNU nano running simultaneously on the 
 The same terminal splitter example compiled with Ultimate++'s Turtle HTML-5 backend. (Accessed via Firefox)
 
 ![ ](../Images/terminal_splitter_turtle_screenshot.png)
+
+Rectangle selection, and programmable right mouse button (context) menu in action, on the terminal splitter example. (Linux)
+
+![ ](../Images/terminal_rectangle_selection._linux_screenshot.jpg)
 
 ### Ssh Terminal Splitter Example
 Given the flexiblity and power of Ultimate++, it is easy to modify the above splitter example, so that it can be used as a relatively fancy front-end for SSH2 shells. This example is cross-platform, and demonstrates the interaction between the Terminal widget and the Ultimate++'s Core/SSH package, in a multithreaded environment. 

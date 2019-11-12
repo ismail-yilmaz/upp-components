@@ -374,16 +374,40 @@ void Terminal::LeftUp(Point p, dword keyflags)
 void Terminal::LeftDrag(Point p, dword keyflags)
 {
 	p = ClientToPagePos(p);
-	if(!IsTracking() && !HasCapture() && selclick && IsSelected(p)) {
-		WString sample = GetSelectedText();
+	bool modifier = keyflags & K_CTRL;
+	
+	if(!IsTracking()) {
 		VectorMap<String, ClipData> data;
-		Append(data, sample);
-		Size ssz = StdSampleSize();
-		ImageDraw iw(ssz);
-		iw.DrawRect(ssz, Black());
-		iw.Alpha().DrawRect(ssz, Black());
-		DrawTLText(iw.Alpha(), 0, 0, ssz.cx, sample, font, White());
-		DoDragAndDrop(data, iw, DND_COPY);
+		if(!HasCapture() && !modifier && IsSelection() && IsSelected(p)) {
+			WString tsample = GetSelectedText();
+			Append(data, tsample);
+			Size tsz = StdSampleSize();
+			ImageDraw iw(tsz);
+			iw.DrawRect(tsz, Black());
+			iw.Alpha().DrawRect(tsz, Black());
+			DrawTLText(iw.Alpha(), 0, 0, tsz.cx, tsample, font, White());
+			DoDragAndDrop(data, iw, DND_COPY);
+		}
+		else
+		if(modifier && IsMouseOverHyperlink(p)) {
+			WString lsample = GetHyperlinkURI(p, modifier).ToWString();
+			Append(data, lsample);
+			Size lsz = StdSampleSize();
+			ImageDraw iw(lsz);
+			iw.DrawRect(lsz, Black());
+			iw.Alpha().DrawRect(lsz, Black());
+			DrawTLText(iw.Alpha(), 0, 0, lsz.cx, lsample, font, White());
+			DoDragAndDrop(data, iw, DND_COPY);
+		}
+		else
+		if(modifier && IsMouseOverImage(p)) {
+			Image isample = GetInlineImage(p, modifier);
+			Append(data, isample);
+			Size isz = GetFitSize(isample.GetSize(), StdSampleSize());
+			ImageDraw iw(isz);
+			iw.DrawImage(isz, isample);
+			DoDragAndDrop(data, iw, DND_COPY);
+		}
 	}
 }
 
@@ -828,55 +852,75 @@ void Terminal::OptionsBar(Bar& menu)
 	bool hyperlinks    = consoleflags & FLAG_HYPERLINKS;
 	bool inlineimages  = consoleflags & FLAG_IMAGES;
 
-	menu.Sub(t_("Cursor style"),	[=](Bar& menu)
+	menu.Sub(t_("Cursor style"), [=](Bar& menu)
 		{
 			byte cstyle   = caret.GetStyle();
 			bool unlocked = !caret.IsLocked();
-			menu.Add(unlocked, t_("Block"),		[=] { caret.Block(caret.IsBlinking());		})
+			menu.Add(unlocked,
+				t_("Block"),
+				[=] { caret.Block(caret.IsBlinking()); })
 				.Radio(cstyle == Caret::BLOCK);
-			menu.Add(unlocked, t_("Beam"),		[=] { caret.Beam(caret.IsBlinking());		})
+			menu.Add(unlocked,
+				t_("Beam"),
+				[=] { caret.Beam(caret.IsBlinking()); })
 				.Radio(cstyle == Caret::BEAM);
-			menu.Add(unlocked, t_("Underline"),	[=] { caret.Underline(caret.IsBlinking());	})
+			menu.Add(unlocked,
+				t_("Underline"),
+				[=] { caret.Underline(caret.IsBlinking()); })
 				.Radio(cstyle == Caret::UNDERLINE);
 			menu.Separator();
-			menu.Add(unlocked, t_("Blinking"),	[=] { caret.Blink(!caret.IsBlinking());		})
+			menu.Add(unlocked,
+				t_("Blinking"),
+				[=] { caret.Blink(!caret.IsBlinking());	 })
 				.Check(caret.IsBlinking());
 			menu.Separator();
-			menu.Add(t_("Locked"),				[=] { caret.Lock(!caret.IsLocked());		})
+			menu.Add(t_("Locked"),
+				[=] { caret.Lock(!caret.IsLocked()); })
 				.Check(!unlocked);
 		});
 	menu.Separator();
-	menu.Add(t_("Scrollbar"),		[=] { ShowScrollBar(!sb.IsChild());				})
+	menu.Add(t_("Scrollbar"),
+		[=] { ShowScrollBar(!sb.IsChild()); })
 		.Key(K_SHIFT_CTRL_S)
 		.Check(sb.IsChild());
-	menu.Add(t_("Alternate scroll"),[=] { AlternateScroll(!alternatescroll);		})
+	menu.Add(t_("Alternate scroll"),
+		[=] { AlternateScroll(!alternatescroll); })
 		.Key(K_SHIFT|K_ALT_S)
 		.Check(alternatescroll);
-	menu.Add(t_("Key navigation"),	[=] { KeyNavigation(!keynavigation);			})
+	menu.Add(t_("Key navigation"),
+		[=] { KeyNavigation(!keynavigation); })
 		.Key(K_SHIFT_CTRL_K)
 		.Check(keynavigation);
-	menu.Add(t_("Dynamic colors"),	[=] { DynamicColors(!dynamiccolors);			})
+	menu.Add(t_("Dynamic colors"),
+		[=] { DynamicColors(!dynamiccolors); })
 		.Key(K_SHIFT_CTRL_D)
 		.Check(dynamiccolors);
-	menu.Add(t_("Light colors"),	[=] { LightColors(!lightcolors);				})
+	menu.Add(t_("Light colors"),
+		[=] { LightColors(!lightcolors); })
 		.Key(K_SHIFT|K_ALT_L)
 		.Check(lightcolors);
-	menu.Add(t_("Blinking text"),	[=] { BlinkingText(!blinktext);					})
+	menu.Add(t_("Blinking text"),
+		[=] { BlinkingText(!blinktext); })
 		.Key(K_SHIFT_CTRL_B)
 		.Check(blinktext);
-	menu.Add(t_("Hyperlinks"),		[=] { Hyperlinks(!hyperlinks);					})
+	menu.Add(t_("Hyperlinks"),
+		[=] { Hyperlinks(!hyperlinks); })
 		.Key(K_SHIFT|K_ALT_H)
 		.Check(hyperlinks);
-	menu.Add(t_("Inline images"),	[=] { InlineImages(!inlineimages);				})
+	menu.Add(t_("Inline images"),
+		[=] { InlineImages(!inlineimages); })
 		.Key(K_SHIFT_CTRL_I)
 		.Check(inlineimages);
-	menu.Add(t_("Size hint"),		[=] { ShowSizeHint(!sizehint);					})
+	menu.Add(t_("Size hint"),
+		[=] { ShowSizeHint(!sizehint); })
 		.Key(K_SHIFT_CTRL_W)
 		.Check(sizehint);
-	menu.Add(t_("Buffered refresh"),[=] { DelayedRefresh(!delayed);					})
+	menu.Add(t_("Buffered refresh"),
+		[=] { DelayedRefresh(!delayed); })
 		.Key(K_SHIFT_CTRL_Z)
 		.Check(delayed);
-	menu.Add(t_("Lazy resize"),		[=] { LazyResize(!lazyresize);					})
+	menu.Add(t_("Lazy resize"),
+		[=] { LazyResize(!lazyresize); })
 		.Key(K_SHIFT_CTRL_Z)
 		.Check(lazyresize);
 }
