@@ -395,9 +395,20 @@ void Terminal::LeftDouble(Point p, dword keyflags)
 		Ctrl::LeftDouble(p, keyflags);
 	else {
 		ClearSelection();
-		String uri = GetHyperlinkURI(ClientToPagePos(p), keyflags & K_CTRL);
-		if(!IsNull(uri))
-			WhenLink(uri);
+		p = ClientToPagePos(p);
+		if((keyflags & K_CTRL) == K_CTRL) {
+			if(IsMouseOverImage(p)) {
+				Image img = GetInlineImage(p, true);
+				if(!IsNull(img))
+					WhenImage(PNGEncoder().SaveString(img));
+			}
+			else
+			if(IsMouseOverHyperlink(p)) {
+				String uri = GetHyperlinkURI(p, true);
+				if(!IsNull(uri))
+					WhenLink(uri);
+			}
+		}
 	}
 }
 
@@ -683,7 +694,7 @@ bool Terminal::GetCellAtMousePos(VTCell& cell) const
 bool Terminal::IsMouseOverImage(Point p) const
 {
 	VTCell cell;
-	return GetCellAtMousePos(cell, p) && cell.IsImage();
+	return !IsSelection() && GetCellAtMousePos(cell, p) && cell.IsImage();
 }
 
 bool Terminal::IsMouseOverImage() const
@@ -692,10 +703,22 @@ bool Terminal::IsMouseOverImage() const
 	return IsMouseOverImage(ClientToPagePos(p));
 }
 
+Image Terminal::GetInlineImage(Point p, bool modifier)
+{
+	Image img;
+	VTCell cell;
+	if(GetCellAtMousePos(cell, p) && cell.IsImage() && modifier) {
+		img = GetCachedImageData(cell.chr, Null, GetFontSize()).image;
+		if(IsNull(img))
+			LLOG("Unable to retrieve image from cache. Link id: " << cell.chr);
+	}
+	return pick(img);
+}
+
 bool Terminal::IsMouseOverHyperlink(Point p) const
 {
 	VTCell cell;
-	return GetCellAtMousePos(cell, p) && cell.IsHyperlink();
+	return !IsSelection() && GetCellAtMousePos(cell, p) && cell.IsHyperlink();
 }
 
 bool Terminal::IsMouseOverHyperlink() const
@@ -741,12 +764,19 @@ void Terminal::StdBar(Bar& menu)
 	menu.Add(t_("Read only"), [=] { SetEditable(IsReadOnly()); })
 		.Key(K_SHIFT_CTRL_L)
 		.Check(IsReadOnly());
+	if(IsMouseOverImage()) {
+		menu.Separator();
+		ImagesBar(menu);
+	}
+	else
 	if(IsMouseOverHyperlink()) {
 		menu.Separator();
 		LinksBar(menu);
 	}
-	menu.Separator();
-	EditBar(menu);
+	else {
+		menu.Separator();
+		EditBar(menu);
+	}
 }
 
 void Terminal::EditBar(Bar& menu)
@@ -774,7 +804,22 @@ void Terminal::LinksBar(Bar& menu)
 
 void Terminal::ImagesBar(Bar& menu)
 {
-	// TODO
+	Point p = mousepos;
+
+	menu.Add(t_("Copy image to clipboard"), CtrlImg::copy(), [=]
+		{
+			Image img = GetInlineImage(p, true);
+			if(!IsNull(img))
+				AppendClipboardImage(img);
+		})
+		.Key(K_SHIFT_CTRL_H);
+	menu.Add(t_("Open image..."), CtrlImg::open(), [=]
+		{
+			Image img = GetInlineImage(p, true);
+			if(!IsNull(img))
+				WhenImage(PNGEncoder().SaveString(img));
+		})
+		.Key(K_SHIFT_CTRL_O);
 }
 
 void Terminal::OptionsBar(Bar& menu)

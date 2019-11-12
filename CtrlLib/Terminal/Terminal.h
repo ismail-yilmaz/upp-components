@@ -165,6 +165,7 @@ public:
     bool        GetCellAtMousePos(VTCell& cell) const;
     
     String      GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
+    Image       GetInlineImage()                                { return GetInlineImage(mousepos, true);  }
         
     void        DragAndDrop(Point p, PasteClip& d) override;
 
@@ -247,7 +248,9 @@ private:
     bool        IsMouseOverHyperlink(Point p) const;
     
     void        HighlightHyperlink(Point p);
+    
     String      GetHyperlinkURI(Point p, bool modifier);
+    Image       GetInlineImage(Point p, bool modifier);
     
 private:
     enum ModifierKeyFlags : dword {

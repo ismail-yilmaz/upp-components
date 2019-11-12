@@ -107,10 +107,11 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports xterm style mouse tracking: button, wheel, motion, focus in/out events.
 - Supports user configurable cursor styles (block, beam, underscore, blinking/steady).
 - Supports cursor locking.
-- Supports clipboard operations (copy/paste/select all - including history buffer) and basic drag-and-drop ops.
+- Supports basic clipboard operations (copy/paste/select all - including history buffer)  for texts, hyperlinks, and images, and basic drag-and-drop ops.
+- Supports rectangle selection.
 - Supports bracketed paste mode.
 - Supports explicit hyperlinks. (OSC 8)
-- Has a predefined yet programmable context menu (right mouse button menu).
+- Has a predefined yet completely re-programmable context menu (right mouse button menu).
 - Supports window titles.
 - Supports bell notifications.
 - Supports VT1xx LEDs.
@@ -178,6 +179,10 @@ GNUPlot with sixel support, running on the basic terminal example. (Linux)
 
 Lynx web browser running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_lynx_linux_screenshot.png)
+
+Rectangle selection, and programmable default right-click (context) menu. (Linux)
+
+![ ](../Images/terminal_rectangle_selection._linux_screenshot.jpg)
 
 Hyperlinks support (via OSC 8). (Linux)
 

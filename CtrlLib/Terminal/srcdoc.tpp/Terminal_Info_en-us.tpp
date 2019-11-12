@@ -211,8 +211,10 @@ ops).&]
 [s5;i150;O0; Supports user configurable cursor styles (block, beam, 
 underscore, blinking/steady).&]
 [s5;i150;O0; Supports cursor locking.&]
-[s5;i150;O0; Supports clipboard operations (copy/paste/select all 
-`- including history buffer) and basic drag`-and`-drop ops.&]
+[s5;i150;O0; Supports basic clipboard operations (copy/paste/select 
+all `- including history buffer) for texts, links and images 
+and basic drag`-and`-drop ops.&]
+[s5;i150;O0; Supports rectangle selection.&]
 [s5;i150;O0; Supports bracketed paste mode.&]
 [s5;i150;O0; Supports explicit [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ h
 yperlinks]&]
