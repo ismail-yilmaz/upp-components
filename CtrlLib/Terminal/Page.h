@@ -26,10 +26,15 @@ public:
     void         Unwrap() const                          { wrapped = false; }
     inline bool  IsWrapped() const                       { return wrapped;  }
 
+    String       ToString() const;
+    WString      ToWString() const;
+    
 private:
     mutable bool  invalid:1;
     mutable bool  wrapped:1;
 };
+
+WString GetVTLineAsWString(const VTLine& line, int begin, int end);
 
 class VTPage : Moveable<VTPage> {
 
@@ -162,8 +167,8 @@ public:
     VTPage& FillStream(const Rect& r, const VTCell& filler, dword flags);
     VTPage& FillStream(const Rect& r, dword chr);
 
-	VTPage& AddImage(Size sz, dword imageid, bool scroll, bool relpos = false);
-		
+    VTPage& AddImage(Size sz, dword imageid, bool scroll, bool relpos = false);
+        
     VTPage& SetVertMargins(int t, int b);
     VTPage& SetHorzMargins(int l, int r);
     VTPage& SetMargins(const Rect& r)                   { return SetMargins(r.left, r.top, r.right, r.bottom); }

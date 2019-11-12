@@ -147,8 +147,6 @@ protected:
 
     void            DisplayAlignmentTest();
 
-    WString         AsWString(const VTLine& line) const;
-
     template<class T, class R>
     void SetFlags(T& field, const R& flags, bool b = true)    { if(b) field |= flags; else field &= ~flags; }
     
@@ -290,6 +288,7 @@ public:
         Caret&      Block(bool blink = true)                { Set(BLOCK, blink); return *this; }
         Caret&      Beam(bool blink = true)                 { Set(BEAM, blink);  return *this; }
         Caret&      Underline(bool blink = true)            { Set(UNDERLINE, blink); return *this; }
+        Caret&		Blink(bool b = true)					{ if(!locked) { blinking = b; WhenAction(); }; return *this; }
         Caret&      Lock(bool b = true)                     { locked = b; return *this; }
         Caret&      Unlock()                                { return Lock(false); }
         byte        GetStyle() const                        { return style;    }

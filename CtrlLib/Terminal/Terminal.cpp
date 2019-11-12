@@ -109,11 +109,6 @@ void Terminal::Copy(const WString& s)
 	}
 }
 
-void Terminal::Paste()
-{
-	DragAndDrop(Null, Clipboard());
-}
-
 void Terminal::Paste(const WString& s, bool filter)
 {
 	if(IsReadOnly())
@@ -133,16 +128,10 @@ void Terminal::SelectAll(bool history)
 	Size psz = GetPageSize();
 	bool h = IsDefaultPage() && history;
 	Rect r = RectC(0, h ? 0 : sb, psz.cx, (h ? sb + (sb.GetTotal() - sb) : psz.cy) - 1);
-	anchor = sGetPos(r.TopLeft(), psz);
-	selpos = sGetPos(r.BottomRight(), psz);
+	anchor = r.TopLeft();
+	selpos = r.BottomRight();
 	selclick = true;
 	Refresh();
-}
-
-void Terminal::Layout()
-{
-	ReCalcSelection();
-	SyncPage();
 }
 
 void Terminal::SyncSize(bool notify)
@@ -355,13 +344,14 @@ void Terminal::LeftDown(Point p, dword keyflags)
 	if(IsTracking())
 		VTMouseEvent(p, LEFTDOWN, keyflags);
 	else{
-		int n = GetMouseSelPos(p);
-		if(IsSelected(n)) {
+		p = ClientToPagePos(p);
+		if(IsSelected(p)) {
 			selclick = true;
 			return;
 		}
-		else
-			SetSelection(n, n);
+		else {
+			SetSelection(p, p, keyflags & K_CTRL);
+		}
 	}
 	SetCapture();
 }
@@ -373,8 +363,8 @@ void Terminal::LeftUp(Point p, dword keyflags)
 			VTMouseEvent(p, LEFTUP, keyflags);
 	}
 	else {
-		int n = GetMouseSelPos(p);
-		if(!HasCapture() && selclick && IsSelected(n))
+		p = ClientToPagePos(p);
+		if(!HasCapture() && selclick && IsSelected(p))
 			ClearSelection();
 		selclick = false;
 	}
@@ -383,8 +373,8 @@ void Terminal::LeftUp(Point p, dword keyflags)
 
 void Terminal::LeftDrag(Point p, dword keyflags)
 {
-	int n = GetMouseSelPos(p);
-	if(!IsTracking() && !HasCapture() && selclick && IsSelected(n)) {
+	p = ClientToPagePos(p);
+	if(!IsTracking() && !HasCapture() && selclick && IsSelected(p)) {
 		WString sample = GetSelectedText();
 		VectorMap<String, ClipData> data;
 		Append(data, sample);
@@ -405,7 +395,7 @@ void Terminal::LeftDouble(Point p, dword keyflags)
 		Ctrl::LeftDouble(p, keyflags);
 	else {
 		ClearSelection();
-		String uri = GetHyperlinkURI(GetMousePos(p), keyflags & K_CTRL);
+		String uri = GetHyperlinkURI(ClientToPagePos(p), keyflags & K_CTRL);
 		if(!IsNull(uri))
 			WhenLink(uri);
 	}
@@ -432,8 +422,8 @@ void Terminal::RightDown(Point p, dword keyflags)
 	if(IsTracking())
 		VTMouseEvent(p, RIGHTDOWN, keyflags);
 	else {
-		int n = GetMouseSelPos(p);
-		if(!(selclick = IsSelected(n)))
+		p = ClientToPagePos(p);
+		if(!(selclick = IsSelected(p)))
 			ClearSelection();
 		MenuBar::Execute(WhenBar);
 	}
@@ -447,9 +437,7 @@ void Terminal::RightUp(Point p, dword keyflags)
 
 void Terminal::MouseMove(Point p, dword keyflags)
 {
-	Rect r = GetView();
-	p = clamp(p, r.TopLeft(), r.BottomRight());
-	
+	p = GetView().Bind(p);
 	bool b = HasCapture();
 	if(IsTracking()) {
 		if(b && modes[XTDRAGM])
@@ -460,12 +448,12 @@ void Terminal::MouseMove(Point p, dword keyflags)
 	}
 	else
 	if(HasCapture()) {
-		selpos = GetMouseSelPos(p);
+		selpos = ClientToPagePos(p);
 		Refresh();
 	}
 	else
 	if(consoleflags & FLAG_HYPERLINKS) {
-		HighlightHyperlink(GetMousePos(p));
+		HighlightHyperlink(ClientToPagePos(p));
 	}
 }
 
@@ -490,7 +478,7 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 	bool buttondown = (event & UP) != UP; // Combines everything else with a button-down event
 	int  mouseevent = 0;
 	
-	p = GetMousePos(p) + 1;
+	p = ClientToPagePos(p) + 1;
 	
 	switch(event) {
 	case LEFTUP:
@@ -555,7 +543,7 @@ bool Terminal::IsTracking() const
 	       modes[XTDRAGM];
 }
 
-Point Terminal::GetMousePos(Point p) const
+Point Terminal::ClientToPagePos(Point p) const
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
@@ -564,65 +552,74 @@ Point Terminal::GetMousePos(Point p) const
 	return p;
 }
 
-int Terminal::GetMouseSelPos(Point p) const
-{
-	return sGetPos(GetMousePos(p), GetPageSize());
-}
-
-void Terminal::SetSelection(int l, int h)
+void Terminal::SetSelection(Point l, Point h, bool rsel)
 {
 	anchor = min(l, h);
 	selpos = max(l, h);
+	rectsel = rsel;
 	Refresh();
 }
 
-bool Terminal::GetSelection(int& l, int& h) const
+bool Terminal::GetSelection(Point& l, Point& h)
 {
-	if(anchor < 0 || anchor == selpos) {
+	if(IsNull(anchor) || anchor == selpos) {
 		l = h = selpos;
 		return false;
 	}
-	l = min(anchor, selpos);
-	h = max(anchor, selpos);
+	
+	Size psz = GetPageSize();
+	if(sGetPos(selpos, psz) < sGetPos(anchor, psz)) {
+		l = selpos;
+		h = anchor;
+	}
+	else {
+		l = anchor;
+		h = selpos;
+	}
+	
 	return true;
 }
 
-Rect Terminal::GetSelectionRect() const
+Rect Terminal::GetSelectionRect()
 {
 	Rect r = Null;
-	int l, h;
-	if(GetSelection(l, h)) {
-		Size psz = page->GetSize();
-		Point a = sGetCoords(l, psz);
-		Point b = sGetCoords(h, psz);
-		r.Set(a, b);
-	}
+	Point l, h;
+	if(GetSelection(l, h))
+		r.Set(min(l, h), max(l, h));
 	return r;
 }
 
 void Terminal::ClearSelection()
 {
-	anchor = selpos = -1;
+	anchor = Null;
+	selpos = Null;
+	rectsel = false;
 	Refresh();
 }
 
-void Terminal::ReCalcSelection()
+bool Terminal::IsSelected(Point p)
 {
-	Rect r = GetSelectionRect();
-	if(!IsNull(r)) {
-		Size psz = GetPageSize();
-		anchor = sGetPos(r.TopLeft(), psz);
-		selpos = sGetPos(r.BottomRight(), psz);
+	if(rectsel) {
+		Rect r = GetSelectionRect();
+		return !IsNull(r)      &&
+			   p.x >= r.left   &&
+		       p.y >= r.top    &&
+		       p.x <  r.right  &&
+		       p.y <= r.bottom;
 	}
+	
+	Point l, h;
+	if(GetSelection(l, h)) {
+		Size psz = page->GetSize();
+		int x = sGetPos(p, psz);
+		int b = sGetPos(l, psz);
+		int e = sGetPos(h, psz);
+		return b <= x && x < e;
+	}
+	return false;
 }
 
-bool Terminal::IsSelected(int pos) const
-{
-	int l, h;
-	return GetSelection(l, h) && pos >= l && pos < h;
-}
-
-WString Terminal::GetSelectedText() const
+WString Terminal::GetSelectedText()
 {
 	WString txt;
 	Rect r = GetSelectionRect();
@@ -640,7 +637,9 @@ WString Terminal::GetSelectedText() const
 	for(int line = r.top, i = 0; !IsNull(r) && line <= r.bottom; line++) {
 		if(line < page->GetLineCount()) {
 			const VTLine& ln = page->GetLine(line);
-			WString s = AsWString(ln);
+			WString s = rectsel
+				? GetVTLineAsWString(ln, r.left, r.right)
+				: ln.ToWString();
 			if(IsNull(s)) {
 				i++;
 				continue;
@@ -649,14 +648,14 @@ WString Terminal::GetSelectedText() const
 				PutCrLf(i);
 				i = 0;
 			}
-			if(line == r.top)
-				txt.Cat(s.Mid(r.left, (r.top == r.bottom ? r.right : s.GetLength()) - r.left));
+			if(!rectsel && line == r.top)
+					txt.Cat(s.Mid(r.left, (r.top == r.bottom ? r.right : s.GetLength()) - r.left));
 			else
-			if(line == r.bottom)
-				 txt.Cat(s.Left(r.right));
+			if(rectsel && line == r.bottom)
+					 txt.Cat(s.Left(r.right));
 			else
 				txt.Cat(s);
-			if(!ln.IsWrapped())
+			if(rectsel || !ln.IsWrapped())
 				PutCrLf();
 		}
 	}
@@ -675,16 +674,34 @@ bool Terminal::GetCellAtMousePos(VTCell& cell, Point p) const
 	return false;
 }
 
+bool Terminal::GetCellAtMousePos(VTCell& cell) const
+{
+	Point p = GetMouseViewPos();
+	return GetCellAtMousePos(cell, ClientToPagePos(p));
+}
+
 bool Terminal::IsMouseOverImage(Point p) const
 {
 	VTCell cell;
 	return GetCellAtMousePos(cell, p) && cell.IsImage();
 }
 
+bool Terminal::IsMouseOverImage() const
+{
+	Point p = GetMouseViewPos();
+	return IsMouseOverImage(ClientToPagePos(p));
+}
+
 bool Terminal::IsMouseOverHyperlink(Point p) const
 {
 	VTCell cell;
 	return GetCellAtMousePos(cell, p) && cell.IsHyperlink();
+}
+
+bool Terminal::IsMouseOverHyperlink() const
+{
+	Point p = GetMouseViewPos();
+	return IsMouseOverHyperlink(ClientToPagePos(p));
 }
 
 String Terminal::GetHyperlinkURI(Point p, bool modifier)
@@ -719,7 +736,11 @@ void Terminal::HighlightHyperlink(Point p)
 
 void Terminal::StdBar(Bar& menu)
 {
-	OptionsBar(menu);
+	menu.Sub(t_("Options"), [=](Bar& menu) { OptionsBar(menu); });
+	menu.Separator();
+	menu.Add(t_("Read only"), [=] { SetEditable(IsReadOnly()); })
+		.Key(K_SHIFT_CTRL_L)
+		.Check(IsReadOnly());
 	if(IsMouseOverHyperlink()) {
 		menu.Separator();
 		LinksBar(menu);
@@ -730,7 +751,7 @@ void Terminal::StdBar(Bar& menu)
 
 void Terminal::EditBar(Bar& menu)
 {
-	menu.Add(IsSelection(), t_("Copy"), CtrlImg::copy(), [=] { Copy(); })
+	menu.Add(IsSelection(), t_("Copy"), CtrlImg::copy(),  [=] { Copy();  })
 		.Key(K_SHIFT_CTRL_C);
 	menu.Add(IsEditable(), t_("Paste"), CtrlImg::paste(), [=] { Paste(); })
 		.Key(K_SHIFT_CTRL_V);
@@ -758,12 +779,61 @@ void Terminal::ImagesBar(Bar& menu)
 
 void Terminal::OptionsBar(Bar& menu)
 {
-	menu.Add(t_("Read only"), [=] { SetEditable(IsReadOnly()); })
-		.Key(K_SHIFT_CTRL_L)
-		.Check(IsReadOnly());
-	menu.Add(t_("Scrollbar"), [=] { ShowScrollBar(!sb.IsChild()); })
+	bool dynamiccolors = consoleflags & FLAG_DYNAMIC_COLORS;
+	bool hyperlinks    = consoleflags & FLAG_HYPERLINKS;
+	bool inlineimages  = consoleflags & FLAG_IMAGES;
+
+	menu.Sub(t_("Cursor style"),	[=](Bar& menu)
+		{
+			byte cstyle   = caret.GetStyle();
+			bool unlocked = !caret.IsLocked();
+			menu.Add(unlocked, t_("Block"),		[=] { caret.Block(caret.IsBlinking());		})
+				.Radio(cstyle == Caret::BLOCK);
+			menu.Add(unlocked, t_("Beam"),		[=] { caret.Beam(caret.IsBlinking());		})
+				.Radio(cstyle == Caret::BEAM);
+			menu.Add(unlocked, t_("Underline"),	[=] { caret.Underline(caret.IsBlinking());	})
+				.Radio(cstyle == Caret::UNDERLINE);
+			menu.Separator();
+			menu.Add(unlocked, t_("Blinking"),	[=] { caret.Blink(!caret.IsBlinking());		})
+				.Check(caret.IsBlinking());
+			menu.Separator();
+			menu.Add(t_("Locked"),				[=] { caret.Lock(!caret.IsLocked());		})
+				.Check(!unlocked);
+		});
+	menu.Separator();
+	menu.Add(t_("Scrollbar"),		[=] { ShowScrollBar(!sb.IsChild());				})
 		.Key(K_SHIFT_CTRL_S)
 		.Check(sb.IsChild());
+	menu.Add(t_("Alternate scroll"),[=] { AlternateScroll(!alternatescroll);		})
+		.Key(K_SHIFT|K_ALT_S)
+		.Check(alternatescroll);
+	menu.Add(t_("Key navigation"),	[=] { KeyNavigation(!keynavigation);			})
+		.Key(K_SHIFT_CTRL_K)
+		.Check(keynavigation);
+	menu.Add(t_("Dynamic colors"),	[=] { DynamicColors(!dynamiccolors);			})
+		.Key(K_SHIFT_CTRL_D)
+		.Check(dynamiccolors);
+	menu.Add(t_("Light colors"),	[=] { LightColors(!lightcolors);				})
+		.Key(K_SHIFT|K_ALT_L)
+		.Check(lightcolors);
+	menu.Add(t_("Blinking text"),	[=] { BlinkingText(!blinktext);					})
+		.Key(K_SHIFT_CTRL_B)
+		.Check(blinktext);
+	menu.Add(t_("Hyperlinks"),		[=] { Hyperlinks(!hyperlinks);					})
+		.Key(K_SHIFT|K_ALT_H)
+		.Check(hyperlinks);
+	menu.Add(t_("Inline images"),	[=] { InlineImages(!inlineimages);				})
+		.Key(K_SHIFT_CTRL_I)
+		.Check(inlineimages);
+	menu.Add(t_("Size hint"),		[=] { ShowSizeHint(!sizehint);					})
+		.Key(K_SHIFT_CTRL_W)
+		.Check(sizehint);
+	menu.Add(t_("Buffered refresh"),[=] { DelayedRefresh(!delayed);					})
+		.Key(K_SHIFT_CTRL_Z)
+		.Check(delayed);
+	menu.Add(t_("Lazy resize"),		[=] { LazyResize(!lazyresize);					})
+		.Key(K_SHIFT_CTRL_Z)
+		.Check(lazyresize);
 }
 
 Terminal& Terminal::ShowScrollBar(bool b)
@@ -865,7 +935,7 @@ Image Terminal::CursorImage(Point p, dword keyflags)
 		return Image::Arrow();
 	else
 	if(IsMouseOverHyperlink())
-		return CtrlImg::HandCursor();
+		return Image::Hand();
 	else
 		return Image::IBeam();
 }

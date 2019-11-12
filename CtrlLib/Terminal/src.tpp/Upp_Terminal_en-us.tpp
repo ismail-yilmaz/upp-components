@@ -548,21 +548,22 @@ henBar ]callback.&]
 [s5;:Upp`:`:Terminal`:`:EditBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* EditBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2;%% Edit menu consists of standard clipboard actions for text 
-(select/copy/paste), and is a part of standard menu. It can be 
-used separately.&]
+(select/copy/paste), and is a part of standard menu. It can also 
+be used separately.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:LinksBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* LinksBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2;%% Links menu consists of standard clipboard actions for hyperlinks 
-(copy/open), and is a part of standard menu. It can be used separately.&]
+(copy/open), and is a part of standard menu. It can also be used 
+separately.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:OptionsBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* OptionsBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2;%% Options menu consists of terminal specific actions (read`-only/read`-write 
-mode, show/hide scrollbar), and is a part of standard menu. It 
-can be used separately.&]
+mode, show/hide scrollbar, etc), and is a part of standard menu. 
+It can also be used separately.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:PaintPage`(Upp`:`:Draw`&`): [@(0.0.255) void]_[* PaintPage]([_^Upp`:`:Draw^ D

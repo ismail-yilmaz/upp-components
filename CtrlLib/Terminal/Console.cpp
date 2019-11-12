@@ -369,25 +369,6 @@ void Console::PutEol()
 	Put(modes[LNM] ? "\r\n" : "\r");
 }
 
-WString Console::AsWString(const VTLine& line) const
-{
-	WString s;
-	if(!line.IsEmpty()) {
-		int i = 0;
-		for(const VTCell& cell : line) {
-			if(cell.chr == 0 || cell.IsImage()) i++;
-			else {
-				if(i) {
-					s.Cat(' ', i);
-					i = 0;
-				}
-				s.Cat(cell);
-			}
-		}
-	}
-	return s;
-}
-
 void Console::Serialize(Stream& s)
 {
 	int version = 1;

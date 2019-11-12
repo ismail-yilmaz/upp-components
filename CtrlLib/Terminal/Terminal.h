@@ -119,7 +119,7 @@ public:
 
     void        Copy()                                          { Copy(GetSelectedText()); }
     void        Copy(const WString& s);
-    void        Paste();
+    void        Paste()                                         { DragAndDrop(Null, Clipboard()); }
     void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
     
@@ -131,7 +131,7 @@ public:
     void        ImagesBar(Bar& menu);
     void        OptionsBar(Bar& menu);
     
-    void        Layout() override;
+    void        Layout() override                               { SyncPage(); }
     
     void        Paint(Draw& w)  override                        { Paint0(w); }
     void        PaintPage(Draw& w)                              { Paint0(w, true); }
@@ -157,12 +157,12 @@ public:
     void        MouseWheel(Point p, int zdelta, dword keyflags) override;
     void        VTMouseEvent(Point p, dword event, dword keyflags, int zdelta = 0);
     
-    bool        IsMouseOverImage() const                        { return IsMouseOverImage(GetMousePos(GetMouseViewPos()));        }
-    bool        IsMouseOverHyperlink() const                    { return IsMouseOverHyperlink(GetMousePos(GetMouseViewPos()));    }
+    bool        IsMouseOverImage() const;
+    bool        IsMouseOverHyperlink() const;
  
     bool        IsTracking() const;
 
-    bool        GetCellAtMousePos(VTCell& cell) const           { return GetCellAtMousePos(cell, GetMousePos(GetMouseViewPos())); }
+    bool        GetCellAtMousePos(VTCell& cell) const;
     
     String      GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
         
@@ -232,16 +232,14 @@ private:
 
     Point       GetCursorPos() const                            { return --page->GetPos(); /* VT cursor position is 1-based */ }
 
-    Point       GetMousePos(Point p) const;
-    int         GetMouseSelPos(Point p) const;
+    Point       ClientToPagePos(Point p) const;
     
-    void        SetSelection(int l, int h);
-    bool        GetSelection(int& l, int& h) const;
+    void        SetSelection(Point  l, Point h, bool rsel);
+    bool        GetSelection(Point& l, Point& h);
+    Rect        GetSelectionRect();
     void        ClearSelection();
-    void        ReCalcSelection();
-    bool        IsSelected(int pos) const;
-    Rect        GetSelectionRect() const;
-    WString     GetSelectedText() const;
+    bool        IsSelected(Point p);
+    WString     GetSelectedText();
 
     bool        GetCellAtMousePos(VTCell& cell, Point p) const;
 
@@ -264,9 +262,10 @@ private:
     const Display *imgdisplay;
     Font        font            = Monospace();
     Rect        caretrect;
-    int         anchor          = -1;
-    int         selpos          = -1;
+    Point       anchor          = Null;
+    Point       selpos          = Null;
     bool        selclick        = false;
+    bool        rectsel         = false;
     bool        delayed         = true;
     bool        resizing        = false;
     bool        lazyresize      = false;

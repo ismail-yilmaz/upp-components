@@ -46,10 +46,41 @@ bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
 	return b;
 }
 
+String VTLine::ToString() const
+{
+	return GetVTLineAsWString(*this, 0, GetCount()).ToString();
+}
+
+WString VTLine::ToWString() const
+{
+	return GetVTLineAsWString(*this, 0, GetCount());
+}
+
 VTLine::VTLine()
 {
 	invalid = true;
 	wrapped = false;
+}
+
+WString GetVTLineAsWString(const VTLine& line, int begin, int end)
+{
+	WString s;
+	if(line.GetCount()) {
+		int j = 0;
+		for(int i = max(0, begin); i < min(end, line.GetCount()); i++) {
+			const VTCell& cell = line[i];
+			if(cell.chr == 0 || cell.IsImage())
+				j++;
+			else {
+				if(j) {
+					s.Cat(' ', j);
+					j = 0;
+				}
+				s.Cat(cell.chr);
+			}
+		}
+	}
+	return s;
 }
 
 VTPage& VTPage::OriginMode(bool b)

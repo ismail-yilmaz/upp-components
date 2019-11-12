@@ -130,8 +130,7 @@ void Terminal::Paint0(Draw& w, bool print)
 					Color ink, paper;
 					SetInkAndPaperColor(cell, ink, paper);
 					int x = j * fsz.cx;
-					int n = i * psz.cx + j;
-					bool highlight = IsSelected(n);
+					bool highlight = IsSelected(Point(j, i));
 					if(pass == 0) {
 					#ifdef flagTRUECOLOR
 						bool defpcolor = IsNull(cell.paper);
