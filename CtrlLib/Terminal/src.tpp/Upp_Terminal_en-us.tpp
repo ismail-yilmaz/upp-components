@@ -559,10 +559,17 @@ ar][@(0.0.255) `&]_[*@3 menu])&]
 separately.&]
 [s3;%% &]
 [s4; &]
+[s5;:Upp`:`:Terminal`:`:ImagesBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* ImagesBar]([_^Upp`:`:Bar^ B
+ar][@(0.0.255) `&]_[*@3 menu])&]
+[s2;%% Images menu consists of standard clipboard actions for inline 
+images (copy/open), and is a part of standard menu. It can also 
+be used separately.&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:Terminal`:`:OptionsBar`(Upp`:`:Bar`&`): [@(0.0.255) void]_[* OptionsBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2;%% Options menu consists of terminal specific actions (read`-only/read`-write 
-mode, show/hide scrollbar, etc), and is a part of standard menu. 
+mode, show/hide scrollbar, etc.), and is a part of standard menu. 
 It can also be used separately.&]
 [s3;%% &]
 [s4; &]
