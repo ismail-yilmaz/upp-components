@@ -11,6 +11,7 @@ JobWorker::JobWorker()
 	cb  = Null;
 	exc = nullptr;
 	status = IDLE;
+	cancel = false;
 	if(!work.RunNice([=]{ JobWorker::ptr = this; Loop(); }))
 		throw Exc("Couldn't create new job.");
 	LLOG("Initialized.");
@@ -36,6 +37,7 @@ bool JobWorker::Start(Event<>&& fn)
 	lock.Enter();
 	cb = pick(fn);
 	exc = nullptr;
+	cancel = false;
 	lock.Leave();
 	status = WORKING;
 	LLOG("Starting to work...");
