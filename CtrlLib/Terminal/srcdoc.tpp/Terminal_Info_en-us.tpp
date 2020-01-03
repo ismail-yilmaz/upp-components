@@ -24,7 +24,7 @@ topic "Overview";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
 [s2;= Terminal Package for Ultimate`+`+&]
-[s0;= [*1 Copyright © 2019, ][*^mailto`:iylmz`.iylmz`@gmail`.com^1 İsmail 
+[s0;= [*1 Copyright © 2019`-2020, ][*^mailto`:iylmz`.iylmz`@gmail`.com^1 İsmail 
 Yılmaz]&]
 [s0;=^mailto`:iylmz`.iylmz`@gmail`.com^1 &]
 [s0;=1 &]

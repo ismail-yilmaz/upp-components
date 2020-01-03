@@ -1,7 +1,7 @@
 
 # Terminal Package for Ultimate++
 
-*Copyright © 2019, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
+*Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
 
 
 ![ ](../Images/terminal_header_screenshot.png)
@@ -572,7 +572,7 @@ Terminal package is currently at v0.2. (It is considered a beta until v1.0)
  
 ## License
 
-	Copyright (c) 2019, İsmail Yılmaz
+	Copyright (c) 2019-2020, İsmail Yılmaz
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
