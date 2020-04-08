@@ -9,5 +9,6 @@ file
 
 mainconfig
 	"" = "GUI",
-	"" = "GUI .TRUECOLOR";
+	"" = "GUI .TRUECOLOR",
+	"" = "GUI .NOGTK .TRUECOLOR";
 

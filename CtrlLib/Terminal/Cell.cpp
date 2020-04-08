@@ -4,26 +4,6 @@
 
 namespace Upp {
 
-VTCell& VTCell::Ink(int n)
-{
-#ifdef flagTRUECOLOR
-	ink = n;
-#else
-	ink = Nvl(n, 0xFFFF);
-#endif
-	return *this;
-}
-
-VTCell& VTCell::Paper(int n)
-{
-#ifdef flagTRUECOLOR
-	paper = n;
-#else
-	paper = Nvl(n, 0xFFFF);
-#endif
-	return *this;
-}
-
 void VTCell::Fill(const VTCell& filler, dword flags)
 {
 	if(flags == FILL_NORMAL) {
@@ -53,30 +33,49 @@ void VTCell::Fill(const VTCell& filler, dword flags)
 
 void VTCell::Reset()
 {
-#ifdef flagTRUECOLOR
 	ink   = Null;
 	paper = Null;
-#else
-	ink   = 0xFFFF;
-	paper = 0xFFFF;
-#endif
 	sgr   = SGR_NORMAL;
 	data  = 0;
 }
 
+bool VTCell::IsDoubleWidth() const
+{
+	// This function is taken from Markus Kuhn's wcwidth implementation.
+	// For license and implementation details, see:
+	// https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
+	
+	return !IsImage()
+		&& (chr >= 0x1100
+		&& (chr <= 0x115F
+		||  chr == 0x2329
+		||  chr == 0x232A
+		|| (chr >= 0x2E80 && chr <= 0xA4CF && chr != 0x303F)
+		|| (chr >= 0xAC00 && chr <= 0xD7A3)
+		|| (chr >= 0xF900 && chr <= 0xFAFF)
+		|| (chr >= 0xFE10 && chr <= 0xFE19)
+		|| (chr >= 0xFE30 && chr <= 0xFE6F)
+		|| (chr >= 0xFF00 && chr <= 0xFF60)
+		|| (chr >= 0xFFE0 && chr <= 0xFFE6)
+		|| (chr >= 0x20000 && chr <= 0x02FFFD)
+		|| (chr >= 0x30000 && chr <= 0x03FFFD)));
+}
+
 bool VTCell::IsNullInstance() const
 {
-    return  attrs == 0          &&
-            sgr   == SGR_NORMAL &&
-#ifdef flagTRUECOLOR
-            IsNull(ink)         &&
-            IsNull(paper)       &&
-#else
-            ink   == 0xFFFF     &&
-            paper == 0xFFFF     &&
-#endif
-            chr  == 0			&&
-            data == 0;
+	return IsVoid()
+		|| (chr  == 0
+		&& data  == 0
+		&& attrs == 0
+		&& sgr   == SGR_NORMAL
+		&& IsNull(ink)
+		&& IsNull(paper));
+}
+
+const VTCell& VTCell::Void()
+{
+	static VTCell sCell;
+	return sCell;
 }
 
 void VTCell::Serialize(Stream& s)
@@ -91,10 +90,5 @@ void VTCell::Serialize(Stream& s)
 		s % ink;
 		s % paper;
 	}
-}
-
-VTCell::VTCell()
-{
-	Clear();
 }
 }
