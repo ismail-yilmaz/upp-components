@@ -5,21 +5,52 @@
 
 namespace Upp {
 
-static int sGetPos(Point pt, Size sz) // 2D -> 1D
+static inline int sGetPos(Point pt, Size sz) // 2D -> 1D
 {
 	return pt.y * sz.cx + pt.x;
 }
 
-static Point sGetCoords(int pos, Size sz) // 1D -> 2D
+static inline Point sGetCoords(int pos, Size sz) // 1D -> 2D
 {
 	int x = pos % sz.cx;
 	return Point(x, (pos - x) / sz.cx);
 }
 
-Terminal::Terminal() : Console()
+Terminal::Terminal()
+: page(&dpage)
+, legacycharsets(false)
+, eightbit(false)
+, windowactions(false)
+, windowreports(false)
+, sixel(false)
+, jexer(false)
+, hyperlinks(false)
+, reversewrap(false)
+, sizehint(true)
+, delayedrefresh(true)
+, lazyresize(false)
+, blinkingtext(true)
+, adjustcolors(false)
+, lightcolors(false)
+, dynamiccolors(false)
+, intensify(false)
+, nobackground(false)
+, alternatescroll(false)
+, keynavigation(true)
+, userdefinedkeys(false)
+, userdefinedkeyslocked(true)
+, streamfill(false)
 {
 	Unicode();
-	NoLegacyCharsets();
+	SetLevel(LEVEL_4);
+	SetCharset(CHARSET_UNICODE);
+	parser.WhenChr = THISFN(PutChar);
+	parser.WhenCtl = THISFN(ParseControlChars);
+	parser.WhenEsc = THISFN(ParseEscapeSequences);
+	parser.WhenCsi = THISFN(ParseCommandSequences);
+	parser.WhenDcs = THISFN(ParseDeviceControlStrings);
+	parser.WhenOsc = THISFN(ParseOperatingSystemCommands);
+	parser.WhenApc = THISFN(ParseApplicationProgrammingCommands);
 	SetImageDisplay(NormalImageCellDisplay());
 	SetFrame(FieldFrame());
 	History();
@@ -29,20 +60,6 @@ Terminal::Terminal() : Console()
 	sb.WhenScroll = THISFN(Scroll);
 	caret.WhenAction = [=] { PlaceCaret(); };
 	GetDefaultPage().WhenScroll = [=] { SyncPage(); RefreshDisplay(); };
-}
-
-void Terminal::PreParse()
-{
-	if(delayed &&
-		(!lazyresize || !resizing))
-			if(!ExistsTimeCallback(TIMEID_REFRESH)) // Don't cancel a pending refresh.
-					SetTimeCallback(-16, THISFN(DoDelayedRefresh), TIMEID_REFRESH);
-}
-
-void Terminal::PostParse()
-{
-	if(!delayed)
-		RefreshDisplay();
 }
 
 Size Terminal::GetFontSize() const
@@ -66,8 +83,9 @@ void Terminal::PlaceCaret(bool scroll)
 		KillCaret();
 		if(!b) return;
 	}
-	if(caret.IsBlinking())
+	if(caret.IsBlinking()) {
 		SetCaret(GetCaretRect());
+	}
 	else {
 		Refresh(caretrect);
 		Refresh(GetCaretRect());
@@ -80,24 +98,24 @@ void Terminal::PlaceCaret(bool scroll)
 Rect Terminal::GetCaretRect()
 {
 	Size fsz = GetFontSize();
-	Point p  = GetCursorPos();
+	Point pt = GetCursorPos();
 	
-	p.x = p.x * fsz.cx;
-	p.y = p.y * fsz.cy - (GetSbPos() * fsz.cy);
+	pt.x = pt.x * fsz.cx;
+	pt.y = pt.y * fsz.cy - (GetSbPos() * fsz.cy);
 
 	switch(caret.GetStyle()) {
 	case Caret::BEAM:
 		fsz.cx = 1;
 		break;
 	case Caret::UNDERLINE:
-		p.y += fsz.cy - 1;
+		pt.y += fsz.cy - 1;
 		fsz.cy = 1;
 		break;
 	case Caret::BLOCK:
 		break;
 	}
 
-	return caretrect = RectC(p.x, p.y, fsz.cx, fsz.cy);
+	return caretrect = Rect(pt, fsz);
 }
 
 void Terminal::Copy(const WString& s)
@@ -141,16 +159,18 @@ void Terminal::SyncSize(bool notify)
 	// avoid this, we check the  new page size, and  do not attempt resize
 	// the page if the requested page size is < 2 x 2 cells.
 
-	Size psz = GetPageSize();
-	if((resizing = page->GetSize() != psz) && psz.cx > 1 && 1 < psz.cy) {
-		page->SetSize(psz);
+	Size newsize = GetPageSize();
+	resizing = page->GetSize() != newsize;
+	
+	if(resizing && newsize.cx > 1 && 1 < newsize.cy) {
+		page->SetSize(newsize);
 		if(notify) {
 			if(sizehint) {
 				hinting = true;
-				KillSetTimeCallback(-1000, THISFN(HintNewSize), TIMEID_SIZEHINT);
+				KillSetTimeCallback(1000, THISFN(HintNewSize), TIMEID_SIZEHINT);
 			}
 			if(lazyresize)
-				KillSetTimeCallback(-100, THISFN(DoLazyResize), TIMEID_REFRESH);
+				KillSetTimeCallback(100, THISFN(DoLazyResize), TIMEID_REFRESH);
 			else {
 				resizing = false;
 				WhenResize();
@@ -228,7 +248,7 @@ void Terminal::RefreshPage(bool full)
 	if(full)
 		Refresh();
 	else
-	if(!delayed)
+	if(!delayedrefresh)
 		RefreshDisplay();
 }
 
@@ -239,38 +259,32 @@ void Terminal::RefreshDisplay()
 	Size fsz = GetFontSize();
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
-	bool hyperlinks = consoleflags & FLAG_HYPERLINKS;
-	Vector<Rect> invalid;
 	
 	LTIMING("Terminal::RefreshDisplay");
 
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
-		const VTLine& line = page->GetLine(i);
+		const VTLine& line = page->FetchLine(i);
 		int y = i * fsz.cy - (fsz.cy * pos);
 		for(int j = 0; j < line.GetCount(); j++) {
 			int x = j * fsz.cx;
 			const VTCell& cell = line[j];
-			if(hyperlinks && cell.IsHyperlink() &&
-				(cell.data == activelink || cell.data == prevlink)) {
+			if(hyperlinks && cell.IsHyperlink()
+				&& (cell.data == activelink || cell.data == prevlink)) {
 					if(!line.IsInvalid())
-						AddRefreshRect(invalid, RectC(x, y, fsz.cx, fsz.cy));
+						Refresh(RectC(x, y, fsz.cx, fsz.cy).InflatedVert(1));
 			}
 			else
-			if(blinktext && cell.IsBlinking()) {
+			if(blinkingtext && cell.IsBlinking()) {
 				if(!line.IsInvalid())
-					AddRefreshRect(invalid, RectC(x, y, fsz.cx, fsz.cy));
+					Refresh(RectC(x, y, fsz.cx, fsz.cy));
 				blinking_cells++;
 			}
 		}
 		if(line.IsInvalid()) {
 			line.Validate();
-			AddRefreshRect(invalid, RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
+			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
 		}
 	}
-
-	if(invalid.GetCount())
-		for(const Rect& r : invalid)
-			Refresh(r);
 
 	PlaceCaret();
 	Blink(blinking_cells > 0);
@@ -279,10 +293,10 @@ void Terminal::RefreshDisplay()
 void Terminal::Blink(bool b)
 {
 	bool bb = ExistsTimeCallback(TIMEID_BLINK);
-	if(blinktext && b && !bb)
+	if(blinkingtext && b && !bb)
 		SetTimeCallback(-blinkinterval, THISFN(RefreshBlinkingText), TIMEID_BLINK);
 	else
-	if(!blinktext || !b) {
+	if(!blinkingtext || !b) {
 		blinking = false;
 		if(bb)
 			KillTimeCallback(TIMEID_BLINK);
@@ -309,7 +323,7 @@ void Terminal::LostFocus()
 	Refresh();
 }
 
-void Terminal::DragAndDrop(Point p, PasteClip& d)
+void Terminal::DragAndDrop(Point pt, PasteClip& d)
 {
 	if(IsReadOnly() || IsDragAndDropSource())
 		return;
@@ -338,47 +352,47 @@ void Terminal::DragAndDrop(Point p, PasteClip& d)
 		Paste(s, noctl);
 }
 
-void Terminal::LeftDown(Point p, dword keyflags)
+void Terminal::LeftDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
-		VTMouseEvent(p, LEFTDOWN, keyflags);
+		VTMouseEvent(pt, LEFTDOWN, keyflags);
 	else{
-		p = ClientToPagePos(p);
-		if(IsSelected(p)) {
+		pt = ClientToPagePos(pt);
+		if(IsSelected(pt)) {
 			selclick = true;
 			return;
 		}
 		else {
-			SetSelection(p, p, keyflags & K_CTRL);
+			SetSelection(pt, pt, keyflags & K_CTRL);
 		}
 	}
 	SetCapture();
 }
 
-void Terminal::LeftUp(Point p, dword keyflags)
+void Terminal::LeftUp(Point pt, dword keyflags)
 {
 	if(IsTracking()) {
 		if(!modes[XTX10MM])
-			VTMouseEvent(p, LEFTUP, keyflags);
+			VTMouseEvent(pt, LEFTUP, keyflags);
 	}
 	else {
-		p = ClientToPagePos(p);
-		if(!HasCapture() && selclick && IsSelected(p))
+		pt = ClientToPagePos(pt);
+		if(!HasCapture() && selclick && IsSelected(pt))
 			ClearSelection();
 		selclick = false;
 	}
 	ReleaseCapture();
 }
 
-void Terminal::LeftDrag(Point p, dword keyflags)
+void Terminal::LeftDrag(Point pt, dword keyflags)
 {
-	p = ClientToPagePos(p);
+	pt = ClientToPagePos(pt);
 	bool modifier = keyflags & K_CTRL;
 	
 	if(!IsTracking()) {
 		VectorMap<String, ClipData> data;
-		if(!HasCapture() && !modifier && IsSelection() && IsSelected(p)) {
+		if(!HasCapture() && !modifier && IsSelection() && IsSelected(pt)) {
 			WString tsample = GetSelectedText();
 			Append(data, tsample);
 			Size tsz = StdSampleSize();
@@ -389,8 +403,8 @@ void Terminal::LeftDrag(Point p, dword keyflags)
 			DoDragAndDrop(data, iw, DND_COPY);
 		}
 		else
-		if(modifier && IsMouseOverHyperlink(p)) {
-			WString lsample = GetHyperlinkURI(p, modifier).ToWString();
+		if(modifier && IsMouseOverHyperlink(pt)) {
+			WString lsample = GetHyperlinkURI(pt, modifier).ToWString();
 			Append(data, lsample);
 			Size lsz = StdSampleSize();
 			ImageDraw iw(lsz);
@@ -400,8 +414,8 @@ void Terminal::LeftDrag(Point p, dword keyflags)
 			DoDragAndDrop(data, iw, DND_COPY);
 		}
 		else
-		if(modifier && IsMouseOverImage(p)) {
-			Image isample = GetInlineImage(p, modifier);
+		if(modifier && IsMouseOverImage(pt)) {
+			Image isample = GetInlineImage(pt, modifier);
 			Append(data, isample);
 			Size isz = GetFitSize(isample.GetSize(), StdSampleSize());
 			ImageDraw iw(isz);
@@ -411,24 +425,24 @@ void Terminal::LeftDrag(Point p, dword keyflags)
 	}
 }
 
-void Terminal::LeftDouble(Point p, dword keyflags)
+void Terminal::LeftDouble(Point pt, dword keyflags)
 {
 	// TODO: Word selection.
 	
 	if(IsTracking())
-		Ctrl::LeftDouble(p, keyflags);
+		Ctrl::LeftDouble(pt, keyflags);
 	else {
 		ClearSelection();
-		p = ClientToPagePos(p);
+		pt = ClientToPagePos(pt);
 		if((keyflags & K_CTRL) == K_CTRL) {
-			if(IsMouseOverImage(p)) {
-				Image img = GetInlineImage(p, true);
+			if(IsMouseOverImage(pt)) {
+				Image img = GetInlineImage(pt, true);
 				if(!IsNull(img))
 					WhenImage(PNGEncoder().SaveString(img));
 			}
 			else
-			if(IsMouseOverHyperlink(p)) {
-				String uri = GetHyperlinkURI(p, true);
+			if(IsMouseOverHyperlink(pt)) {
+				String uri = GetHyperlinkURI(pt, true);
 				if(!IsNull(uri))
 					WhenLink(uri);
 			}
@@ -436,63 +450,63 @@ void Terminal::LeftDouble(Point p, dword keyflags)
 	}
 }
 
-void Terminal::MiddleDown(Point p, dword keyflags)
+void Terminal::MiddleDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
-		VTMouseEvent(p, MIDDLEDOWN, keyflags);
+		VTMouseEvent(pt, MIDDLEDOWN, keyflags);
 	else
 		Paste();
 }
 
-void Terminal::MiddleUp(Point p, dword keyflags)
+void Terminal::MiddleUp(Point pt, dword keyflags)
 {
 	if(IsTracking() && !modes[XTX10MM])
-		VTMouseEvent(p, MIDDLEUP, keyflags);
+		VTMouseEvent(pt, MIDDLEUP, keyflags);
 }
 
-void Terminal::RightDown(Point p, dword keyflags)
+void Terminal::RightDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
-		VTMouseEvent(p, RIGHTDOWN, keyflags);
+		VTMouseEvent(pt, RIGHTDOWN, keyflags);
 	else {
-		p = ClientToPagePos(p);
-		if(!(selclick = IsSelected(p)))
+		pt = ClientToPagePos(pt);
+		if(!(selclick = IsSelected(pt)))
 			ClearSelection();
 		MenuBar::Execute(WhenBar);
 	}
 }
 
-void Terminal::RightUp(Point p, dword keyflags)
+void Terminal::RightUp(Point pt, dword keyflags)
 {
 	if(IsTracking() && !modes[XTX10MM])
-		VTMouseEvent(p, RIGHTUP, keyflags);
+		VTMouseEvent(pt, RIGHTUP, keyflags);
 }
 
-void Terminal::MouseMove(Point p, dword keyflags)
+void Terminal::MouseMove(Point pt, dword keyflags)
 {
-	p = GetView().Bind(p);
+	pt = GetView().Bind(pt);
 	bool b = HasCapture();
 	if(IsTracking()) {
 		if(b && modes[XTDRAGM])
-			VTMouseEvent(p, LEFTDRAG, keyflags);
+			VTMouseEvent(pt, LEFTDRAG, keyflags);
 		else
 		if(modes[XTANYMM])
-			VTMouseEvent(p, b ? LEFTDRAG : MOUSEMOVE, keyflags);
+			VTMouseEvent(pt, b ? LEFTDRAG : MOUSEMOVE, keyflags);
 	}
 	else
 	if(HasCapture()) {
-		selpos = ClientToPagePos(p);
+		selpos = ClientToPagePos(pt);
 		Refresh();
 	}
 	else
-	if(consoleflags & FLAG_HYPERLINKS) {
-		HighlightHyperlink(ClientToPagePos(p));
+	if(hyperlinks) {
+		HighlightHyperlink(ClientToPagePos(pt));
 	}
 }
 
-void Terminal::MouseWheel(Point p, int zdelta, dword keyflags)
+void Terminal::MouseWheel(Point pt, int zdelta, dword keyflags)
 {
 	bool b = IsTracking();
 	if(!b && page->HasHistory())
@@ -504,16 +518,16 @@ void Terminal::MouseWheel(Point p, int zdelta, dword keyflags)
 				VTKey(zdelta > 0 ? K_UP : K_DOWN, wheelstep);
 		else
 		if(b && !modes[XTX10MM])
-			VTMouseEvent(p, MOUSEWHEEL, keyflags, zdelta);
+			VTMouseEvent(pt, MOUSEWHEEL, keyflags, zdelta);
 	}
 }
 
-void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
+void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 {
 	bool buttondown = (event & UP) != UP; // Combines everything else with a button-down event
 	int  mouseevent = 0;
 	
-	p = ClientToPagePos(p) + 1;
+	pt = ClientToPagePos(pt) + 1;
 	
 	switch(event) {
 	case LEFTUP:
@@ -521,7 +535,7 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		mouseevent = 0x00;
 		break;
 	case LEFTDRAG:
-		if(p == mousepos)
+		if(pt == mousepos)
 			return;
 		mouseevent = 0x20;
 		break;
@@ -534,7 +548,7 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		mouseevent = 0x02;
 		break;
 	case MOUSEMOVE:
-		if(p == mousepos)
+		if(pt == mousepos)
 			return;
 		mouseevent = 0x23;
 		break;
@@ -545,7 +559,7 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 		return;
 	}
 
-	mousepos = p;
+	mousepos = pt;
 	
 	if(keyflags & K_SHIFT) mouseevent |= 0x04;
 	if(keyflags & K_ALT)   mouseevent |= 0x08;
@@ -553,63 +567,63 @@ void Terminal::VTMouseEvent(Point p, dword event, dword keyflags, int zdelta)
 	
 
 	if(modes[XTSGRMM])
-		PutCSI(Format("<%d;%d;%d%[1:M;m]s", mouseevent, p.x, p.y, buttondown));
+		PutCSI(Format("<%d;%d;%d%[1:M;m]s", mouseevent, pt.x, pt.y, buttondown));
 	else {
 		if(!buttondown)
 			mouseevent = 0x03;
 		mouseevent += 0x20;
-		p += 0x20;
+		pt += 0x20;
 		if(modes[XTUTF8MM]) {
 			WString s;
-			s.Cat(p.x);
-			s.Cat(p.y);
+			s.Cat(pt.x);
+			s.Cat(pt.y);
 			PutCSI(Format("M%c%s", mouseevent, ToUtf8(s)));
 		}
 		else
-			PutCSI(Format("M%c%c%c", mouseevent, p.x, p.y));
+			PutCSI(Format("M%c%c%c", mouseevent, pt.x, pt.y));
 	}
 }
 
 bool Terminal::IsTracking() const
 {
-	return modes[XTX10MM]  ||
-	       modes[XTX11MM]  ||
-	       modes[XTANYMM]  ||
-	       modes[XTDRAGM];
+	return modes[XTX10MM]
+		|| modes[XTX11MM]
+		|| modes[XTANYMM]
+		|| modes[XTDRAGM];
 }
 
-Point Terminal::ClientToPagePos(Point p) const
+Point Terminal::ClientToPagePos(Point pt) const
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
-	p.y = p.y * psz.cy / (wsz.cy -= wsz.cy % psz.cy) + GetSbPos();
-	p.x = p.x * psz.cx / wsz.cx;
-	return p;
+	pt.y = pt.y * psz.cy / (wsz.cy -= wsz.cy % psz.cy) + GetSbPos();
+	pt.x = pt.x * psz.cx / wsz.cx;
+	return pt;
 }
 
-void Terminal::SetSelection(Point l, Point h, bool rsel)
+void Terminal::SetSelection(Point pl, Point ph, bool rsel)
 {
-	anchor = min(l, h);
-	selpos = max(l, h);
+	anchor = min(pl, ph);
+	selpos = max(pl, ph);
 	rectsel = rsel;
 	Refresh();
 }
 
-bool Terminal::GetSelection(Point& l, Point& h)
+bool Terminal::GetSelection(Point& pl, Point& ph)
 {
 	if(IsNull(anchor) || anchor == selpos) {
-		l = h = selpos;
+		pl = ph = selpos;
 		return false;
 	}
 	
 	Size psz = GetPageSize();
 	if(sGetPos(selpos, psz) < sGetPos(anchor, psz)) {
-		l = selpos;
-		h = anchor;
+		pl = selpos;
+		ph = anchor;
 	}
 	else {
-		l = anchor;
-		h = selpos;
+		pl = anchor;
+		ph = selpos;
 	}
 	
 	return true;
@@ -618,9 +632,9 @@ bool Terminal::GetSelection(Point& l, Point& h)
 Rect Terminal::GetSelectionRect()
 {
 	Rect r = Null;
-	Point l, h;
-	if(GetSelection(l, h))
-		r.Set(min(l, h), max(l, h));
+	Point pl, ph;
+	if(GetSelection(pl, ph))
+		r.Set(min(pl, ph), max(pl, ph));
 	return r;
 }
 
@@ -632,23 +646,23 @@ void Terminal::ClearSelection()
 	Refresh();
 }
 
-bool Terminal::IsSelected(Point p)
+bool Terminal::IsSelected(Point pt)
 {
 	if(rectsel) {
 		Rect r = GetSelectionRect();
-		return !IsNull(r)      &&
-			   p.x >= r.left   &&
-		       p.y >= r.top    &&
-		       p.x <  r.right  &&
-		       p.y <= r.bottom;
+		return !IsNull(r)
+			&& pt.x >= r.left
+			&& pt.y >= r.top
+			&& pt.x <  r.right
+			&& pt.y <= r.bottom;
 	}
 	
-	Point l, h;
-	if(GetSelection(l, h)) {
+	Point pl, ph;
+	if(GetSelection(pl, ph)) {
 		Size psz = page->GetSize();
-		int x = sGetPos(p, psz);
-		int b = sGetPos(l, psz);
-		int e = sGetPos(h, psz);
+		int x = sGetPos(pt, psz);
+		int b = sGetPos(pl, psz);
+		int e = sGetPos(ph, psz);
 		return b <= x && x < e;
 	}
 	return false;
@@ -671,10 +685,8 @@ WString Terminal::GetSelectedText()
 	
 	for(int line = r.top, i = 0; !IsNull(r) && line <= r.bottom; line++) {
 		if(line < page->GetLineCount()) {
-			const VTLine& ln = page->GetLine(line);
-			WString s = rectsel
-				? GetVTLineAsWString(ln, r.left, r.right)
-				: ln.ToWString();
+			const VTLine& ln = page->FetchLine(line);
+			WString s = rectsel ? AsWString(ln, r.left, r.right) : ln.ToWString();
 			if(IsNull(s)) {
 				i++;
 				continue;
@@ -697,41 +709,14 @@ WString Terminal::GetSelectedText()
 	return txt;
 }
 
-bool Terminal::GetCellAtMousePos(VTCell& cell, Point p) const
+Image Terminal::GetInlineImage(Point pt, bool modifier)
 {
-	if(p.y >= 0 && p.y < page->GetLineCount()) {
-		const VTLine& line = page->GetLine(p.y);
-		if(p.x >= 0 && p.x < line.GetCount()) {
-			cell = line[p.x];
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Terminal::GetCellAtMousePos(VTCell& cell) const
-{
-	Point p = GetMouseViewPos();
-	return GetCellAtMousePos(cell, ClientToPagePos(p));
-}
-
-bool Terminal::IsMouseOverImage(Point p) const
-{
-	VTCell cell;
-	return !IsSelection() && GetCellAtMousePos(cell, p) && cell.IsImage();
-}
-
-bool Terminal::IsMouseOverImage() const
-{
-	Point p = GetMouseViewPos();
-	return IsMouseOverImage(ClientToPagePos(p));
-}
-
-Image Terminal::GetInlineImage(Point p, bool modifier)
-{
+	if(!modifier)
+		return Null;
+	
 	Image img;
-	VTCell cell;
-	if(GetCellAtMousePos(cell, p) && cell.IsImage() && modifier) {
+	const VTCell& cell = page->FetchCell(pt);
+	if(cell.IsImage()) {
 		img = GetCachedImageData(cell.chr, Null, GetFontSize()).image;
 		if(IsNull(img))
 			LLOG("Unable to retrieve image from cache. Link id: " << cell.chr);
@@ -739,23 +724,14 @@ Image Terminal::GetInlineImage(Point p, bool modifier)
 	return pick(img);
 }
 
-bool Terminal::IsMouseOverHyperlink(Point p) const
+String Terminal::GetHyperlinkURI(Point pt, bool modifier)
 {
-	VTCell cell;
-	return !IsSelection() && GetCellAtMousePos(cell, p) && cell.IsHyperlink();
-}
-
-bool Terminal::IsMouseOverHyperlink() const
-{
-	Point p = GetMouseViewPos();
-	return IsMouseOverHyperlink(ClientToPagePos(p));
-}
-
-String Terminal::GetHyperlinkURI(Point p, bool modifier)
-{
+	if(!modifier)
+		return Null;
+	
 	String uri;
-	VTCell cell;
-	if(GetCellAtMousePos(cell, p) && cell.IsHyperlink() && modifier) {
+	const VTCell& cell = page->FetchCell(pt);
+	if(cell.IsHyperlink()) {
 		uri = GetCachedHyperlink(cell.data);
 		if(IsNull(uri))
 			LLOG("Unable to retrieve URI from link cache. Link id: " << cell.data);
@@ -763,13 +739,11 @@ String Terminal::GetHyperlinkURI(Point p, bool modifier)
 	return uri;
 }
 
-void Terminal::HighlightHyperlink(Point p)
+void Terminal::HighlightHyperlink(Point pt)
 {
-	if(mousepos != p) {
-		mousepos = p;
-		VTCell cell;
-		if(!GetCellAtMousePos(cell, p))
-			return;
+	if(mousepos != pt) {
+		mousepos = pt;
+		const VTCell& cell = page->FetchCell(pt);
 		if(cell.IsHyperlink() || activelink > 0) {
 			if(cell.data != activelink) {
 				prevlink = activelink;
@@ -828,18 +802,18 @@ void Terminal::LinksBar(Bar& menu)
 
 void Terminal::ImagesBar(Bar& menu)
 {
-	Point p = mousepos;
+	Point pt = mousepos;
 
 	menu.Add(t_("Copy image to clipboard"), CtrlImg::copy(), [=]
 		{
-			Image img = GetInlineImage(p, true);
+			Image img = GetInlineImage(pt, true);
 			if(!IsNull(img))
 				AppendClipboardImage(img);
 		})
 		.Key(K_SHIFT_CTRL_H);
 	menu.Add(t_("Open image..."), CtrlImg::open(), [=]
 		{
-			Image img = GetInlineImage(p, true);
+			Image img = GetInlineImage(pt, true);
 			if(!IsNull(img))
 				WhenImage(PNGEncoder().SaveString(img));
 		})
@@ -848,9 +822,7 @@ void Terminal::ImagesBar(Bar& menu)
 
 void Terminal::OptionsBar(Bar& menu)
 {
-	bool dynamiccolors = consoleflags & FLAG_DYNAMIC_COLORS;
-	bool hyperlinks    = consoleflags & FLAG_HYPERLINKS;
-	bool inlineimages  = consoleflags & FLAG_IMAGES;
+	bool inlineimages = jexer || sixel;
 
 	menu.Sub(t_("Cursor style"), [=](Bar& menu)
 		{
@@ -899,10 +871,14 @@ void Terminal::OptionsBar(Bar& menu)
 		[=] { LightColors(!lightcolors); })
 		.Key(K_SHIFT|K_ALT_L)
 		.Check(lightcolors);
+	menu.Add(t_("Adjust to dark themes"),
+		[=] { AdjustColors(!adjustcolors); })
+		.Key(K_SHIFT|K_ALT_D)
+		.Check(adjustcolors);
 	menu.Add(t_("Blinking text"),
-		[=] { BlinkingText(!blinktext); })
+		[=] { BlinkingText(!blinkingtext); })
 		.Key(K_SHIFT_CTRL_B)
-		.Check(blinktext);
+		.Check(blinkingtext);
 	menu.Add(t_("Hyperlinks"),
 		[=] { Hyperlinks(!hyperlinks); })
 		.Key(K_SHIFT|K_ALT_H)
@@ -916,9 +892,9 @@ void Terminal::OptionsBar(Bar& menu)
 		.Key(K_SHIFT_CTRL_W)
 		.Check(sizehint);
 	menu.Add(t_("Buffered refresh"),
-		[=] { DelayedRefresh(!delayed); })
+		[=] { DelayedRefresh(!delayedrefresh); })
 		.Key(K_SHIFT_CTRL_Z)
-		.Check(delayed);
+		.Check(delayedrefresh);
 	menu.Add(t_("Lazy resize"),
 		[=] { LazyResize(!lazyresize); })
 		.Key(K_SHIFT_CTRL_Z)
@@ -940,84 +916,6 @@ Terminal& Terminal::ShowScrollBar(bool b)
 	return *this;
 }
 
-Terminal& Terminal::ResetColors()
-{
-	// Note: The U++ color constants with 'S' prefix are automatically adjusted
-	//       to the color theme of OS. On the other hand, the 8 ANSI colors and
-	//       their brighter  counterparts are assumed to be constant. Therefore
-	//       it would be better if we avoid using the auto-adjusted versions by
-	//       default, and leave it up to client code to change them  on demand.
-	//       Note that this rule does not apply to the  default ink, paper, and
-	//       selection colors.
-	
-	colortable[COLOR_BLACK] = Black();
-	colortable[COLOR_RED] = Red();
-	colortable[COLOR_GREEN] = Green();
-	colortable[COLOR_YELLOW] = Yellow();
-	colortable[COLOR_BLUE] = Blue();
-	colortable[COLOR_MAGENTA] = Magenta();
-	colortable[COLOR_CYAN] = Cyan();
-	colortable[COLOR_WHITE] = White();
-	colortable[COLOR_LTBLACK] = Gray();
-	colortable[COLOR_LTRED] = LtRed();
-	colortable[COLOR_LTGREEN] = LtGreen();
-	colortable[COLOR_LTYELLOW] = LtYellow();
-	colortable[COLOR_LTBLUE] = LtBlue();
-	colortable[COLOR_LTMAGENTA] = LtMagenta();
-	colortable[COLOR_LTCYAN] = LtCyan();
-	colortable[COLOR_LTWHITE] = White();
-	colortable[COLOR_INK] = SColorText;
-	colortable[COLOR_INK_SELECTED] = SColorHighlightText;
-	colortable[COLOR_PAPER] = SColorPaper;
-	colortable[COLOR_PAPER_SELECTED] = SColorHighlight;
-	return *this;
-}
-
-void Terminal::ReportWindowProperties(int opcode)
-{
-	Rect r;
-	Size sz;
-	TopWindow *win = GetTopWindow();
-	
-	switch(opcode) {
-	case WINDOW_REPORT_POSITION:
-		if(!win) return;
-		r = win->GetRect();
-		PutCSI(Format("3;%d;%d`t", r.left, r.top));
-		break;
-	case WINDOW_REPORT_VIEW_POSITION:
-		r = GetView();
-		PutCSI(Format("3;%d;%d`t", r.left, r.top));
-		break;
-	case WINDOW_REPORT_SIZE:
-		sz = GetSize();
-		PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
-		break;
-	case WINDOW_REPORT_VIEW_SIZE:
-		sz = GetView().GetSize();
-		PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
-		break;
-	case WINDOW_REPORT_PAGE_SIZE:
-		sz = GetPageSize();
-		PutCSI(Format("8;%d;%d`t", sz.cy, sz.cx));
-		break;
-	case WINDOW_REPORT_CELL_SIZE:
-		sz = GetFontSize();
-		PutCSI(Format("6;%d;%d`t", sz.cy, sz.cx));
-		break;
-	case WINDOW_REPORT_STATE:
-		if(!win) return;
-		PutCSI(Format("%d`t", win->IsMinimized() ? 2 : 1));
-		break;
-	case WINDOW_REPORT_TITLE:
-		PutOSC("1;");	// Always empty for security reasons.
-		break;
-	default:
-		LLOG("Unhandled window op: " << opcode);
-		return;
-	}
-}
-
 Image Terminal::CursorImage(Point p, dword keyflags)
 {
 	if(IsTracking())
@@ -1035,30 +933,36 @@ void Terminal::State(int reason)
 		WhenResize();
 }
 
-void Terminal::Serialize(Stream& s)
+Terminal::Caret::Caret()
+: style(BLOCK)
+, blinking(true)
+, locked(false)
 {
-	GuiLock __;
-	
+}
+
+Terminal::Caret::Caret(byte style_, bool blink, bool lock)
+{
+	Set(style_, blink);
+	locked = lock;
+}
+
+void Terminal::Caret::Set(byte style_, bool blink)
+{
+	if(!locked) {
+		style = style_;
+		blinking = blink;
+		WhenAction();
+	}
+}
+
+void Terminal::Caret::Serialize(Stream& s)
+{
 	int version = 1;
 	s / version;
 	if(version >= 1) {
-		s % font;
-		s % delayed;
-		s % lazyresize;
-		s % sizehint;
-		s % blinktext;
-		s % blinkinterval;
-		s % adjustcolors;
-		s % lightcolors;
-		s % intensify;
-		s % wheelstep;
-		s % keynavigation;
-		s % nobackground;
-		s % alternatescroll;
-		s % metakeyflags;
-		Console::Serialize(s);
+		s % style;
+		s % locked;
+		s % blinking;
 	}
-	if(s.IsLoading())
-		Layout();
 }
 }

@@ -1,12 +1,12 @@
-#include "Console.h"
+#include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)	// RLOG("Terminal: " << x)
 
 namespace Upp {
 	
-void Console::ParseControlChars(byte c)
+void Terminal::ParseControlChars(byte c)
 {
-	LLOG(Format("CTL: 0x%02X (C%[1:0;1]s`)", c, c < 0x80));
+	LLOG(Format("CTL 0x%02X (C%[1:0;1]s`)", c, c < 0x80));
 	
 	if(modes[CRM]) {
 		PutChar(c);
@@ -24,7 +24,7 @@ void Console::ParseControlChars(byte c)
 		WhenBell();
 		break;
 	case ControlId::BS:
-		page->MoveLeft();
+		page->MoveBack();
 		break;
 	case ControlId::HT:
 		page->NextTab();
@@ -32,10 +32,14 @@ void Console::ParseControlChars(byte c)
 	case ControlId::LF:
 	case ControlId::VT:
 	case ControlId::FF:
-		modes[LNM] ? page->NewLine() : page->NextLine();
+		modes[LNM]
+			? page->NewLine()
+			: page->NextLine();
 		break;
 	case ControlId::CR:
-		modes[LNM] ? page->NewLine() : page->MoveHome();
+		modes[LNM]
+			? page->NewLine()
+			: page->MoveHome();
 		break;
 	case ControlId::LS1:
 		gsets.G1toGL();

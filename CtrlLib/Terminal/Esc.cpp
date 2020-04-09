@@ -1,12 +1,12 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)	 // RLOG("Terminal: " << x)
 
 namespace Upp {
 
-void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
+void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
 {
-	LLOG(Format("ESC: %c, %[N/A]~s",	seq.opcode, seq.intermediate));
+	LLOG("ESC " << seq);
 
 	auto VT52MoveCursor = [=]() -> void	// VT52 direct cursor addressing.
 	{
@@ -17,7 +17,7 @@ void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		}
 	};
 
-	if(Convert7BitsC1To8BitsC1(seq))	// Redirection
+	if(Convert7BitC1To8BitC1(seq))	// Redirection
 		return;
 
 	bool refresh;
@@ -44,10 +44,10 @@ void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		page->NextColumn();
 		break;
 	case SequenceId::S7C1T:
-		Set8BitsMode(false);
+		Set8BitMode(false);
 		break;
 	case SequenceId::S8C1T:
-		Set8BitsMode(true);
+		Set8BitMode(true);
 		break;
 	case SequenceId::RIS:
 		HardReset();
@@ -197,7 +197,7 @@ void Console::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		RefreshPage();
 }
 
-bool Console::Convert7BitsC1To8BitsC1(const VTInStream::Sequence& seq)
+bool Terminal::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
 {
 	bool b = IsLevel1() && seq.intermediate.IsEmpty();
 	if(b) {
@@ -206,5 +206,27 @@ bool Console::Convert7BitsC1To8BitsC1(const VTInStream::Sequence& seq)
 		if(b) ParseControlChars(c);
 	}
 	return b;
+}
+
+void Terminal::DisplayAlignmentTest()
+{
+	LLOG("Performing display alignment test...");
+
+	// According to DEC STD-070, DECALN:
+	// 1) Resets the margins.
+	// 2) Clears the EOL flag.
+	// 3) Sets the page origins to 1, 1.
+	// 3) Resets SGR.
+	
+	// The first two steps are covered in the third step.
+	
+	DECom(false);
+	cellattrs.Normal();
+	
+	for(VTLine& line : *page)
+		for(VTCell& cell : line) {
+			cell.Reset();
+			cell = 'E';
+		}
 }
 }

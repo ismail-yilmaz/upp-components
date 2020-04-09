@@ -1,12 +1,12 @@
-#include "Console.h"
+#include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)	// RLOG("Terminal: " << x)
 
 namespace Upp {
 
-void Console::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
+void Terminal::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 {
-	LLOG(Format("OSC: %s", seq.payload));
+	LLOG(Format("OSC [%s]", seq.payload));
 
 	int opcode = seq.GetInt(1, 0);
 
@@ -39,12 +39,12 @@ void Console::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	}
 }
 
-void Console::ParseJexerGraphics(const VTInStream::Sequence& seq)
+void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 {
 	// For more information on Jexer image protocol, see:
-	// https://gitlab.com/klamonte/jexer/wikis/jexer-images
+	// https://gitlab.com/klamonte/jexer/-/wikis/jexer-images
 
-	if(!(consoleflags & FLAG_JEXER))
+	if(!jexer)
 		return;
 	
 	int type = seq.GetInt(2, Null);
@@ -73,12 +73,12 @@ void Console::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	RenderImage(data, scroll);
 }
 
-void Console::ParseHyperlinks(const VTInStream::Sequence& seq)
+void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)
 {
 	// For more information on explicit hyperlinks, see:
 	// https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
 
-	if(!(consoleflags & FLAG_HYPERLINKS))
+	if(!hyperlinks)
 		return;
 
 	constexpr const int MAX_URI_LENGTH = 2084;

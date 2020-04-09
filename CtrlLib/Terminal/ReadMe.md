@@ -1,4 +1,3 @@
-
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -40,7 +39,7 @@ Note that the example code used in these videos can be found in the *Examples* s
 ## Requirements
 
 - Ultimate++ (ver. >= 2019.1)
-- POSIX, Windows (and probably MacOS, though not tested.)
+- POSIX, Windows, or MacOS
 - A decent enough C/C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/Msc)
 - Snacks & beer.
 
@@ -50,7 +49,7 @@ Note that the example code used in these videos can be found in the *Examples* s
 As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the Terminal widget on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible. This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
-A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single .cpp file with 29 sLoC, and it can run complex/heavy applications with mouse tracking and embedded images support, such as [GNU Emacs](https://www.gnu.org/software/emacs/), [Lynx](https://lynx.browser.org/), [GNUPlot](http://www.gnuplot.info/), or [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulator, or even [Jexer](https://jexer.sourceforge.io/), a java-based modern and slick text user interface (TUI) and windowing system for modern terminal emulators, with ease.
+A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single .cpp file with 29 sLoC, and it can run complex/heavy applications with mouse tracking and embedded images support, such as [GNU Emacs](https://www.gnu.org/software/emacs/), [Lynx](https://lynx.browser.org/), [GNUPlot](http://www.gnuplot.info/), [tmux](https://github.com/tmux/tmux/wiki) or [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulator, or even [Jexer](https://jexer.sourceforge.io/), a java-based modern and slick text user interface (TUI) and windowing system for modern terminal emulators, with ease.
 
 - **Terminal package combines simplicity with configurability.** 
 Although it is easy to use, and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
@@ -58,8 +57,11 @@ Although it is easy to use, and requires very little coding, Terminal ctrl is by
 - **Terminal widget is a regular ctrl.**
 It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
 
+- **Terminal widget supports true color**
+Ultimate++ Terminal widget is a true color (24-bit color) virtual terminal emulator. It supports RGB, CMY, CMYK, and  indexed (256-color) palettes via SGR extended colors sequences. 
+
 - **Terminal widget supports inline images.**
-Terminal widget has a flexible infrastructure and support for inline images and image manipulation in general. Currently it can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 colors, or high/true color.  It also supports [jexer image protocol](https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images), a simple and useful wire protocol which allows terminals to display popular true color image formats such as JPG, PNG, BMP, etc. In fact, since the terminal widget uses the common raster decoding api of Ultimate++, theoretically it can display any raster image that has a registered decoder. Adding support for other wire protocols for inline images, such as [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html), is also planned. Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
+Terminal widget has a flexible infrastructure and support for inline images and image manipulation in general. It can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 colors, or high/true color.  It also supports JPG, PNG, BMP raster image formats, or raw RGB images via [jexer image protocol](https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images), a simple and useful wire protocol which allows terminals to display popular true color image formats. In fact, since the terminal widget uses the common raster decoding api of Ultimate++, theoretically it can display any raster image that has a registered decoder. Adding support for other wire protocols for inline images, such as [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html), is also planned. Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
 
 - ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
@@ -89,15 +91,19 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports Display objects.
 - Supports inline images with true color (sixel, jpeg, png, bmp, tiff, etc).
 - Supports external handling of images.
-- Supports ISO colors (256 colors palette).
-- Supports ISO direct/true color mode (16 million colors) via TRUECOLOR compiler flag.
-- Supports xterm dynamic colors (dynamic ink/paper/selection colors).
-- Supports bright colors.
+- Supports ANSI + aixterm colors (16 colors palette).
+- Supports true color (16 million colors).
+- Supports extended colors sequences .
+- Supports RGB, CMY, CMYK and indexed color palettes via extended color sequences.
+- Supports xterm dynamic colors and color setting (dynamic ink/paper/selection colors).
+- Supports rgb and older hash3, hash6, hash9, hash12 color text specifications.
 - Supports background color erase (BCE).
 - Supports transparency, i.e. allows background images, even animations. It's up to client code.
 - Supports VT4xx rectangular area operations: copy, invert, fill. erase.
 - Supports VT4xx rectangular area checksum calculation and reporting.
 - Supports both DEC and ANSI style selective erases.
+- Supports reverse wrap.
+- Supports SGR overline attribute.
 - Supports alternate screen buffer.
 - Supports history/scrollback buffer.
 - Has a user switchable scrollbar.
@@ -105,6 +111,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports resize (and optional lazy resize to reduce flicker on network terminals such as SSH-based ones).
 - Supports both immediate display refresh and delayed (buffered) display refresh.
 - Supports xterm style mouse tracking: button, wheel, motion, focus in/out events.
+- Supports a large portion of xterm's window ops (window reports and actions).
 - Supports user configurable cursor styles (block, beam, underscore, blinking/steady).
 - Supports cursor locking.
 - Supports basic clipboard operations on texts, hyperlinks, and images.
@@ -112,7 +119,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Shows drag and drop animations (i.e thumbnails/samples of images, hyperlinks and plain texts)
 - Supports rectangle selection.
 - Supports bracketed paste mode.
-- Supports explicit hyperlinks. (OSC 8)
+- Supports [explicit hyperlinks.](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) (OSC 8)
 - Has a predefined yet completely re-programmable context menu (right mouse button menu).
 - Supports window titles.
 - Supports bell notifications.
@@ -154,7 +161,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);          };
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.InlineImages().Hyperlinks();
+		term.InlineImages().Hyperlinks().WindowOps();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
@@ -175,6 +182,9 @@ Yup, that's all.
 #### Screenshots
 Jexer with sixel support, running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_jexer_linux_screenshot.png)
+
+tmux/screen, running on the basic terminal example. (Linux)
+![ ](../Images/terminal_tmux_linux_screenshot.png)
 
 GNUPlot with sixel support, running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_gnuplot_linux_screenshot.png)
@@ -213,7 +223,8 @@ struct SshTerminal : Terminal, SshShell {
 		SshShell::ChunkSize(65536);
 		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size); };
 		Terminal::WhenOutput = [=](String data) { SshShell::Send(data); };
-		Terminal::WhenResize = [=]() { SshShell::PageSize(Terminal::GetPageSize()); };		
+		Terminal::WhenResize = [=]() { SshShell::PageSize(Terminal::GetPageSize()); };
+		Terminal::InlineImages().Hyperlinks().WindowOps();		
 	}
 
 	void Run(const String& termtype)
@@ -282,7 +293,7 @@ struct TerminalExample : TopWindow {
 		term.WhenTitle  = [=](String s) { Title(s);          };
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
-		term.Inlineimages();
+		term.InlineImages().Hyperlinks().WindowOps();
 		pty.Start(nixshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
@@ -353,7 +364,7 @@ struct TerminalPane : Terminal, PtyProcess {
 	Splitter& parent;
 	TerminalPane(Splitter& ctrl) : parent(ctrl)
 	{
-		Terminal::Inlineimages();
+		Terminal::InlineImages().Hyperlinks().WindowOps();
 		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
 		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
@@ -453,7 +464,7 @@ struct SshTerminalPane : Terminal, SshShell {
 		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
 		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
 		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::Inlineimages();
+		Terminal::InlineImages().Hyperlinks().WindowOps();
 		parent.Add(Terminal::SizePos());
 	}
 	
@@ -535,40 +546,31 @@ There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
-- ReGIS graphics.
 - Improve key handling on Windows.
-- Implement reverse wrap.
 - Improve legacy charsets support.
 - DEC locator support.
 - xterm style rectangular area checksum reports.
-- Terminal printer support.
 - BIDI support.
-- Copy/paste and screen dump as QTF, SVG and HTML.
-- Refactor VTPage class.
-- More detailed logging.
-- Various optimizations.
 - Write a terminfo file
-- API documentation.
-
+- Improve API documentation.
+ 
 ## Known Issues
 
 Nothing is perfect and Terminal package is no exception. Known major issues are listed below.
 
-- Index and back index commands don't obey horizontal margins.
-- At the moment VT3xx screen panning feature does not really work (it is imitated using scroll).
 - Function keys and editor keys are not handled properly on some notebooks.
 - Image zoom in and out keys are not working with jexer (v0.3.2)
 
 ## Version
 
-Terminal package is currently at v0.2. (It is considered a beta until v1.0)
+Terminal package is currently at v0.3. (It is considered a beta until v1.0)
 
 ## Acknowledgements
 
 *Note that below list is incomplete and to be written...*
 - vttest, and other test scripts written for xterm are extensively used for testing of the Terminal ctrl.
 - ncurses, its demos and tests are also used in developing the Terminal package.
-- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and window manager for terminal emulators, is heavily used as a test-bed for polishing the inline images support for the v0.2 of Terminal ctrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [@Kevin](https://gitlab.com/klamonte)!)
+- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and window manager for terminal emulators, is heavily used as a test-bed for polishing the inline images support for the v0.2 of Terminal ctrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [@Kevin Lamonte](https://gitlab.com/klamonte)!)
  
 ## License
 
