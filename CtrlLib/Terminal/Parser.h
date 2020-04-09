@@ -25,7 +25,6 @@ public:
         String          payload;
         int             GetInt(int n, int d = 1) const;
         String          GetStr(int n) const;
-        String          ToString() const;
         void            Clear();
         Sequence()                                          { Clear(); }
     };
@@ -33,51 +32,22 @@ public:
     struct State : Moveable<State> {
         enum  class Id : byte {
             Ground,
-            EscEntry,
-            EscIntermediate,
-            CsiEntry,
-            CsiIntermediate,
-            CsiParameter,
-            CsiIgnore,
-            DcsEntry,
-            DcsIntermediate,
-            DcsParameter,
-            DcsIgnore,
-            DcsPassthrough,
+            EscEntry, EscIntermediate,
+            CsiEntry, CsiIntermediate, CsiParameter, CsiIgnore,
+            DcsEntry, DcsIntermediate, DcsParameter, DcsIgnore, DcsPassthrough,
             OscString,
-            ApcString,
             Repeat,
             Ignore
         };
-
         enum class Action : byte {
-            Mode,
-            Collect,
-            Parameter,
-            Final,
-            Control,
-            Passthrough,
-            Ignore,
-            Ground,
-            DispatchEsc,
-            DispatchCsi,
-            DispatchDcs,
-            DispatchOsc,
-            DispatchApc
+            Mode, Collect, Parameter, Final, Control, Passthrough,
+            Ignore, Ground, DispatchEsc, DispatchCsi, DispatchDcs, DispatchOsc
         };
- 
         byte    begin;
         byte    end;
         Action  action;
         Id      next;
-        
-        State(byte b, byte e, Action a, Id id)
-        : begin(b)
-        , end(e)
-        , action(a)
-        , next(id)
-        {
-        }
+        State(byte b, byte e, Action a, Id id)              { begin = b; end = e; action = a; next = id; }
     };
     
 public:
@@ -85,15 +55,14 @@ public:
     void    Parse(const String& data, bool utf8)            { Parse(~data, data.GetLength(), utf8); }
     void    Reset();
     bool    WasChr() const                                  { return waschr; }
-        
+
     Event<int>  WhenChr;
     Event<byte> WhenCtl;
     Event<const VTInStream::Sequence&>  WhenEsc;
     Event<const VTInStream::Sequence&>  WhenCsi;
     Event<const VTInStream::Sequence&>  WhenDcs;
     Event<const VTInStream::Sequence&>  WhenOsc;
-    Event<const VTInStream::Sequence&>  WhenApc;
-    
+
     VTInStream();
     virtual ~VTInStream() {}
 
