@@ -23,30 +23,27 @@ on [^https`:`/`/vt100`.net`/emu`/dec`_ansi`_parser^ the UML state
 diagram publicized by Paul`-Flo Williams]. &]
 [s2;%% &]
 [s2;%% VTInStream can handle UTF`-8 and non UTF`-8 characters, C0 
-and C1 control bytes, and ESC, CSI, DCS, OSC sequences in both 
-7`-bits and 8`-bits forms, allows switching between UTF`-8 and 
-non UTF`-8 modes on`-the`-fly (e.g., using [^topic`:`/`/Core`/src`/Utf`_en`-us`#CheckUtf8`(const String`&`)^ C
+and C1 control bytes, and ESC, CSI, DCS, OSC, and APC sequences 
+in both 7`-bits and 8`-bits forms, allows switching between UTF`-8 
+and non UTF`-8 modes on`-the`-fly (e.g., using [^topic`:`/`/Core`/src`/Utf`_en`-us`#CheckUtf8`(const String`&`)^ C
 heckUtf8()] method), and can be used as both a parser and a filter.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
-[s5;:Upp`:`:VTInStream`:`:Parse`(const void`*`,int`,bool`): [@(0.0.255) void]_[* Parse]([@(0.0.255) c
-onst]_[@(0.0.255) void]_`*[*@3 data], [@(0.0.255) int]_[*@3 size], [@(0.0.255) bool]_[*@3 utf
-8])&]
-[s2;%% Parses [%-*@3 data].buffer with [%-*@3 size]. The parser will 
-switch to UTF`-8 mode when the [%-*@3 utf8] flag is enabled and 
-this flag can be enabled or disabled run`-time. Importan note: 
-VTInStream has no explicit error state. It will ignore the remaining 
-bytes of the erroneous sequence if it encounters any. Still, 
-it is possible to reset the parser to its initial state at any 
-moment, using the [^topic`:`/`/Terminal`/src`/Upp`_VTInStream`_en`-us`#Upp`:`:VTInStream`:`:Reset`(`)^ R
-eset()] method.&]
-[s3;%% &]
-[s4; &]
 [s5;:Upp`:`:VTInStream`:`:Parse`(const Upp`:`:String`&`,bool`): [@(0.0.255) void]_[* Pars
 e]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 data], 
 [@(0.0.255) bool]_[*@3 utf8])&]
-[s2;%% The same as above.&]
+[s5;:Upp`:`:VTInStream`:`:Parse`(const void`*`,int`,bool`): [@(0.0.255) void]_[* Parse]([@(0.0.255) c
+onst]_[@(0.0.255) void]_`*[*@3 data], [@(0.0.255) int]_[*@3 size], [@(0.0.255) bool]_[*@3 utf
+8])&]
+[s2;%% Parses a [%-*@3 data] string, or a [%-*@3 data].buffer with given 
+[%-*@3 size]. The parser will switch to UTF`-8 mode when the [%-*@3 utf8] 
+flag is enabled and this flag can be enabled or disabled run`-time. 
+Important note: VTInStream has no explicit error state. It will 
+ignore the remaining bytes of the erroneous sequence if it encounters 
+any. Still, it is possible to reset the parser to its initial 
+state at any moment, using the [^topic`:`/`/Terminal`/src`/Upp`_VTInStream`_en`-us`#Upp`:`:VTInStream`:`:Reset`(`)^ R
+eset()] method.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Reset`(`): [@(0.0.255) void]_[* Reset]()&]
@@ -89,6 +86,12 @@ range or in 0x80`-0x9F range) is received. &]
 [s2;%% This event is dispatched when an operating system command 
 is received.&]
 [s3;%% &]
+[s4; &]
+[s5;:Upp`:`:VTInStream`:`:WhenApc: [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_VTInStream`:
+:Sequence[@(0.0.255) `&]>_[* WhenApc]&]
+[s2;%% This event is dispatched when an application programming command 
+is received.&]
+[s3; &]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
@@ -151,6 +154,12 @@ tStr]([@(0.0.255) int]_[*@3 n])_[@(0.0.255) const]&]
 index of the sequence parameter. Returns a nullifed string for 
 erroneous, out`-of`-bounds, or empty (defaulted) sequence parameters.&]
 [s3;%% &]
+[s4; &]
+[s5;:Upp`:`:VTInStream`:`:Sequence`:`:ToString`(`)const: [_^Upp`:`:String^ String]_[* ToS
+tring]()_[@(0.0.255) const]&]
+[s2;%% Returns the sequence as a String. Useful for diagnostics and 
+logging.&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:Clear`(`): [@(0.0.255) void]_[* Clear]()&]
 [s0;%% -|Clears the structure.]]

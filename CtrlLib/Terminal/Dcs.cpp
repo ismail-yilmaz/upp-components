@@ -1,13 +1,12 @@
-#include "Console.h"
+#include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Console: " << x)
+#define LLOG(x)	// RLOG("Terminal: " << x)
 
 namespace Upp {
 
-void Console::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
+void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 {
-	LLOG(Format("DCS: %c, %[N/A]~s, %s, [%s]",
-			seq.opcode, seq.intermediate, seq.parameters.ToString(), seq.payload));
+	LLOG("DCS " << seq);
 
 	bool refresh;
 	switch(FindSequenceId(VTInStream::Sequence::DCS, clevel, seq, refresh)) {
@@ -31,14 +30,14 @@ void Console::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 		RefreshPage();
 }
 
-void Console::SetUserDefinedKeys(const VTInStream::Sequence& seq)
+void Terminal::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 {
-	if(!IsUDKEnabled() || IsUDKLocked())
+	if(!userdefinedkeys || userdefinedkeyslocked)
 		return;
 
 	bool clear = seq.GetInt(1) == 0;
 	bool lock  = seq.GetInt(2) == 0;
-	int modifier = seq.GetInt(3, 0);
+	// int modifier = seq.GetInt(3, 0);
 
 	Vector<String> vudk = Split(seq.payload, ';', false);
 
@@ -54,7 +53,7 @@ void Console::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 		LockUDK();
 }
 
-bool Console::GetUDKString(byte key, String& val)
+bool Terminal::GetUDKString(byte key, String& val)
 {
 	if(!IsLevel2() || udk.IsEmpty())
 		return false;
@@ -66,27 +65,26 @@ bool Console::GetUDKString(byte key, String& val)
 	return i >= 0;
 }
 
-void Console::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
+void Terminal::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 {
 	// TODO
+	String reply;// = "0$r";	// Invalid request (unhandled sequence)
 
-	String reply = "0$r";				// Invalid request (unhandled sequence)
-
-	if(seq.payload.IsEqual("r")) {		// DECSTBM
+	if(seq.payload.IsEqual("r")) {					// DECSTBM
 		Rect margins = page->GetMargins();
-		reply = Format("%d`$r%d`;%d`r", 1, margins.top, margins.bottom);
+		reply = Format("%d`$r%d;%d", 1, margins.top, margins.bottom);
 	}
 	else
-	if(seq.payload.IsEqual("s")) {		// DECSLRM
+	if(IsLevel4() && seq.payload.IsEqual("s")) {	// DECSLRM
 		Rect margins = page->GetMargins();
-		reply = Format("%d`$r%d`;%d`s", 1, margins.left, margins.right);
+		reply = Format("%d`$r%d;%d", 1, margins.left, margins.right);
 	}
 	else
-	if(seq.payload.IsEqual("m")) {		// SGR
-		reply = Format("%d`$r%s`m", 1, GetGraphicsRenditionOpcodes(cellattrs));
+	if(seq.payload.IsEqual("m")) {					// SGR
+		reply = Format("%d`$r0;%s", 1, GetGraphicsRenditionOpcodes(cellattrs));
 	}
 	else
-	if(seq.payload.IsEqual("\"p")) {	// DECSCL
+	if(seq.payload.IsEqual("\"p")) {				// DECSCL
 		int level = 62;
 		switch(clevel) {
 		case LEVEL_0:
@@ -103,10 +101,10 @@ void Console::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 			level = 64;
 			break;
 		}
-		reply = Format("%d`$r%d`;%[1:2;1]s`\"p", 1, level, Is8BitsMode());
+		reply = Format("%d`$r%d;%d", 1, level, Is8BitMode() ? 0 : 1);
 	}
 	else
-	if(seq.payload.IsEqual(" q")) {		// DECSCUSR
+	if(IsLevel4() && seq.payload.IsEqual(" q")) {	// DECSCUSR
 		int style = 0;
 		switch(caret.GetStyle()) {
 		case Caret::BLOCK:
@@ -119,32 +117,41 @@ void Console::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 			style = caret.IsBlinking() ? 5 : 6;
 			break;
 		}
-		reply = Format("%d`$r%d q", 1, style);
+		reply = Format("%d`$r%d", 1, style);
 	}
 	else
-	if(seq.payload.IsEqual("\"q")) {	// DECSCA
-		reply = Format("%d`$r%[1:1;0]s`\"q", 1, cellattrs.IsProtected());
+	if(seq.payload.IsEqual("\"q")) {				// DECSCA
+		reply = Format("%d`$r%d", 1, (int) cellattrs.IsProtected());
 	}
 	else
-	if(seq.payload.IsEqual("*x")) {		// DECSACE
-		reply = Format("%d`$r%[1:1;2]s`*x", 1, streamfill);
+	if(IsLevel4() && seq.payload.IsEqual("*x")) {	// DECSACE
+		reply = Format("%d`$r%d", 1, streamfill ? 1 : 2);
 	}
 	else
-	if(seq.payload.IsEqual("t")) {		// DECSLPP
+	if(seq.payload.IsEqual("t")) {					// DECSLPP
 		reply = Format("%d`$r%d`t", 1, page->GetSize().cy);
 	}
 	else
-	if(seq.payload.IsEqual("$|")) {		// DECSCPP
-		reply = Format("%d`$r%d`$|", 1, page->GetSize().cx);
+	if(seq.payload.IsEqual("$|")) {					// DECSCPP
+		reply = Format("%d`$r%d", 1, page->GetSize().cx);
 	}
 	else
-	if(seq.payload.IsEqual("*|")) {		// DECSNLS
-		reply = Format("%d`$r%d`*|", 1, page->GetSize().cy);
+	if(seq.payload.IsEqual("*|")) {					// DECSNLS
+		reply = Format("%d`$r%d", 1, page->GetSize().cy);
 	}
+
+	if(!IsNull(reply)) {
+		reply << seq.payload;
+	}
+	else {
+		reply = "0$r";	// Invalid request (unhandled sequence)
+		LLOG("Unhandled report request. Token: %s " << seq.payload);
+	}
+	
 	PutDCS(reply);
 }
 
-void Console::RestorePresentationState(const VTInStream::Sequence& seq)
+void Terminal::RestorePresentationState(const VTInStream::Sequence& seq)
 {
 	int which = seq.GetInt(1, 0);
 	
@@ -196,9 +203,9 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 		DECawm(flags & 0x08);
 		
 		cellattrs.Bold(sgr & 0x01);
-		cellattrs.Underline(sgr & 0x02);
 		cellattrs.Blink(sgr & 0x04);
 		cellattrs.Invert(sgr & 0x08);
+		cellattrs.Underline(sgr & 0x02);
 		cellattrs.Protect(attrs & 0x01);
 
 		page->Attributes(cellattrs);
@@ -272,9 +279,9 @@ void Console::RestorePresentationState(const VTInStream::Sequence& seq)
 	}
 }
 
-void Console::ParseSixelGraphics(const VTInStream::Sequence& seq)
+void Terminal::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
-	if(!(consoleflags & FLAG_SIXEL))
+	if(!sixel)
 		return;
 	
 	int  nohole = seq.GetInt(2, 0);
