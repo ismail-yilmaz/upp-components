@@ -13,7 +13,7 @@ using namespace Upp;
 struct TerminalTab : Terminal, PtyProcess {
 	TerminalTab()
 	{
-		InlineImages();
+		InlineImages().Hyperlinks().WindowOps();
 		WhenBell   = [=]()         { BeepExclamation();    };
 		WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };

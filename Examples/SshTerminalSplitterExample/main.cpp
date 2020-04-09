@@ -21,7 +21,7 @@ struct SshTerminalPane : Terminal, SshShell {
 		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
 		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
 		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::InlineImages();
+		Terminal::InlineImages().Hyperlinks().WindowOps();
 		parent.Add(Terminal::SizePos());
 	}
 	

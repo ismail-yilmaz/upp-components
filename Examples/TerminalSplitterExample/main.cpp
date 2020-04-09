@@ -13,7 +13,7 @@ struct TerminalPane : Terminal, PtyProcess {
 	Splitter& parent;
 	TerminalPane(Splitter& ctrl) : parent(ctrl)
 	{
-		Terminal::InlineImages();
+		Terminal::InlineImages().Hyperlinks().WindowOps();
 		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
 		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };

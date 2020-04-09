@@ -13,7 +13,7 @@ struct SshTerminal : Terminal, SshShell {
 		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size);                 };
 		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
 		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::InlineImages();
+		Terminal::InlineImages().Hyperlinks().WindowOps();
 	}
 
 	void Run(const String& termtype)
