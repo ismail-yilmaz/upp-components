@@ -1,12 +1,14 @@
-#include "Terminal.h"
+#include "Console.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("Console: " << x)
 
 namespace Upp {
 
-void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
+void Console::ParseCommandSequences(const VTInStream::Sequence& seq)
 {
-	LLOG("CSI " << seq);
+	
+	LLOG(Format("CSI: %c, %[N/A]~s, %s %[0:;(Private)]s",
+			seq.opcode, seq.intermediate, seq.parameters.ToString(), seq.mode));
 
 	bool refresh;
 	switch(FindSequenceId(VTInStream::Sequence::CSI, clevel, seq, refresh)) {
@@ -36,8 +38,8 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		page->MoveDown(seq.GetInt(1));
 		break;
 	case SequenceId::CPL:
-		page->MoveUp(seq.GetInt(1));
 		page->MoveHome();
+		page->MoveUp(seq.GetInt(1));
 		break;
 	case SequenceId::CHA:
 		page->MoveToColumn(seq.GetInt(1));
@@ -81,7 +83,7 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		page->MoveToColumn(seq.GetInt(1));
 		break;
 	case SequenceId::HPR:
-		page->MoveToColumn(seq.GetInt(1), true);
+		page->MoveRight(seq.GetInt(1));
 		break;
 	case SequenceId::REP:
 		if(parser.WasChr())
@@ -96,7 +98,7 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		page->MoveToLine(seq.GetInt(1));
 		break;
 	case SequenceId::VPR:
-		page->MoveToLine(seq.GetInt(1), true);
+		page->MoveDown(seq.GetInt(1));
 		break;
 	case SequenceId::HVP:
 		page->MoveTo(seq.GetInt(2), seq.GetInt(1));
@@ -136,11 +138,11 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		SetCaretStyle(seq);
 		break;
 	case SequenceId::DECSTBM:
-		page->SetVertMargins(seq.GetInt(1), seq.GetInt(2));
+		page->SetVertMargins(seq.GetInt(1, 0), seq.GetInt(2, 0));
 		break;
 	case SequenceId::DECSLRM:
 		if(modes[DECLRMM])
-			page->SetHorzMargins(seq.GetInt(1), seq.GetInt(2));
+			page->SetHorzMargins(seq.GetInt(1, 0), seq.GetInt(2, 0));
 		else // SCOSC
 		if(IsNull(seq.GetStr(1)))
 			Backup();
@@ -158,10 +160,10 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		// Device confidence tests.
 		break;
 	case SequenceId::DECIC:
-		page->PanRight(seq.GetInt(1));
+		page->ScrollLeft(seq.GetInt(1));
 		break;
 	case SequenceId::DECDC:
-		page->PanLeft(seq.GetInt(1));
+		page->ScrollRight(seq.GetInt(1));
 		break;
 	case SequenceId::DECSACE:
 		SelectRectAreaAttrsChangeExtent(seq);
@@ -188,15 +190,13 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		ReportRectAreaChecksum(seq);
 		break;
 	case SequenceId::DECSCPP:
-		SetColumns(seq.GetInt(1) != 132 ? 80 : 132);
+		WhenSetColumns(seq.GetInt(1) != 132 ? 80 : 132);
 		break;
 	case SequenceId::DECSLPP:
-		if(seq.GetInt(1) < 24)
-			HandleWindowOpsRequests(seq);
-		else SetRows(seq.GetInt(1));
+		ReportWindowProperties(seq);
 		break;
 	case SequenceId::DECSNLS:
-		SetRows(max(seq.GetInt(1), 1));
+		WhenSetLines(max(seq.GetInt(1), 1));
 		break;
 	case SequenceId::DECST8C:
 		if(seq.GetInt(1) == 5)
@@ -212,13 +212,13 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		RefreshPage();
 }
 
-void Terminal::ProtectAttributes(bool protect)
+void Console::ProtectAttributes(bool protect)
 {
 	cellattrs.Protect(protect);
 	page->Attributes(cellattrs);
 }
 
-void Terminal::ClearPage(const VTInStream::Sequence& seq)
+void Console::ClearPage(const VTInStream::Sequence& seq)
 {
 	dword flags = GetFillerFlags(seq);
 
@@ -233,13 +233,13 @@ void Terminal::ClearPage(const VTInStream::Sequence& seq)
 		page->ErasePage(flags);
 		break;
 	case 3:
-		//page->ErasePage(flags);
+		page->ErasePage(flags);
 		page->EraseHistory();
 		break;
 	}
 }
 
-void Terminal::ClearLine(const VTInStream::Sequence& seq)
+void Console::ClearLine(const VTInStream::Sequence& seq)
 {
 	dword flags = GetFillerFlags(seq);
 
@@ -258,7 +258,7 @@ void Terminal::ClearLine(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ClearTabs(const VTInStream::Sequence& seq)
+void Console::ClearTabs(const VTInStream::Sequence& seq)
 {
 	switch(seq.GetInt(1, 0)) {
 	case 0:
@@ -272,7 +272,7 @@ void Terminal::ClearTabs(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ReportDeviceStatus(const VTInStream::Sequence& seq)
+void Console::ReportDeviceStatus(const VTInStream::Sequence& seq)
 {
 	int opcode = seq.GetInt(1, 0);
 	Point p = page->GetRelPos();
@@ -303,7 +303,7 @@ void Terminal::ReportDeviceStatus(const VTInStream::Sequence& seq)
 			break;
 		case 25:
 			// UDK status report
-			PutCSI(Format("?%d`n", HasUDK() ? (IsUDKLocked() ? 21 : 20) : 23));
+			PutCSI(Format("?%d`n", IsUDKEnabled() ? (IsUDKLocked() ? 21 : 20) : 23));
 			break;
 		case 26:
 			// Keyboard status (dialect) report
@@ -334,7 +334,7 @@ void Terminal::ReportDeviceStatus(const VTInStream::Sequence& seq)
 		}
 }
 
-void Terminal::ReportDeviceParameters(const VTInStream::Sequence& seq)
+void Console::ReportDeviceParameters(const VTInStream::Sequence& seq)
 {
 	if(IsLevel2()) // Reply only in VT1XX mode
 		return;
@@ -343,22 +343,22 @@ void Terminal::ReportDeviceParameters(const VTInStream::Sequence& seq)
 	// For more details on DECREQTPARM and its response, see:
 	// 1) VT100 User Guide,
 	// 2) https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-
+	
 	int opcode = seq.GetInt(1, 0);
-
+	
 	if(opcode == 0 || opcode == 1)
 		PutCSI(Format("%d;1;1;1;1;1;0x", opcode + 2));
 }
 
-void Terminal::ReportDeviceAttributes(const VTInStream::Sequence& seq)
+void Console::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 {
 	static constexpr const char* VTID_52   = "/Z";
 	static constexpr const char* VTID_1XX  = "?6c";
-	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;17;22;444c";
-	static constexpr const char* VTID_3XX  = "?63;1;4;6;8;9;15;17;22;444c";
-	static constexpr const char* VTID_4XX  = "?64;1;4;6;8;9;15;17;21;22;28;444c";
+	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;22;444c";
+	static constexpr const char* VTID_3XX  = "?63;1;4;6;8;9;15;22;444c";
+	static constexpr const char* VTID_4XX  = "?64;1;4;6;8;9;15;17;21;22;444c";
 	static constexpr const char* VTID_UNIT = "!|00000000";
-
+		
 	if(seq.mode == '\0') {
 		switch(clevel) {
 		case LEVEL_0:
@@ -382,13 +382,13 @@ void Terminal::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 	}
 	else
 	if(seq.mode == '>')
-		PutCSI(">41;3;0c");
+		PutCSI(">41;2;0c");
 	else
 	if(seq.mode == '=')
 		PutDCS(VTID_UNIT);	// DECREPTUI
 }
 
-void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
+void Console::ReportPresentationState(const VTInStream::Sequence& seq)
 {
 	int report = seq.GetInt(1, 0);
 
@@ -421,7 +421,7 @@ void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
 		{
 			return CHARSET_ISO8859_1 <= gx && gx <= CHARSET_ISO8859_16;
 		};
-
+		
 		auto GetCharsetId = [=] (byte chrset) -> const char*
 		{
 			// TODO: This can be more precise...
@@ -431,7 +431,7 @@ void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
 			if(chrset == CHARSET_ISO8859_1)	return "A";
 			return "B";		// ASCII
 		};
-
+		
 		if(Is96Chars(gsets.GetG0()))
 			gsize |= 0x01;
 		if(Is96Chars(gsets.GetG1()))
@@ -440,9 +440,9 @@ void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
 			gsize |= 0x04;
 		if(Is96Chars(gsets.GetG3()))
 			gsize |= 0x08;
-
+		
 		Point pt = page->GetRelPos();
-
+		
 		PutDCS(Format("1$u%d;%d;%d;%c;%c;%c;%d;%d;%c;%s%s%s%s",
 					pt.y, pt.x, 1,
 					sgr,
@@ -471,212 +471,21 @@ void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
+void Console::ReportWindowProperties(const VTInStream::Sequence& seq)
 {
-	// This method implements most of the xterm's WindowOps feature.
-	// See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-	
-	enum WindowActions : int {
-		ACTION_UNMINIMIZE        = 10,
-		ACTION_MINIMIZE          = 20,
-		ACTION_MOVE              = 30,
-		ACTION_RESIZE_VIEW       = 40,
-	//	ACTION_RAISE             = 50,
-	//	ACTION_LOWER             = 60,
-		ACTION_REFRESH           = 70,
-		ACTION_RESIZE_PAGE       = 80,
-		ACTION_UNMAXIMIZE        = 90,
-		ACTION_MAXIMIZE          = 91,
-		ACTION_MAXIMIZE_VERT     = 92,
-		ACTION_MAXIMIZE_HORZ     = 93,
-		ACTION_NOFULLSCREEN      = 100,
-		ACTION_FULLSCREEN        = 101,
-		ACTION_FULLSCREEN_TOGGLE = 102
-	};
-
-	enum WindowReports : int { // P = pixels, C = cells
-		REPORT_WINDOW_STATE				= 110,
-		REPORT_WINDOW_POSITION			= 130,
-		REPORT_PAGE_POSITION			= 132,
-		REPORT_PAGE_SIZE_IN_PIXELS		= 140,
-		REPORT_WINDOW_SIZE_IN_PIXELS	= 142,
-		REPORT_SCREEN_SIZE_IN_PIXELS	= 150,
-		REPORT_CELL_SIZE				= 160,
-		REPORT_PAGE_SIZE_IN_CELLS		= 180,
-		REPORT_SCREEN_SIZE_IN_CELLS		= 190,
-		REPORT_WINDOW_ICOON_LABEL		= 120,
-		REPORT_WINDOW_TITLE				= 210
-	};
-
-	int opcode = seq.GetInt(1);
-	
-	TopWindow *w = GetTopWindow();
-
-	if(!w)
-		return;
-		
-	if(windowactions && 0 < opcode && opcode < 11) {
-		opcode *= 10;
-		if(opcode > 90) opcode += seq.GetInt(2, 0);
-		switch(opcode) {
-		case ACTION_UNMINIMIZE:
-			WhenWindowMinimize(false);
-			break;
-		case ACTION_MINIMIZE:
-			WhenWindowMinimize(true);
-			break;
-		case ACTION_MOVE: {
-			int x = seq.GetInt(3, 0);
-			int y = seq.GetInt(2, 0);
-			WindowMoveRequest(w, x, y);
-			break; }
-		case ACTION_RESIZE_VIEW: {
-			int cx = StrInt(seq.GetStr(3));
-			int cy = StrInt(seq.GetStr(2));
-			WindowResizeRequest(w, cx, cy);
-			break; }
-		case ACTION_RESIZE_PAGE: {
-			int cx = StrInt(seq.GetStr(3));
-			int cy = StrInt(seq.GetStr(2));
-			WindowPageResizeRequest(w, cx, cy);
-			break; }
-		case ACTION_UNMAXIMIZE:
-			WhenWindowMaximize(false);
-			break;
-		case ACTION_MAXIMIZE:
-			WhenWindowMaximize(true);
-			break;
-		case ACTION_MAXIMIZE_VERT:
-			WindowMaximizeVertRequest(w);
-			break;
-		case ACTION_MAXIMIZE_HORZ:
-			WindowMaximizeHorzRequest(w);
-			break;
-		case ACTION_NOFULLSCREEN:
-			WhenWindowFullScreen(-1);
-			break;
-		case ACTION_FULLSCREEN:
-			WhenWindowFullScreen(1);
-			break;
-		case ACTION_FULLSCREEN_TOGGLE:
-			WhenWindowFullScreen(0);
-			break;
-		default:
-			LLOG("Unhandled window action request: " << opcode);
-			return;
-		}
-	}
-	else
-	if(windowreports && 10 < opcode && opcode < 24) {
-		Rect r;
-		Size sz;
-		Rect wr = GetWorkArea();
-		switch(opcode * 10 + seq.GetInt(2, 0)) {
-		case REPORT_WINDOW_POSITION:
-			r = w->GetRect();
-			PutCSI(Format("3;%d;%d`t", r.left, r.top));
-			break;
-		case REPORT_PAGE_POSITION:
-			r = GetRect();
-			PutCSI(Format("3;%d;%d`t", r.left, r.top));
-			break;
-		case REPORT_PAGE_SIZE_IN_PIXELS:
-			sz = GetPageSize() * GetFontSize();
-			PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
-			break;
-		case REPORT_WINDOW_SIZE_IN_PIXELS:
-			sz = w->GetSize();
-			PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
-			break;
-		case REPORT_SCREEN_SIZE_IN_PIXELS:
-			sz = GetWorkArea().GetSize();
-			PutCSI(Format("5;%d;%d`t", sz.cy, sz.cx));
-			break;
-		case REPORT_PAGE_SIZE_IN_CELLS:
-			sz = GetPageSize();
-			PutCSI(Format("8;%d;%d`t", sz.cy, sz.cx));
-			break;
-		case REPORT_CELL_SIZE:
-			sz = GetFontSize();
-			PutCSI(Format("6;%d;%d`t", sz.cy, sz.cx));
-			break;
-		case REPORT_SCREEN_SIZE_IN_CELLS: {
-			sz = GetWorkArea().GetSize() / GetFontSize();
-			PutCSI(Format("9;%d;%d`t", sz.cy, sz.cx));
-			break; }
-		case REPORT_WINDOW_STATE:
-			PutCSI(Format("%d`t", w->IsMinimized() ? 2 : 1));
-			break;
-		case REPORT_WINDOW_ICOON_LABEL:
-			break;
-		case REPORT_WINDOW_TITLE:
-			PutOSC(Format("l%s", w->GetTitle()));	// Eempty for security reasons.
-			break;
-		default:
-			LLOG("Unhandled window report request: " << opcode);
-			return;
-		}
-	}
+    int opcode = seq.GetInt(1, 0);
+    if(opcode < 24) {
+		opcode  = (opcode << 8) | seq.GetInt(2,  0);
+	    ReportWindowProperties(opcode & 0xFFFF);
+    }
+    else WhenSetLines(max(opcode, 1));
 }
 
-void Terminal::WindowMoveRequest(TopWindow *w, int x, int y)
-{
-	Rect r(Point(x, y), w->GetRect().GetSize());
-	
-	LLOG("WindowMoveRequest(" << x << ", " << y << ") -> " << r);
-	
-	WhenWindowGeometryChange(r);
-}
-
-void Terminal::WindowResizeRequest(TopWindow *w, int cx, int cy)
-{
-	Rect r = w->GetRect();
-	Rect wr = GetWorkArea();
-	Size fsz = GetFontSize();
-
-	Size sz;
-	sz.cx = IsNull(cx) ? r.Width() : !cx ? wr.Width() : cx;
-	sz.cy = IsNull(cy) ? r.Height() : !cy ? wr.Height() : cy;
-
-	LLOG("WindowResizeRequest(" << cx << ", " << cy << ") -> " << sz);
-		
-	WhenWindowGeometryChange(Rect(r.TopLeft(), sz));
-}
-
-void Terminal::WindowPageResizeRequest(TopWindow *w, int cx, int cy)
-{
-	LLOG("WindowPageResizeRequest(" << cx << ", " << cy << ")");
-	
-	Rect r = w->GetRect();
-	Rect wr = GetWorkArea();
-	Size fsz = GetFontSize();
-	
-	Size sz;
-	sz.cx = IsNull(cx) ? r.Width() : !cx ? wr.Width() : AddFrameSize(Size(cx, 1) * fsz).cx;
-	sz.cy = IsNull(cy) ? r.Height() : !cy ? wr.Height() : AddFrameSize(Size(1, cy) * fsz).cy;
-	
-	WhenWindowGeometryChange(Rect(r.TopLeft(), sz));
-}
-
-void Terminal::WindowMaximizeHorzRequest(TopWindow *w)
-{
-	Rect r = GetWorkArea();
-	r.bottom = r.top + w->GetView().Height();
-	WhenWindowGeometryChange(r);
-}
-
-void Terminal::WindowMaximizeVertRequest(TopWindow *w)
-{
-	Rect r = GetWorkArea();
-	r.right = r.left + w->GetView().Width();
-	WhenWindowGeometryChange(r);
-}
-
-void Terminal::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
+void Console::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
 {
 	int level = seq.GetInt(1, 0);
 	int mode  = seq.GetInt(2, -1);
-
+	
 	switch(level) {
 	case 61:
 		clevel = LEVEL_1;
@@ -696,17 +505,17 @@ void Terminal::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
 	}
 
 	SoftReset();
-	Set8BitMode(mode == 0 || mode == 2);
+	Set8BitsMode(mode == 0 || mode == 2);
 
 	LLOG(Format("Device conformance level is set to: %d (%d-bits mode)",
-				(int) clevel, Is8BitMode() ? 8 : 7 ));
+				(int) clevel, Is8BitsMode() ? 8 : 7 ));
 }
 
-void Terminal::SetProgrammableLEDs(const VTInStream::Sequence& seq)
+void Console::SetProgrammableLEDs(const VTInStream::Sequence& seq)
 {
 	int  led = seq.GetInt(1, 0);
 	bool set = led >= 1 && led < 21;
-
+	
 	switch(led) {
 	case 0:
 		WhenLED(LED_ALL, set);
@@ -728,14 +537,14 @@ void Terminal::SetProgrammableLEDs(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::SetCaretStyle(const VTInStream::Sequence& seq)
+void Console::SetCaretStyle(const VTInStream::Sequence& seq)
 {
 	if(caret.IsLocked())
 		return;
-
+	
 	int n = seq.GetInt(1, 0);
 	bool blink = n == 0 || n % 2;
-
+	
 	switch(n) {
 	case 0:
 	case 1:
@@ -753,60 +562,48 @@ void Terminal::SetCaretStyle(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::CopyRectArea(const VTInStream::Sequence& seq)
+void Console::CopyRectArea(const VTInStream::Sequence& seq)
 {
 	int srcpage  = seq.GetInt(5);
 	int destpage = seq.GetInt(8);
-
+	
 	if(srcpage != destpage || srcpage != 1 || destpage != 1) // Currently we don't support multiple pages.
 			return;
-
-	Rect view = page->GetView();
-
+	
 	Rect r;
-	r.top    = seq.GetInt(1, view.top);
-	r.left   = seq.GetInt(2, view.left);
-	r.bottom = seq.GetInt(3, view.bottom);
-	r.right  = seq.GetInt(4, view.right);
-
+	r.left   = seq.GetInt(2, Null);
+	r.top    = seq.GetInt(1, Null);
+	r.right  = seq.GetInt(4, Null);
+	r.bottom = seq.GetInt(3, Null);
+	
 	Point pt;
-	pt.x = seq.GetInt(7);
-	pt.y = seq.GetInt(6);
-
-	page->CopyRect(pt, r);
+	pt.x = seq.GetInt(7, Null);
+	pt.y = seq.GetInt(6, Null);
+	
+	page->CopyRect(r, pt);
 }
 
-void Terminal::FillRectArea(const VTInStream::Sequence& seq)
+void Console::FillRectArea(const VTInStream::Sequence& seq)
 {
-	int chr = seq.GetInt(1, 0x20);
-
-	if(chr <= 0x1F
-	|| chr == 0x7F
-	|| chr >  0xFF
-	||(chr >= 0x80 && chr < 0xA0))
-		return;
-
-	Rect view = page->GetView();
-
 	Rect r;
-	r.top    = seq.GetInt(2, view.top);
-	r.left   = seq.GetInt(3, view.left);
-	r.bottom = seq.GetInt(4, view.bottom);
-	r.right  = seq.GetInt(5, view.right);
+	r.left   = seq.GetInt(3, Null);
+	r.top    = seq.GetInt(2, Null);
+	r.right  = seq.GetInt(5, Null);
+	r.bottom = seq.GetInt(4, Null);
 
+	int chr = seq.GetInt(1, 0);
+	
 	page->FillRect(r, LookupChar(chr));
 }
 
-void Terminal::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
+void Console::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
 {
-	Rect view = page->GetView();
-
 	Rect r;
-	r.top    = seq.GetInt(1, view.top);
-	r.left   = seq.GetInt(2, view.left);
-	r.bottom = seq.GetInt(3, view.bottom);
-	r.right  = seq.GetInt(4, view.right);
-
+	r.left   = seq.GetInt(2, Null);
+	r.top    = seq.GetInt(1, Null);
+	r.right  = seq.GetInt(4, Null);
+	r.bottom = seq.GetInt(3, Null);
+	
 	dword flags = selective
 		? VTCell::FILL_SELECTIVE | VTCell::FILL_CHAR
 		: VTCell::FILL_NORMAL;
@@ -814,27 +611,25 @@ void Terminal::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
 	page->EraseRect(r, flags);
 }
 
-void Terminal::SelectRectAreaAttrsChangeExtent(const VTInStream::Sequence& seq)
+void Console::SelectRectAreaAttrsChangeExtent(const VTInStream::Sequence& seq)
 {
 	streamfill = seq.GetInt(1) != 2;
 }
 
-void Terminal::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
+void Console::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
 {
-	Rect view = page->GetView();
-
 	Rect r;
-	r.top    = seq.GetInt(1, view.top);
-	r.left   = seq.GetInt(2, view.left);
-	r.bottom = seq.GetInt(3, view.bottom);
-	r.right  = seq.GetInt(4, view.right);
-
+	r.left   = seq.GetInt(2, Null);
+	r.top    = seq.GetInt(1, Null);
+	r.right  = seq.GetInt(4, Null);
+	r.bottom = seq.GetInt(3, Null);
+	
 	VTCell filler = cellattrs;
 
 	Vector<String> sgrcodes;
 	for(int i = 4; i < seq.parameters.GetCount(); i++)
 		sgrcodes.Add(seq.parameters[i]);
-
+	
 	invert
 		? InvertGraphicsRendition(filler, sgrcodes)
 		: SetGraphicsRendition(filler, sgrcodes);
@@ -848,22 +643,20 @@ void Terminal::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
 		: page->FillRect(r,  filler, flags);
 }
 
-void Terminal::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
+void Console::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 {
 	int id = seq.GetInt(1);
-	int pn = seq.GetInt(2, 0);
-
-	Rect view = page->GetView();
-
+	int pn = seq.GetInt(2);
+	
 	Rect r;
-	r.top    = seq.GetInt(3, view.top);
-	r.left   = seq.GetInt(4, view.left);
-	r.bottom = seq.GetInt(5, view.bottom);
-	r.right  = seq.GetInt(6, view.right);
-
-	dword checksum = 0;
-
-	auto CalcRectAreaChecksum = [=, &checksum](Point pt) -> void
+	r.left   = seq.GetInt(4, Null);
+	r.top    = seq.GetInt(3, Null);
+	r.right  = seq.GetInt(6, Null);
+	r.bottom = seq.GetInt(5, Null);
+	
+	int checksum = 0;
+	
+	auto CalcRectAreaChecksum = [=, &checksum](const VTCell& cell, const Point& pt) -> void
 	{
 		// I couldn't find any official documentation on how to calculate
 		// a rectangular area's checksum. I was able to figure out that I
@@ -872,52 +665,39 @@ void Terminal::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 		// values into account. Luckily, I found the answer in xterm's code.
 		// See: xterm/screen.c, ln 2719-2817 (xtermCheckRect() function)
 		// Credits should go to Thomas E. Dickey (xterm's maintainer) et al.
-
-		const VTCell& cell = page->GetCell(pt);
-		if(!cell.IsVoid()) {
-			checksum -= cell.chr == 0 ? 0x20 : ConvertToCharset(cell, gsets.Get(cell, IsLevel2()));
-			if(cell.IsUnderlined())
-				checksum -= 0x10;
-			if(cell.IsInverted())
-				checksum -= 0x20;
-			if(cell.IsBlinking())
-				checksum -= 0x40;
-			if(cell.IsBold())
-				checksum -= 0x80;
-		}
+		
+		int chr = cell.chr;
+		checksum -= ConvertToCharset(chr, gsets.Get(chr, IsLevel2()));
+		if(cell.IsUnderlined())
+			checksum -= 0x10;
+		if(cell.IsInverted())
+			checksum -= 0x20;
+		if(cell.IsBlinking())
+			checksum -= 0x40;
+		if(cell.IsBold())
+			checksum -= 0x80;
 	};
-
+	
 	// According to DEC EK-VT420-RM002  (p. 242)
 	// and DEC EK 00070-05 (p. 5-179)  documents,
 	// DECRQCRA and its response DECCKSR is also
 	// affected by the relative positioning mode.
 
-	page->GetRectArea(r, CalcRectAreaChecksum, page->IsDisplaced());
-
+	page->GetRelRectArea(r, CalcRectAreaChecksum);
+	
 	PutDCS(Format("%d!~%2X", id, (word) checksum));
 }
 
-void Terminal::AlternateScreenBuffer(bool b)
-{
-	if(b && IsDefaultPage())
-		page = &apage;
-	else
-	if(!b && IsAlternatePage()) {
-		page = &dpage;
-	}
-	LLOG("Alternate screen buffer: " << (b ? "on" : "off"));
-}
-
-dword Terminal::GetFillerFlags(const VTInStream::Sequence& seq) const
+dword Console::GetFillerFlags(const VTInStream::Sequence& seq) const
 {
 	dword flags = VTCell::FILL_NORMAL;
 	if(!modes[ERM] || (IsLevel2() && seq.mode == '?'))
-		flags = VTCell::FILL_SELECTIVE
-			  | VTCell::FILL_CHAR
-		      | VTCell::FILL_ATTRS
-		      | VTCell::FILL_INK
-		      | VTCell::FILL_PAPER
-		      | VTCell::FILL_SGR;
+		flags = VTCell::FILL_SELECTIVE |
+		        VTCell::FILL_CHAR      |
+		        VTCell::FILL_ATTRS     |
+		        VTCell::FILL_INK       |
+		        VTCell::FILL_PAPER     |
+		        VTCell::FILL_SGR;
 	return flags;
 }
 }

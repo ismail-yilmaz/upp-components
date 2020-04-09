@@ -31,7 +31,10 @@ bool sParseEnv(Vector<const char*>& out, const char* penv)
 
 bool sParseArgs(Vector<char*>& out, const char *cmd, const Vector<String> *pargs, Buffer<char>& cmd_buf)
 {
+	String app;
+
 	if(pargs) {
+		app = cmd;
 		int n = strlen(cmd) + 1;
 		for(int i = 0; i < pargs->GetCount(); i++)
 			n += (*pargs)[i].GetCount() + 1;

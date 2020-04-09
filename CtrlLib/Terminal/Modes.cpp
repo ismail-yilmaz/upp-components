@@ -1,11 +1,11 @@
-#include "Terminal.h"
+#include "Console.h"
 
-#define LLOG(x)	 // RLOG("Terminal: " << x)
-#define LDUMP(x) // RLOG("Terminal: Mode: " << #x << " = " << modes[x])
+#define LLOG(x)	 // RLOG("Console: " << x)
+#define LDUMP(x) // RLOG("Console: Mode: " << #x << " = " << modes[x])
 
 namespace Upp {
 
-void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
+void Console::SetMode(const VTInStream::Sequence& seq, bool enable)
 {
 	for(const String& s : seq.parameters) {		// Multiple terminal modes can be set/reset at once.
 		bool refresh;
@@ -71,9 +71,6 @@ void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case XTBRPM:
 			XTbrpm(enable);
 			break;
-		case XTREWRAPM:
-			XTrewrapm(enable);
-			break;
 		case XTX10MM:
 			XTx10mm(enable);
 			break;
@@ -105,19 +102,7 @@ void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 			XTasbm(modenum, enable);
 			break;
 		case XTSPREG:
-		case GATM:
-		case SRTM:
-		case VEM:
-		case HEM:
-		case PUM:
-		case FEAM:
-		case FETM:
-		case MATM:
-		case TTM:
-		case SATM:
-		case TSM:
-		case EBM:
-			// Permanently set or reset.
+			// Permanently set.
 			break;
 		default:
 			LLOG(Format("Unhandled %[0:ANSI;private]s mode: %d", seq.mode, modenum));
@@ -126,7 +111,7 @@ void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 	}
 }
 
-void Terminal::ReportMode(const VTInStream::Sequence& seq)
+void Console::ReportMode(const VTInStream::Sequence& seq)
 {
 	bool refresh;
 	int modenum = seq.GetInt(1, 0);
@@ -144,20 +129,6 @@ void Terminal::ReportMode(const VTInStream::Sequence& seq)
 
 	if(mid >= 0)
 		switch(mid) {
-		case GATM:		// Currently we dont actively support these ANSI (ECMA-48) modes.
-		case SRTM:
-		case VEM:
-		case HEM:
-		case PUM:
-		case FEAM:
-		case FETM:
-		case MATM:
-		case TTM:
-		case SATM:
-		case TSM:
-		case EBM:
-			reply = 4;
-			break;
 		case XTSPREG:	// We don't support shared color registers for sixel images.
 			reply = 3;
 			break;
@@ -168,57 +139,57 @@ void Terminal::ReportMode(const VTInStream::Sequence& seq)
 	PutCSI(Format("%[1:?;]s%d;%d`$y", seq.mode == '?', modenum, reply));
 }
 
-void Terminal::ANSIkam(bool b)
+void Console::ANSIkam(bool b)
 {
 	modes.Set(KAM, b);
 	LDUMP(KAM);
 }
 
-void Terminal::ANSIcrm(bool b)
+void Console::ANSIcrm(bool b)
 {
 	modes.Set(CRM, b);
 	LDUMP(CRM);
 }
 
-void Terminal::ANSIirm(bool b)
+void Console::ANSIirm(bool b)
 {
 	modes.Set(IRM, b);
 	LDUMP(IRM);
 }
 
-void Terminal::ANSIsrm(bool b)
+void Console::ANSIsrm(bool b)
 {
 	modes.Set(SRM, b);
 	LDUMP(SRM);
 }
 
-void Terminal::ANSIerm(bool b)
+void Console::ANSIerm(bool b)
 {
 	modes.Set(ERM, b);
 	LDUMP(ERM);
 }
 
-void Terminal::ANSIlnm(bool b)
+void Console::ANSIlnm(bool b)
 {
 	modes.Set(LNM, b);
 	LDUMP(LNM);
 }
 
-void Terminal::DECom(bool b)
+void Console::DECom(bool b)
 {
 	modes.Set(DECOM, b);
-	page->Displaced(b);
+	page->OriginMode(b);
 	page->MoveTopLeft();
 	LDUMP(DECOM);
 }
 
-void Terminal::DECckm(bool b)
+void Console::DECckm(bool b)
 {
 	modes.Set(DECCKM, b);
 	LDUMP(DECCKM);
 }
 
-void Terminal::DECanm(bool b)
+void Console::DECanm(bool b)
 {
 	// According to DEC'S internal VT52 emulation document
 	// (EL-00070-0A, p. A-45), exiting the VT52 mode always
@@ -239,42 +210,41 @@ void Terminal::DECanm(bool b)
 	LDUMP(DECANM);
 }
 
-void Terminal::DECawm(bool b)
+void Console::DECawm(bool b)
 {
 	modes.Set(DECAWM, b);
-	if(!b && modes[XTREWRAPM]) // Disabling the DECAWM also disables the reverse wrap.
-		XTrewrapm(b);
+	page->WrapAround(b);
 	LDUMP(DECAWM);
 }
 
-void Terminal::DECarm(bool b)
+void Console::DECarm(bool b)
 {
 	modes.Set(DECARM, b);
 	LDUMP(DECARM);
 }
 
-void Terminal::DECkpam(bool b)
+void Console::DECkpam(bool b)
 {
 	modes.Set(DECKPAM, b);
 	LDUMP(DECKPAM);
 }
 
-void Terminal::DECcolm(bool b)
+void Console::DECcolm(bool b)
 {
 	modes.Set(DECCOLM, b);
-	DECom(false);
 	page->ErasePage();
-	SetColumns(b ? 132 : 80);
+	DECom(false);
+	WhenSetColumns(b ? 132 : 80);
 	LDUMP(DECCOLM);
 }
 
-void Terminal::DECsclm(bool b)
+void Console::DECsclm(bool b)
 {
 	modes.Set(DECSCLM, b);
 	LDUMP(DECSCLM);
 }
 
-void Terminal::DECscnm(bool b)
+void Console::DECscnm(bool b)
 {
 	modes.Set(DECSCNM, b);
 	page->Invalidate();
@@ -282,63 +252,51 @@ void Terminal::DECscnm(bool b)
 	LDUMP(DECSCNM);
 }
 
-void Terminal::DECtcem(bool b)
+void Console::DECtcem(bool b)
 {
 	modes.Set(DECTCEM, b);
 	caret.WhenAction();
 	LDUMP(DECTCEM);
 }
 
-void Terminal::DEClrmm(bool b)
+void Console::DEClrmm(bool b)
 {
 	modes.Set(DECLRMM, b);
-	if(!b) page->ResetMargins();
 	LDUMP(DECLRMM);
 }
 
-void Terminal::DECbkm(bool b)
+void Console::DECbkm(bool b)
 {
 	modes.Set(DECBKM, b);
 	LDUMP(DECBKM);
 }
 
-void Terminal::DECsdm(bool b)
+void Console::DECsdm(bool b)
 {
 	modes.Set(DECSDM, b);
 	LDUMP(DECSDM);
 }
 
-void Terminal::XTascm(bool b)
+void Console::XTascm(bool b)
 {
 	modes.Set(XTASCM, b);
 	LDUMP(XTASCM);
 }
 
-void Terminal::XTbrpm(bool b)
+void Console::XTbrpm(bool b)
 {
 	modes.Set(XTBRPM, b);
 	LDUMP(XTBRPM);
 }
 
-void Terminal::XTrewrapm(bool b)
-{
-	// Let reverse wrap require auto wrapping.
-	
-	if((reversewrap && modes[DECAWM]) || !b) {
-		modes.Set(XTREWRAPM, b);
-		page->ReverseWrap(b);
-		LDUMP(XTREWRAPM);
-	}
-}
-
-void Terminal::XTsrcm(bool b)
+void Console::XTsrcm(bool b)
 {
 	modes.Set(XTSRCM, b);
 	b ? Backup() : Restore(); // This mode is used in conjunction with the private mode 1047.
 	LDUMP(XTSRCM);
 }
 
-void Terminal::XTasbm(int mode, bool b)
+void Console::XTasbm(int mode, bool b)
 {
 	modes.Set(XTASBM, b);
 	if(mode == 47) {
@@ -360,49 +318,49 @@ void Terminal::XTasbm(int mode, bool b)
 	LDUMP(XTASBM);
 }
 
-void Terminal::XTx10mm(bool b)
+void Console::XTx10mm(bool b)
 {
 	modes.Set(XTX10MM, b);
 	LDUMP(XTX10MM);
 }
 
-void Terminal::XTx11mm(bool b)
+void Console::XTx11mm(bool b)
 {
 	modes.Set(XTX11MM, b);
 	LDUMP(XTX11MM);
 }
 
-void Terminal::XTsgrmm(bool b)
+void Console::XTsgrmm(bool b)
 {
 	modes.Set(XTSGRMM, b);
 	LDUMP(XTSGRMM);
 }
 
-void Terminal::XTutf8mm(bool b)
+void Console::XTutf8mm(bool b)
 {
 	modes.Set(XTUTF8MM, b);
 	LDUMP(XTUTF8MM);
 }
 
-void Terminal::XTdragm(bool b)
+void Console::XTdragm(bool b)
 {
 	modes.Set(XTDRAGM, b);
 	LDUMP(XTDRAGM);
 }
 
-void Terminal::XTfocusm(bool b)
+void Console::XTfocusm(bool b)
 {
 	modes.Set(XTFOCUSM, b);
 	LDUMP(XTFOCUSM);
 }
 
-void Terminal::XTaltkeym(bool b)
+void Console::XTaltkeym(bool b)
 {
 	modes.Set(XTALTESCM, b);
 	LDUMP(XTALTESCM);
 }
 
-void Terminal::XTanymm(bool b)
+void Console::XTanymm(bool b)
 {
 	modes.Set(XTANYMM, b);
 	LDUMP(XTANYMM);

@@ -1,4 +1,4 @@
-#include "Terminal.h"
+#include "Console.h"
 
 #define LTIMING(x) // RTIMING(x)
 
@@ -23,10 +23,10 @@ namespace Upp {
 #define VT_CTL(id, cbyte, flag, level)              \
     {                                               \
         { cbyte },                                  \
-        { Terminal::level, ControlId::id, flag }    \
+        { Console::level, ControlId::id, flag }     \
     }
     
-Terminal::ControlId Terminal::FindControlId(byte ctl, byte level, bool& refresh)
+Console::ControlId Console::FindControlId(byte ctl, byte level, bool& refresh)
 {
     BEGIN_VT_CTL(vtcbytes)
         VT_CTL(NUL,         0x00,   NOREFRESH, LEVEL_0),	// Ignored
@@ -89,7 +89,7 @@ Terminal::ControlId Terminal::FindControlId(byte ctl, byte level, bool& refresh)
 #define VT_SEQUENCE(seq, id, opcode, mode, interm, flag, level) \
     {                                                           \
         { VTInStream::Sequence::seq, opcode, mode, interm},     \
-        { Terminal::level, SequenceId::id, flag }               \
+        { Console::level, SequenceId::id, flag }                \
     }
     
 #define VT_ESC(id, opcode, mode, interm, flag, level)           \
@@ -101,7 +101,7 @@ Terminal::ControlId Terminal::FindControlId(byte ctl, byte level, bool& refresh)
 #define VT_DCS(id, opcode, mode, interm, flag, level)           \
     VT_SEQUENCE(DCS, id, opcode, mode, interm, flag, level)
 
-Terminal::SequenceId Terminal::FindSequenceId(byte type, byte level, const VTInStream::Sequence& seq, bool& refresh)
+Console::SequenceId Console::FindSequenceId(byte type, byte level, const VTInStream::Sequence& seq, bool& refresh)
 {
     BEGIN_VT_SEQUENCES(vtsequences)
         // Escape sequences
@@ -176,7 +176,7 @@ Terminal::SequenceId Terminal::FindSequenceId(byte type, byte level, const VTInS
         VT_CSI(CUF,             'C', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Move forward
         VT_CSI(CUB,             'D', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Move backward
         VT_CSI(CNL,             'E', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Move to next line (no scrolling)
-        VT_CSI(CPL,             'F', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Move to prev line (no scrolling)
+        VT_CSI(CPL,             'F', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Move to prev line )no scrolling)
         VT_CSI(CHA,             'G', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor horizontal absolute
         VT_CSI(CUP,             'H', 0x00, 0x00, NOREFRESH, LEVEL_1),   // Cursor position
         VT_CSI(CHT,             'I', 0x00, 0x00, NOREFRESH, LEVEL_4),   // Cursor horizontal tabulation
@@ -239,12 +239,12 @@ Terminal::SequenceId Terminal::FindSequenceId(byte type, byte level, const VTInS
         VT_CSI(DECDC,           '~', 0x00, '\'', DOREFRESH, LEVEL_4),   // Delete column
         // Device control strings
         VT_DCS(DECSIXEL,        'q', 0x00, 0x00, DOREFRESH, LEVEL_3),   // Parse sixel graphics
-        VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_2),   // Request control function strings
+        VT_DCS(DECRQSS,         'q', 0x00, '$',  NOREFRESH, LEVEL_4),   // Request control function strings
         VT_DCS(DECRSPS,         't', 0x00, '$',  NOREFRESH, LEVEL_3),   // Restore presentation state
         VT_DCS(DECUDK,          '|', 0x00, 0x00, NOREFRESH, LEVEL_2)    // Set user-defined keys
     END_VT_SEQUENCES;
     
-    LTIMING("Terminal::FındSequenceId");
+    LTIMING("Console::FındSequenceId");
 
     const auto *p = vtsequences.FindPtr(
             MakeTuple(type, seq.opcode, seq.mode, (byte) seq.intermediate[0])
@@ -282,30 +282,18 @@ Terminal::SequenceId Terminal::FindSequenceId(byte type, byte level, const VTInS
 #define VT_MODE(id, mode, type, flag, level)    \
     {                                           \
         { mode, type},                          \
-        { Terminal::level, id, flag }           \
+        { Console::level, id, flag }            \
     }
     
-int Terminal::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
+int Console::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
 {
     BEGIN_VT_MODES(vtmodes)
         // ANSI modes
-        VT_MODE(GATM,       1,      0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
         VT_MODE(KAM,        2,      0x00,   NOREFRESH, LEVEL_1),    // Keyboard action mode
         VT_MODE(CRM,        3,      0x00,   NOREFRESH, LEVEL_1),    // Show/hide control characters
         VT_MODE(IRM,        4,      0x00,   NOREFRESH, LEVEL_1),    // Insert/replace characters
-        VT_MODE(SRTM,       5,      0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
         VT_MODE(ERM,        6,      0x00,   NOREFRESH, LEVEL_1),    // Erasure mode
-        VT_MODE(VEM,        7,      0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(HEM,        10,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(PUM,        11,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
         VT_MODE(SRM,        12,     0x00,   NOREFRESH, LEVEL_1),    // Send/receive mode (local echo)
-        VT_MODE(FEAM,       13,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(FETM,       14,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(MATM,       15,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(TTM,        16,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(SATM,       17,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(TSM,        18,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
-        VT_MODE(EBM,        19,     0x00,   NOREFRESH, LEVEL_1),    // Permanently reset
         VT_MODE(LNM,        20,     0x00,   NOREFRESH, LEVEL_1),    // Line feed/new line mode
         // Private modes
         VT_MODE(DECCKM,     1,      '?',    NOREFRESH, LEVEL_1),    // Cursor keys mode
@@ -322,7 +310,6 @@ int Terminal::FindModeId(word modenum, byte modetype, byte level, bool& refresh)
         VT_MODE(DECSDM,     80,     '?',    NOREFRESH, LEVEL_3),    // Enable/disable sixel scrolling
         // Private mode extensions
         VT_MODE(XTX10MM,    9,      '?',    NOREFRESH, LEVEL_1),    // X10 mouse button tracking mode (compat.)
-        VT_MODE(XTREWRAPM,  45,     '?',    NOREFRESH, LEVEL_1),    // Reverse wrap mode
         VT_MODE(XTASBM,     47,     '?',    DOREFRESH, LEVEL_1),    // Alternate screen buffer mode (ver. 1)
         VT_MODE(XTX11MM,    1000,   '?',    NOREFRESH, LEVEL_1),    // X11 mouse button tracking mode (normal)
         VT_MODE(XTDRAGM,    1002,   '?',    NOREFRESH, LEVEL_1),    // X11 mouse motion tracking mode

@@ -24,7 +24,7 @@ topic "Overview";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
 [s2;= Terminal Package for Ultimate`+`+&]
-[s0;= [*1 Copyright © 2019`-2020, ][*^https`:`/`/github`.com`/ismail`-yilmaz^1 İsmail 
+[s0;= [*1 Copyright © 2019`-2020, ][*^mailto`:iylmz`.iylmz`@gmail`.com^1 İsmail 
 Yılmaz]&]
 [s0;=^mailto`:iylmz`.iylmz`@gmail`.com^1 &]
 [s0;=1 &]
@@ -67,7 +67,7 @@ and maintainability in mind.&]
 [s22;:Requirements: 2. Requirements&]
 [s0; &]
 [s5;i150;O0; Ultimate`+`+ (ver. >`= 2019.1)&]
-[s5;i150;O0; POSIX, Windows, MacOS.&]
+[s5;i150;O0; POSIX, Windows (and probably MacOS, though not tested.).&]
 [s5;i150;O0; A decent enough C/C`+`+ compiler that supports at least 
 C`+`+11 (GCC/CLANG/MinGW/Msc).&]
 [s5;i150;O0; Snacks `& beer.&]
@@ -85,10 +85,10 @@ as a front`-end for other terminal based services, such as SSH
 or TELNET, etc., has become possible.&]
 [s5;#l160; This point is demonstrated with [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Example2^ o
 ne of the provided examples]: While the PtyProcess is currently 
-not available on Windows (it`'s a TBD), Terminal widget can be 
-compiled, run, and used on Windows, or on other supported platforms, 
-as an SSH terminal with no code modification required at least 
-on Windows and Linux.&]
+not available on Windows (it`'s a TODO), Terminal widget can 
+be compiled, run, and used on Windows, or on other supported 
+platforms, as an SSH terminal with no code modification required 
+at least on Windows and Linux.&]
 [s5;#i150;O0; [* Terminal package is designed with simplicity in mind.]&]
 [s5;#l160; A fully`-fledged terminal emulation requires less than 
 50 sLoC. In fact, [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Ezample1^ t
@@ -96,9 +96,8 @@ he first basic example provided with the package] is only a single
 .cpp file with 29 sLoC, and it can run complex/heavy applications 
 with mouse tracking and embedded images, such as [^https`:`/`/www`.gnu`.org`/software`/emacs`/^ G
 NU Emacs], [^https`:`/`/lynx`.browser`.org`/^ Lynx web browser], 
-[^http`:`/`/www`.gnuplot`.info`/^ GNUPlot], [^https`:`/`/github`.com`/tmux`/^ tmux], 
-or [^https`:`/`/github`.com`/rastapasta`/mapscii^ mapscii,] an 
-OpenStreetMap implementation for [^https`:`/`/invisible`-island`.net`/xterm`/xterm`.html^ x
+[^http`:`/`/www`.gnuplot`.info`/^ GNUPlot], or [^https`:`/`/github`.com`/rastapasta`/mapscii^ m
+apscii,] an OpenStreetMap implementation for [^https`:`/`/invisible`-island`.net`/xterm`/xterm`.html^ x
 term] compatible virtual terminal emulator, or even [^https`:`/`/jexer`.sourceforge`.io`/^ j
 exer], a java`-based modern and slick text user interface (TUI) 
 and windowing system for modern terminal emulators, with ease.&]
@@ -113,7 +112,7 @@ course, if you are determined enough, you can even do some “interesting”
 things such as adding Terminal instances to a TreeCtrl or ArrayCtrl. 
 ;)&]
 [s5;i160;O0; [* Terminal widget supports inline images.]&]
-[s5;#l160; Terminal ctrl has a flexible infrastructure and support 
+[s5;#l160; Terminal ctrl has a filexible infrastructure and support 
 for inline images and image manipulation in general. Specifically, 
 it can handle sixel graphics with 4/16/256 and high/true color. 
 It also supports [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
@@ -182,22 +181,21 @@ isplay] objects.&]
 [s5;i150;O0; Supports inline images with true color (sixel, jpeg, 
 png, bmp, tiff, etc.).&]
 [s5;i150;O0; Supports external handling of images.&]
-[s5;i150;O0; Supports ANSI `+ aixterm colors (16 colors palette).&]
-[s5;i150;O0; Supports true color (16 million colors).&]
-[s5;i150;O0; Supports extended colors (RGB, CMY, CMYK, Indexed colors).&]
-[s5;i150;O0; Supports xterm dynamic colors and color setting (dynamic 
-ink/paper/selection colors).&]
-[s5;i150;O0; Supports RGB, and older hash3, hash6, hash9, hash12 
-text color spec.formats.&]
+[s5;i150;O0; Supports ANSI colors (16 colors palette).&]
+[s5;i150;O0; Supports ISO indexed color mode (256 colors palette).&]
+[s5;i150;O0; Supports ISO direct/true color mode (16 million colors) 
+via TRUECOLOR compiler flag.&]
+[s5;i150;O0; Supports xterm dynamic colors (dynamic ink/paper/selection 
+colors).&]
+[s5;i150;O0; Supports bright colors.&]
 [s5;i150;O0; Supports background color erase (BCE).&]
 [s5;i150;O0; Supports transparency, i.e. allows background images, 
 even animations. It`'s up to client code.&]
 [s5;i150;O0; Supports VT4xx rectangular area operations: copy, invert, 
-fill (both rectanguler and stream). erase.&]
+fill. erase.&]
 [s5;i150;O0; Supports VT4xx rectangular area checksum calculation 
 and reporting.&]
 [s5;i150;O0; Supports both DEC and ANSI style selective erases.&]
-[s5;i150;O0; Supports reverse wrap.&]
 [s5;i150;O0; Supports alternate screen buffer.&]
 [s5;i150;O0; Supports history/scrollback buffer.&]
 [s5;i150;O0; Has a user switchable scrollbar.&]
@@ -208,8 +206,8 @@ flicker on network terminals such as SSH`-based ones).&]
 (buffered) display refresh.&]
 [s5;i150;O0; Supports xterm style mouse tracking: button, wheel, motion, 
 focus in/out events.&]
-[s5;i150;O0; Supports a large portion of xterm`'s window ops (reports 
-and actions).&]
+[s5;i150;O0; Supports xterm style window reports (a subset of window 
+ops).&]
 [s5;i150;O0; Supports user configurable cursor styles (block, beam, 
 underscore, blinking/steady).&]
 [s5;i150;O0; Supports cursor locking.&]
@@ -710,19 +708,30 @@ T to split the view)`"));&]
 [s0; &]
 [s5;i150;O0; Implement the remaining useful DEC, ANSI, and xterm 
 sequences and modes.&]
-[s5;i150;O0; Encapsulate the Windows power`-shell process in PtyProcess..&]
+[s5;i150;O0; Encapsulate the Windows power`-shell process in PtyProcess.&]
+[s5;i150;O0; ReGIS graphics.&]
 [s5;i150;O0; Improve modifier keys handling.&]
+[s5;i150;O0; Implement reverse wrap.&]
 [s5;i150;O0; Improve legacy charsets support.&]
 [s5;i150;O0; DEC locator support.&]
 [s5;i150;O0; xterm style rectangular area checksum reports.&]
 [s5;i150;O0; BIDI support.&]
+[s5;i150;O0; Copy/paste and screen dump as QTF, SVG and HTML.&]
+[s5;i150;O0; Refactor VTPage class&]
 [s5;i150;O0; Write a terminfo file.&]
+[s5;i150;O0; More detailed logging.&]
+[s5;i150;O0; Various optimizations and bug fixes.&]
+[s5;i150;O0; API documentation.&]
 [s0; &]
 [s22;:Chapter7: 7. Known Issues&]
 [s0; &]
 [s0; Nothing is perfect and Terminal package is no exception. Known 
 major issues are listed below.&]
 [s0; &]
+[s5;i150;O0; Index and back index commands don`'t obey horizontal 
+margins.&]
+[s5;i150;O0; At the moment VT3xx screen panning feature does not 
+really work (it is imitated using scroll).&]
 [s5;i150;O0; Function keys and editor keys are not handled properly 
 on some notebooks.&]
 [s5;i150;O0; Image zoom in and out keys are not working with jexer 
@@ -730,14 +739,14 @@ on some notebooks.&]
 [s0; &]
 [s22;:Version: 8. Version&]
 [s0; &]
-[s0; Terminal package is currently at v0.3. (It is considered a beta 
+[s0; Terminal package is currently at v0.2. (It is considered a beta 
 until v1.0)&]
 [s0; You can always check the [^https`:`/`/github`.com`/ismail`-yilmaz`/upp`-components^ U
 pp Components] git repository for updates and new versions.&]
 [s0; &]
 [s22;:Charpter8: 9. License&]
 [s0; &]
-[ {{10000@(255.255.192) [s0; [C Copyright (c) 2019`-2020, İsmail Yılmaz]&]
+[ {{10000@(255.255.192) [s0; [C Copyright (c) 2019, İsmail Yılmaz]&]
 [s0; [C All rights reserved.]&]
 [s0;C &]
 [s0; [C Redistribution and use in source and binary forms, with or 

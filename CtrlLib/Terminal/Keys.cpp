@@ -108,36 +108,16 @@ bool Terminal::VTKey(dword key, int count)
 
 bool Terminal::UDKey(dword key, int count)
 {
-	if(!HasUDK())
+	if(!IsUDKEnabled())
 		return false;
 
 	byte userkey  = 0;
-
-	// DEC user-defined keys (DECUDK) support
 	
-	enum UserDefinedKeys : byte
-	{
-		UDK_F1      = 11,
-		UDK_F2      = 12,
-		UDK_F3      = 13,
-		UDK_F4      = 14,
-		UDK_F5      = 15,
-		UDK_F6      = 17,
-		UDK_F7      = 18,
-		UDK_F8      = 19,
-		UDK_F9      = 20,
-		UDK_F10     = 21,
-		UDK_F11     = 23,
-		UDK_F12     = 24,
-		UDK_ALT     = 64,
-		UDK_SHIFT   = 128
-	};
-		
 //	if(key & K_ALT)
 //		userkey |= UDK_ALT;
 //	if(key & K_SHIFT)
 //		userkey |= UDK_SHIFT;
-
+	
 	switch(key) {
 	case K_SHIFT_F1:
 		userkey |= UDK_F1;
@@ -182,7 +162,7 @@ bool Terminal::UDKey(dword key, int count)
 	String s;
 	bool b = GetUDKString(userkey, s);
 	if(b && !IsNull(s))
-		Put(s, count);
+		Console::Put(s, count);
 	return b;
 }
 
@@ -248,7 +228,7 @@ bool Terminal::Key(dword key, int count)
 
 	switch(key &= ~(keyflags|K_SHIFT)) {
 	case K_RETURN:
-		PutEol();
+		Console::PutEol();
 		break;
 	case K_BACKSPACE:
 		key = modes[DECBKM] ? 0x08 : 0x7F;
@@ -273,13 +253,13 @@ bool Terminal::Key(dword key, int count)
 				key |= 0x80;
 			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
 				utf8
-					? PutESC(key, count)
-					: Put(key, count);
+					? Console::PutESC(key, count)
+					: Console::Put(key, count);
 		}
 		else
 			utf8
-				? PutUtf8(key, count)
-				: Put(key, count);
+				? Console::PutUtf8(key, count)
+				: Console::Put(key, count);
 	}
 
 KeyAccepted:

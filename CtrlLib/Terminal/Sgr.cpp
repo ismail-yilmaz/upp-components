@@ -1,22 +1,36 @@
 #include "Terminal.h"
 
-#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("Console: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
-void Terminal::SelectGraphicsRendition(const VTInStream::Sequence& seq)
+void Console::SelectGraphicsRendition(const VTInStream::Sequence& seq)
 {
 	SetGraphicsRendition(cellattrs, seq.parameters);
 	page->Attributes(cellattrs);	// This update is required for BCE (background color erase).
 }
 
-void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
+void Console::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
-	LTIMING("Terminal::SetGraphicsRendition");
+	auto HandleOpcodes = [&opcodes](int i) -> int	// This is to handle ISO color opcodes
+	{
+		const String& s = opcodes[i];
+		int rc = Nvl(StrInt(s), 0);
+		if(!rc && !s.IsEmpty()) {
+			if(s.StartsWith("38:"))
+				rc = 38;
+			else
+			if(s.StartsWith("48:"))
+				rc = 48;
+		}
+		return rc;
+	};
 
+	LTIMING("Console::SetGraphicsRendition");
+	
 	for(int i = 0; i < opcodes.GetCount(); i++) {
-		int opcode = Nvl(StrInt(opcodes[i]), 0);
+		int opcode = HandleOpcodes(i);
 		switch(opcode) {
 		case 0:
 			attrs.Reset();
@@ -77,34 +91,28 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 			attrs.sgr &= ~VTCell::SGR_STRIKEOUT;
 			break;
 		case 30 ... 37:
-			attrs.ink = Color::Special(opcode - 30);
+			attrs.ink = opcode - 30;
 			break;
 		case 38:
-			SetISOColor(attrs, opcodes, i);
-			break;
+			SetISOColor(attrs, opcodes);
+			return;
 		case 39:
-			attrs.ink = Null;
+			attrs.Ink(Null);
 			break;
 		case 40 ... 47:
-			attrs.paper = Color::Special(opcode - 40);
+			attrs.paper = opcode - 40;
 			break;
 		case 48:
-			SetISOColor(attrs, opcodes, i);
-			break;
+			SetISOColor(attrs, opcodes);
+			return;
 		case 49:
-			attrs.paper = Null;
-			break;
-		case 53:
-			attrs.sgr |= VTCell::SGR_OVERLINE;
-			break;
-		case 55:
-			attrs.sgr &= ~VTCell::SGR_OVERLINE;
+			attrs.Paper(Null);
 			break;
 		case 90 ... 97:
-			attrs.ink = Color::Special(opcode - 82);
+			attrs.ink = opcode - 82;
 			break;
 		case 100 ... 107:
-			attrs.paper = Color::Special(opcode - 92);
+			attrs.paper = opcode - 92;
 			break;
 		default:
 			LOG("Unhandled SGR code: " << opcode);
@@ -113,7 +121,7 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 	}
 }
 
-void Terminal::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
+void Console::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
 	for(const auto& opcode : opcodes) {
 		switch(Nvl(StrInt(opcode), 0)) {
@@ -141,35 +149,34 @@ void Terminal::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opco
 		case 9:
 			attrs.sgr ^= VTCell::SGR_STRIKEOUT;
 			break;
-		case 53:
-			attrs.sgr ^= VTCell::SGR_OVERLINE;
 		default:
 			break;
 		}
 	}
 }
 
-String Terminal::GetGraphicsRenditionOpcodes(const VTCell& attrs)
+String Console::GetGraphicsRenditionOpcodes(const VTCell& attrs)
 {
 	Vector<String> v;
 	
-	if(attrs.IsBold())
-		v.Add("1");
-	if(attrs.IsItalic())
-		v.Add("3");
-	if(attrs.IsUnderlined())
-		v.Add("4");
-	if(attrs.IsBlinking())
-		v.Add("5");
-	if(attrs.IsInverted())
-		v.Add("7");
-	if(attrs.IsConcealed())
-		v.Add("8");
-	if(attrs.IsStrikeout())
-		v.Add("9");
-	if(attrs.IsOverlined())
-		v.Add("53");
-	
+	if(attrs.sgr == VTCell::SGR_NORMAL)
+		v.Add("0");
+	else {
+		if(attrs.sgr & VTCell::SGR_BOLD)
+			v.Add("1");
+		if(attrs.sgr & VTCell::SGR_ITALIC)
+			v.Add("3");
+		if(attrs.sgr & VTCell::SGR_UNDERLINE)
+			v.Add("4");
+		if(attrs.sgr & VTCell::SGR_BLINK)
+			v.Add("5");
+		if(attrs.sgr & VTCell::SGR_INVERTED)
+			v.Add("7");
+		if(attrs.sgr & VTCell::SGR_HIDDEN)
+			v.Add("8");
+		if(attrs.sgr & VTCell::SGR_STRIKEOUT)
+			v.Add("9");
+	}
 	return Join(v, ";", true);
 
 }

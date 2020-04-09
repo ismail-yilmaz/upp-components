@@ -31,7 +31,7 @@ public:
     bool        Start(const char *cmdline, const char *env = nullptr, const char *cd = nullptr)                         { return DoStart(cmdline, nullptr, env, cd); }
     bool        Start(const char *cmd, const Vector<String> *args, const char *env = nullptr, const char *cd = nullptr) { return DoStart(cmd, args, env, cd); }
     bool        Start(const char *cmdline, const VectorMap<String, String>& env, const char *cd = nullptr);
-    void        Kill() final;
+    void        Kill() override;
 
     bool        IsRunning() override;
 

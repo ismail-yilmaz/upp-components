@@ -1,4 +1,4 @@
-#include "Terminal.h"
+#include "Console.h"
 
 namespace Upp {
 
@@ -6,7 +6,7 @@ namespace Upp {
 #define CUNDEF DEFAULTCHAR
 #endif
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("Console: " << x)
 
 byte CHARSET_DEC_VT52 = 0;
 byte CHARSET_DEC_DCS  = 0;
@@ -102,9 +102,9 @@ EXITBLOCK
 {
 }
 
-int Terminal::ConvertToUnicode(int c, byte gset)
+int Console::ConvertToUnicode(int c, byte gset)
 {
-	byte cs = ResolveCharset(legacycharsets ? gset : charset);
+	byte cs = ResolveCharset((consoleflags & FLAG_GSET) ? gset : charset);
 	
 	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
 	   gset == CHARSET_DEC_TCS ||
@@ -115,13 +115,13 @@ int Terminal::ConvertToUnicode(int c, byte gset)
 		c = ToAscii(c);
 	else
 	if(cs != CHARSET_UNICODE)
-		c = ToUnicode(c | (legacycharsets ? 0x80 : 0x00), cs);
+		c = ToUnicode(c | ((consoleflags & FLAG_GSET) ? 0x80 : 0x00), cs);
 	return c != DEFAULTCHAR ? c : 0xFFFD;
 }
 
-int Terminal::ConvertToCharset(int c, byte gset)
+int Console::ConvertToCharset(int c, byte gset)
 {
-	byte cs = ResolveCharset(legacycharsets ? gset : charset);
+	byte cs = ResolveCharset((consoleflags & FLAG_GSET) ? gset : charset);
 	
 	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
 	   gset == CHARSET_DEC_TCS ||
@@ -136,7 +136,7 @@ int Terminal::ConvertToCharset(int c, byte gset)
 	return c;
 }
 
-int Terminal::LookupChar(int c)
+int Console::LookupChar(int c)
 {
 	// Perform single or locking shifts for GL and GR...
 	// Single shifts are available on devices with level >= 1
@@ -156,12 +156,12 @@ int Terminal::LookupChar(int c)
 	return ConvertToUnicode(c, gsets.Get(c, IsLevel2()));
 }
 
-Terminal::GSets::GSets(byte defgset)
+Console::GSets::GSets(byte defgset)
 : GSets(CHARSET_TOASCII, CHARSET_TOASCII, defgset, defgset)
 {
 }
 
-Terminal::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
+Console::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
 {
 	d[0] = g0;
 	d[1] = g1;
@@ -170,7 +170,7 @@ Terminal::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
 	Reset();
 }
 
-void Terminal::GSets::ConformtoANSILevel1()
+void Console::GSets::ConformtoANSILevel1()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -180,7 +180,7 @@ void Terminal::GSets::ConformtoANSILevel1()
 	
 }
 
-void Terminal::GSets::ConformtoANSILevel2()
+void Console::GSets::ConformtoANSILevel2()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -190,14 +190,14 @@ void Terminal::GSets::ConformtoANSILevel2()
 
 }
 
-void Terminal::GSets::ConformtoANSILevel3()
+void Console::GSets::ConformtoANSILevel3()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
 	G0toGL();
 }
 
-void Terminal::GSets::Reset()
+void Console::GSets::Reset()
 {
 	ss = 0;
 	ResetG0();
@@ -208,7 +208,7 @@ void Terminal::GSets::Reset()
 	G2toGR();
 }
 
-void Terminal::GSets::Serialize(Stream& s)
+void Console::GSets::Serialize(Stream& s)
 {
 	int version = 1;
 	s / version;

@@ -1,5 +1,8 @@
 description "A flexible and powerful terminal emulation library for Ultimate++\377";
 
+acceptflags
+	TRUECOLOR;
+
 uses
 	CtrlLib,
 	plugin/jpg;
@@ -8,7 +11,11 @@ file
 	Terminal.h,
 	Terminal.cpp,
 	Renderer.cpp,
+	Display.cpp,
 	Keys.cpp,
+	Console readonly separator,
+	Console.h,
+	Console.cpp,
 	Tables.cpp,
 	Modes.cpp,
 	Charsets.cpp,
@@ -19,7 +26,6 @@ file
 	Dcs.cpp,
 	Osc.cpp,
 	Sgr.cpp,
-	IO.cpp,
 	Cell readonly separator,
 	Cell.h,
 	Cell.cpp,

@@ -5,24 +5,19 @@
 
 namespace Upp {
 
-// The optimizwd rendering classes below (VT[Rect/Cell]Renderer)
-// are adopted from Upp's own code, and modified to some extent.
-// Credits should go to the U++ team.
-// See: uppsrc/CtrlLib/LineEdit.cpp.
+// The optimizwd rendering classes below (VT[Rect/Text]Renderer)
+// are adopted from Upp's own code. See: CtrlLib/LineEdit.cpp.
+// Credits should go to Mirek Fidler and other members of the U++ team.
 
 class sVTRectRenderer {
 	Draw& w;
 	Rect  cr;
-	Color color, bkg;
-	bool  transparent;
+	Color color;
 
 public:
 	void DrawRect(const Rect& r, Color c)
 	{
-		LTIMING("VTRectRencderer::DrawRect");
-
-		if(cr.top == r.top && cr.bottom == r.bottom && cr.right == r.left && c == color)
-		{
+		if(cr.top == r.top && cr.bottom == r.bottom && cr.right == r.left && c == color) {
 			cr.right = r.right;
 			return;
 		}
@@ -34,26 +29,20 @@ public:
 	void DrawRect(int x, int y, int cx, int cy, Color c)
 	{
 		DrawRect(RectC(x, y, cx, cy), c);
-	}
 	
+	}
 	void Flush()
 	{
-		if(IsNull(cr) || (!transparent && color == bkg))
-			return;
-
-		LTIMING("VTRectRenderer::Flush");
-
-		w.DrawRect(cr, color);
-		cr = Null;
+		if(!IsNull(cr)) {
+			LTIMING("Terminal::VTRectRenderer");
+			w.DrawRect(cr, color);
+			cr = Null;
+		}
 	}
 	
-	sVTRectRenderer(Draw& w, const Color& c, bool b)
-	: w(w)
-	, bkg(c)
-	, transparent(b)
-	, cr(Null)
-	, color(Null)
+	sVTRectRenderer(Draw& w) : w(w)
 	{
+		cr = Null; color = Null;
 	}
 	
 	~sVTRectRenderer()
@@ -62,99 +51,50 @@ public:
 	}
 };
 
-class sVTCellRenderer {
-	Draw&		w;
-	const bool&	blink;
-	Point		pos;
-	Point		p1, p2;
-	Point		p3, p4;
-	Vector<int>	dx;
-	int			dxcount;
-	Font		font;
-	word		sgr;
-	Color		color;
-	WString		text;
+class sVTTextRenderer {
+	Draw&       w;
+	int         x, y;
+	int         xpos;
+	Vector<int> dx;
+	WString     text;
+	Font        font;
+	Color       color;
 
 public:
-	void DrawCell(int x, int y, const VTCell& cell, Size fsz, Color c, bool link, bool show)
+	void DrawChar(int _x, int _y, int chr, Size fsz, Font _font, Color _color)
 	{
-		LTIMING("VTCellRenderer::DrawCell");
-		
-		dxcount  = dx.GetCount();
-		bool overline = cell.IsOverlined() && show;
-		
-		if(pos.y != y || pos.x >= x || sgr != cell.sgr || color != c || !dxcount) {
-			Flush();
-			pos   = Point(x, y);
-			color = c;
-			sgr   = cell.sgr;
-			font.Bold(cell.IsBold());
-			font.Italic(cell.IsItalic());
-			font.Strikeout(cell.IsStrikeout());
-			font.Underline(cell.IsUnderlined());
-
-			if(link)
-				p2 = p1 = Point(x, y + fsz.cy);
-
-			if(overline)
-				p3 = p4 = Point(x, y);
-		}
-
-		if(cell.chr <= 0x20
-			|| cell.IsImage()
-			|| cell.IsConcealed()
-			|| (!show && (cell.IsBlinking() && blink))) {
-			if(dxcount)
-				dx.Top() += fsz.cx;
-		}
+		if(y == _y && chr == 0 && font == _font && color == _color && dx.GetCount() && _x >= xpos - dx.Top())
+			dx.Top() += _x - xpos;
 		else {
-			text.Cat((int) cell.chr);
-			dx.Add(fsz.cx);
+			Flush();
+			x = _x;
+			y = _y;
+			font = _font;
+			color = _color;
 		}
-
-		if(link)
-			p2.x += fsz.cx;
-
-		if(overline)
-			p4.x += fsz.cx;
-			
+		dx.Add(fsz.cx);
+		if(chr)
+			text.Cat(chr);
+		xpos = _x + fsz.cx;
 	}
 	
 	void Flush()
 	{
-		if(text.IsEmpty()) return;
-		
-		LTIMING("VTCellRenderer::Flush");
-		
-		w.DrawText(pos.x, pos.y, text, font, color, dx);
-		
-		if(p1.x < p2.x) // Hyperlink underline
-			w.DrawLine(p1, p2, PEN_DOT, color);
-		
-		if(p3.x < p4.x) // Text overline
-			w.DrawLine(p3, p4, PEN_SOLID, color);
-		
-		dx.Clear();
-		p1 = p2 = Null;
-		dxcount = 0;
-		pos.y = Null;
+		if(text.IsEmpty())
+			return;
+		LTIMING("Terminal::VTTextRenderer");
+		w.DrawText(x, y, text, font, color, dx);
+		y = Null;
 		text.Clear();
+		dx.Clear();
 	}
-	
-	sVTCellRenderer(Draw& dw, const Font& ft, const bool& b)
-	: w(dw)
-	, blink(b)
-	, font(ft)
-	, p1(Null)
-	, p2(Null)
-	, p3(Null)
-	, p4(Null)
-	, dxcount(0)
-	, sgr(VTCell::SGR_NORMAL)
+
+	sVTTextRenderer(Draw& w) : w(w)
 	{
+		y = Null;
 	}
 	
-	~sVTCellRenderer()
+	~sVTTextRenderer()
 	{
 		Flush();
 	}
@@ -163,46 +103,41 @@ public:
 void Terminal::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
-	
 	int  pos = GetSbPos();
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
 	Size fsz = GetFontSize();
 	Font fnt = font;
 	ImageParts imageparts;
-	Color bc = colortable[COLOR_PAPER];
 	
 	w.Clip(wsz);
 
-	sVTCellRenderer tr(w, fnt, blinking);
-	sVTRectRenderer rr(w, bc, nobackground);
+	sVTRectRenderer rr(w);
+	sVTTextRenderer tr(w);
 
 	LTIMING("Terminal::Paint");
-	
+
 	if(!nobackground)
-		w.DrawRect(wsz, bc);
+		w.DrawRect(wsz, colortable[COLOR_PAPER]);
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		int y = i * fsz.cy - (fsz.cy * pos);
-		const VTLine& line = page->FetchLine(i);
-		if(!line.IsVoid() && w.IsPainting(0, y, wsz.cx, fsz.cy)) {
-			int cellcount = line.GetCount();
-			int pass = 0;
-			int end  = 2;
+		const VTLine& line = page->GetLine(i);
+		int pass = 0, end  = 2;
+		if(!line.IsEmpty() && w.IsPainting(0, y, wsz.cx, fsz.cy)) {
 			while(pass < end) {
 				for(int j = 0; j < psz.cx; j++) {
-					const VTCell& cell = j < cellcount ? line[j] : GetAttrs();
-					bool lnk = hyperlinks && cell.IsHyperlink();
+					const VTCell& cell = j < line.GetCount() ? line[j] : GetAttrs();
 					Color ink, paper;
 					SetInkAndPaperColor(cell, ink, paper);
 					int x = j * fsz.cx;
 					bool highlight = IsSelected(Point(j, i));
 					if(pass == 0) {
-						if(!nobackground
-							|| !IsNull(cell.paper)
-							|| highlight
-							|| cell.IsInverted()
-							|| lnk && cell.data == activelink
-							|| print) {
+					#ifdef flagTRUECOLOR
+						bool defpcolor = IsNull(cell.paper);
+					#else
+						bool defpcolor = cell.paper == 0xFFFF;
+					#endif
+						if(!nobackground || print || highlight || cell.IsInverted() || !defpcolor) {
 							int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
 							rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
 						}
@@ -211,8 +146,17 @@ void Terminal::Paint0(Draw& w, bool print)
 					if(pass == 1) {
 						if(cell.IsImage())
 							AddImagePart(imageparts, x, y, cell, fsz);
-						bool show = highlight || !blinking || print;
-						tr.DrawCell(x, y, cell, fsz, highlight ? colortable[COLOR_INK_SELECTED] : ink, lnk, show);
+						else {
+							fnt.Bold(cell.IsBold());
+							fnt.Italic(cell.IsItalic());
+							fnt.Strikeout(cell.IsStrikeout());
+							fnt.Underline(cell.IsUnderlined());
+							if(!cell.IsConcealed() || cell.IsHyperlink()) {
+								if(!cell.IsBlinking() || highlight || print || (cell.IsBlinking() && !blinking)) {
+									tr.DrawChar(x, y, cell, fsz, fnt, highlight ? colortable[COLOR_INK_SELECTED] : ink);
+								}
+							}
+						}
 					}
 				}
 				if(pass == 0) {
@@ -228,8 +172,7 @@ void Terminal::Paint0(Draw& w, bool print)
 	}
 
 	// Paint inline images, if any
-	if(imageparts.GetCount())
-		PaintImages(w, imageparts, fsz);
+	PaintImages(w, imageparts, fsz);
 	
 	// Paint a steady (non-blinking) caret, if enabled.
 	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
@@ -245,11 +188,73 @@ void Terminal::Paint0(Draw& w, bool print)
 	w.End();
 }
 
+void Terminal::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
+{
+	ink = GetColorFromIndex(cell, COLOR_INK);
+	paper = GetColorFromIndex(cell, COLOR_PAPER);
+	if(cell.IsInverted())
+		Swap(ink, paper);
+	if(modes[DECSCNM])
+		Swap(ink, paper);
+	if(consoleflags & FLAG_HYPERLINKS && cell.IsHyperlink() && activelink == cell.data)
+		Swap(ink, paper);
+}
+
+Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
+{
+	int index = which == COLOR_INK ? cell.ink : cell.paper;
+	
+	auto AdjustBrightness = [&which, &cell](Color c) -> Color
+	{
+		if(!cell.IsFaint() || which != COLOR_INK)
+			return c;
+		double h, s, v;
+		RGBtoHSV(c.GetR() / 255.0, c.GetG() / 255.0, c.GetB() / 255.0, h, s, v);
+		return HsvColorf(h, s, 0.70);
+	};
+
+#ifndef flagTRUECOLOR
+	if(index == 0xFFFF) {
+		index = which;
+	}
+	else
+#else
+	if(IsNull(index)) {
+		index = which;
+	}
+	else
+	if(index > 255 && index & 0x01000000) {	// True color support.
+		byte r, g, b;
+		r = (index & 0xFF0000) >> 16;
+		g = (index & 0xFF00) >> 8;
+		b =  index & 0xFF;
+		return AdjustBrightness(Color(r, g, b));
+	}
+	else
+#endif
+	if(index >= 16) {	// 256 colors support.
+		byte r, g, b;
+		if(index < 232) {
+			r =	(( index - 16) / 36) * 51,
+			g =	(((index - 16) % 36) / 6) * 51,
+			b =	(( index - 16) % 6)  * 51;
+		}
+		else // Grayscale
+			r = g = b = (index - 232) * 10 + 8;
+		return AdjustBrightness(Color(r, g, b));
+	}
+
+	if(lightcolors ||
+		(intensify && which == COLOR_INK && cell.IsBold()))
+			if(index < 8)
+				index += 8;
+
+	Color c = colortable[index];	// Adjust only the first 16 colors.
+	return AdjustBrightness(adjustcolors ? AdjustIfDark(c) : c);
+}
 
 void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
 {
-	// TODO: Move this to cell renderer.
-	
 	dword id = cell.chr;
 	Point coords = Point(x, y);
 	Point pt(HIWORD(cell.data), LOWORD(cell.data));
@@ -267,6 +272,9 @@ void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell,
 
 void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 {
+	if(parts.IsEmpty())
+		return;
+
 	LTIMING("Terminal::PaintImages");
 	
 	Color ink, paper;
@@ -442,42 +450,4 @@ void Terminal::SetHyperlinkCacheMaxSize(int maxcount)
 	sCachedLinkMaxSize  = max(2084, maxcount * 2084);
 	sCachedLinkMaxCount = max(1, maxcount);
 }
-
-// Image display support.
-
-class NormalImageCellDisplayCls : public Display {
-public:
-	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
-	{
-		const auto& idata = q.To<Terminal::ImageData>();
-
-		if(!IsNull(idata.image))
-			w.DrawImage(r.left, r.top, idata.image, idata.paintrect);
-	}
-	virtual Size GetStdSize(const Value& q) const
-	{
-		const auto& idata = q.To<Terminal::ImageData>();
-		return idata.image.GetSize();
-	}
-};
-
-const Display& NormalImageCellDisplay() { return Single<NormalImageCellDisplayCls>(); }
-
-class ScaledImageCellDisplayCls : public Display {
-public:
-	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
-	{
-		const auto& idata = q.To<Terminal::ImageData>();
-		
-		if(!IsNull(idata.image))
-			w.DrawImage(r, CachedRescale(idata.image, idata.fitsize), idata.paintrect);
-	}
-	virtual Size GetStdSize(const Value& q) const
-	{
-		const auto& idata = q.To<Terminal::ImageData>();
-		return idata.image.GetSize();
-	}
-};
-
-const Display& ScaledImageCellDisplay() { return Single<ScaledImageCellDisplayCls>(); }
 }
