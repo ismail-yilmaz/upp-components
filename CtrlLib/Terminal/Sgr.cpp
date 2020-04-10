@@ -80,7 +80,7 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 			attrs.ink = Color::Special(opcode - 30);
 			break;
 		case 38:
-			SetISOColor(attrs, opcodes, i);
+			ParseExtendedColors(attrs, opcodes, i);
 			break;
 		case 39:
 			attrs.ink = Null;
@@ -89,7 +89,7 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 			attrs.paper = Color::Special(opcode - 40);
 			break;
 		case 48:
-			SetISOColor(attrs, opcodes, i);
+			ParseExtendedColors(attrs, opcodes, i);
 			break;
 		case 49:
 			attrs.paper = Null;

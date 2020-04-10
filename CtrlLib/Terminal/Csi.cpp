@@ -477,35 +477,35 @@ void Terminal::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 	// See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 	
 	enum WindowActions : int {
-		ACTION_UNMINIMIZE        = 10,
-		ACTION_MINIMIZE          = 20,
-		ACTION_MOVE              = 30,
-		ACTION_RESIZE_VIEW       = 40,
-	//	ACTION_RAISE             = 50,
-	//	ACTION_LOWER             = 60,
-		ACTION_REFRESH           = 70,
-		ACTION_RESIZE_PAGE       = 80,
-		ACTION_UNMAXIMIZE        = 90,
-		ACTION_MAXIMIZE          = 91,
-		ACTION_MAXIMIZE_VERT     = 92,
-		ACTION_MAXIMIZE_HORZ     = 93,
-		ACTION_NOFULLSCREEN      = 100,
-		ACTION_FULLSCREEN        = 101,
-		ACTION_FULLSCREEN_TOGGLE = 102
+        ACTION_UNMINIMIZE        = 10,
+        ACTION_MINIMIZE          = 20,
+        ACTION_MOVE              = 30,
+        ACTION_RESIZE_VIEW       = 40,
+    //  ACTION_RAISE             = 50,
+    //  ACTION_LOWER             = 60,
+        ACTION_REFRESH           = 70,
+        ACTION_RESIZE_PAGE       = 80,
+        ACTION_UNMAXIMIZE        = 90,
+        ACTION_MAXIMIZE          = 91,
+        ACTION_MAXIMIZE_VERT     = 92,
+        ACTION_MAXIMIZE_HORZ     = 93,
+        ACTION_NOFULLSCREEN      = 100,
+        ACTION_FULLSCREEN        = 101,
+        ACTION_FULLSCREEN_TOGGLE = 102
 	};
 
 	enum WindowReports : int { // P = pixels, C = cells
-		REPORT_WINDOW_STATE				= 110,
-		REPORT_WINDOW_POSITION			= 130,
-		REPORT_PAGE_POSITION			= 132,
-		REPORT_PAGE_SIZE_IN_PIXELS		= 140,
-		REPORT_WINDOW_SIZE_IN_PIXELS	= 142,
-		REPORT_SCREEN_SIZE_IN_PIXELS	= 150,
-		REPORT_CELL_SIZE				= 160,
-		REPORT_PAGE_SIZE_IN_CELLS		= 180,
-		REPORT_SCREEN_SIZE_IN_CELLS		= 190,
-		REPORT_WINDOW_ICOON_LABEL		= 120,
-		REPORT_WINDOW_TITLE				= 210
+        REPORT_WINDOW_STATE             = 110,
+        REPORT_WINDOW_POSITION          = 130,
+        REPORT_PAGE_POSITION            = 132,
+        REPORT_PAGE_SIZE_IN_PIXELS      = 140,
+        REPORT_WINDOW_SIZE_IN_PIXELS    = 142,
+        REPORT_SCREEN_SIZE_IN_PIXELS    = 150,
+        REPORT_CELL_SIZE                = 160,
+        REPORT_PAGE_SIZE_IN_CELLS       = 180,
+        REPORT_SCREEN_SIZE_IN_CELLS     = 190,
+        REPORT_WINDOW_ICOON_LABEL       = 120,
+        REPORT_WINDOW_TITLE             = 210
 	};
 
 	int opcode = seq.GetInt(1);

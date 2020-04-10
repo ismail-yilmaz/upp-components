@@ -417,7 +417,7 @@ private:
     bool        SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset);
     bool        SetSaveColor(int index, const Color& c);
     bool        ResetLoadColor(int index);
-    void        SetISOColor(VTCell& attrs, const Vector<String>& opcodes, int& index);
+    void        ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index);
 
     Color       colortable[MAX_COLOR_COUNT];
     VectorMap<int, Color> savedcolors;

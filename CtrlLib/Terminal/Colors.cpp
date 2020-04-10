@@ -1,6 +1,6 @@
 #include "Terminal.h"
 
-// Basic ANSI, dynamic, and ISO colors support.
+// Basic ANSI, dynamic, and extended colors support.
 // See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
 
 #define LLOG(x)		// RLOG("Terminal: " << x)
@@ -97,7 +97,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 		int c = color.GetSpecial();
 		if(c >= 0) {
 			index = c;
-			if((index) > 15) {	// 256-color (6x6x6x cube)
+			if((index) > 15) {	// 256-color (6x6x6 cube)
 				byte r, g, b;
 				if(index < 232) {
 					r =	(( index - 16) / 36) * 51,
@@ -168,7 +168,7 @@ void Terminal::ChangeColors(int opcode, const String& oscs, bool reset)
 	
 	for(int i = 0; i < colormap.GetCount(); i++) {
 		int index = colormap.GetKey(i);
-		String colorspec = ToLower(colormap[i]);
+		String colorspec = colormap[i];
 		if(SetColorTable(opcode, index, colorspec, ansicolors, reset))
 			changed_colors++;
 	}
@@ -240,7 +240,7 @@ bool Terminal::ResetLoadColor(int index)
 	return true;
 }
 
-static int sParseSgrColorFormat(Color& c, int& which, int& palette, const String& s)
+static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const String& s)
 {
 	// TODO: This function can be more streamlined.
 	
@@ -292,7 +292,7 @@ static int sParseSgrColorFormat(Color& c, int& which, int& palette, const String
 	return 1;
 }
 
-void Terminal::SetISOColor(VTCell& attrs, const Vector<String>& opcodes, int& index)
+void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index)
 {
 	// TODO: Optimixization.
 	
@@ -356,19 +356,19 @@ void Terminal::SetISOColor(VTCell& attrs, const Vector<String>& opcodes, int& in
 	Color color = Null;
 	
 	if(GetSubParameterCount(opcodes[index])) {
-		index += sParseSgrColorFormat(color, which, palette, opcodes[index]);
+		index += sParseExtendedColorFormat(color, which, palette, opcodes[index]);
 	}
 	else
 	if(remaining > 1) {
 		if(GetSubParameterCount(opcodes[index + 1])) {
 			String s = opcodes[index] + ":" + opcodes[index + 1];
-			index += sParseSgrColorFormat(color, which, palette, s);
+			index += sParseExtendedColorFormat(color, which, palette, s);
 		}
 		else {
 			int count = min(remaining, 6);
 			auto r = SubRange(opcodes, index, count);
 			String s = Join((Vector<String>&) r, ":", false);
-			index += sParseSgrColorFormat(color, which, palette, s);
+			index += sParseExtendedColorFormat(color, which, palette, s);
 		}
 	}
 	else return;
