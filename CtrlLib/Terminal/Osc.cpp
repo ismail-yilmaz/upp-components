@@ -30,8 +30,11 @@ void Terminal::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	case 8:		// Explicit hyperlinks protocol.
 		ParseHyperlinks(seq);
 		break;
-	case 444:	// Parse jexer images (raw, png, jpg)
+	case 444:	// Jexer inline images protocol.
 		ParseJexerGraphics(seq);
+		break;
+	case 1337:	// iTerm2 inline images protocol.
+		ParseiTerm2Graphics(seq);
 		break;
 	default:
 		LLOG(Format("Unhandled OSC opcode: %d", opcode));
@@ -44,7 +47,7 @@ void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	// For more information on Jexer image protocol, see:
 	// https://gitlab.com/klamonte/jexer/-/wikis/jexer-images
 
-	if(!jexer)
+	if(!jexerimages)
 		return;
 	
 	int type = seq.GetInt(2, Null);
@@ -71,6 +74,61 @@ void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	cellattrs.Hyperlink(false);
 	
 	RenderImage(data, scroll);
+}
+
+void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
+{
+	// iTerm2's file and image download and display protocol,
+	// Currently, we only support its inline images  portion.
+	// See: https://iterm2.com/documentation-images.html
+	
+	if(!iterm2images)
+		return;
+	
+	int pos = 0;
+	String options, enc;
+	if(!SplitTo(seq.payload, ':', false, options, enc) ||
+		(pos = ToLower(options).FindAfter("file=")) < 0 || IsNull(enc))
+			return;
+
+	Size isz = Null;
+	bool show = false;
+	auto GetVal = [](const String& s, int p, int f) -> int
+	{
+		int rc = max(StrInt(s), 0);
+		if(!rc)
+			return rc;
+		if(s.IsEqual("auto"))
+			return -1;
+		if(s.EndsWith("px"))
+			return rc;
+		if(s.EndsWith("%"))
+			return rc * (p * f) / 100;
+		return rc *= f;
+	};
+	
+	for(const String& s : Split(options.Mid(pos), ';', false)) {
+		String key, val;
+		if(SplitTo(ToLower(s), '=', false, key, val)) {
+			if(key.IsEqual("inline"))
+				show = val.IsEqual("1");
+			else
+			if(key.IsEqual("width"))
+				isz.cx = GetVal(val, GetPageSize().cx, GetFontSize().cx);
+			else
+			if(key.IsEqual("height"))
+				isz.cy = GetVal(val, GetPageSize().cy, GetFontSize().cy);
+		}
+	}
+	
+	if(!show)
+		return;
+
+	Value data;
+	data.Add(enc);
+	data.Add(isz);
+
+	RenderImage(data, modes[DECSDM]);	// Rely on sixel scrolling mode.
 }
 
 void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)

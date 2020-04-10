@@ -322,7 +322,7 @@ static int sCachedImageMaxCount =  256000;
 struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 	dword	id;
 	String	data;
-	Size	imgsize;
+	Size    imgsize;
 	Size	fontsize;
 	
 	String Key() const override
@@ -339,7 +339,15 @@ struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
 		Image img = StreamRaster::LoadStringAny(data);
 		if(IsNull(img))
 			return 0;
-		imagedata.image = IsNull(imgsize) ? img : Rescale(img, imgsize);
+		if(IsNull(imgsize))
+			imagedata.image = img;
+		else {
+			Size ssz = imgsize;
+			Size isz = img.GetSize();
+			if(ssz.cx <= 0) ssz.cx = isz.cx;
+			if(ssz.cy <= 0) ssz.cy = isz.cy;
+			imagedata.image = Rescale(img, ssz);
+		}
 		imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
 		return imagedata.image.GetLength() * 4;
 	}

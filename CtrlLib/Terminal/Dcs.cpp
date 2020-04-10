@@ -281,7 +281,7 @@ void Terminal::RestorePresentationState(const VTInStream::Sequence& seq)
 
 void Terminal::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
-	if(!sixel)
+	if(!sixelimages)
 		return;
 	
 	int  nohole = seq.GetInt(2, 0);

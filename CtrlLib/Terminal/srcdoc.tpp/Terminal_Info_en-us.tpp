@@ -116,14 +116,14 @@ things such as adding Terminal instances to a TreeCtrl or ArrayCtrl.
 [s5;#l160; Terminal ctrl has a flexible infrastructure and support 
 for inline images and image manipulation in general. Specifically, 
 it can handle sixel graphics with 4/16/256 and high/true color. 
-It also supports [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
-exer image protocol], a simple and useful wire protocol which 
-allows terminals to display popular image formats with true color 
-support, such as JPG, PNG, BMP, etc. Since terminal ctrl uses 
-the common raster decoding api of Ultimate`+`+, theoretically 
-it can display any raster image that has a registered decoder. 
-Adding support for other image protocols, such as [^https`:`/`/iterm2`.com`/documentation`-images`.html^ i
-Term2`'s inline images protocol], is also planned.&]
+It also supports [^https`:`/`/iterm2`.com`/documentation`-images`.html^ iTerm2`'s 
+inline images protocol] and [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer inline images protocol], a simple and useful wire protocol 
+which allows terminals to display popular image formats with 
+true color support, such as JPG, PNG, BMP, etc. And the popular 
+Since terminal ctrl uses the common raster decoding api of Ultimate`+`+, 
+theoretically it can display any raster image that has a registered 
+decoder. &]
 [s5;#l160; Terminal ctrl uses Upp`::Display objects to display the 
 embedded images. Client code can set the image display to one 
 of the predefined display objects that`'ll process or manipulate 

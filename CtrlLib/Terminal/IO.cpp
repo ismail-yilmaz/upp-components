@@ -379,8 +379,9 @@ void Terminal::Serialize(Stream& s)
 		s % metakeyflags;
 		s % windowactions;
 		s % windowreports;
-		s % sixel;
-		s % jexer;
+		s % sixelimages;
+		s % jexerimages;
+		s % iterm2images;
 		s % hyperlinks;
 		s % delayedrefresh;
 		s % lazyresize;

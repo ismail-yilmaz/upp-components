@@ -22,8 +22,9 @@ Terminal::Terminal()
 , eightbit(false)
 , windowactions(false)
 , windowreports(false)
-, sixel(false)
-, jexer(false)
+, sixelimages(false)
+, jexerimages(false)
+, iterm2images(false)
 , hyperlinks(false)
 , reversewrap(false)
 , sizehint(true)
@@ -822,7 +823,7 @@ void Terminal::ImagesBar(Bar& menu)
 
 void Terminal::OptionsBar(Bar& menu)
 {
-	bool inlineimages = jexer || sixel;
+	bool inlineimages = jexerimages || sixelimages || iterm2images;
 
 	menu.Sub(t_("Cursor style"), [=](Bar& menu)
 		{

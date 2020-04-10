@@ -608,7 +608,7 @@ graphics]. Returns `*this for method chaining.&]
 ]_[* JexerGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Individually enables or disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
 exer inline images protocol]. This protocol allows Terminal ctrl 
-to display ant raster image format that is supported by Ultimate`+`+, 
+to display any raster image format that is supported by Ultimate`+`+, 
 including, but not limited to, JPG, PNG, TIFF. Returns `*this 
 for method chaining. This feature is disabled by default.&]
 [s3; &]
@@ -618,6 +618,22 @@ for method chaining. This feature is disabled by default.&]
 [s2; Disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
 exer inline images protocol]. Returns `*this for method chaining.&]
 [s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:iTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* iTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2; Individually enables or disables [^https`:`/`/iterm2`.com`/documentation`-images`.html^ i
+Term2 inline images protocol]. This protocol allows Terminal 
+ctrl to display any raster image format that is supported by 
+Ultimate`+`+, including, but not limited to, JPG, PNG, TIFF. 
+Returns `*this for method chaining. This feature is disabled 
+by default.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:NoiTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* NoiTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;%- [%%  ][@N Disables ][^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2 
+inline images protocol][@N . Returns `*this for method chaining.]&]
+[s3; &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:Hyperlinks`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* Hyperlinks]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
