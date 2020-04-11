@@ -5,13 +5,15 @@
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
 
+![ ](../Images/terminal_header_screenshot.png)
+
 ## Table of Contents
 
  1.  [Introduction](#introduction)
  2.  [Requirements](#requirements)
  3.  [Highlights](#highlights)
  4.  [Features](#features)
- 5.  [Technical Capabilities, Supported Sequences, Modes, and Extensions](#specs)
+ 5.  [Capabilities](#specs)
  6.  [Examples](#examples)
  7.  [To Do](#todo)
  8.  [Known Issues](#issues)
@@ -19,9 +21,6 @@
  10. [Acknowledgements](#acknowledgements)
  11. [License](#license)
  
-
-![ ](../Images/terminal_header_screenshot.png)
-
 
 ## [Introduction](#introduction)
 
