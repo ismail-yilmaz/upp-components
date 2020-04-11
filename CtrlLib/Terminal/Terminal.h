@@ -182,8 +182,8 @@ public:
     Terminal&   JexerGraphics(bool b = true)                    { jexerimages = b; return *this; }
     Terminal&   NoJexerGraphics()                               { return JexerGraphics(false); }
     
-    Terminal&	iTerm2Graphics(bool b = true)					{ iterm2images = b; return *this; }
-    Terminal&	NoiTerm2Graphics(bool b = true)					{ return iTerm2Graphics(false); }
+    Terminal&   iTerm2Graphics(bool b = true)                   { iterm2images = b; return *this; }
+    Terminal&   NoiTerm2Graphics(bool b = true)                 { return iTerm2Graphics(false); }
     
     Terminal&   Hyperlinks(bool b = true)                       { hyperlinks = b; return *this; }
     Terminal&   NoHyperlinks()                                  { return Hyperlinks(false);     }
@@ -397,7 +397,7 @@ private:
     bool        windowreports;
     bool        sixelimages;
     bool        jexerimages;
-    bool		iterm2images;
+    bool        iterm2images;
     bool        hyperlinks;
     bool        delayedrefresh;
     bool        lazyresize;
@@ -460,7 +460,7 @@ private:
 
     void        ParseSixelGraphics(const VTInStream::Sequence& seq);
     void        ParseJexerGraphics(const VTInStream::Sequence& seq);
-    void		ParseiTerm2Graphics(const VTInStream::Sequence& seq);
+    void        ParseiTerm2Graphics(const VTInStream::Sequence& seq);
 
     void        ParseHyperlinks(const VTInStream::Sequence& seq);
 

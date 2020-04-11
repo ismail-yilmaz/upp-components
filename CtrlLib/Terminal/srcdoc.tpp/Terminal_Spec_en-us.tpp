@@ -1432,9 +1432,11 @@ exer wiki].&]
 :: [s0;%- ]
 :: [s0;%- ]
 ::-3 [s19;%- &]
-[s0;#l288;r36;%- -|iTerm2`'s inline images protocol uses [C key`=value] 
-pairs, delimited with semicolons, as its arguments. Terminal 
-ctrl supports a subset of these arguments.&]
+[s0;#l288;r36;%- -|iTerm2`'s inline images feature is a part of its 
+file download and display protocol. Terminal ctrl currenty supports 
+only the inline image display command of this protocol and some 
+of its relevant arguments. These arguments should be in [C key`=value] 
+pairs, delimited with semicolons.&]
 [s6;#%- &]
 [s6;#r292;i150;O0;%- [C The image data must be base64 encoded.]&]
 [s6;#r292;i150;O0;%- [C The `"inline`"] argument is mandatory and it`'s 
@@ -1443,10 +1445,15 @@ value must be 1.&]
 optional. They are given as a number followed by a unit, or the 
 word `"auto`":&]
 [s6;#l448;r292;i150;O2;%- [/ N]: N character cells.&]
-[s6;#l448;r292;i150;O2;%- [/ N]px: N pixels.&]
-[s6;#l448;r292;i150;O2;%- [/ N]%: N percent of the page width or height.&]
+[s6;#l448;r292;i150;O2;%- [/ N]px: N pixels. Valid range is 1 to 10000&]
+[s6;#l448;r292;i150;O2;%- [/ N]%: N percent of the page width or height. 
+Valid range is 1 to 1000.&]
 [s6;#l448;r292;i150;O2;%- [/ auto]: The image`'s original size will 
 be used.&]
+[s6;#r292;i150;O0;%- If the image doesn`'t fit into the vertical 
+margins of the page and the sixel scrolling mode ([*@3 DECSDM]) 
+is enabled, then the page will be scrolled at the margins. Otherwise 
+the image will be cropped.&]
 [s0;#%- &]
 [s6;#r292;%- For more information on the original iTerm2 inline images 
 protocol, see [^https`:`/`/iterm2`.com`/documentation`-images`.html^ iTerm2`'s 

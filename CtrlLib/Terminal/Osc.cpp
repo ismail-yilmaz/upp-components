@@ -91,27 +91,28 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 		(pos = ToLower(options).FindAfter("file=")) < 0 || IsNull(enc))
 			return;
 
-	Size isz = Null;
-	bool show = false;
 	auto GetVal = [](const String& s, int p, int f) -> int
 	{
-		int rc = max(StrInt(s), 0);
-		if(!rc)
-			return rc;
+		int n = max(StrInt(s), 0);
+		if(!n)
+			return n;
 		if(s.IsEqual("auto"))
 			return -1;
 		if(s.EndsWith("px"))
-			return rc;
+			return min(n, 10000);
 		if(s.EndsWith("%"))
-			return rc * (p * f) / 100;
-		return rc *= f;
+			return (min(n, 1000) * p * f) / 100;
+		return n * f;
 	};
+
+	Size isz = Null;
+	bool show = false;
 	
 	for(const String& s : Split(options.Mid(pos), ';', false)) {
 		String key, val;
 		if(SplitTo(ToLower(s), '=', false, key, val)) {
 			if(key.IsEqual("inline"))
-				show = val.IsEqual("1");
+				show = val == "1";
 			else
 			if(key.IsEqual("width"))
 				isz.cx = GetVal(val, GetPageSize().cx, GetFontSize().cx);
