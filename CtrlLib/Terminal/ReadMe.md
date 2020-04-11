@@ -131,7 +131,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 
 ## Technical Capabilities, Supported Sequences, Modes, and Extensions
 
--  For more information on the technical capabilities of Ulimate++ Terminal widget, see [the technical specifications document](./Specs.md).
+-  For more information on the technical capabilities of Ultimate++ Terminal widget, see [the technical specifications document](./Specs.md).
  
 ## Examples
 As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Five examples are provided with the package:
