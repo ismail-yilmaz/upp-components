@@ -1,4 +1,5 @@
 
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -74,8 +75,6 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 
 ## Features
 
-*Note that below list is only a summary of the currently supported features. Technical specifications and documentation will be available soon. (I'm a lazy guy.) In the meantime you can examine the supported sequences, modes, and control bytes by looking into the "Terminal/Tables.cpp"* file.  (And don't worry, the file is in a "fairly human-readable" form.)
-
 - Supports whatever platform Ultimate++ supports. (Linux, Windows, MacOS).
 - Supports VT52/VT1xx/VT2xx, partial VT4XX/5XX, and xterm emulation modes.
 - Supports user configurable device conformance levels (1, 2, 3, 4, and 0 as VT52 emulation).
@@ -130,6 +129,10 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports per-widget customization (i.e no global variables or properties are used).
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 
+## Technical Capabilities, Supported Sequences, Modes, and Extensions
+
+-  For more information on the technical capabilities of Ulimate++ Terminal widget, see [the technical specifications document](./Specs.md).
+ 
 ## Examples
 As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Five examples are provided with the package:
 

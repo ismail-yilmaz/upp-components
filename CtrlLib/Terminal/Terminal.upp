@@ -42,6 +42,7 @@ file
 	srcdoc.tpp,
 	Info readonly separator,
 	ReadMe.md,
+	Specs.md,
 	Copying,
 	Version;
 

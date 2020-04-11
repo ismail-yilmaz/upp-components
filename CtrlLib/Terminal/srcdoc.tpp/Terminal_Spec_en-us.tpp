@@ -1438,8 +1438,8 @@ only the inline image display command of this protocol and some
 of its relevant arguments. These arguments should be in [C key`=value] 
 pairs, delimited with semicolons.&]
 [s6;#%- &]
-[s6;#r292;i150;O0;%- [C The image data must be base64 encoded.]&]
-[s6;#r292;i150;O0;%- [C The `"inline`"] argument is mandatory and it`'s 
+[s6;#r292;i150;O0;%- The [C image ]data must be base64 encoded.&]
+[s6;#r292;i150;O0;%- [C The `"inline`"] argument is mandatory and its 
 value must be 1.&]
 [s6;#r292;i150;O0;%- The `"[C width]`" and `"[C height]`" arguments are 
 optional. They are given as a number followed by a unit, or the 

@@ -239,9 +239,9 @@ bool Terminal::Key(dword key, int count)
 	if(key & K_KEYUP)	// We don't really need to handle key-ups...
 		return true;
 	
-	if((key & K_ALT_KEY) == K_ALT_KEY   ||
-	   (key & K_CTRL_KEY) == K_CTRL_KEY ||
-	   (key & K_SHIFT_KEY) == K_SHIFT_KEY)
+	if((key & K_ALT_KEY) == K_ALT_KEY
+	|| (key & K_CTRL_KEY) == K_CTRL_KEY
+	|| (key & K_SHIFT_KEY) == K_SHIFT_KEY)
 		return false;
 
 	keyflags = key & (K_ALT|K_CTRL);
