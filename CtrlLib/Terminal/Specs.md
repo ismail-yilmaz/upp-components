@@ -1,4 +1,4 @@
-# Technical Capabilities of Ultiamte++ Terminal Ctrl
+# Technical Capabilities of Ultimate++ Terminal Ctrl
 
 #### Note: *This document is only a draft.*
 .
