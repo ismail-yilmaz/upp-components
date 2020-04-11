@@ -4,8 +4,8 @@
 .
 ## Requirements
 
-- Ultimate++, cross-platforma C/C++ rapid application development framework.
-- C/C++ compiler, that supports at least C++ 11.
+- Ultimate++, cross-platform C/C++ rapid application development framework.
+- C/C++ compiler, that supports at least C++11.
  
 ## Supported Platforms
 
@@ -144,8 +144,8 @@
 |LS3             | Locking shift 3 left Invokes and locks the G3 charset into GL    | Level 2      |  
 |LS3R            | Locking shift 3 right. Invokes and locks the G3 charset into GR  | Level 2      |  
 |RIS             | Perform hard reset.                                              | Level 1      |                                                                          
-|S7C1T           | Put terminal into 7-bits mode.                                   | Level 2      |       
-|S8C1T           | Put terminal into 8-bits mode.                                   | Level 2      |  
+|S7C1T           | Put terminal into 7-bit mode.                                    | Level 2      |       
+|S8C1T           | Put terminal into 8-bit mode.                                    | Level 2      |  
 |SCS_DEFAULT     | Select default charset.                                          | Level 3      |         
 |SCS_G0_ASCII    | Invoke US-ASCII charset into G0.                                 | Level 1      |                    
 |SCS_G1_ASCII    | Invoke US-ASCII charset into G1.                                 | Level 1      |         
@@ -162,23 +162,23 @@
 |SCS_G2_DEC_MCS  | Invoke DEC supplemental charset into G2.                         | Level 2      |  
 |SCS_G3_DEC_MCS  | Invoke DEC supplemental charset into G3.                         | Level 2      |                             
 |SCS_G0_DEC_TCS  | Invoke DEC technical charset into G0.                            | Level 3      | 
-|SCS_G1_LATIN1   | Invoke DEC technical charset into G1.                            | Level 3      |
-|SCS_G2_LATIN1   | Invoke DEC technical charset into G2.                            | Level 3      |    
-|SCS_G3_LATIN1   | Invoke DEC technical charset into G3.                            | Level 3      |      
-|SCS_UTF8        | Invoke DEC Latin-1 charset into G1.                              | Level 3      |              
-|VT52_CUB        | Invoke DEC Latin-1 charset into G2.                              | Level 3      |                      
-|VT52_CUD        | Invoke DEC Latin-1 charset into G3.                              | Level 3      |  
-|VT52_CUF        | Selects UTF-8 charset.                                           | Level 3      |  
-|VT52_CUP        | *VT52 mode: Move backward.*                                      | Level 0      |  
-|VT52_CUU        | *VT52 mode: Move downward.*                                      | Level 0      |  
-|VT52_DA         | *VT52 mode: Move forward.*                                       | Level 0      |                                                                          
-|VT52_DCS_ON     | *VT52 mode: Direct cursor addressing.*                           | Level 0      |       
-|VT52_DCS_OFF    | *VT52 mode: Move upward.*                                        | Level 0      |  
-|VT52_DECANM     | *VT52 mode: Device identify.*                                    | Level 0      |         
-|VT52_HOME       | *VT52 mode: Drawing characters: On.*                             | Level 0      |                    
-|VT52_ED         | *VT52 mode: Drawing characters: Off.*                            | Level 0      |         
-|VT52_EL         | *VT52 mode: Enter ANSI mode. (Leave VT52 mode.)*                 | Level 0      |                                                                                                                              
-|VT52_RI         | *VT52 mode: Move home.*                                          | Level 0      |                             
+|SCS_G1_DEC_TCS  | Invoke DEC technical charset into G1.                            | Level 3      |
+|SCS_G2_DEC_TCS  | Invoke DEC technical charset into G2.                            | Level 3      |    
+|SCS_G3_DEC_TCS  | Invoke DEC technical charset into G3.                            | Level 3      |      
+|SCS_G1_LATIN1   | Invoke DEC Latin-1 charset into G1.                              | Level 3      |              
+|SCS_G2_LATIN1   | Invoke DEC Latin-1 charset into G2.                              | Level 3      |                      
+|SCS_G3_LATIN1   | Invoke DEC Latin-1 charset into G3.                              | Level 3      |  
+|SCS_UTF8        | Selects UTF-8 charset.                                           | Level 3      |  
+|VT52_CUB        | *VT52 mode: Move backward.*                                      | Level 0      |  
+|VT52_CUD        | *VT52 mode: Move downward.*                                      | Level 0      |  
+|VT52_CUF        | *VT52 mode: Move forward.*                                       | Level 0      |                                                                          
+|VT52_CUP        | *VT52 mode: Direct cursor addressing.*                           | Level 0      |       
+|VT52_CUU        | *VT52 mode: Move upward.*                                        | Level 0      |  
+|VT52_DA         | *VT52 mode: Device identify.*                                    | Level 0      |         
+|VT52_DCS_ON     | *VT52 mode: Drawing characters: On.*                             | Level 0      |                    
+|VT52_DCS_OFF    | *VT52 mode: Drawing characters: Off.*                            | Level 0      |         
+|VT52_DECANM     | *VT52 mode: Enter ANSI mode. (Leave VT52 mode.)*                 | Level 0      |                                                                                                                              
+|VT52_HOME       | *VT52 mode: Move home.*                                          | Level 0      |                             
 
 ## Supported Command Sequences
 
