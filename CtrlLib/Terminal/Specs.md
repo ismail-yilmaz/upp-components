@@ -1,20 +1,39 @@
+
 # Technical Capabilities of Ultimate++ Terminal Ctrl
 
 #### Note: *This document is only a draft.*
-.
-## Requirements
+
+## Table of Contents
+
+ 1.  [Requirements](#requirements)
+ 2.  [Supported Platforms](#platforms)
+ 3.  [Supported Emulation Levels](#emulation-levels)
+ 4.  [Supported I/O Modes and Parser Capabilities](#Capabilities)
+ 5.  [Supported Control Bytes](#controlbytes)
+ 6.  [Supported Terminal Modes](#modes)
+ 7.  [Supported Escape Sequences](#esc-sequences)
+ 8.  [Supported Command Sequences](@csi-sequences)
+ 9.  [Supported Device Control Strings](#dcs-sequences)
+ 10. [Supported Operating System Commands](#osc-sequences)
+ 11. [Supported Graphics Rendition Opcodes](@sgr-sequences)
+ 12. [Supported Extended Color Sequences](#sgr-extended-sequences)
+ 13. [Supported Color Text Specifications](#color-text-specs)
+ 14. [Supported Extended Inline Image Sequences](#inline-image-protocols)
+ 15. [Supported Window Actions and Reports](#window-ops)
+
+## [Requirements](#requirements)
 
 - Ultimate++, cross-platform C/C++ rapid application development framework.
 - C/C++ compiler, that supports at least C++11.
  
-## Supported Platforms
+## [Supported Platforms](#platforms)
 
 - POSIX-compliant OSes (Linux, BSD, etc.)
 - Microsorft Windows (tm)
 - MacOS (tm)
 
 
-## Supported Emulation Levels
+## [Supported Emulation Levels](#emulation-levels)
 
 | Conformance Level     | Model Range       | Status    |
 | ---                   | ---               | ---       |
@@ -33,7 +52,7 @@
 - Level 5 (VT 5xx) emulation is yet to be implemented. However, Terminal ctrl already recognizes and utilizes some useful sequences and modes pertaining to the conformance level 5, such as some cursor movements and caret customization commands.
 - Extensions (such as xterm's window manipulation sequences, jexer inline images protocol, or hyperlinks protocol, etc.) apply to all emulation levels, with the reasonable exception of level 0.
 
-## Supported I/O Modes and Parser Capabilities
+## [Supported I/O Modes and Parser Capabilities](#Capabilities)
 
 | Mnemonic  | Description                       | Status        | 7-Bit | 8-Bit |
 | ---       | ---                               | ---           | ---   | ---   |
@@ -47,11 +66,11 @@
 
 #### Notes
 
-- Both 7-bit and 8-bit I/O modes are supported by Terminal ctrl. However, it is highly recommended that 8-bit mode should only be enabled to support legacy applications that requires it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. As they will likely to confuse the parser.
+- Both 7-bit and 8-bit I/O modes are supported by Terminal ctrl. However, it is highly recommended that 8-bit mode should only be enabled to support legacy applications that requires it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. They will likely to confuse the parser.
 - Terminal ctrl's parser also allows switching between UTF-8 and non UTF-8 modes on-the-fly, if required. This can come in handy on networked environments.
 - APCs are supported for both internal and external scripting: Future versions of Terminal ctrl will add an internal scripting interface. Applications using Terminal ctrl can externally utilize the APCs to create their application specific scripting channels.
 
-## Supported Control Bytes
+## [Supported Control Bytes](#controlbytes)
 
 | Mnemonic  | Byte  | Description                                                | Device Level |
 | ---       | ---   | ---                                                        | ---          |
@@ -85,7 +104,7 @@
 - DECID is considered to be NOOP.
 
 
-## Supported Terminal Modes
+## [Supported Terminal Modes](#modes)
 
 | Mnemonic  | Number | Description                                                 | Type         | Device Level |
 | ---       | ---    | ---                                                         | ---          | ---          | 
@@ -124,7 +143,7 @@
 |XTSPREG    |1070    | Use private registers for sixel color palette. (Always set.)|xterm private | Level 1      |                             
 |XTBRPM     |2004    | Bracketed paste mode.                                       |xterm private | Level 1      |  
 
-## Supported Escape Sequences
+## [Supported Escape Sequences](#esc-sequences)
 
 | Mnemonic       | Description                                                      | Device Level |
 | ---            | ---                                                              | ---          | 
@@ -180,7 +199,7 @@
 |VT52_DECANM     | *VT52 mode: Enter ANSI mode. (Leave VT52 mode.)*                 | Level 0      |                                                                                                                              
 |VT52_HOME       | *VT52 mode: Move home.*                                          | Level 0      |                             
 
-## Supported Command Sequences
+## [Supported Command Sequences](@csi-sequences)
 
 | Mnemonic      | Description                                       | Device Level |
 | ---           | ---                                               | ---          | 
@@ -250,7 +269,7 @@
 |VPA            | Vertical position absolute.                       | Level 4      |       
 |VPR            | Vertical position relative.                       | Level 4      |  
 
-## Supported Device Control Strings
+## [Supported Device Control Strings](#dcs-sequences)
 
 | Mnemonic  | Description                                | Device Level |
 | ---       | ---                                        | ---          | 
@@ -259,7 +278,7 @@
 |DECSIXEL   | Parse sixel graphics format.               | Level 3      |
 |DECUDK     | Set user-defined keys.                     | Level 2      |
 
-## Supported Operating System Commands
+## [Supported Operating System Commands](#osc-sequences)
 
 | Opcode    | Description                                | Device Level |
 | ---       | ---                                        | ---          | 
@@ -278,7 +297,7 @@
 |444        | Display inline images. (Jexer)             | Level 1      |
 |1337       | Display inline images. (iTerm2)            | Level 1      |
 
-## Supported Graphics Rendition Opcodes
+## [Supported Graphics Rendition Opcodes](#sgr-sequences)
 
 | Opcode | Description                          | Device Level |
 | ---    | ---                                  | ---          | 
@@ -337,7 +356,7 @@
 |106     | Set paper color to light cyan.       | Level 1      |
 |107     | Set paper color to white.            | Level 1      |
 
-## Supported Extended Color Sequences
+## [Supported Extended Color Sequences](#sgr-extended-sequences)
 
 ### ISO/IEC 8613-6 Format
 
@@ -400,7 +419,7 @@
 - Color space identifiers are ignored by Terminal ctrl.
 - Transparent colors are not implemented (TODO).
 
-## Supported Color Text Specifications
+## [Supported Color Text Specifications](#color-text-specs)
 
 | Mnemonic| Format                          | Example                    | Device Level  |
 | ---     | ---                             | ---                        | ---           |
@@ -418,7 +437,7 @@
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 
-## Supported Extended Inline Image Sequences
+## [Supported Extended Inline Image Sequences](#inline-image-protocols)
 
 ### Jexer Inline Images Protocol
 
@@ -457,7 +476,7 @@
     - auto: The image's original size will be used.
 - If the image doesn't fit into the vertical margins of the page and the sixel scrolling mode (**DECSDM**) is enabled, then the page will be scrolled at the margins. Otherwise the image will be cropped.
 
-## Supported Window Actions and Reports
+## [Supported Window Actions and Reports](#window-ops)
 
 ### Window Actions
 

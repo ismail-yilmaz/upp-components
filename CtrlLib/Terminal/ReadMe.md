@@ -1,12 +1,29 @@
 
 
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
 
+## Table of Contents
+
+ 1.  [Introduction](#introduction)
+ 2.  [Requirements](#requirements)
+ 3.  [Highlights](#highlights)
+ 4.  [Features](#features)
+ 5.  [Technical Capabilities, Supported Sequences, Modes, and Extensions](#specs)
+ 6.  [Examples](#examples)
+ 7.  [To Do](#todo)
+ 8.  [Known Issues](#issues)
+ 9.  [Version](#version)
+ 10. [Acknowledgements](#acknowledgements)
+ 11. [License](#license)
+ 
 
 ![ ](../Images/terminal_header_screenshot.png)
-## Introduction
+
+
+## [Introduction](#introduction)
 
 Terminal package is a flexible, easy-to-use yet powerful cross-platform virtual terminal emulation widget and library written in C/C++ for [Ultimate++](https://www.ultimatepp.org/).  
 
@@ -14,7 +31,7 @@ Terminal package is designed from the ground up with modularity and maintainabil
 
 ![ ](../Images/terminal_crossplatform_screenshot.jpg)
 
-### Demo videos
+### Demo Videos
 The four short videos below show the basic capabilities of Terminal package in general, and Terminal widget in particular, on various platforms. See also *Highlights*, *Features*, and *Examples* sections for more details.
 
 #### On Linux
@@ -38,14 +55,14 @@ The four short videos below show the basic capabilities of Terminal package in g
 
 Note that the example code used in these videos can be found in the *Examples* section. 
 
-## Requirements
+## [Requirements](#requirements)
 
 - Ultimate++ (ver. >= 2019.1)
 - POSIX, Windows, or MacOS
 - A decent enough C/C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/Msc)
 - Snacks & beer.
 
-## Highlights
+## [Highlights](#highlights)
 
 - **Terminal package completely separates the virtual terminal from the pseudo-terminal process (pty)**.
 As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the Terminal widget on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible. This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal. (See the *Examples* section.)
@@ -73,7 +90,7 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
-## Features
+## [Features](#features)
 
 - Supports whatever platform Ultimate++ supports. (Linux, Windows, MacOS).
 - Supports VT52/VT1xx/VT2xx, partial VT4XX/5XX, and xterm emulation modes.
@@ -129,11 +146,11 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports per-widget customization (i.e no global variables or properties are used).
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 
-## Technical Capabilities, Supported Sequences, Modes, and Extensions
+## [Technical Capabilities, Supported Sequences, Modes, and Extensions](#specs)
 
 -  For more information on the technical capabilities of Ultimate++ Terminal widget, see [the technical specifications document](./Specs.md).
  
-## Examples
+## [Examples](#examples)
 As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Five examples are provided with the package:
 
 1. Basic terminal
@@ -545,7 +562,7 @@ GUI_APP_MAIN
 From left to right: Jexer, htop, GNU nano, ncurses examples (worm, tclock), running simultaneously on the ssh terminal splitter example. (Windows)
 ![ ](../Images/terminal_ssh_splitter_windows.jpg)
 
-## To Do
+## [To Do](#todo)
 There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
@@ -558,18 +575,18 @@ There is always room for improvement and new features.
 - Write a terminfo file
 - Improve API documentation.
  
-## Known Issues
+## [Known Issues](#issues)
 
 Nothing is perfect and Terminal package is no exception. Known major issues are listed below.
 
 - Function keys and editor keys are not handled properly on some notebooks.
 - Image zoom in and out keys are not working with jexer (v0.3.2)
 
-## Version
+## [Version](#version)
 
 Terminal package is currently at v0.3. (It is considered a beta until v1.0)
 
-## Acknowledgements
+## [Acknowledgements](#acknowledgements)
 
 *Note that below list is incomplete and to be written...*
 - vttest, and other test scripts written for xterm are extensively used in testing of the Terminal ctrl. ([Thanks @Thomas E. Dickey](https://invisible-island.net/home.html)!)
@@ -578,7 +595,7 @@ Terminal package is currently at v0.3. (It is considered a beta until v1.0)
 
 - [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and window manager for terminal emulators, is heavily used as a test-bed for polishing the inline images support for the v0.2 of Terminal ctrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [@Kevin Lamonte](https://gitlab.com/klamonte)!)
  
-## License
+## [License](#license)
 
 	Copyright (c) 2019-2020, İsmail Yılmaz
 	All rights reserved.
