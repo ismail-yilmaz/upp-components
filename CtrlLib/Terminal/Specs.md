@@ -107,12 +107,24 @@
 ## [Supported Terminal Modes](#modes)
 
 | Mnemonic  | Number | Description                                                 | Type         | Device Level |
-| ---       | ---    | ---                                                         | ---          | ---          | 
+| ---       | ---    | ---                                                         | ---          | ---          |
+|GATM       |1       | Guarded area tranfer mode.                                  |ANSI          | Lelve 1      | 
 |KAM        |2       | Keyboard action mode.                                       |ANSI          | Level 1      |
 |CRM        |3       | Show/hide control characters.                               |ANSI          | Level 1      |
 |IRM        |4       | Insert/replace characters.                                  |ANSI          | Level 1      |
+|SRTM       |5       | Status report transter mode.                                |ANSI          | Level 1      |  
 |ERM        |6       | Erasure mode.                                               |ANSI          | Level 1      |
+|VEM        |7       | Line editing mode.                                          |ANSI          | Level 1      |
+|HEM        |10      | Character editing mode.                                     |ANSI          | Level 1      |
+|PUM        |11      | Positioning unit mode.                                      |ANSI          | Level 1      |                          
 |SRM        |12      | Send/receive mode. (Local echo.)                            |ANSI          | Level 1      |
+|FEAM       |13      | Format effector action mode.                                |ANSI          | Level 1      | 
+|FETM       |14      | Format effector tranfer mode.                               |ANSI          | Level 1      |
+|MATM       |15      | Multiple area transfer mode.                                |ANSI          | Level 1      |
+|TTM        |16      | Transer terminaion mode.                                    |ANSI          | Level 1      | 
+|SATM       |17      | Selected area transfer mode.                                |ANSI          | Level 1      |
+|TSM        |18      | Tabulation stop mode.                                       |ANSI          | Level 1      |
+|EBM        |19      | Editing boundary mode                                       |ANSI          | Level 1      | 
 |LNM        |20      | Line feed/new line mode.                                    |ANSI          | Level 1      |
 |DECCKM     |1       | Cursor keys mode.                                           |DEC private   | Level 1      |
 |DECANM     |2       | Leave ANSI mode. (Enter VT52 mode.)                         |DEC private   | Level 1      |    
@@ -142,6 +154,11 @@
 |XTASBM     |1049    | Alternate screen buffer mode. (Ver. 3)                      |xterm private | Level 1      |  
 |XTSPREG    |1070    | Use private registers for sixel color palette. (Always set.)|xterm private | Level 1      |                             
 |XTBRPM     |2004    | Bracketed paste mode.                                       |xterm private | Level 1      |  
+
+#### Notes
+
+- GATM, VEM, HEM, PUM, FEAM, FETM, MATM, TTM, SATM, TSM, EBM modes are set as "permanently reset".
+
 
 ## [Supported Escape Sequences](#esc-sequences)
 
