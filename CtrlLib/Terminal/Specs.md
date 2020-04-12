@@ -97,7 +97,7 @@
 |SPA        |0x96   | Start of protected area. (ECMA-48)                         | Level 2      |         
 |EPA        |0x97   | End of protected area. (ECMA-48)                           | Level 2      |                                                                                                                              
 |DECID      |0x9A   | Return terminal ID.                                        | Level 1      |                             
-|ST         |0x9C   | String terminator. Ignored.                                | Level 1      |                                                                                                                                                                       
+|ST         |0x9C   | String terminator.                                         | Level 1      |                                                                                                                                                                       
 
 #### Notes
 
@@ -199,6 +199,10 @@
 |VT52_DECANM     | *VT52 mode: Enter ANSI mode. (Leave VT52 mode.)*                 | Level 0      |                                                                                                                              
 |VT52_HOME       | *VT52 mode: Move home.*                                          | Level 0      |                             
 
+#### Notes
+
+- Terminal ctrl's responses to commands and report requests are not included in this table.
+
 ## [Supported Command Sequences](@csi-sequences)
 
 | Mnemonic      | Description                                       | Device Level |
@@ -269,6 +273,10 @@
 |VPA            | Vertical position absolute.                       | Level 4      |       
 |VPR            | Vertical position relative.                       | Level 4      |  
 
+#### Notes
+
+- Terminal ctrl's responses to commands and report requests are not included in this table.
+
 ## [Supported Device Control Strings](#dcs-sequences)
 
 | Mnemonic  | Description                                | Device Level |
@@ -277,6 +285,10 @@
 |DECRSPS    | Restore presentation state.                | Level 3      |
 |DECSIXEL   | Parse sixel graphics format.               | Level 3      |
 |DECUDK     | Set user-defined keys.                     | Level 2      |
+
+#### Notes
+
+- Terminal ctrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Operating System Commands](#osc-sequences)
 
@@ -296,6 +308,10 @@
 |119        | Reset selection paper color.               | Level 1      |
 |444        | Display inline images. (Jexer)             | Level 1      |
 |1337       | Display inline images. (iTerm2)            | Level 1      |
+
+#### Notes
+
+- Terminal ctrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Graphics Rendition Opcodes](#sgr-sequences)
 
