@@ -952,9 +952,6 @@ public:
     Value   Format(const Value& q) const override;
 };
 
-Color CmykColorf(double c, double m, double y, double k);
-Color CmyColorf(double c, double m, double y);
-
 // Legacy charsets.
 
 extern byte CHARSET_DEC_VT52;   // DEC VT52 graphics character set.

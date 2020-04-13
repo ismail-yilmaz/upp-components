@@ -8,6 +8,8 @@
 
 namespace Upp {
 
+// As of 13/4/2020, there are now RGB <-> CMYK conversion functions in U++.
+
 static void sCMYKtoRGB(double c, double m, double y, double k, int& r, int& g, int& b)
 {
 	k = clamp(k, 0.0, 1.0);
@@ -16,17 +18,10 @@ static void sCMYKtoRGB(double c, double m, double y, double k, int& r, int& g, i
 	b = (int) min(255 * (1 - y) * (1 - k), 255.0);
 }
 
-Color CmykColorf(double c, double m, double y, double k)
+static Color sCmykColorf(double c, double m, double y, double k)
 {
 	int r, g, b;
 	sCMYKtoRGB(c, m, y, k, r, g, b);
-	return Color(r, g, b);
-}
-
-Color CmyColorf(double c, double m, double y)
-{
-	int r, g, b;
-	sCMYKtoRGB(c, m, y, 0.0, r, g, b);
 	return Color(r, g, b);
 }
 
@@ -269,7 +264,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 			double c = StrInt(h[index++]) / 100.0;
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index])   / 100.0;
-			c = CmyColorf(c, m, y);
+			c = sCmykColorf(c, m, y, 0.0);
 			return index;
 		}
 		else
@@ -279,7 +274,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index++]) / 100.0;
 			double k = StrInt(h[index])   / 100.0;
-			c = CmykColorf(c, m, y, k);
+			c = sCmykColorf(c, m, y, k);
 			return index;
 		}
 		else
