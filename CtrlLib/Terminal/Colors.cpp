@@ -453,9 +453,9 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 	
 	Vector<String> h = Split((const String&) text, Delimiters);
 	int count = h.GetCount();
-	if(3 == count || count == 4) {				// rgb:%04x/%04x/%04x
-		int index = 0;							// rgb:%02z/%02x/%02x
-		int radix = 10;							// %u,%u,%u
+	if(3 == count || count == 4) {				// rgb : %04x / %04x / %04x
+		int index = 0;							// rgb : %02z / %02x / %02x
+		int radix = 10;							// %u , %u , %u
 		if(ToLower(h[0]).IsEqual("rgb")) {
 			index += 1;
 			radix += 6;
