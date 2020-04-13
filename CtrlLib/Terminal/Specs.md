@@ -66,7 +66,7 @@
 
 #### Notes
 
-- Both 7-bit and 8-bit I/O modes are supported by Terminal ctrl. However, it is highly recommended that 8-bit mode should only be enabled to support legacy applications that requires it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. They will likely to confuse the parser.
+- Both 7-bit and 8-bit I/O modes are supported by Terminal ctrl. However, it is highly recommended that 8-bit mode be only enabled to support legacy applications that require it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. They will likely to confuse the parser.
 - Terminal ctrl's parser also allows switching between UTF-8 and non UTF-8 modes on-the-fly, if required. This can come in handy on networked environments.
 - APCs are supported for both internal and external scripting: Future versions of Terminal ctrl will add an internal scripting interface. Applications using Terminal ctrl can externally utilize the APCs to create their application specific scripting channels.
 

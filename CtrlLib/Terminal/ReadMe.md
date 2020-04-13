@@ -588,11 +588,13 @@ Terminal package is currently at v0.3. (It is considered a beta until v1.0)
 ## [Acknowledgements](#acknowledgements)
 
 *Note that below list is incomplete and to be written...*
-- vttest, and other test scripts written for xterm are extensively used in testing of the Terminal ctrl. ([Thanks @Thomas E. Dickey](https://invisible-island.net/home.html)!)
+- vttest, and other test scripts written for xterm are extensively used in testing of the Terminal ctrl. (Thanks [@Thomas E. Dickey](https://invisible-island.net/home.html)!)
 - ncurses, its demos and tests are also used in developing the Terminal package.
 - [esctest](https://gitlab.com/gnachman/iterm2/-/tree/61660349070fd4c75d1dbf333db0aabf2456c938/tests/esctest) test suite, automatic unit tests for terminal emulation, is heavily used in testing of Terminal ctrl. (Thanks [@George Nachman](https://github.com/gnachman)!)
 
 - [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and window manager for terminal emulators, is heavily used as a test-bed for polishing the inline images support for the v0.2 of Terminal ctrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [@Kevin Lamonte](https://gitlab.com/klamonte)!)
+
+- img2sixel of [libsixel](https://github.com/saitoha/libsixel/) is used heavily for testing the sixel images support of Terminal ctrl.
  
 ## [License](#license)
 
