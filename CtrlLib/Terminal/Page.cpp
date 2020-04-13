@@ -394,7 +394,7 @@ VTPage& VTPage::MoveHorz(int pos, dword flags)
 	else
 	if(flags & Cursor::Marginal && HorzMarginsExist()) {
 		if(HorzMarginsContain(cursor.x)) {
-			offset = left  = margins.left;
+			offset = left = margins.left;
 			right  = margins.right;
 		}
 		else {
@@ -597,7 +597,7 @@ VTPage& VTPage::MoveTopLeft()
 	LLOG("MoveTopLeft()");
 
 	dword flags = Cursor::Marginal
-				| Cursor::Displaceable;
+                | Cursor::Displaceable;
 
 	return MoveHorz(1, flags)
 		  .MoveVert(1, flags);
@@ -608,7 +608,7 @@ VTPage& VTPage::MoveBottomRight()
 	LLOG("MoveBottomRight()");
 
 	dword flags = Cursor::Marginal
-				| Cursor::Displaceable;
+                | Cursor::Displaceable;
 
 	return MoveHorz(size.cx, flags)
 		  .MoveVert(size.cy, flags);
@@ -966,10 +966,10 @@ VTPage& VTPage::SetHorzMargins(int l, int r)
 	Rect view = GetView();
 
 	if(l < r
-		&& l >= view.left
-		&& l <= view.right
-		&& r >= view.left
-		&& r <= view.right
+	&& l >= view.left
+	&& l <= view.right
+	&& r >= view.left
+	&& r <= view.right
 	)
 	{
 		margins.left  = l;
@@ -990,10 +990,10 @@ VTPage& VTPage::SetVertMargins(int t, int b)
 	Rect view = GetView();
 
 	if(t < b
-		&& t >= view.top
-		&& t <= view.bottom
-		&& b >= view.top
-		&& b <= view.bottom
+	&& t >= view.top
+	&& t <= view.bottom
+	&& b >= view.top
+	&& b <= view.bottom
 	)
 	{
 		margins.top    = t;
@@ -1109,12 +1109,12 @@ Rect VTPage::AdjustRect(const Rect& r, bool displaced)
 	if(displaced && cursor.displaced) {
 		Rect rr = r.Offseted(margins.TopLeft() - 1);
 		return Rect(Bind(margins, rr.TopLeft()),
-					Bind(margins, rr.BottomRight()));
+                    Bind(margins, rr.BottomRight()));
 	}
 
 	Rect view = GetView();
 	return Rect(Bind(view, r.TopLeft()),
-				Bind(view, r.BottomRight()));
+                Bind(view, r.BottomRight()));
 }
 
 VTPage& VTPage::FillRect(const Rect& r, const VTCell& filler, dword flags)
