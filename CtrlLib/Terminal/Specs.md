@@ -20,16 +20,17 @@
  13. [Supported Color Text Specifications](#color-text-specs)
  14. [Supported Extended Inline Image Sequences](#inline-image-protocols)
  15. [Supported Window Actions and Reports](#window-ops)
+ 16. [Other Supported Extensions](#other-extensions)
 
 ## [Requirements](#requirements)
 
 - Ultimate++, cross-platform C/C++ rapid application development framework.
-- C/C++ compiler, that supports at least C++11.
+- A C/C++ compiler, that supports at least C++11.
  
 ## [Supported Platforms](#platforms)
 
 - POSIX-compliant OSes (Linux, BSD, etc.)
-- Microsorft Windows (tm)
+- Microsoft Windows (tm)
 - MacOS (tm)
 
 
@@ -46,7 +47,7 @@
 
 #### Notes
 
-- In reality, there is no such conformance level as "0". However, since the VT 52 emulation has to be treated as a special case, it is labelled as "level 0" for convenience.
+- In reality, there is no such conformance level as "0". However, since the VT 52 emulation has to be treated as a special case, it is labelled as "level 0", for convenience.
 - Not all terminal sequences or modes pertaining to the above listed device conformance levels or model ranges are implemented. Some of these emulations are complete while others cover only a set of selected features.
 - DEC terminals are (or were) backward compatible devices. For example, a level 4 conforming device such as, say, VT 420, recognizes virtually all terminal sequences and modes that apply to lower level devices. Terminal package follows this behavior where applicable.
 - Level 5 (VT 5xx) emulation is yet to be implemented. However, Terminal ctrl already recognizes and utilizes some useful sequences and modes pertaining to the conformance level 5, such as some cursor movements and caret customization commands.
@@ -152,12 +153,13 @@
 |XTASBM     |1047    | Alternate screen buffer mode. (Ver. 2)                      |xterm private | Level 1      |                                                                                                                              
 |XTSRCM     |1048    | Save/restore cursor.                                        |xterm private | Level 1      |                             
 |XTASBM     |1049    | Alternate screen buffer mode. (Ver. 3)                      |xterm private | Level 1      |  
-|XTSPREG    |1070    | Use private registers for sixel color palette. (Always set.)|xterm private | Level 1      |                             
+|XTSPREG    |1070    | Use private registers for sixel color palette.              |xterm private | Level 1      |                             
 |XTBRPM     |2004    | Bracketed paste mode.                                       |xterm private | Level 1      |  
 
 #### Notes
 
 - GATM, VEM, HEM, PUM, FEAM, FETM, MATM, TTM, SATM, TSM, EBM modes are set as "permanently reset".
+- XTSPREG is always set. Terminal ctrl does not support shared color palette for sixel images.
 
 
 ## [Supported Escape Sequences](#esc-sequences)
@@ -448,7 +450,7 @@
 - 48 designates the paper.
 - Since Terminal ctrl is a true color virtual terminal emulator, there are no restrictions on its color palette. It can use a color palette ranging from 2 to 16 million colors.
 - CMY and CMYK planes are projected onto RGB plane.
-- Terminal ctrl does not keep a static palette for indexed color, or 256 colors mode, if you will. It calculates the the 6x6x6 cube from the given index.
+- Terminal ctrl does not keep a static palette for indexed color, or 256-color mode, if you will. It calculates the the 6x6x6 cube from the given index.
 - Color space identifiers are ignored by Terminal ctrl.
 - Transparent colors are not implemented (TODO).
 
@@ -484,10 +486,10 @@
 | JPG           | `444 ; 2 ; Ps ; data ST`             | Displays a JPG image at cursor.     | Level 1       |
 
 #### Notes
-- *Pw* is the width in pixels.  Valid range is 1 to 10000.
-- *Ph* is the height in pixels.  Valid range is 1 to 10000.
-- *Ps* is the page scrolling option.  Valid values are 1 (scroll) or 0 (no scroll).
-- Image *data* must be Base64 encoded.
+- `Pw` is the width in pixels.  Valid range is 1 to 10000.
+- `Ph` is the height in pixels.  Valid range is 1 to 10000.
+- `Ps` is the page scrolling option.  Valid values are 1 (scroll) or 0 (no scroll).
+- Image `data` must be Base64 encoded.
 - The wire protocol reasonably separates the sequences for raw RGB, JPG and PNG image data. In practice, however, Terminal ctrl ignores this distinction, since it uses the StreamRaster interface (the raster image decoder factory) for decoding images. Hence, it can display any raster image via jexer's pre-defined sequences, if the format of the image in question is supported by the Upp::StreamRaster.
 
 ### iTerm2's Inline Images Protocol
@@ -500,13 +502,13 @@
 #### Notes
 
 - iTerm2's inline images feature is a part of its file download and display protocol. Terminal ctrl currenty supports only the inline image display command of this protocol and some of its relevant arguments. These arguments should be in key=value pairs, delimited with semicolons.
-- The image data must be base64 encoded.
-- The "inline" argument is mandatory and its value must be 1.
-- The "width" and "height" arguments are optional. They are given as a number followed by a unit, or the word "auto":
-    - N:    N character cells.
-    - Npx:  N pixels. Valid range is 1 to 10000
-    - N%:   N percent of the page width or height. Valid range is 1 to 1000.
-    - auto: The image's original size will be used.
+- The image `data` must be base64 encoded.
+- The `inline` argument is mandatory and its value must be 1.
+- The `width` and `height` arguments are optional. They are given as a number followed by a unit, or the word "auto":
+    - `N`:    `N` character cells.
+    - `N`px:  `N` pixels. Valid range is 1 to 10000
+    - `N`%:   `N` percent of the page width or height. Valid range is 1 to 1000.
+    - `auto`: The image's original size will be used.
 - If the image doesn't fit into the vertical margins of the page and the sixel scrolling mode (**DECSDM**) is enabled, then the page will be scrolled at the margins. Otherwise the image will be cropped.
 
 ## [Supported Window Actions and Reports](#window-ops)
@@ -546,3 +548,17 @@
 #### Notes
 
 - These sequences are a part of xterm's window ops. 
+
+## [Other Supported Extensions](#other-extensions)
+
+### Hyperlinks Protocol
+
+| Sequence                                           | Description                                |
+| ---                                                | ---                                        |
+|`OSC 8 ; [parameters] ; URI ; ST text OSC 8 ; ; ST` | Displays a text with hyperlink at cursor.  |
+
+#### Notes
+
+- `parameters` are optional `key=value` pairs.
+- The original protocol defines only the the `id` parameter. However, *currently*, this parameter is also ignored by Terminal ctrl.
+- The maximum `URI` length is 2083 characters.

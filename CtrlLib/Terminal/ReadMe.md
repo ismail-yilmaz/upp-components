@@ -13,7 +13,7 @@
  2.  [Requirements](#requirements)
  3.  [Highlights](#highlights)
  4.  [Features](#features)
- 5.  [Capabilities](#specs)
+ 5.  [Specifications](#specs)
  6.  [Examples](#examples)
  7.  [To Do](#todo)
  8.  [Known Issues](#issues)
@@ -75,14 +75,14 @@ Although it is easy to use, and requires very little coding, Terminal ctrl is by
 - **Terminal widget is a regular ctrl.**
 It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
 
+- ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
+There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
+
 - **Terminal widget supports true color.**
 Ultimate++ Terminal widget is a true color (24-bit color) virtual terminal emulator. It supports RGB, CMY, CMYK, and  indexed (256-color) palettes via SGR extended colors sequences. 
 
 - **Terminal widget supports inline images.**
 Terminal widget has a flexible infrastructure and support for inline images and image manipulation in general. It can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 colors, or high/true color.  It also supports JPG, PNG, BMP raster image formats, or raw RGB images via [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html),  and [jexer image protocol](https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images), a simple and useful wire protocol which allows terminals to display popular true color image formats. In fact, since the terminal widget uses the common raster decoding api of Ultimate++, theoretically it can display any raster image that has a registered decoder.  Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
-
-- ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
-There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
 
 - **Terminal widget can also run inside a web browser such as Firefox and Chromium, or their derivatives.**
   Thanks to Ultimate++ team, it is possible to run U++ GUI applications from within a web browser that supports HTML-5 canvas and websockets. And Terminal package is no exception. Applications using Terminal ctrl can basically turn into a remote terminal that can be accessed via any decent web browser (even from a smartphone!) if compiled with the TURTLE flag. (See the *Examples* section).
@@ -145,9 +145,9 @@ There are no manual memory allocations/deallocations, no new/delete pairs, and n
 - Supports per-widget customization (i.e no global variables or properties are used).
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 
-## [Technical Capabilities, Supported Sequences, Modes, and Extensions](#specs)
+## [Specifications](#specs)
 
--  For more information on the technical capabilities of Ultimate++ Terminal widget, see [the technical specifications document](./Specs.md).
+-  For more information on the supported terminal sequences, modes, extensions, etc., see [the technical specifications document](./Specs.md).
  
 ## [Examples](#examples)
 As it is already noted above, one of the strengths of the Terminal Package is that it allows you to do more with less. The examples provided below are meant to illustrate this point. Five examples are provided with the package:
