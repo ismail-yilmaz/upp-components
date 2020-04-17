@@ -344,11 +344,11 @@ private:
     Point       ClientToPagePos(Point pt) const;
 
     void        SetSelection(Point  l, Point h, bool rsel);
-    bool        GetSelection(Point& l, Point& h);
-    Rect        GetSelectionRect();
+    bool        GetSelection(Point& l, Point& h) const;
+    Rect        GetSelectionRect() const;
     void        ClearSelection();
-    bool        IsSelected(Point pt);
-    WString     GetSelectedText();
+    bool        IsSelected(Point pt) const;
+    WString     GetSelectedText() const;
 
     bool        IsMouseOverImage(Point pt) const                { return !IsSelection() && page->FetchCell(pt).IsImage(); }
     bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelection() && page->FetchCell(pt).IsHyperlink(); }

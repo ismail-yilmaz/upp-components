@@ -610,7 +610,7 @@ void Terminal::SetSelection(Point pl, Point ph, bool rsel)
 	Refresh();
 }
 
-bool Terminal::GetSelection(Point& pl, Point& ph)
+bool Terminal::GetSelection(Point& pl, Point& ph) const
 {
 	if(IsNull(anchor) || anchor == selpos) {
 		pl = ph = selpos;
@@ -630,7 +630,7 @@ bool Terminal::GetSelection(Point& pl, Point& ph)
 	return true;
 }
 
-Rect Terminal::GetSelectionRect()
+Rect Terminal::GetSelectionRect() const
 {
 	Rect r = Null;
 	Point pl, ph;
@@ -647,7 +647,7 @@ void Terminal::ClearSelection()
 	Refresh();
 }
 
-bool Terminal::IsSelected(Point pt)
+bool Terminal::IsSelected(Point pt) const
 {
 	if(rectsel) {
 		Rect r = GetSelectionRect();
@@ -669,7 +669,7 @@ bool Terminal::IsSelected(Point pt)
 	return false;
 }
 
-WString Terminal::GetSelectedText()
+WString Terminal::GetSelectedText() const
 {
 	WString txt;
 	Rect r = GetSelectionRect();
