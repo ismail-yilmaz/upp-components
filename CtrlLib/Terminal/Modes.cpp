@@ -242,6 +242,7 @@ void Terminal::DECanm(bool b)
 void Terminal::DECawm(bool b)
 {
 	modes.Set(DECAWM, b);
+	page->AutoWrap(b);
 	if(!b && modes[XTREWRAPM]) // Disabling the DECAWM also disables the reverse wrap.
 		XTrewrapm(b);
 	LDUMP(DECAWM);
