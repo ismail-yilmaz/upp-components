@@ -94,7 +94,8 @@ etRefreshColor()].&]
 [s3;%- &]
 [s4; &]
 [s0;%- enum_[* CaretStyles]&]
-[s2;b17;a17; Constans used to manipulate text cursor`'s visual appearance.&]
+[s2;b17;a17; Constants used for manipulating the text cursor`'s visual 
+appearance.&]
 [s7;i1120;a17;:Terminal`:`:Caret`:`:BLOCK: [%-*C@3 Caret`::BLOCK]-|Block 
 cursor style.&]
 [s7;i1120;a17;:Terminal`:`:Caret`:`:BEAM: [%-*C@3 Caret`::BEAM]-|Beam 

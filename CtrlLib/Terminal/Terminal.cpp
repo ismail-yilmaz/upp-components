@@ -950,7 +950,7 @@ Terminal::Caret::Caret(int style_, bool blink, bool lock)
 void Terminal::Caret::Set(int style_, bool blink)
 {
 	if(!locked) {
-		style = style_;
+		style = clamp(style_, int(BLOCK), int(UNDERLINE));
 		blinking = blink;
 		WhenAction();
 	}
