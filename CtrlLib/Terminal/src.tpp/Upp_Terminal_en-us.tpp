@@ -91,7 +91,20 @@ number of colors in the color stack.&]
 [s2;%- See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetColor`(int`,Upp`:`:Color`)^ S
 etColor()], [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetRefreshColor`(int`,Upp`:`:Color`)^ S
 etRefreshColor()].&]
-[s0;%- &]
+[s3;%- &]
+[s4; &]
+[s0;%- enum_[* CaretStyles]&]
+[s2;b17;a17; Constans used to manipulate text cursor`'s visual appearance.&]
+[s7;i1120;a17;:Terminal`:`:Caret`:`:BLOCK: [%-*C@3 Caret`::BLOCK]-|Block 
+cursor style.&]
+[s7;i1120;a17;:Terminal`:`:Caret`:`:BEAM: [%-*C@3 Caret`::BEAM]-|Beam 
+cursor style.&]
+[s7;i1120;a17;:Terminal`:`:Caret`:`:UNDERLINE: [%-*C@3 Caret`::UNDERLINE]-|Underline 
+cursor style.&]
+[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetCursorStyle`(int`,bool`)^ S
+etCursorStyle()],[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:GetCursorStyle`(`)const^  
+GetCursorStyle()].&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:Terminal`:`:WhenResize:%- [_^Upp`:`:Event^ Event]<>_[* WhenResize]&]
 [s2; This event is dispatched when the terminal is resized.&]
@@ -466,6 +479,23 @@ by default. Returns `*this for method chaining.&]
 It can be any value between 100 ms and 60000 ms. Returns `*this 
 for method chaining.&]
 [s3; &]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:SetCursorStyle`(int`,bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* SetCursorStyle]([@(0.0.255) int]_[*@3 style], [@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) t
+rue])&]
+[s2; Sets the visual [%-*@3 style] of the text cursor. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:Caret`:`:BLOCK^ c
+aret style constants] for valid values. Cursor will blink if 
+the [%-*@3 blink] argument is true. Returns `*this for method chaining. 
+&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:GetCursorStyle`(`)const:%- [@(0.0.255) int]_[* GetCursorStyle]()_
+[@(0.0.255) const]&]
+[s2; Returns the current visual style of the text cursor. See the 
+[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:Caret`:`:BLOCK^ care
+t style constants] for valid values.&]
+[s3; &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:BlockCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* BlockCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) true])&]
@@ -484,6 +514,23 @@ chaining.&]
 [s2; Sets a blinking or steady underscore cursor. Returns `*this 
 for method chaining.&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:BlinkingCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* BlinkingCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2; Enables or disables blinking cursor. Returns `*this for method 
+chaining. &]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:NoBlinkingCursor`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* NoBlinkingCursor]()&]
+[s2; Disables blinking cursor. Same as BlinkingCursor(false). Returns 
+`*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsCursorBlinking`(`)const:%- [@(0.0.255) bool]_[* IsCursorBlinkin
+g]()_[@(0.0.255) const]&]
+[s2; Returns true if the cursor is blinking.&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:LockCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* LockCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]

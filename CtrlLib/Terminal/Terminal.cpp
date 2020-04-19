@@ -941,13 +941,13 @@ Terminal::Caret::Caret()
 {
 }
 
-Terminal::Caret::Caret(byte style_, bool blink, bool lock)
+Terminal::Caret::Caret(int style_, bool blink, bool lock)
 {
 	Set(style_, blink);
 	locked = lock;
 }
 
-void Terminal::Caret::Set(byte style_, bool blink)
+void Terminal::Caret::Set(int style_, bool blink)
 {
 	if(!locked) {
 		style = style_;

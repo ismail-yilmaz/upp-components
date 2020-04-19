@@ -150,9 +150,14 @@ public:
     Terminal&   NoBlinkingText()                                { return BlinkingText(false); }
     Terminal&   BlinkInterval(int ms)                           { blinkinterval = clamp(ms, 100, 60000); return *this; }
 
+    Terminal&   SetCursorStyle(int style, bool blink = true)    { caret.Set(style, blink); return *this;}
+    int         GetCursorStyle() const                          { return caret.GetStyle(); }
     Terminal&   BlockCursor(bool blink = true)                  { caret.Block(blink); return *this; }
     Terminal&   BeamCursor(bool blink = true)                   { caret.Beam(blink);  return *this; }
     Terminal&   UnderlineCursor(bool blink = true)              { caret.Underline(blink); return *this; }
+    Terminal&   BlinkingCursor(bool b = true)                   { caret.Blink(b); return *this; }
+    Terminal&   NoBlinkingCursor()                              { return BlinkingCursor(false); }
+    bool        IsCursorBlinking() const                        { return caret.IsBlinking();    }
     Terminal&   LockCursor(bool b = true)                       { caret.Lock(b);  return *this; }
     Terminal&   UnlockCursor()                                  { caret.Unlock(); return *this; }
 
@@ -601,30 +606,30 @@ public:
     // DEC and xterm style caret (cursor) support.
 
     class Caret {
-        byte      style;
+        int       style;
         bool      blinking;
         bool      locked;
     public:
-        enum : byte
+        enum : int
         {
             BLOCK = 0,
             BEAM,
             UNDERLINE
         };
         Event<> WhenAction;
-        void    Set(byte style_, bool blink);
+        void    Set(int style_, bool blink);
         Caret&  Block(bool blink = true)                        { Set(BLOCK, blink); return *this; }
         Caret&  Beam(bool blink = true)                         { Set(BEAM, blink);  return *this; }
         Caret&  Underline(bool blink = true)                    { Set(UNDERLINE, blink); return *this; }
         Caret&  Blink(bool b = true)                            { if(!locked) { blinking = b; WhenAction(); }; return *this; }
         Caret&  Lock(bool b = true)                             { locked = b; return *this; }
         Caret&  Unlock()                                        { return Lock(false); }
-        byte    GetStyle() const                                { return style;    }
+        int     GetStyle() const                                { return style;    }
         bool    IsBlinking() const                              { return blinking; }
         bool    IsLocked() const                                { return locked;   }
         void    Serialize(Stream& s);
         Caret();
-        Caret(byte style, bool blink, bool lock);
+        Caret(int style, bool blink, bool lock);
     };
 
 private:
