@@ -89,6 +89,9 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
+- **Terminal widget can run Crysis**
+Amazing, isn't it?
+
 ## [Features](#features)
 
 - Supports whatever platform Ultimate++ supports. (Linux, Windows, MacOS).
@@ -141,7 +144,7 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 - Supports bell notifications.
 - Supports VT1xx LEDs.
 - Supports size hint.
-- Supports Ultimate++ style data serialization.
+- Supports Ultimate++ style data serialization (binary serialization, JSONization, XMLization).
 - Supports per-widget customization (i.e no global variables or properties are used).
 - Includes a Terminal.usc file for TheIDE’s layout editor.
 

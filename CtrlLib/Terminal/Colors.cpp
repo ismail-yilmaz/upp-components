@@ -380,6 +380,39 @@ void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes,
 	}
 }
 
+void Terminal::ColorTableSerializer::Serialize(Stream& s)
+{
+	for(int i = 0; i < Terminal::MAX_COLOR_COUNT; i++)
+		s % table[i];
+}
+
+void Terminal::ColorTableSerializer::Jsonize(JsonIO& jio)
+{
+	for(int i = 0; i < Terminal::MAX_COLOR_COUNT; i++)
+		switch(i) {
+		case Terminal::COLOR_INK:
+			jio("Ink", table[i]);
+			break;
+		case Terminal::COLOR_PAPER:
+			jio("Paper", table[i]);
+			break;
+		case Terminal::COLOR_INK_SELECTED:
+			jio("SelectionInk", table[i]);
+			break;
+		case Terminal::COLOR_PAPER_SELECTED:
+			jio("SelectionPaper", table[i]);
+			break;
+		default:
+			jio(Format("Color_%d", i), table[i]);
+			break;
+		}
+}
+
+void Terminal::ColorTableSerializer::Xmlize(XmlIO& xio)
+{
+	XmlizeByJsonize(xio, *this);
+}
+
 static int sCharFilterHashHex(int c)
 {
 	return IsXDigit(c) || c == '#' ? c : 0;
@@ -495,4 +528,5 @@ Value ConvertColor::Format(const Value& q) const
 {
 	return ConvertRgbColorSpec().Format(q);
 }
+
 }

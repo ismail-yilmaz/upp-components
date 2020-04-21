@@ -289,10 +289,10 @@ onst]&]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:Set8BitMode`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* Set8BitMode]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s6;%- Requires at least a level 2 device emulation.&]
 [s2; Enables or disables 8`-bit output mode. Returns `*this for method 
-chaining. This mode requires at least a level 2 device emulation. 
-Default is 7`-bit output mode. Note that the 8`-bit output mode 
-can cause problems in UTF`-8 environments.&]
+chaining. Default is 7`-bit output mode. Note that the 8`-bit 
+output mode can cause problems in UTF`-8 environments.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:No8BitMode`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* N
@@ -335,6 +335,11 @@ History]()&]
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasHistory`(`)const:%- [@(0.0.255) bool]_[* HasHistory]()_[@(0.0.255) c
+onst]&]
+[s2; Returns true if the history buffer is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:ClearHistory`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* ClearHistory]()&]
 [s2; Clears the history buffer. Returns `*this for method chaining.&]
@@ -342,10 +347,16 @@ History]()&]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:SetHistorySize`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SetHistorySize]([@(0.0.255) int]_[*@3 sz])&]
-[s2; Sets the maximum number of lines stored in the history buffer 
-to [%-*@3 sz]. Default is 1024 lines. Returns `*this for method 
-chaining.&]
+[s2; Sets the allowed maximum number of lines stored in the history 
+buffer to [%-*@3 sz]. Default is 1024 lines. Returns `*this for 
+method chaining.&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:GetHistorySize`(`)const:%- [@(0.0.255) int]_[* GetHistorySize]()_
+[@(0.0.255) const]&]
+[s2; Returns the allowed maximum number of lines stored in the history 
+buffer. Default is 1024 lines&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:SetFont`(Upp`:`:Font`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SetFont]([_^Upp`:`:Font^ Font]_[*@3 f])&]
@@ -418,6 +429,11 @@ and ANSI color table). Disabled by default.&]
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasDynamicColors`(`)const:%- [@(0.0.255) bool]_[* HasDynamicColor
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if xterm`'s dynamic colors feature is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:LightColors`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* LightColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Forces the terminal to substitute the normal colors (0`-7) with 
@@ -431,6 +447,12 @@ This behavior is affected by the client`'s color settings.&]
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasLightColors`(`)const:%- [@(0.0.255) bool]_[* HasLightColors]()
+_[@(0.0.255) const]&]
+[s2; Returns true if the terminal is forced to substitute the normal 
+colors with their light variants.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:AdjustColors`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* AdjustColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; This switch allows the terminal to adjust the current pen and/or 
@@ -442,6 +464,12 @@ paper color to dark themes. It affects only the ANSI color table
 ]_[* NoAdjustColors]()&]
 [s2; Disables color adjusting. Same as AdjustColors(false). Returns 
 `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasAdjustedColors`(`)const:%- [@(0.0.255) bool]_[* HasAdjustedCol
+ors]()_[@(0.0.255) const]&]
+[s2; Returns true if Terminal ctrl is set to automatically adjust 
+its basic color table to dark themes.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:ResetColors`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* R
@@ -462,6 +490,12 @@ Returns `*this for method chaining.&]
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasIntensifiedBoldText`(`)const:%- [@(0.0.255) bool]_[* HasIntens
+ifiedBoldText]()_[@(0.0.255) const]&]
+[s2; Returns true when Terminal ctrl is set to use light colors (8`-15) 
+for bold text.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:BlinkingText`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* BlinkingText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables blinking text. Blinking text is enabled 
@@ -472,6 +506,11 @@ by default. Returns `*this for method chaining.&]
 ]_[* NoBlinkingText]()&]
 [s2; Disables blinking text. Same as BlinkingText(false). Returns 
 `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasBlinkingText`(`)const:%- [@(0.0.255) bool]_[* HasBlinkingText](
+)_[@(0.0.255) const]&]
+[s2; Returns true if the blinking text feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:BlinkInterval`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
@@ -545,6 +584,12 @@ for method chaining.&]
 [s2; Unlocks the cursor style. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsCursorLocked`(`)const:%- [@(0.0.255) bool]_[* IsCursorLocked]()
+_[@(0.0.255) const]&]
+[s2; Return true if the current visual style of the text cursor is 
+locked.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:NoBackground`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* NoBackground]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables transparent mode. When enabled, the background 
@@ -552,6 +597,11 @@ is not painted and transparency flag is set, allowing client
 code to provide any background it needs. Returns `*this for method 
 chaining.&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasBackground`(`)const:%- [@(0.0.255) bool]_[* HasBackground]()_[@(0.0.255) c
+onst]&]
+[s2; Returns true if the background transparency is disabled.&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:ShowSizeHint`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* ShowSizeHint]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
@@ -599,6 +649,11 @@ mouse wheel events.&]
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasAlternateScroll`(`)const:%- [@(0.0.255) bool]_[* HasAlternateS
+croll]()_[@(0.0.255) const]&]
+[s2; Returns true if xterm`'s alternate scroll feature is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:MouseWheelStep`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* MouseWheelStep]([@(0.0.255) int]_[*@3 lines])&]
 [s2; Sets the mouse wheel steps to [%-*@3 lines]. Default value is 
@@ -620,6 +675,11 @@ requires the history buffer to be enabled.&]
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasKeyNavigation`(`)const:%- [@(0.0.255) bool]_[* HasKeyNavigatio
+n]()_[@(0.0.255) const]&]
+[s2; Returns true if cursor key navigation mode is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:InlineImages`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* InlineImages]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables the inline images support of Terminal ctrl 
@@ -639,6 +699,12 @@ henImage] event. &]
 `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasInlineImages`(`)const:%- [@(0.0.255) bool]_[* HasInlineImages](
+)_[@(0.0.255) const]&]
+[s2; Returns true if [/ at least one] of the inline image protocols 
+is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:SixelGraphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Individually enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
@@ -650,6 +716,12 @@ is disabled by default.&]
 ]_[* NoSixelGraphics]()&]
 [s2; Disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel 
 graphics]. Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasSixelGraphics`(`)const:%- [@(0.0.255) bool]_[* HasSixelGraphic
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ six
+el graphics] is enabled.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:JexerGraphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
@@ -667,10 +739,16 @@ for method chaining. This feature is disabled by default.&]
 exer inline images protocol]. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasJexerGraphics`(`)const:%- [@(0.0.255) bool]_[* HasJexerGraphic
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
+exer inline images protocol] is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:iTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* iTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Individually enables or disables [^https`:`/`/iterm2`.com`/documentation`-images`.html^ i
-Term2 inline images protocol]. This protocol allows Terminal 
+Term2`'s inline images protocol]. This protocol allows Terminal 
 ctrl to display any raster image format that is supported by 
 Ultimate`+`+, including, but not limited to, JPG, PNG, TIFF. 
 Returns `*this for method chaining. This feature is disabled 
@@ -679,9 +757,15 @@ by default.&]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:NoiTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* NoiTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2;%- [%%  ][@N Disables ][^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2 
-inline images protocol][@N . Returns `*this for method chaining.]&]
+[s2;%- [%%  ][@N Disables ][^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2`'
+s inline images protocol][@N . Returns `*this for method chaining.]&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasiTerm2Graphics`(`)const:%- [@(0.0.255) bool]_[* HasiTerm2Graph
+ics]()_[@(0.0.255) const]&]
+[s2; Return true if [%-^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2`'
+s inline images protocol] is enabled.&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:Hyperlinks`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* Hyperlinks]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
@@ -698,11 +782,28 @@ is disabled by default. &]
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasHyperlinks`(`)const:%- [@(0.0.255) bool]_[* HasHyperlinks]()_[@(0.0.255) c
+onst]&]
+[s2; Returns true if the [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ e
+xplicit hyperlinks] protocol is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:ReverseWrap`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* ReverseWrap]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables reverse wrap mode. Disabled by default. 
 Returns `*this for method chaining.&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:NoReverseWrap`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
+[* NoReverseWrap]()&]
+[s2; Disables reverse wrap mode. Same as ReverseWrap(false). Returns 
+`*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasReverseWrap`(`)const:%- [@(0.0.255) bool]_[* HasReverseWrap]()
+_[@(0.0.255) const]&]
+[s2; Returns true if reverse wrap mode is enabled.&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:WindowReports`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* WindowReports]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
@@ -715,6 +816,11 @@ method chaining.&]
 ]_[* NoWindowReports]()&]
 [s2; Disables the terminal window reports. Same as WindowReports(false). 
 Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasWindowReports`(`)const:%- [@(0.0.255) bool]_[* HasWindowReport
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if xterm`'s window reports feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:WindowActions`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
@@ -730,6 +836,11 @@ method chaining.&]
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasWindowActions`(`)const:%- [@(0.0.255) bool]_[* HasWindowAction
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if xterm`'s window actions feature is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:WindowOps`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
 [* WindowOps]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables xterm`'s window ops feature as a whole. 
@@ -740,6 +851,12 @@ Returns `*this for method chaining.&]
 oWindowOps]()&]
 [s2; Disables xterm`'s window ops feature as a whole. Returns `*this 
 for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:HasWindowOps`(`)const:%- [@(0.0.255) bool]_[* HasWindowOps]()_[@(0.0.255) c
+onst]&]
+[s2; Returns true if xterm`'s window actions [/ or] reports feature 
+is enabled.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:UDK`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* UDK](
@@ -800,6 +917,11 @@ is enabled by default.&]
 as DelayedRefresh(false). Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsDelayingRefresh`(`)const:%- [@(0.0.255) bool]_[* IsDelayingRefr
+esh]()_[@(0.0.255) const]&]
+[s2; Returns true if delayed display refresh mode is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:LazyResize`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* LazyResize]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables lazy resize. Returns `*this for method chaining. 
@@ -815,6 +937,11 @@ This mode is disabled by default.&]
 [* NoLazyResize]()&]
 [s2; Disables lazy resize. Same as LazyResize(false). Returns `*this 
 for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsLazyResizing`(`)const:%- [@(0.0.255) bool]_[* IsLazyResizing]()
+_[@(0.0.255) const]&]
+[s2; Returns true is lazy resize mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:SetImageDisplay`(const Upp`:`:Display`&`):%- [_^Upp`:`:Terminal^ T
@@ -981,8 +1108,19 @@ stuff.&]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:Serialize`(Upp`:`:Stream`&`)override:%- [@(0.0.255) void]_[* Seri
 alize]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 s])_override&]
-[s2; Serializes the current configuration of Terminal to [%-*@3 s].&]
+[s2; Serializes the current configuration of Terminal ctrl to [%-*@3 s].&]
 [s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:Jsonize`(Upp`:`:JsonIO`&`)override:%- [@(0.0.255) void]_[* Jsoniz
+e]([_^Upp`:`:JsonIO^ JsonIO][@(0.0.255) `&]_[*@3 jio])_override&]
+[s2; Jsonizes the current configuration of Terminal ctrl to [%-*@3 jio].&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:Xmlize`(Upp`:`:XmlIO`&`)override:%- [@(0.0.255) void]_[* Xmlize](
+[_^Upp`:`:XmlIO^ XmlIO][@(0.0.255) `&]_[*@3 xio])_override&]
+[s2; Xmlizes the current configuration of Terminal ctrl to [%-*@3 xio] 
+.&]
+[s3; &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:ClearImageCache`(`):%- [@(0.0.255) static] 
 [@(0.0.255) void]_[* ClearImageCache]()&]

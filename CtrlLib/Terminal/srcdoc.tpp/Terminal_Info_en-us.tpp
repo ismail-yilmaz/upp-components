@@ -226,7 +226,8 @@ button menu).&]
 [s5;i150;O0; Supports bell notifications.&]
 [s5;i150;O0; Supports VT1xx LEDs.&]
 [s5;i150;O0; Supports size hint.&]
-[s5;i150;O0; Supports Ultimate`+`+ style data serialization.&]
+[s5;i150;O0; Supports Ultimate`+`+ style data serialization (binary 
+serialization, JSONization, XMLization).&]
 [s5;i150;O0; Supports per`-widget customization (i.e no global variables 
 or properties are used).&]
 [s5;i150;O0; Includes a Terminal.usc file for TheIDE’s layout editor.&]

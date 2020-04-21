@@ -267,7 +267,7 @@ bool Terminal::Key(dword key, int count)
 			key = ToAscii(key) & 0x1F;
 		
 		if(key < 0x80 && keyflags & K_ALT) {
-			if(metakeyflags & MKEY_NONE)
+			if(metakeyflags == MKEY_NONE)
 				return false;
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;

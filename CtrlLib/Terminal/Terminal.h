@@ -97,7 +97,7 @@ public:
     Event<const String&> WhenApplicationCommand;
 
     void        Write(const void *data, int size, bool utf8 = true);
-    void        Write(const String& s, bool utf8)               { Write(~s, s.GetLength(), utf8); }
+    void        Write(const String& s, bool utf8 = true)        { Write(~s, s.GetLength(), utf8); }
     void        WriteUtf8(const String& s)                      { Write(s, true);         }
     void        CheckWriteUtf8(const String& s)                 { Write(s, CheckUtf8(s)); }
 
@@ -119,7 +119,10 @@ public:
     Terminal&   History(bool b = true)                          { dpage.History(b); return *this; }
     Terminal&   NoHistory()                                     { return History(false); }
     Terminal&   ClearHistory()                                  { dpage.EraseHistory(); return *this; }
+    bool        HasHistory() const                              { return dpage.HasHistory(); }
+
     Terminal&   SetHistorySize(int sz)                          { dpage.SetHistorySize(sz); return *this; }
+    int         GetHistorySize() const                          { return dpage.GetHistorySize(); }
 
     Terminal&   SetFont(Font f)                                 { font = f; Layout(); return *this; }
     Font        GetFont() const                                 { return font; }
@@ -135,19 +138,29 @@ public:
     Terminal&   SetColor(int i, Color c)                        { colortable[i] = c; return *this; }
     void        SetRefreshColor(int i, Color c)                 { SetColor(i, c); Refresh(); }
     Color       GetColor(int i) const                           { return colortable[i]; }
+
     Terminal&   DynamicColors(bool b = true)                    { dynamiccolors = b; return *this; }
     Terminal&   NoDynamicColors()                               { return DynamicColors(false); }
+    bool        HasDynamicColors() const                        { return dynamiccolors; }
+
     Terminal&   LightColors(bool b = true)                      { lightcolors = b; Refresh(); return *this; }
     Terminal&   NoLightColors()                                 { return LightColors(false); }
+    bool        HasLightColors() const                          { return lightcolors; }
+
     Terminal&   AdjustColors(bool b = true)                     { adjustcolors = b; Refresh(); return *this; }
     Terminal&   NoAdjustColors()                                { return AdjustColors(false); }
+    bool        HasAdjustedColors() const                       { return adjustcolors; }
+
     Terminal&   ResetColors();
 
     Terminal&   IntensifyBoldText(bool b = true)                { intensify = b; Refresh(); return *this; }
     Terminal&   NoIntensifyBoldText()                           { return IntensifyBoldText(false); }
+    bool        HasIntensifiedBoldText() const                  { return intensify; }
 
     Terminal&   BlinkingText(bool b = true)                     { blinkingtext = b; RefreshDisplay(); return *this; }
     Terminal&   NoBlinkingText()                                { return BlinkingText(false); }
+    bool        HasBlinkingText() const                         { return blinkingtext; }
+
     Terminal&   BlinkInterval(int ms)                           { blinkinterval = clamp(ms, 100, 60000); return *this; }
 
     Terminal&   SetCursorStyle(int style, bool blink = true)    { caret.Set(style, blink); return *this;}
@@ -160,10 +173,12 @@ public:
     bool        IsCursorBlinking() const                        { return caret.IsBlinking();    }
     Terminal&   LockCursor(bool b = true)                       { caret.Lock(b);  return *this; }
     Terminal&   UnlockCursor()                                  { caret.Unlock(); return *this; }
+    bool        IsCursorLocked() const                          { return caret.IsLocked();      }
 
     Terminal&   NoBackground(bool b = true)                     { nobackground = b; Transparent(b); Refresh(); return *this; }
+    bool        HasBackground() const                           { return !nobackground; }
 
-    Terminal&   ShowSizeHint(bool b = true)                     { sizehint = b; return *this; };
+    Terminal&   ShowSizeHint(bool b = true)                     { sizehint = b; return *this; }
     Terminal&   HideSizeHint()                                  { return ShowSizeHint(false); }
 
     Terminal&   ShowScrollBar(bool b = true);
@@ -172,44 +187,57 @@ public:
 
     Terminal&   AlternateScroll(bool b = true)                  { alternatescroll = b; return *this; }
     Terminal&   NoAlternateScroll()                             { return AlternateScroll(false); }
+    bool        HasAlternateScroll() const                      { return alternatescroll; }
 
     Terminal&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
 
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
+    bool        HasKeyNavigation() const                        { return keynavigation; }
 
     Terminal&   InlineImages(bool b = true)                     { sixelimages = jexerimages = iterm2images = b; return *this; }
     Terminal&   NoInlineImages()                                { return InlineImages(false);  }
+    bool        HasInlineImages() const                         { return sixelimages || jexerimages || iterm2images; }
 
     Terminal&   SixelGraphics(bool b = true)                    { sixelimages = b; return *this; }
     Terminal&   NoSixelGraphics()                               { return SixelGraphics(false); }
+    bool        HasSixelGraphics() const                        { return sixelimages; }
 
     Terminal&   JexerGraphics(bool b = true)                    { jexerimages = b; return *this; }
     Terminal&   NoJexerGraphics()                               { return JexerGraphics(false); }
-    
+    bool        HasJexerGraphics() const                        { return jexerimages; }
+
     Terminal&   iTerm2Graphics(bool b = true)                   { iterm2images = b; return *this; }
     Terminal&   NoiTerm2Graphics(bool b = true)                 { return iTerm2Graphics(false); }
-    
+    bool        HasiTerm2Graphics() const                       { return iterm2images; }
+
     Terminal&   Hyperlinks(bool b = true)                       { hyperlinks = b; return *this; }
     Terminal&   NoHyperlinks()                                  { return Hyperlinks(false);     }
+    bool        HasHyperlinks() const                           { return hyperlinks; }
 
     Terminal&   ReverseWrap(bool b = true)                      { XTrewrapm((reversewrap = b)); return *this; }
     Terminal&   NoReverseWrap()                                 { return ReverseWrap(false); }
+    bool        HasReverseWrap() const                          { return reversewrap; }
 
     Terminal&   DelayedRefresh(bool b = true)                   { delayedrefresh = b; return *this; }
     Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
+    bool        IsDelayingRefresh() const                       { return delayedrefresh; }
 
     Terminal&   LazyResize(bool b = true)                       { lazyresize = b; return *this; }
     Terminal&   NoLazyResize()                                  { return LazyResize(false);     }
+    bool        IsLazyResizing() const                          { return lazyresize; }
 
     Terminal&   WindowOps(bool b = true)                        { windowactions = windowreports = b; return *this; }
     Terminal&   NoWindowOps()                                   { return WindowOps(false);      }
+    bool        HasWindowOps() const                            { return windowactions || windowreports; }
 
     Terminal&   WindowReports(bool b = true)                    { windowreports = b; return *this; }
     Terminal&   NoWindowReports()                               { return WindowReports(false);  }
+    bool        HasWindowReports() const                        { return windowreports; }
 
     Terminal&   WindowActions(bool b = true)                    { windowactions = b; return *this; }
     Terminal&   NoWindowActions()                               { return WindowActions(false);  }
+    bool        HasWindowActions() const                        { return windowactions; }
 
     Terminal&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
     const Display& GetImageDisplay() const                      { return *imgdisplay; }
@@ -295,6 +323,8 @@ public:
     void        State(int reason) override;
 
     void        Serialize(Stream& s) override;
+    void        Jsonize(JsonIO& jio) override;
+    void        Xmlize(XmlIO& xio) override;
 
     static void ClearImageCache();
     static void SetImageCacheMaxSize(int maxsize, int maxcount);
@@ -365,9 +395,9 @@ private:
 
 private:
     enum ModifierKeyFlags : dword {
-        MKEY_NONE   = 1,
-        MKEY_ESCAPE = 2,
-        MKEY_SHIFT  = 3
+        MKEY_NONE   = 0,
+        MKEY_ESCAPE = 1,
+        MKEY_SHIFT  = 2
     };
 
     const Display *imgdisplay;
@@ -387,7 +417,7 @@ private:
     bool        blinking        = false;
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
-    dword       metakeyflags    = MKEY_ESCAPE;
+    int         metakeyflags    = MKEY_ESCAPE;
     dword       activelink      = 0;
     dword       prevlink        = 0;
 
@@ -428,8 +458,16 @@ private:
     bool        ResetLoadColor(int index);
     void        ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index);
 
-    Color       colortable[MAX_COLOR_COUNT];
     VectorMap<int, Color> savedcolors;
+    Color       colortable[MAX_COLOR_COUNT];
+
+    struct ColorTableSerializer {
+        Color   *table;
+        void    Serialize(Stream& s);
+        void    Jsonize(JsonIO& jio);
+        void    Xmlize(XmlIO& xio);
+        ColorTableSerializer(Color *ct) : table(ct) {}
+    };
 
 private:
     void        PutChar(int c);
@@ -628,6 +666,8 @@ public:
         bool    IsBlinking() const                              { return blinking; }
         bool    IsLocked() const                                { return locked;   }
         void    Serialize(Stream& s);
+        void    Jsonize(JsonIO& jio);
+        void    Xmlize(XmlIO& xio);
         Caret();
         Caret(int style, bool blink, bool lock);
     };
@@ -682,6 +722,8 @@ public:
 
         void        Reset();
         void        Serialize(Stream& s);
+        void        Jsonize(JsonIO& jio);
+        void        Xmlize(XmlIO& xio);
 
         GSets(byte defgset = CHARSET_ISO8859_1);
         GSets(byte g0, byte g1, byte g2, byte g3);

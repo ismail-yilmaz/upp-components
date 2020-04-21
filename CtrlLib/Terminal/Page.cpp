@@ -103,17 +103,6 @@ VTPage::VTPage()
 	Reset();
 }
 
-void VTPage::Serialize(Stream& s)
-{
-	int version = 1;
-	s / version;
-	if(version >= 1) {
-		s % tabsize;
-		s % history;
-		s % historysize;
-	}
-}
-
 VTPage& VTPage::Reset()
 {
 	cursor = Null;
@@ -1214,6 +1203,39 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll, bool relpos)
 	}
 
 	return *this;
+}
+
+void VTPage::Serialize(Stream& s)
+{
+	int version = 1;
+	s / version;
+	if(version >= 1) {
+		s % tabsize;
+		s % history;
+		s % historysize;
+	}
+	
+	if(s.IsLoading()) {
+		historysize = max(1, historysize);
+		SetTabs(tabsize);
+	}
+}
+
+void VTPage::Jsonize(JsonIO& jio)
+{
+	jio ("TabSize", tabsize)
+		("HistoryBuffer", history)
+		("HistoryBufferMaxSize", historysize);
+
+	if(jio.IsLoading()) {
+		historysize = max(1, historysize);
+		SetTabs(tabsize);
+	}
+}
+
+void VTPage::Xmlize(XmlIO& xio)
+{
+	XmlizeByJsonize(xio, *this);
 }
 
 String VTPage::Cursor::ToString() const

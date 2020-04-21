@@ -73,8 +73,6 @@ public:
     Event<>         WhenCursor;
     Event<>         WhenScroll;
 
-    virtual void    Serialize(Stream& s);
-
     VTPage&         Displaced(bool b = true);
     bool            IsDisplaced() const                     { return cursor.displaced; }
 
@@ -89,6 +87,7 @@ public:
     const Lines&    GetHistory() const                      { return saved;   }
     void            EraseHistory();
     void            SetHistorySize(int sz);
+    int             GetHistorySize() const                  { return historysize; };
 
     VTPage&         Attributes(const VTCell& attrs)         { cellattrs = attrs; return *this; }
     const VTCell&   GetAttributes() const                   { return cellattrs; }
@@ -214,6 +213,10 @@ public:
     VTLine*          begin()                                 { return lines.begin(); }
     const VTLine*    end() const                             { return lines.end();   }
     VTLine*          end()                                   { return lines.end();   }
+
+    virtual void    Serialize(Stream& s);
+    virtual void    Jsonize(JsonIO& jio);
+    virtual void    Xmlize(XmlIO& xio);
 
 private:
     bool            HorzMarginsExist() const                                        { return margins.Width()  < size.cx - 1; }

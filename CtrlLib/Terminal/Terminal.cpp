@@ -966,4 +966,17 @@ void Terminal::Caret::Serialize(Stream& s)
 		s % blinking;
 	}
 }
+
+void Terminal::Caret::Jsonize(JsonIO& jio)
+{
+	jio ("Style", style)
+		("Locked", locked)
+		("Blinking", blinking);
+}
+
+void Terminal::Caret::Xmlize(XmlIO& xio)
+{
+	XmlizeByJsonize(xio, *this);
+}
+
 }

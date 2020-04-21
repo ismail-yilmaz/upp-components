@@ -468,7 +468,7 @@
 
 #### Notes
 
-- The use of "hash hex color" text specifications is discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB text specifications should be used wherever it is possible.
+- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB text specifications should be used wherever it is possible.
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 

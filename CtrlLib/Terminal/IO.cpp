@@ -9,7 +9,7 @@ Terminal& Terminal::SetLevel(int level)
 {
 	SoftReset();
 
-	clevel = level;
+	clevel = clamp(level, int(LEVEL_0), int(LEVEL_4));
 
 	switch(level) {
 	case LEVEL_0:
@@ -360,9 +360,11 @@ void Terminal::Serialize(Stream& s)
 {
 	GuiLock __;
 
+	ColorTableSerializer cts(colortable);
+	
 	int version = 1;
 	s / version;
-	
+
 	if(version >= 1) {
 		s % clevel;
 		s % charset;
@@ -395,9 +397,7 @@ void Terminal::Serialize(Stream& s)
 		s % lightcolors;
 		s % gsets;
 		s % dpage;
-		s % apage;
-		for(int i = 0; i < MAX_COLOR_COUNT; i++)
-			s % colortable[i];
+		s % cts;
 	}
 
 	if(s.IsLoading()) {
@@ -405,4 +405,55 @@ void Terminal::Serialize(Stream& s)
 		Layout();
 	}
 }
+
+void Terminal::Jsonize(JsonIO& jio)
+{
+	GuiLock __;
+
+    ColorTableSerializer cts(colortable);
+    
+    jio ("ConformanceLevel",    clevel)
+        ("EightBit",            eightbit)
+        ("Charset",             charset)
+        ("LegacyCharsets",      legacycharsets)
+        ("GSets",               gsets)
+        ("Page",                dpage)
+        ("Font",                font)
+        ("Caret",               caret)
+        ("ReverseWrap",         reversewrap)
+        ("KeyNavigation",       keynavigation)
+        ("MetaKeyFlags",        metakeyflags)
+        ("UDK",                 userdefinedkeys)
+        ("LockUDK",             userdefinedkeyslocked)
+        ("AlternateScroll",     alternatescroll)
+        ("WheelStep",           wheelstep)
+        ("WindowActions",       windowactions)
+        ("WindowReports",       windowreports)
+        ("SixelGraphics",       sixelimages)
+        ("JexerGraphics",       jexerimages)
+        ("iTerm2Graphics",      iterm2images)
+        ("Hyperlinks",          hyperlinks)
+        ("DelayedRefresh",      delayedrefresh)
+        ("LazyResize",          lazyresize)
+        ("SizeHint",            sizehint)
+        ("BrightBoldText",      intensify)
+        ("BlinkingText",        blinkingtext)
+        ("TextBlinkInterval",   blinkinterval)
+        ("DynamicColors",       dynamiccolors)
+        ("LightColors",         lightcolors)
+        ("AdjustColorstoTheme", adjustcolors)
+        ("TransparentBackground", nobackground)
+        ("ColorTable",          cts);
+        
+    if(jio.IsLoading()) {
+        SetLevel(clevel);
+        Layout();
+    }
+}
+
+void Terminal::Xmlize(XmlIO& xio)
+{
+	XmlizeByJsonize(xio, *this);
+}
+
 }

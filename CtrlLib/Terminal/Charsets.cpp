@@ -218,4 +218,25 @@ void Terminal::GSets::Serialize(Stream& s)
 	s % r;
 	s % ss;
 }
+
+void Terminal::GSets::Jsonize(JsonIO& jio)
+{
+	jio ("Default_G0", d[0])
+		("Default_G1", d[1])
+		("Default_G2", d[2])
+		("Default_G3", d[3])
+		("G0", g[0])
+		("G1", g[1])
+		("G2", g[2])
+		("G3", g[3])
+		("L",  l)
+		("R",  r)
+		("SingleShift", ss);
+}
+
+void Terminal::GSets::Xmlize(XmlIO& xio)
+{
+	XmlizeByJsonize(xio, *this);
+}
+
 }
