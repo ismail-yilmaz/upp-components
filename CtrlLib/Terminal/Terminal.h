@@ -252,12 +252,12 @@ public:
     Size        GetFontSize() const;
     Size        GetPageSize() const;
 
-    Size        PageSizeToClient(Size sz) const                 { return sz * GetFontSize(); }
-    Size        PageSizeWithFramesToClient(Size sz) const       { return AddFrameSize(sz * GetFontSize()); }
+    Size        PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetFontSize()); }
+    Size        PageSizeToClient(int col, int row) const        { return PageSizeToClient(Size(col, row)); }
 
-    Size        GetMinSize() const override                     { return PageSizeWithFramesToClient(Size(2, 2)); }
-    Size        GetStdSize() const override                     { return PageSizeWithFramesToClient(Size(80, 24)); }
-    Size        GetMaxSize() const override                     { return PageSizeWithFramesToClient(Size(132, 24)); }
+    Size        GetMinSize() const override                     { return PageSizeToClient(Size(2, 2)); }
+    Size        GetStdSize() const override                     { return PageSizeToClient(Size(80, 24)); }
+    Size        GetMaxSize() const override                     { return PageSizeToClient(Size(132, 24)); }
 
     void        Copy()                                          { Copy(GetSelectedText()); }
     void        Copy(const WString& s);
@@ -530,8 +530,8 @@ private:
     void        WindowMaximizeHorzRequest(TopWindow *w);
     void        WindowMaximizeVertRequest(TopWindow *w);
 
-    void        SetColumns(int cols)                                { WhenSetSize(PageSizeWithFramesToClient(Size(cols, page->GetSize().cy))); }
-    void        SetRows(int rows)                                   { WhenSetSize(PageSizeWithFramesToClient(Size(page->GetSize().cx, rows))); }
+    void        SetColumns(int cols)                                { WhenSetSize(PageSizeToClient(Size(cols, page->GetSize().cy))); }
+    void        SetRows(int rows)                                   { WhenSetSize(PageSizeToClient(Size(page->GetSize().cx, rows))); }
 
     dword       GetFillerFlags(const VTInStream::Sequence& seq) const;
 

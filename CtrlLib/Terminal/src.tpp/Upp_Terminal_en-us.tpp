@@ -973,29 +973,33 @@ onst]&]
 [s2; Returns the current size of terminal display in cells.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:PageSizeToClient`(Upp`:`:Size`)const:%- [_^Upp`:`:Size^ Size]_[* P
+ageSizeToClient]([_^Upp`:`:Size^ Size]_[*@3 sz])_[@(0.0.255) const]&]
+[s5;:Upp`:`:Terminal`:`:PageSizeToClient`(int`,int`)const:%- [_^Upp`:`:Size^ Size]_[* Pag
+eSizeToClient]([@(0.0.255) int]_[*@3 col], [@(0.0.255) int]_[*@3 row])_[@(0.0.255) const]&]
+[s2; Returns the requested terminal page size in pixels, by multiplying 
+the given page size with the size of the current font, and then 
+adding the total size of Terminal ctrl`'s child frames (e.g. 
+scrollbar, if visible) to the result.&]
+[s3; &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:GetMinSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetMinSi
 ze]()_[@(0.0.255) const]_override&]
-[s2; Returns the minimum size of terminal (in pixels) by multiplying 
-the minimum page size (2 x 2 cells) with the size of current 
-font, and then adding the size of its frames (e.g. scrollbar, 
-if visible) to it.&]
+[s2; Returns the minimum size of terminal in pixels. Same as PageSizeToClient(2, 
+2).&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:GetStdSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetStdSi
 ze]()_[@(0.0.255) const]_override&]
-[s2; Returns the standard size of terminal (in pixels) by multiplying 
-the standard page size (80 x 24 cells) with the size of current 
-font, and then adding the size of its frames (e.g. scrollbar, 
-if visible) to it.&]
+[s2; Returns the standard size of terminal in pixels. Same as PageSizeToClient(80, 
+24).&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:GetMaxSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetMaxSi
 ze]()_[@(0.0.255) const]_override&]
-[s2; Returns the maximum size of terminal (in pixels) by multiplying 
-the maximum page size (132 x 24 cells) with the size of current 
-font, and then adding the size of its frames (e.g. scrollbar, 
-if visible) to it. Note that this is just a convenience method. 
-Terminal ctrl doesn`'t have a predefined upper size limit.&]
+[s2; Returns the maximum size of terminal in pixels. Same as PageSizeToClient(132, 
+24). Note that this is just a convenience method. Terminal ctrl 
+doesn`'t have a predefined upper size limit.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:Terminal`:`:Copy`(`):%- [@(0.0.255) void]_[* Copy]()&]

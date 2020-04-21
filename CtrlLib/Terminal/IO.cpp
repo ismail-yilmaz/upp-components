@@ -401,7 +401,7 @@ void Terminal::Serialize(Stream& s)
 	}
 
 	if(s.IsLoading()) {
-        SetEmulation(clevel, false);
+		SetEmulation(clevel, false);
 		Layout();
 	}
 }
