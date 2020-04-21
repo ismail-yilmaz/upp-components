@@ -101,7 +101,7 @@ public:
     void        WriteUtf8(const String& s)                      { Write(s, true);         }
     void        CheckWriteUtf8(const String& s)                 { Write(s, CheckUtf8(s)); }
 
-    Terminal&   SetLevel(int level);
+    Terminal&   SetLevel(int level)                             { SetEmulation(level); return *this; }
     bool        IsLevel0() const                                { return !modes[DECANM]; }
     bool        IsLevel1() const                                { return modes[DECANM] && clevel >= LEVEL_1; }
     bool        IsLevel2() const                                { return modes[DECANM] && clevel >= LEVEL_2; }
@@ -538,6 +538,8 @@ private:
     void        Backup(bool tpage = true, bool csets = true, bool attrs = true);
     void        Restore(bool tpage = true, bool csets = true, bool attrs = true);
 
+    void        SetEmulation(int level, bool reset = true);
+    
     void        Reset(bool full);
 
     void        AlternateScreenBuffer(bool b);

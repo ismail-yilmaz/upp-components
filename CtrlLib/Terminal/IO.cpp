@@ -5,9 +5,10 @@
 
 namespace Upp {
 
-Terminal& Terminal::SetLevel(int level)
+void Terminal::SetEmulation(int level, bool reset)
 {
-	SoftReset();
+	if(reset)
+		SoftReset();
 
 	clevel = clamp(level, int(LEVEL_0), int(LEVEL_4));
 
@@ -22,7 +23,6 @@ Terminal& Terminal::SetLevel(int level)
 	default:
 		break;
 	}
-	return *this;
 }
 
 void Terminal::Reset(bool full)
@@ -401,7 +401,7 @@ void Terminal::Serialize(Stream& s)
 	}
 
 	if(s.IsLoading()) {
-		SetLevel(clevel);
+        SetEmulation(clevel, false);
 		Layout();
 	}
 }
@@ -446,7 +446,7 @@ void Terminal::Jsonize(JsonIO& jio)
         ("ColorTable",          cts);
         
     if(jio.IsLoading()) {
-        SetLevel(clevel);
+        SetEmulation(clevel, false);
         Layout();
     }
 }

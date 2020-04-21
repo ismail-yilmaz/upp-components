@@ -89,8 +89,8 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 
 - **Terminal package has a** [BSD 3-Clause](https://en.wikipedia.org/wiki/BSD_licenses?oldformat=true#3-clause_license_%28%22BSD_License_2.0%22,_%22Revised_BSD_License%22,_%22New_BSD_License%22,_or_%22Modified_BSD_License%22%29) **license**.
 
-- **Terminal widget can run Crysis**
-Amazing, isn't it?
+- **Terminal widget can run Crysis.**
+  Amazing, isn't it?
 
 ## [Features](#features)
 
