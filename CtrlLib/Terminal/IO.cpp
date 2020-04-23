@@ -346,13 +346,14 @@ void Terminal::Serialize(Stream& s)
 	GuiLock __;
 
 	ColorTableSerializer cts(colortable);
-	
+    String chrset = CharsetName(charset);
+    
 	int version = 1;
 	s / version;
 
 	if(version >= 1) {
 		s % clevel;
-		s % charset;
+		s % chrset;
 		s %	eightbit;
 		s % font;
 		s % caret;
@@ -386,6 +387,7 @@ void Terminal::Serialize(Stream& s)
 	}
 
 	if(s.IsLoading()) {
+		SetCharset(CharsetByName(chrset));
 		SetEmulation(clevel, false);
 		Layout();
 	}
@@ -396,10 +398,11 @@ void Terminal::Jsonize(JsonIO& jio)
 	GuiLock __;
 
     ColorTableSerializer cts(colortable);
+    String chrset = CharsetName(charset);
     
     jio ("ConformanceLevel",    clevel)
         ("EightBit",            eightbit)
-        ("Charset",             charset)
+        ("Charset",             chrset)
         ("LegacyCharsets",      legacycharsets)
         ("GSets",               gsets)
         ("Page",                dpage)
@@ -431,6 +434,7 @@ void Terminal::Jsonize(JsonIO& jio)
         ("ColorTable",          cts);
         
     if(jio.IsLoading()) {
+        SetCharset(CharsetByName(chrset));
         SetEmulation(clevel, false);
         Layout();
     }

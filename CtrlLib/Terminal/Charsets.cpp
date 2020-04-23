@@ -212,26 +212,77 @@ void Terminal::GSets::Serialize(Stream& s)
 {
 	int version = 1;
 	s / version;
-	s % d[0] % d[1] % d[2] % d[3];
-	s % g[0] % g[1] % g[2] % g[3];
+
+	Vector<String> v = {
+		CharsetName(d[0]),
+		CharsetName(d[1]),
+		CharsetName(d[2]),
+		CharsetName(d[3]),
+		CharsetName(g[0]),
+		CharsetName(g[1]),
+		CharsetName(g[2]),
+		CharsetName(g[3])
+	};
+	
+	s % v;
 	s % l;
 	s % r;
 	s % ss;
+
+	if(s.IsLoading()) {
+		d[0] = CharsetByName(v[0]);
+		d[1] = CharsetByName(v[1]);
+		d[2] = CharsetByName(v[2]);
+		d[3] = CharsetByName(v[3]);
+		g[0] = CharsetByName(v[4]);
+		g[1] = CharsetByName(v[5]);
+		g[2] = CharsetByName(v[6]);
+		g[3] = CharsetByName(v[7]);
+		clamp(l, 0, 3);
+		clamp(r, 0, 3);
+		if(ss != 0x00
+		&& ss != 0x8E
+		&& ss != 0x8F)
+			ss = 0;
+	}
 }
 
 void Terminal::GSets::Jsonize(JsonIO& jio)
 {
-	jio ("Default_G0", d[0])
-		("Default_G1", d[1])
-		("Default_G2", d[2])
-		("Default_G3", d[3])
-		("G0", g[0])
-		("G1", g[1])
-		("G2", g[2])
-		("G3", g[3])
-		("L",  l)
+	VectorMap<String, String> vm = {
+		{ "Default_G0", CharsetName(d[0]) },
+		{ "Default_G1", CharsetName(d[1]) },
+		{ "Default_G2", CharsetName(d[2]) },
+		{ "Default_G3", CharsetName(d[3]) },
+		{ "G0",         CharsetName(g[0]) },
+		{ "G1",         CharsetName(g[1]) },
+		{ "G2",         CharsetName(g[2]) },
+		{ "G3",         CharsetName(g[3]) }
+	};
+	
+	for(int i = 0; i < vm.GetCount(); i++)
+		jio(vm.GetKey(i), vm[i]);
+		
+	jio	("L",  l)
 		("R",  r)
 		("SingleShift", ss);
+
+	if(jio.IsLoading()) {
+		d[0] = CharsetByName(vm[0]);
+		d[1] = CharsetByName(vm[1]);
+		d[2] = CharsetByName(vm[2]);
+		d[3] = CharsetByName(vm[3]);
+		g[0] = CharsetByName(vm[4]);
+		g[1] = CharsetByName(vm[5]);
+		g[2] = CharsetByName(vm[6]);
+		g[3] = CharsetByName(vm[7]);
+		clamp(l, 0, 3);
+		clamp(r, 0, 3);
+		if(ss != 0x00
+		&& ss != 0x8E
+		&& ss != 0x8F)
+			ss = 0;
+	}
 }
 
 void Terminal::GSets::Xmlize(XmlIO& xio)
