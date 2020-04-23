@@ -60,7 +60,7 @@ Terminal::Terminal()
 	WhenBar = THISFN(StdBar);
 	sb.WhenScroll = THISFN(Scroll);
 	caret.WhenAction = [=] { PlaceCaret(); };
-	GetDefaultPage().WhenScroll = [=] { SyncPage(); RefreshDisplay(); };
+	dpage.WhenScroll = [=] { SyncPage(); ScheduleDelayedRefresh(); };
 }
 
 Size Terminal::GetFontSize() const
@@ -98,6 +98,7 @@ void Terminal::PlaceCaret(bool scroll)
 
 Rect Terminal::GetCaretRect()
 {
+	Rect r   = GetRect();
 	Size fsz = GetFontSize();
 	Point pt = GetCursorPos();
 	
@@ -116,7 +117,8 @@ Rect Terminal::GetCaretRect()
 		break;
 	}
 
-	return caretrect = Rect(pt, fsz);
+	caretrect = Rect(pt, fsz);
+	return r.Contains(caretrect) ? caretrect : Null;
 }
 
 void Terminal::Copy(const WString& s)
@@ -187,6 +189,14 @@ void Terminal::DoLazyResize()
 	KillTimeCallback(TIMEID_REFRESH);
 	resizing = false;
 	WhenResize();
+}
+
+void Terminal::ScheduleDelayedRefresh()
+{
+	if(delayedrefresh
+	&& (!lazyresize || !resizing)
+	&& !ExistsTimeCallback(TIMEID_REFRESH))  // Don't cancel a pending refresh.
+		SetTimeCallback(16, THISFN(DoDelayedRefresh), TIMEID_REFRESH);
 }
 
 void Terminal::DoDelayedRefresh()

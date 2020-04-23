@@ -65,7 +65,8 @@ class VTPage : Moveable<VTPage> {
 
 public:
     using Lines = Vector<VTLine>;
-
+    using Saved = BiVector<VTLine>;
+    
     VTPage();
     VTPage(Size sz) : VTPage()                              { SetSize(sz); }
     virtual ~VTPage()                                       {}
@@ -84,7 +85,7 @@ public:
 
     VTPage&         History(bool b = true);
     bool            HasHistory() const                      { return history; }
-    const Lines&    GetHistory() const                      { return saved;   }
+    const Saved&    GetHistory() const                      { return saved;   }
     void            EraseHistory();
     void            SetHistorySize(int sz);
     int             GetHistorySize() const                  { return historysize; };
@@ -247,7 +248,7 @@ private:
 
 private:
     Lines           lines;
-    Lines           saved;
+    Saved           saved;
     Cursor          cursor;
     Cursor          backup;
     Size            size;

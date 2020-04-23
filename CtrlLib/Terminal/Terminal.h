@@ -333,8 +333,8 @@ public:
     static void SetHyperlinkCacheMaxSize(int maxcount);
 
 private:
-    void        PreParse();
-    void        PostParse();
+    void        PreParse()                                      { ScheduleDelayedRefresh(); }
+    void        PostParse()                                     { if(!delayedrefresh) RefreshDisplay(); }
 
     using       ImagePart  = Tuple<dword, Point, Rect>;
     using       ImageParts = Vector<ImagePart>;
@@ -354,6 +354,7 @@ private:
     void        SwapPage();
     void        RefreshPage(bool full = false);
 
+    void        ScheduleDelayedRefresh();
     void        DoDelayedRefresh();
 
     void        Blink(bool b);

@@ -196,7 +196,7 @@ void VTPage::AdjustHistorySize()
 {
 	int count = saved.GetCount();
 	if(count > historysize) {
-		saved.Remove(0, count - historysize);
+		saved.DropHead(count - historysize);
 		LLOG("AdjustHistorySize() -> Before: " << count << ", after: " << saved.GetCount());
 	}
 }
@@ -206,7 +206,7 @@ bool VTPage::SaveToHistory(int pos)
 	if(margins != GetView())
 		return false;
 	AdjustHistorySize();
-	saved.AddPick(pick(lines[pos - 1]));
+	saved.AddTail(pick(lines[pos - 1]));
 	return true;
 }
 
@@ -214,8 +214,8 @@ void VTPage::UnwindHistory(const Size& prevsize)
 {
 	int delta =  min(size.cy - prevsize.cy, saved.GetCount());
 	while(delta-- > 0) {
-		lines.Insert(0, pick(saved.Top()));
-		saved.Drop();
+		lines.Insert(0, pick(saved.Tail()));
+		saved.DropTail();
 		cursor.y++;
 	}
 }
@@ -224,7 +224,7 @@ void VTPage::RewindHistory(const Size& prevsize)
 {
 	int delta = min(cursor.y - size.cy, lines.GetCount());
 	while(delta-- > 0) {
-		saved.Add(pick(lines[0]));
+		saved.AddTail(pick(lines[0]));
 		lines.Remove(0, 1);
 	}
 }
@@ -243,6 +243,7 @@ VTPage& VTPage::SetSize(Size sz)
 		else
 		if(oldsize.cy > size.cy)
 			RewindHistory(oldsize);
+		AdjustHistorySize();
 	}
 	lines.SetCount(size.cy);
 	for(VTLine& line : lines)
@@ -257,7 +258,7 @@ Point VTPage::GetPos() const
 	Point pt(cursor);
 	pt.y += saved.GetCount();
 
-	LLOG("GetPos() -> " << pt);
+	RLOG("GetPos() -> " << pt);
 	return pt;
 }
 

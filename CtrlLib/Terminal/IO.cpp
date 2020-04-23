@@ -103,21 +103,6 @@ void Terminal::PutChar(int c)
 		page->AddCell(cell);
 }
 
-void Terminal::PreParse()
-{
-	if(delayedrefresh && (!lazyresize || !resizing)) {
-		if(!ExistsTimeCallback(TIMEID_REFRESH)) { // Don't cancel a pending refresh.
-			SetTimeCallback(16, THISFN(DoDelayedRefresh), TIMEID_REFRESH);
-		}
-	}
-}
-
-void Terminal::PostParse()
-{
-	if(!delayedrefresh)
-		RefreshDisplay();
-}
-
 void Terminal::Write(const void *data, int size, bool utf8)
 {
 	if(size > 0) {
