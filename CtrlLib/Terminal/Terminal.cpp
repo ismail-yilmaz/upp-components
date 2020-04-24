@@ -98,13 +98,11 @@ void Terminal::PlaceCaret(bool scroll)
 
 Rect Terminal::GetCaretRect()
 {
-	Rect r   = GetRect();
 	Size fsz = GetFontSize();
-	Point pt = GetCursorPos();
-	
-	pt.x = pt.x * fsz.cx;
-	pt.y = pt.y * fsz.cy - (GetSbPos() * fsz.cy);
+	Point pt = GetCursorPos() * fsz;
 
+	pt.y -= (fsz.cy * GetSbPos());
+	
 	switch(caret.GetStyle()) {
 	case Caret::BEAM:
 		fsz.cx = 1;
@@ -118,7 +116,7 @@ Rect Terminal::GetCaretRect()
 	}
 
 	caretrect = Rect(pt, fsz);
-	return r.Contains(caretrect) ? caretrect : Null;
+	return Rect(GetSize()).Contains(caretrect) ? caretrect : Null;
 }
 
 void Terminal::Copy(const WString& s)

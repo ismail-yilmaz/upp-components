@@ -258,7 +258,7 @@ Point VTPage::GetPos() const
 	Point pt(cursor);
 	pt.y += saved.GetCount();
 
-	RLOG("GetPos() -> " << pt);
+	LLOG("GetPos() -> " << pt);
 	return pt;
 }
 
