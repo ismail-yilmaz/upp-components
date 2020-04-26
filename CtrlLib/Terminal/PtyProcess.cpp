@@ -272,7 +272,7 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 #endif
 	
 
-#if defined(PLATFORM_SOLARIS) // Does U++ even run on Solaris?
+#if defined(PLATFORM_SOLARIS)
 	if(isastream(slave)) {
 		if((ioctl(slave, I_PUSH, "pterm") < 0)) {
 			LLOG("ioctl(I_PUSH) - pterm - failed.");
