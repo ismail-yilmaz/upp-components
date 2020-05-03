@@ -570,6 +570,7 @@ There is always room for improvement and new features.
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Encapsulate the Windows power-shell process in PtyProcess.
 - Improve key handling on Windows.
+- Add Z-compression support to scrollback buffer. 
 - Improve legacy charsets support.
 - DEC locator support.
 - xterm style rectangular area checksum reports.
