@@ -83,7 +83,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 	{
 		double hc, sc, vc;
 		RGBtoHSV(c.GetR() / 255.0, c.GetG() / 255.0, c.GetB() / 255.0, hc, sc, vc);
-		return HsvColorf(hc, sc, v);
+		return HsvColorf(hc, sc, vc * v);
 	};
 
 	int index = which;
