@@ -1200,7 +1200,7 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll, bool relpos)
 			NextLine();
 		else
 		if(relpos)
-			MoveHome().MoveDown();
+			MoveDown();
 	}
 
 	return *this;
