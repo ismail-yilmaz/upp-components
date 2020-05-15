@@ -191,10 +191,10 @@ public:
 
     Terminal&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
 
-	Terminal&	AutoHideMouseCursor(bool b = true)				{ hidemousecursor = b; return *this; }
-	Terminal&	NoAutoHideMouseCurosr()							{ return AutoHideMouseCursor(false); }
-	bool		IsMouseCursorAutoHidden() const					{ return hidemousecursor; }
-	
+    Terminal&   AutoHideMouseCursor(bool b = true)              { hidemousecursor = b; return *this; }
+    Terminal&   NoAutoHideMouseCurosr()                         { return AutoHideMouseCursor(false); }
+    bool        IsMouseCursorAutoHidden() const                 { return hidemousecursor; }
+    
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
     bool        HasKeyNavigation() const                        { return keynavigation; }
@@ -301,7 +301,7 @@ public:
     void        RightUp(Point pt, dword keyflags) override;
     void        MouseMove(Point pt, dword keyflags) override;
     void        MouseWheel(Point pt, int zdelta, dword keyflags) override;
-    Image		MouseEvent(int event, Point pt, int zdelta, dword keyflags) override;
+    Image       MouseEvent(int event, Point pt, int zdelta, dword keyflags) override;
     void        VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta = 0);
 
     bool        IsMouseOverImage() const                        { Point pt = GetMouseViewPos(); return IsMouseOverImage(ClientToPagePos(pt)); }
@@ -418,7 +418,7 @@ private:
     bool        selclick        = false;
     bool        rectsel         = false;
     bool        ignorescroll    = false;
-    bool		mousehidden		= false;
+    bool        mousehidden     = false;
     bool        resizing        = false;
     bool        hinting         = false;
     bool        blinking        = false;
@@ -450,7 +450,7 @@ private:
     bool        dynamiccolors;
     bool        adjustcolors;
     bool        lightcolors;
-    bool		hidemousecursor;
+    bool        hidemousecursor;
 
 // Down beloe is the emulator stuff, formerley knonw as "Console"...
 
