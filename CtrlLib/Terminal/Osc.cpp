@@ -59,8 +59,8 @@ void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	bool  scroll = false;
 
 	if(type == 0) {	// Bitmap
-		isz.cx = min(seq.GetInt(3, 0), 10000);
-		isz.cy = min(seq.GetInt(4, 0), 10000);
+		isz.cx = min(seq.GetInt(3), 10000);
+		isz.cy = min(seq.GetInt(4), 10000);
 		scroll = seq.GetInt(5, 0) > 0;
 		data.Add(seq.GetStr(6));
 		data.Add(isz);
@@ -87,9 +87,9 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 	
 	int pos = 0;
 	String options, enc;
-	if(!SplitTo(seq.payload, ':', false, options, enc) ||
-		(pos = ToLower(options).FindAfter("file=")) < 0 || IsNull(enc))
-			return;
+	if(!SplitTo(seq.payload, ':', false, options, enc)
+	|| (pos = ToLower(options).FindAfter("file=")) < 0 || IsNull(enc))
+		return;
 
 	auto GetVal = [](const String& s, int p, int f) -> int
 	{
