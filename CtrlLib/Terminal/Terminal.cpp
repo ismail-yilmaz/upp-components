@@ -27,6 +27,7 @@ Terminal::Terminal()
 , iterm2images(false)
 , hyperlinks(false)
 , reversewrap(false)
+, hidemousecursor(false)
 , sizehint(true)
 , delayedrefresh(true)
 , lazyresize(false)
@@ -542,6 +543,16 @@ void Terminal::MouseWheel(Point pt, int zdelta, dword keyflags)
 	}
 }
 
+Image Terminal::MouseEvent(int event, Point pt, int zdelta, dword keyflags)
+{
+	if(hidemousecursor) {
+		if(mousehidden && event == Ctrl::CURSORIMAGE)
+			return Null;
+		else mousehidden = false;
+	}
+	return Ctrl::MouseEvent(event, pt, zdelta, keyflags);
+}
+
 void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 {
 	bool buttondown = (event & UP) != UP; // Combines everything else with a button-down event
@@ -875,6 +886,10 @@ void Terminal::OptionsBar(Bar& menu)
 		[=] { ShowScrollBar(!sb.IsChild()); })
 		.Key(K_SHIFT_CTRL_S)
 		.Check(sb.IsChild());
+	menu.Add(t_("Auto-hide mouse cursor"),
+		[=] { AutoHideMouseCursor(!hidemousecursor); })
+		.Key(K_SHIFT_CTRL_M)
+		.Check((hidemousecursor));
 	menu.Add(t_("Alternate scroll"),
 		[=] { AlternateScroll(!alternatescroll); })
 		.Key(K_SHIFT|K_ALT_S)

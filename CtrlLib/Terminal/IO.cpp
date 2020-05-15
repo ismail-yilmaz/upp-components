@@ -346,7 +346,7 @@ void Terminal::Serialize(Stream& s)
 	GuiLock __;
 
 	ColorTableSerializer cts(colortable);
-    String chrset = CharsetName(charset);
+	String chrset = CharsetName(charset);
     
 	int version = 1;
 	s / version;
@@ -362,6 +362,7 @@ void Terminal::Serialize(Stream& s)
 		s % legacycharsets;
 		s % alternatescroll;
 		s % wheelstep;
+		s % hidemousecursor;
 		s % userdefinedkeys;
 		s % userdefinedkeyslocked;
 		s % metakeyflags;
@@ -415,6 +416,7 @@ void Terminal::Jsonize(JsonIO& jio)
         ("LockUDK",             userdefinedkeyslocked)
         ("AlternateScroll",     alternatescroll)
         ("WheelStep",           wheelstep)
+        ("AutoHideMouseCursor", hidemousecursor)
         ("WindowActions",       windowactions)
         ("WindowReports",       windowreports)
         ("SixelGraphics",       sixelimages)

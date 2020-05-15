@@ -228,7 +228,7 @@ bool Terminal::Key(dword key, int count)
 		goto KeyAccepted;
 	else
 	if(NavKey(key, count))
-		return true;
+		goto End;
 	else
 	if(MenuBar::Scan(WhenBar, key))
 		return true;
@@ -284,6 +284,9 @@ bool Terminal::Key(dword key, int count)
 
 KeyAccepted:
 	PlaceCaret(true);
+
+End:
+	if(hidemousecursor)	mousehidden = true;
 	return true;
 }
 

@@ -660,6 +660,24 @@ croll]()_[@(0.0.255) const]&]
 determined by the OS. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:AutoHideMouseCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* AutoHideMouseCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2; Enables or disables the mouse cursor auto hide feature. When 
+enabled the mouse cursor will be automatically hidden while typing 
+text. Returns `*this for method chaining.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:NoAutoHideMouseCurosr`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* NoAutoHideMouseCurosr]()&]
+[s2; Disables the mouse cursor auto hide feature. Same as AutoHideMouseCursor(false).
+ Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsMouseCursorAutoHidden`(`)const:%- [@(0.0.255) bool]_[* IsMouseC
+ursorAutoHidden]()_[@(0.0.255) const]&]
+[s2; Returns true if the mouse cursor auto hide feature is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:KeyNavigation`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
 ]_[* KeyNavigation]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables the cursor key navigation mode. Returns 

@@ -468,7 +468,7 @@
 
 #### Notes
 
-- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB text specifications should be used wherever it is possible.
+- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB or hash6 text specifications should be used wherever it is possible.
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 
@@ -553,9 +553,9 @@
 
 ### Hyperlinks Protocol
 
-| Sequence                                           | Description                                |
-| ---                                                | ---                                        |
-|`OSC 8 ; [parameters] ; URI ; ST text OSC 8 ; ; ST` | Displays a text with hyperlink at cursor.  |
+| Sequence                                           | Description                               | Device Level |
+| ---                                                | ---                                       | ---          |
+|`OSC 8 ; [parameters] ; URI ; ST text OSC 8 ; ; ST` | Displays a text with hyperlink at cursor. | Level 1      |
 
 #### Notes
 
