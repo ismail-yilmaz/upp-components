@@ -232,10 +232,21 @@ void Terminal::SyncSb()
 
 void Terminal::Scroll()
 {
-	if(IsDefaultPage()) {
-		scroller.Scroll(*this, GetSize(), sb * GetFontSize().cy);
-		PlaceCaret();
-	}
+	// It is possible to  have  an  alternate screen buffer with a history  buffer.
+	// Some terminal  emulators already  come  with  this feautre enabled. Terminal
+	// ctrl can  also support this feature out-of-the-boz, as  it uses  the  VTPage
+	// class for both its default and alternate screen buffers. Thus the difference
+	// is only semantic and practical. At the  moment, however, this feature is n0t
+	// enabled. This may change in the future.
+
+	if(IsAlternatePage())
+		return;
+
+	if(hinting) // Prevents the size hint box from scrolling with the view.
+		RefreshSizeHint();
+	
+	scroller.Scroll(*this, GetSize(), sb * GetFontSize().cy);
+	PlaceCaret();
 }
 
 void Terminal::SyncPage(bool notify)
