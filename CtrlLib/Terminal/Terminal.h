@@ -341,20 +341,6 @@ private:
     void        PreParse()                                      { ScheduleDelayedRefresh(); }
     void        PostParse()                                     { if(!delayedrefresh) RefreshDisplay(); }
 
-    using       ImagePart  = Tuple<dword, Point, Rect>;
-    using       ImageParts = Vector<ImagePart>;
-
-    void        Paint0(Draw& w, bool print = false);
-    Color       GetColorFromIndex(const VTCell& cell, int which) const;
-    void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
-    void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
-    void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
-    ImageData   GetCachedImageData(dword id, const Value& data, const Size& fsz);
-    void        RenderImage(const Value& data, bool scroll);
-
-    void        RenderHyperlink(const Value& uri);
-    String      GetCachedHyperlink(dword id, const Value& data = Null);
-
     void        SyncPage(bool notify = true);
     void        SwapPage();
     void        RefreshPage(bool full = false);
@@ -398,6 +384,59 @@ private:
 
     String      GetHyperlinkURI(Point pt, bool modifier);
     Image       GetInlineImage(Point pt, bool modifier);
+
+private:
+    using       ImagePart  = Tuple<dword, Point, Rect>;
+    using       ImageParts = Vector<ImagePart>;
+
+    class ImageString : Moveable<ImageString> {
+    public:
+        String  data;
+        Size    size;
+        bool    encoded:1;
+        bool    keepratio:1;
+        void    SetNull()                                       { data = Null; size = Null; encoded = keepratio = true; }
+        bool    IsNullInstance() const                          { return Upp::IsNull(data); }
+        ImageString()                                           { SetNull(); }
+        ImageString(const Nuller&)                              { SetNull(); }
+        ImageString(String&& s)                                 { SetNull(); data = s;  }
+    };
+
+    struct ImageDataMaker : LRUCache<ImageData>::Maker {
+        dword   id;
+        const   Size& fontsize;
+        const   ImageString& imgs;
+        String  Key() const override;
+        int     Make(ImageData& imagedata) const override;
+        ImageDataMaker(int i, const ImageString& s, const Size& sz)
+        : id(i)
+        , imgs(s)
+        , fontsize(sz)
+        {
+        }
+    };
+    
+    struct HyperlinkMaker : LRUCache<String>::Maker {
+        dword   id;
+        const   String& url;
+        String  Key() const override;
+        int     Make(String& link) const override;
+        HyperlinkMaker(int i, const String& s)
+        : id(i)
+        , url(s)
+        {
+        }
+    };
+    
+    void        Paint0(Draw& w, bool print = false);
+    void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
+    void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
+
+    void        RenderImage(const ImageString& simg, bool scroll);
+    ImageData   GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
+    
+    void        RenderHyperlink(const Value& uri);
+    String      GetCachedHyperlink(dword id, const Value& data = Null);
 
 private:
     enum ModifierKeyFlags : dword {
@@ -458,6 +497,8 @@ private:
     VTPage*     page;
 
 private:
+    Color       GetColorFromIndex(const VTCell& cell, int which) const;
+    void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
     void        ReportANSIColor(int opcode, int index, const Color& c);
     void        ReportDynamicColor(int opcode, const Color& c);
     void        ChangeColors(int opcode, const String& oscs, bool reset);

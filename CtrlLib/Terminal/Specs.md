@@ -509,6 +509,7 @@
     - `N`px:  `N` pixels. Valid range is 1 to 10000
     - `N`%:   `N` percent of the page width or height. Valid range is 1 to 1000.
     - `auto`: The image's original size will be used.
+- The `preserveAspectRatio` argument is optional. If set to 0, then the image's inherent aspect ratio will not be respected; otherwise, it will fill the specified width and height as much as possible without stretching. Default value is 1.
 - If the image doesn't fit into the vertical margins of the page and the sixel scrolling mode (**DECSDM**) is enabled, then the page will be scrolled at the margins. Otherwise the image will be cropped.
 
 ## [Supported Window Actions and Reports](#window-ops)

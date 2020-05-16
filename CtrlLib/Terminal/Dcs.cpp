@@ -283,7 +283,7 @@ void Terminal::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
 	if(!sixelimages)
 		return;
-	
+
 	int  nohole = seq.GetInt(2, 0);
 	int  grid   = seq.GetInt(3, 0); // Omitted.
 	int  ratio = 1;
@@ -305,6 +305,9 @@ void Terminal::ParseSixelGraphics(const VTInStream::Sequence& seq)
 	
 	cellattrs.Hyperlink(false);
 
-	RenderImage(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload), modes[DECSDM]);
+	ImageString data(pick(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload)));
+	data.encoded = false;
+	
+	RenderImage(data, modes[DECSDM]);
 }
 }

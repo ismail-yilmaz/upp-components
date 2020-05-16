@@ -54,26 +54,23 @@ void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	if(type > 2 || IsNull(type))	// V1 defines 3 types (0-based).
 		return;
 
-	Value data;
-	Size  isz = Null;
-	bool  scroll = false;
+	ImageString simg;
+	bool scroll = false;
 
 	if(type == 0) {	// Bitmap
-		isz.cx = min(seq.GetInt(3), 10000);
-		isz.cy = min(seq.GetInt(4), 10000);
-		scroll = seq.GetInt(5, 0) > 0;
-		data.Add(seq.GetStr(6));
-		data.Add(isz);
+		simg.size.cx = min(seq.GetInt(3), 10000);
+		simg.size.cy = min(seq.GetInt(4), 10000);
+		scroll       = seq.GetInt(5, 0) > 0;
+		simg.data    = pick(seq.GetStr(6));
 	}
 	else { // Other image formats (jpg, png, etc.)
-		scroll = seq.GetInt(3, 0) > 0;
-		data.Add(seq.GetStr(4));
-		data.Add(isz);
+		scroll       = seq.GetInt(3, 0) > 0;
+		simg.data    = pick(seq.GetStr(4));
 	}
 
 	cellattrs.Hyperlink(false);
-	
-	RenderImage(data, scroll);
+
+	RenderImage(simg, scroll);
 }
 
 void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
@@ -97,7 +94,7 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 		if(!n)
 			return n;
 		if(s.IsEqual("auto"))
-			return -1;
+			return 0;
 		if(s.EndsWith("px"))
 			return min(n, 10000);
 		if(s.EndsWith("%"))
@@ -105,7 +102,9 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 		return n * f;
 	};
 
-	Size isz = Null;
+	ImageString simg(pick(enc));
+	
+	simg.size.Clear();
 	bool show = false;
 	
 	for(const String& s : Split(options.Mid(pos), ';', false)) {
@@ -115,21 +114,23 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 				show = val == "1";
 			else
 			if(key.IsEqual("width"))
-				isz.cx = GetVal(val, GetPageSize().cx, GetFontSize().cx);
+				simg.size.cx = GetVal(val, GetPageSize().cx, GetFontSize().cx);
 			else
 			if(key.IsEqual("height"))
-				isz.cy = GetVal(val, GetPageSize().cy, GetFontSize().cy);
+				simg.size.cy = GetVal(val, GetPageSize().cy, GetFontSize().cy);
+			else
+			if(key.IsEqual("preserveaspectratio"))
+				simg.keepratio = val == "1";
 		}
 	}
 	
 	if(!show)
 		return;
 
-	Value data;
-	data.Add(enc);
-	data.Add(isz);
+	if(simg.size.cx == 0 && simg.size.cy == 0)
+		simg.size.SetNull();
 
-	RenderImage(data, modes[DECSDM]);	// Rely on sixel scrolling mode.
+	RenderImage(simg, modes[DECSDM]);	// Rely on sixel scrolling mode.
 }
 
 void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)

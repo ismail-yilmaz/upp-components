@@ -1525,6 +1525,11 @@ word `"auto`":&]
 Valid range is 1 to 1000.&]
 [s6;#l448;r292;i150;O2;%- [/ auto]: The image`'s original size will 
 be used.&]
+[s6;#r292;i150;O0;%- The `"[C preserveAspectRatio]`" argument is optional. 
+If set to 0, then the image`'s inherent aspect ratio will not 
+be respected; otherwise, it will fill the specified width and 
+height as much as possible without stretching. Default value 
+is 1.&]
 [s6;#r292;i150;O0;%- If the image doesn`'t fit into the vertical 
 margins of the page and the sixel scrolling mode ([*@3 DECSDM]) 
 is enabled, then the page will be scrolled at the margins. Otherwise 

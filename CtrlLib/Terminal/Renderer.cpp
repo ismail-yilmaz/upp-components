@@ -30,12 +30,12 @@ public:
 		cr = r;
 		color = c;
 	}
-	
+
 	void DrawRect(int x, int y, int cx, int cy, Color c)
 	{
 		DrawRect(RectC(x, y, cx, cy), c);
 	}
-	
+
 	void Flush()
 	{
 		if(IsNull(cr) || (!transparent && color == bkg))
@@ -46,7 +46,7 @@ public:
 		w.DrawRect(cr, color);
 		cr = Null;
 	}
-	
+
 	sVTRectRenderer(Draw& w, const Color& c, bool b)
 	: w(w)
 	, bkg(c)
@@ -55,7 +55,7 @@ public:
 	, color(Null)
 	{
 	}
-	
+
 	~sVTRectRenderer()
 	{
 		Flush();
@@ -79,10 +79,10 @@ public:
 	void DrawCell(int x, int y, const VTCell& cell, Size fsz, Color c, bool link, bool show)
 	{
 		LTIMING("VTCellRenderer::DrawCell");
-		
+
 		dxcount  = dx.GetCount();
 		bool overline = cell.IsOverlined() && show;
-		
+
 		if(pos.y != y || pos.x >= x || sgr != cell.sgr || color != c || !dxcount) {
 			Flush();
 			pos   = Point(x, y);
@@ -117,30 +117,30 @@ public:
 
 		if(overline)
 			p4.x += fsz.cx;
-			
+
 	}
-	
+
 	void Flush()
 	{
 		if(text.IsEmpty()) return;
-		
+
 		LTIMING("VTCellRenderer::Flush");
-		
+
 		w.DrawText(pos.x, pos.y, text, font, color, dx);
-		
+
 		if(p1.x < p2.x) // Hyperlink underline
 			w.DrawLine(p1, p2, PEN_DOT, color);
-		
+
 		if(p3.x < p4.x) // Text overline
 			w.DrawLine(p3, p4, PEN_SOLID, color);
-		
+
 		dx.Clear();
 		p1 = p2 = Null;
 		dxcount = 0;
 		pos.y = Null;
 		text.Clear();
 	}
-	
+
 	sVTCellRenderer(Draw& dw, const Font& ft, const bool& b)
 	: w(dw)
 	, blink(b)
@@ -153,7 +153,7 @@ public:
 	, sgr(VTCell::SGR_NORMAL)
 	{
 	}
-	
+
 	~sVTCellRenderer()
 	{
 		Flush();
@@ -163,7 +163,7 @@ public:
 void Terminal::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
-	
+
 	int  pos = GetSbPos();
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
@@ -171,14 +171,14 @@ void Terminal::Paint0(Draw& w, bool print)
 	Font fnt = font;
 	ImageParts imageparts;
 	Color bc = colortable[COLOR_PAPER];
-	
+
 	w.Clip(wsz);
 
 	sVTCellRenderer tr(w, fnt, blinking);
 	sVTRectRenderer rr(w, bc, nobackground);
 
 	LTIMING("Terminal::Paint");
-	
+
 	if(!nobackground)
 		w.DrawRect(wsz, bc);
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
@@ -230,7 +230,7 @@ void Terminal::Paint0(Draw& w, bool print)
 	// Paint inline images, if any
 	if(imageparts.GetCount())
 		PaintImages(w, imageparts, fsz);
-	
+
 	// Paint a steady (non-blinking) caret, if enabled.
 	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
 		w.DrawRect(GetCaretRect(), InvertColor);
@@ -249,7 +249,7 @@ void Terminal::Paint0(Draw& w, bool print)
 void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
 {
 	// TODO: Move this to cell renderer.
-	
+
 	dword id = cell.chr;
 	Point coords = Point(x, y);
 	Point pt(HIWORD(cell.data), LOWORD(cell.data));
@@ -268,7 +268,7 @@ void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell,
 void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 {
 	LTIMING("Terminal::PaintImages");
-	
+
 	Color ink, paper;
 	SetInkAndPaperColor(GetAttrs(), ink, paper);
 
@@ -286,28 +286,26 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 			}
 		}
 	}
-	
+
 	parts.Clear();
 }
 
-void Terminal::RenderImage(const Value& data, bool scroll)
+
+void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 {
-	bool notsixel = IsValueArray(data);
-	
+	bool encoded = imgs.encoded; // Sixel images are not base64 encoded.
+
 	if(WhenImage) {
-		if(notsixel)
-			WhenImage(Base64Decode(data[0]));
-		else
-			WhenImage(data);
+		WhenImage(encoded ? Base64Decode(imgs.data) : imgs.data);
 		return;
 	}
 
 	LTIMING("Terminal::RenderImage");
 
-	dword id = GetHashValue(data);
-	ImageData imd = GetCachedImageData(id, data, GetFontSize());
+	dword id = GetHashValue(imgs.data);
+	ImageData imd = GetCachedImageData(id, imgs, GetFontSize());
 	if(!IsNull(imd.image)) {
-		page->AddImage(imd.fitsize, id, scroll, notsixel);
+		page->AddImage(imd.fitsize, id, scroll, encoded);
 		RefreshDisplay();
 	}
 }
@@ -319,63 +317,58 @@ static LRUCache<Terminal::ImageData> sImageDataCache;
 static int sCachedImageMaxSize =  1024 * 1024 * 4 * 128;
 static int sCachedImageMaxCount =  256000;
 
-struct sVTImageDataMaker : LRUCache<Terminal::ImageData>::Maker {
-	dword	id;
-	String	data;
-	Size    imgsize;
-	Size	fontsize;
-	
-	String Key() const override
-	{
-		StringBuffer h;
-		RawCat(h, id);
-		return h;
-	}
-	
-	int Make(Terminal::ImageData& imagedata) const override
-	{
-		LTIMING("Terminal::ImageDataMaker");
+String Terminal::ImageDataMaker::Key() const
+{
+	StringBuffer h;
+	RawCat(h, id);
+	return h;
+}
 
-		Image img = StreamRaster::LoadStringAny(data);
-		if(IsNull(img))
-			return 0;
-		if(IsNull(imgsize))
-			imagedata.image = img;
-		else {
-			Size ssz = imgsize;
-			Size isz = img.GetSize();
-			if(ssz.cx <= 0) ssz.cx = isz.cx;
-			if(ssz.cy <= 0) ssz.cy = isz.cy;
-			imagedata.image = Rescale(img, ssz);
+int Terminal::ImageDataMaker::Make(ImageData& imagedata) const
+{
+	LTIMING("Terminal::ImageDataMaker::Make");
+
+	auto ToCellSize = [=](Sizef sz) -> Size
+	{
+		sz = sz / Sizef(fontsize);
+		return Size(fround(sz.cx), fround(sz.cy));
+	};
+
+	bool enc = imgs.encoded;
+	Image img = StreamRaster::LoadStringAny(enc ? Base64Decode(imgs.data) : imgs.data);
+
+	if(IsNull(img))
+		return 0;
+
+	if(IsNull(imgs.size))
+		imagedata.image = pick(img);
+	else {
+		Size sr = imgs.size;
+		const Size& sz = img.GetSize();
+		if(imgs.keepratio) {
+			if(sr.cx == 0 && sr.cy > 0)
+				sr.cx = sz.cy * sr.cx / sz.cx;
+			else
+			if(sr.cy == 0 && sr.cx > 0)
+				sr.cy = sz.cy * sr.cx / sz.cx;
 		}
-		imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
-		return imagedata.image.GetLength() * 4;
+		else {
+			if(sr.cx <= 0) sr.cx = sz.cx;
+			if(sr.cy <= 0) sr.cy = sz.cy;
+		}
+		imagedata.image = pick(Rescale(img, sr));
 	}
-	
-	Size ToCellSize(Sizef isz) const
-	{
-		isz = isz / Sizef(fontsize);
-		return Size(fround(isz.cx), fround(isz.cy));
-	}
-};
+	imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
+	return imagedata.image.GetLength() * 4;
+}
 
-Terminal::ImageData Terminal::GetCachedImageData(dword id, const Value& data, const Size& fsz)
+Terminal::ImageData Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
 {
 	Mutex::Lock __(sImageCacheLock);
-	
+
 	LTIMING("Terminal::GetCachedImageData");
 
-	sVTImageDataMaker im;
-	im.id = id;
-	if(IsValueArray(data)) { // Png, jpg, bmp, etc.
-		im.data = Base64Decode(data[0]);
-		im.imgsize = (Size) data[1];
-	}
-	else { // Sixel
-		im.data = data;
-		im.imgsize.SetNull();
-	}
-	im.fontsize = fsz;
+	ImageDataMaker im(id, imgs, fsz);
 	sImageDataCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
 	return sImageDataCache.Get(im);
 }
@@ -405,25 +398,20 @@ static LRUCache<String> sLinkCache;
 static int sCachedLinkMaxSize = 2084 * 100000;
 static int sCachedLinkMaxCount = 100000;
 
-struct sVTHyperlinkDataMaker : LRUCache<String>::Maker {
-	dword  id;
-	String url;
+String Terminal::HyperlinkMaker::Key() const
+{
+	StringBuffer h;
+	RawCat(h, id);
+	return h;
+}
 
-	String Key() const override
-	{
-		StringBuffer h;
-		RawCat(h, id);
-		return h;
-	}
+int Terminal::HyperlinkMaker::Make(String& link) const
+{
+	LTIMING("Terminal::HyperlinkMaker::Make");
 
-	int Make(String& link) const override
-	{
-		LTIMING("Terminal::HyperlinkDataMaker");
-		
-		link = url;
-		return link.GetLength();
-	}
-};
+	link = url;
+	return link.GetLength();
+}
 
 String Terminal::GetCachedHyperlink(dword id, const Value& data)
 {
@@ -431,9 +419,7 @@ String Terminal::GetCachedHyperlink(dword id, const Value& data)
 
 	LTIMING("Terminal::GetCachedHyperlink");
 
-	sVTHyperlinkDataMaker hm;
-	hm.id  = id;
-	hm.url = data;
+	HyperlinkMaker hm(id, data.ToString());
 	sLinkCache.Shrink(sCachedLinkMaxSize, sCachedLinkMaxCount);
 	return sLinkCache.Get(hm);
 }
@@ -476,7 +462,7 @@ public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
 		const auto& idata = q.To<Terminal::ImageData>();
-		
+
 		if(!IsNull(idata.image))
 			w.DrawImage(r, CachedRescale(idata.image, idata.fitsize), idata.paintrect);
 	}
