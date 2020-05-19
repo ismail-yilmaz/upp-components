@@ -458,11 +458,11 @@
 
 | Mnemonic| Format                          | Example                     | Device Level  |
 | ---     | ---                             | ---                         | ---           |
-| RGB     | `rgb : %04x / %04x / %04x`      | `rgb:FFFF/A0A0/000`         | Level 1       |            
+| RGB     | `rgb : %04x / %04x / %04x`      | `rgb:FFFF/A0A0/0000`        | Level 1       |            
 | RGB     | `rgb : %02x / %02x / %02x`      | `rgb:FF/A0/00`              | Level 1       |
 | RGB     | `%u , %u , %u`                  | `255,160,0`                 | Level 1       |
 | CMY     | `cmy : %f / %f / %f`            | `cmy:0.0/0.372549/1.0`      | Level 1       |
-| CMYK    | `cmy : %f / %f / %f / %f`       | `cmyk:0.0/0.372549/1.0/0.0` | Level 1       |
+| CMYK    | `cmyk : %f / %f / %f / %f`      | `cmyk:0.0/0.372549/1.0/0.0` | Level 1       |
 | Hash3   | `# %01x %01x %01x`              | `#FA0`                      | Level 1       |
 | Hash6   | `# %02x %02x %02x`              | `#FFAO00`                   | Level 1       |
 | Hash9   | `# %03x %03x %03x`              | `#FF0A00000`                | Level 1       |
