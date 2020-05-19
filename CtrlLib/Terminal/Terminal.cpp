@@ -150,7 +150,6 @@ void Terminal::SelectAll(bool history)
 	Rect r = RectC(0, h ? 0 : sb, psz.cx, (h ? sb + (sb.GetTotal() - sb) : psz.cy) - 1);
 	anchor = r.TopLeft();
 	selpos = r.BottomRight();
-	selclick = true;
 	Refresh();
 }
 
@@ -381,7 +380,6 @@ void Terminal::LeftDown(Point pt, dword keyflags)
 	else{
 		pt = ClientToPagePos(pt);
 		if(IsSelected(pt)) {
-			selclick = true;
 			return;
 		}
 		else {
@@ -399,9 +397,8 @@ void Terminal::LeftUp(Point pt, dword keyflags)
 	}
 	else {
 		pt = ClientToPagePos(pt);
-		if(!HasCapture() && selclick && IsSelected(pt))
+		if(!HasCapture() && IsSelected(pt))
 			ClearSelection();
-		selclick = false;
 	}
 	ReleaseCapture();
 }
@@ -413,7 +410,7 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 	
 	if(!IsTracking()) {
 		VectorMap<String, ClipData> data;
-		if(!HasCapture() && !modifier && IsSelection() && IsSelected(pt)) {
+		if(!HasCapture() && !modifier && IsSelected(pt)) {
 			WString tsample = GetSelectedText();
 			Append(data, tsample);
 			Size tsz = StdSampleSize();
@@ -433,6 +430,7 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 			iw.Alpha().DrawRect(lsz, Black());
 			DrawTLText(iw.Alpha(), 0, 0, lsz.cx, lsample, font, White());
 			DoDragAndDrop(data, iw, DND_COPY);
+			ClearSelection();
 		}
 		else
 		if(modifier && IsMouseOverImage(pt)) {
@@ -442,6 +440,7 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 			ImageDraw iw(isz);
 			iw.DrawImage(isz, isample);
 			DoDragAndDrop(data, iw, DND_COPY);
+			ClearSelection();
 		}
 	}
 }
@@ -493,7 +492,7 @@ void Terminal::RightDown(Point pt, dword keyflags)
 		VTMouseEvent(pt, RIGHTDOWN, keyflags);
 	else {
 		pt = ClientToPagePos(pt);
-		if(!(selclick = IsSelected(pt)))
+		if(!IsSelected(pt))
 			ClearSelection();
 		MenuBar::Execute(WhenBar);
 	}
@@ -1012,5 +1011,4 @@ void Terminal::Caret::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }
-
 }

@@ -269,7 +269,7 @@ public:
     void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
 
-    bool        IsSelection() const                             { return selclick; }
+    bool        IsSelection() const                             { return !IsNull(anchor) && anchor != selpos; }
 
     void        StdBar(Bar& menu);
     void        EditBar(Bar& menu);
@@ -377,8 +377,8 @@ private:
     bool        IsSelected(Point pt) const;
     WString     GetSelectedText() const;
 
-    bool        IsMouseOverImage(Point pt) const                { return !IsSelection() && page->FetchCell(pt).IsImage(); }
-    bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelection() && page->FetchCell(pt).IsHyperlink(); }
+    bool        IsMouseOverImage(Point pt) const                { return !IsSelected(pt) && page->FetchCell(pt).IsImage(); }
+    bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
 
     void        HighlightHyperlink(Point pt);
 
@@ -389,8 +389,7 @@ private:
     using       ImagePart  = Tuple<dword, Point, Rect>;
     using       ImageParts = Vector<ImagePart>;
 
-    class ImageString : Moveable<ImageString> {
-    public:
+    struct ImageString : Moveable<ImageString> {
         String  data;
         Size    size;
         bool    encoded:1;
@@ -455,7 +454,6 @@ private:
     Rect        caretrect;
     Point       anchor          = Null;
     Point       selpos          = Null;
-    bool        selclick        = false;
     bool        rectsel         = false;
     bool        ignorescroll    = false;
     bool        mousehidden     = false;
