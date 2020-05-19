@@ -302,7 +302,7 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 
 	LTIMING("Terminal::RenderImage");
 
-	dword id = GetHashValue(imgs.data);
+	dword id = GetHashValue(imgs);
 	ImageData imd = GetCachedImageData(id, imgs, GetFontSize());
 	if(!IsNull(imd.image)) {
 		page->AddImage(imd.fitsize, id, scroll, encoded);
@@ -334,29 +334,34 @@ int Terminal::ImageDataMaker::Make(ImageData& imagedata) const
 		return Size(fround(sz.cx), fround(sz.cy));
 	};
 
+	auto AdjustSize = [=](Size sr, Size sz) -> Size
+	{
+		if(imgs.keepratio) {
+			if(sr.cx == 0 && sr.cy > 0)
+				sr.cx = sr.cy * sz.cx / sz.cy;
+			else
+			if(sr.cy == 0 && sr.cx > 0)
+				sr.cy = sr.cx * sz.cy / sz.cx;
+		}
+		else {
+			if(sr.cx <= 0)
+				sr.cx = sz.cx;
+			if(sr.cy <= 0)
+				sr.cy = sz.cy;
+		}
+		return sr != sz ? sr : Null;
+	};
+	
 	bool enc = imgs.encoded;
 	Image img = StreamRaster::LoadStringAny(enc ? Base64Decode(imgs.data) : imgs.data);
 
 	if(IsNull(img))
 		return 0;
-
 	if(IsNull(imgs.size))
 		imagedata.image = pick(img);
 	else {
-		Size sr = imgs.size;
-		const Size& sz = img.GetSize();
-		if(imgs.keepratio) {
-			if(sr.cx == 0 && sr.cy > 0)
-				sr.cx = sz.cy * sr.cx / sz.cx;
-			else
-			if(sr.cy == 0 && sr.cx > 0)
-				sr.cy = sz.cy * sr.cx / sz.cx;
-		}
-		else {
-			if(sr.cx <= 0) sr.cx = sz.cx;
-			if(sr.cy <= 0) sr.cy = sz.cy;
-		}
-		imagedata.image = pick(Rescale(img, sr));
+		Size sz = AdjustSize(imgs.size, img.GetSize());
+		imagedata.image = pick(IsNull(sz) ? img : Rescale(img, sz));
 	}
 	imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
 	return imagedata.image.GetLength() * 4;

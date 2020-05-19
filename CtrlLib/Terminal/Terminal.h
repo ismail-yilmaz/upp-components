@@ -194,7 +194,7 @@ public:
     Terminal&   AutoHideMouseCursor(bool b = true)              { hidemousecursor = b; return *this; }
     Terminal&   NoAutoHideMouseCurosr()                         { return AutoHideMouseCursor(false); }
     bool        IsMouseCursorAutoHidden() const                 { return hidemousecursor; }
-    
+
     Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
     Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
     bool        HasKeyNavigation() const                        { return keynavigation; }
@@ -395,6 +395,7 @@ private:
         Size    size;
         bool    encoded:1;
         bool    keepratio:1;
+        dword   GetHashValue() const                            { return CombineHash(data, size, encoded, keepratio);   }
         void    SetNull()                                       { data = Null; size = Null; encoded = keepratio = true; }
         bool    IsNullInstance() const                          { return Upp::IsNull(data); }
         ImageString()                                           { SetNull(); }
@@ -415,7 +416,7 @@ private:
         {
         }
     };
-    
+
     struct HyperlinkMaker : LRUCache<String>::Maker {
         dword   id;
         const   String& url;
@@ -427,14 +428,14 @@ private:
         {
         }
     };
-    
+
     void        Paint0(Draw& w, bool print = false);
     void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
     void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
 
     void        RenderImage(const ImageString& simg, bool scroll);
     ImageData   GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
-    
+
     void        RenderHyperlink(const Value& uri);
     String      GetCachedHyperlink(dword id, const Value& data = Null);
 
@@ -588,7 +589,7 @@ private:
     void        Restore(bool tpage = true, bool csets = true, bool attrs = true);
 
     void        SetEmulation(int level, bool reset = true);
-    
+
     void        Reset(bool full);
 
     void        AlternateScreenBuffer(bool b);
