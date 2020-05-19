@@ -56,7 +56,7 @@ Note that the example code used in these videos can be found in the *Examples* s
 
 ## [Requirements](#requirements)
 
-- Ultimate++ (ver. >= 2019.1)
+- Ultimate++ (ver. >= 2020.1)
 - POSIX, Windows, or MacOS
 - A decent enough C/C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/Msc)
 - Snacks & beer.
@@ -115,7 +115,7 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 - Supports extended colors sequences .
 - Supports RGB, CMY, CMYK and indexed color palettes via extended color sequences.
 - Supports xterm dynamic colors and color setting (dynamic ink/paper/selection colors).
-- Supports rgb and older hash3, hash6, hash9, hash12 color text specifications.
+- Supports rgb, cmy, cmyk, hash6 and older hash3, hash9, hash12 color text specifications.
 - Supports background color erase (BCE).
 - Supports transparency, i.e. allows background images, even animations. It's up to client code.
 - Supports VT4xx rectangular area operations: copy, invert, fill. erase.

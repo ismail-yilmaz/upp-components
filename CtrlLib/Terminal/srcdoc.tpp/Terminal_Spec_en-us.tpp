@@ -1382,7 +1382,7 @@ ctrl.&]
 ::-1 [s0;%- ]
 :: [s0;%- ]}}&]
 [s2; &]
-[ {{1463:3858:2845:1834h41;@(165)-3 [s0;=:ColorTextSpecifications: [* Supported Color Text Specifications]]
+[ {{1463:3448:3255:1834h43;@(165)-3 [s0;=:ColorTextSpecifications: [* Supported Color Text Specifications]]
 ::@2-2 [s0;%- ]
 ::-1 [s0;%- ]
 :: [s0;%- ]
@@ -1394,9 +1394,17 @@ ctrl.&]
 :: [s0; [C rgb : %04x / %04x / %04x]&]
 [s0; [C rgb : %02x / %02x / %02x]&]
 [s0; [C %u , %u , %u]]
-:: [s0; [C rgb:ffff/A0A0/000]&]
+:: [s0; [C rgb:ffff/A0A0/0000]&]
 [s0; [C rgb:ff/A0/00]&]
 [s0; [C 255,160,0]]
+:: [s0;= [C Level 1]]
+:: [s0;= [*@3 CMY]]
+:: [s0; [C cmy : %f / %f / %f]]
+:: [s0; [C cmy:0.0/0.372549/1.0]]
+:: [s0;= [C Level 1]]
+:: [s0;= [*@3 CMYK]]
+:: [s0; [C cmyk : %f / %f / %f / %f]]
+:: [s0; [C cmy:0.0/0.372549/1.0/0.0]]
 :: [s0;= [C Level 1]]
 :: [s0;= [*@3 Hash3]]
 :: [s0; [C # %01x %01x %01x]]
@@ -1421,8 +1429,9 @@ ctrl.&]
 ::-3 [s19;r442; &]
 [s6;#r442;i150;O0; The use of `"hash hex color`" text specifications 
 3, 9, and 12 are discouraged by X.org some time ago. They are 
-supported by Terminal ctrl for backward compatibilty. RGB or 
-hash6 text specifications should be used wherever it is possible.&]
+supported by Terminal ctrl for backward compatibilty. RGB, CMY, 
+CMYK or Hash6 color text specifications should be used wherever 
+it is possible.&]
 [s6; &]
 [s6; The above listed color text specifications are utilized by [^https`:`/`/invisible`-island`.net`/xterm`/ctlseqs`/ctlseqs`.html^ x
 term`'s dynamic colors feature.]&]
@@ -1481,6 +1490,8 @@ interface (the raster image decoder factory) for decoding images.
 Hence, it can display any raster image via jexer`'s pre`-defined 
 sequences, if the format of the image in question is supported 
 by the Upp`::StreamRaster.&]
+[s6;#r292;i150;O0;%- Jexer inline images protocol is the [/ recommended] 
+inline images protocol of choice for Terminal ctrl.&]
 [s19;r292;%- &]
 [s6;#r292;%- For more information on the design decisions and implementation 
 notes of the original Jexer wire protocol, see [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wikis`/jexer`-images^ J

@@ -1043,6 +1043,14 @@ public:
     Value   Format(const Value& q) const override;
 };
 
+class ConvertCmykColorSpec : public Convert {
+public:
+    ConvertCmykColorSpec() {}
+    int     Filter(int chr) const override;
+    Value   Scan(const Value& text) const override;
+    Value   Format(const Value& q) const override;
+};
+
 class ConvertColor : public Convert {
 public:
     Value   Scan(const Value& text) const override;

@@ -8,23 +8,6 @@
 
 namespace Upp {
 
-// As of 13/4/2020, there are now RGB <-> CMYK conversion functions in U++.
-
-static void sCMYKtoRGB(double c, double m, double y, double k, int& r, int& g, int& b)
-{
-	k = clamp(k, 0.0, 1.0);
-	r = (int) min(255 * (1 - c) * (1 - k), 255.0);
-	g = (int) min(255 * (1 - m) * (1 - k), 255.0);
-	b = (int) min(255 * (1 - y) * (1 - k), 255.0);
-}
-
-static Color sCmykColorf(double c, double m, double y, double k)
-{
-	int r, g, b;
-	sCMYKtoRGB(c, m, y, k, r, g, b);
-	return Color(r, g, b);
-}
-
 Terminal& Terminal::ResetColors()
 {
 	// The U++ color constants with 'S' prefix are automatically adjusted
@@ -264,7 +247,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 			double c = StrInt(h[index++]) / 100.0;
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index])   / 100.0;
-			c = sCmykColorf(c, m, y, 0.0);
+			c = CmykColorf(c, m, y, 0.0);
 			return index;
 		}
 		else
@@ -274,7 +257,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index++]) / 100.0;
 			double k = StrInt(h[index])   / 100.0;
-			c = sCmykColorf(c, m, y, k);
+			c = CmykColorf(c, m, y, k);
 			return index;
 		}
 		else
@@ -418,24 +401,6 @@ static int sCharFilterHashHex(int c)
 	return IsXDigit(c) || c == '#' ? c : 0;
 }
 
-static int sCharFilterRgbHex(int c)
-{
-	return IsXDigit(c)
-		|| c == 'r'	|| c == 'R'
-		|| c == 'g'	|| c == 'G'
-		|| c == 'b' || c == 'B'
-		|| c == ':'
-		|| c == '/'
-		|| c == ','
-			? c
-			: 0;
-}
-
-static int sCharFilterSgrIso(int c)
-{
-	return IsDigit(c) || c == ':' || c == ';' ? c : 0;
-}
-
 int ConvertHashColorSpec::Filter(int chr) const
 {
 	return sCharFilterHashHex(chr);
@@ -460,7 +425,7 @@ Value ConvertHashColorSpec::Scan(const Value& text) const
 			break;
 		}
 	}
-	return Upp::ErrorValue(t_("Bad color format"));
+	return Upp::ErrorValue(t_("Bad hash color text format"));
 }
 
 Value ConvertHashColorSpec::Format(const Value& q) const
@@ -474,7 +439,11 @@ Value ConvertHashColorSpec::Format(const Value& q) const
 
 int ConvertRgbColorSpec::Filter(int chr) const
 {
-	return sCharFilterRgbHex(chr);
+	return IsXDigit(chr)	// 'B' and 'b' are also hex digits...
+		|| chr == 'r' || chr == 'R'
+		|| chr == 'g' || chr == 'G'
+		|| chr == ':' || chr == '/'	|| chr == ','
+			? chr : 0;
 }
 
 Value ConvertRgbColorSpec::Scan(const Value& text) const
@@ -484,12 +453,12 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 		return c == ':' || c == '/' || c == ',';
 	};
 	
-	Vector<String> h = Split((const String&) text, Delimiters);
+	Vector<String> h = Split(ToLower((const String&) text), Delimiters);
 	int count = h.GetCount();
 	if(3 == count || count == 4) {				// rgb : %04x / %04x / %04x
 		int index = 0;							// rgb : %02z / %02x / %02x
 		int radix = 10;							// %u , %u , %u
-		if(ToLower(h[0]).IsEqual("rgb")) {
+		if(h[0].IsEqual("rgb")) {
 			index += 1;
 			radix += 6;
 		}
@@ -504,7 +473,7 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 		&& !IsNull(b))
 			return Color(r, g, b);
 	}
-	return Upp::ErrorValue(t_("Bad color format"));
+	return Upp::ErrorValue(t_("Bad rgb color text format"));
 }
 
 Value ConvertRgbColorSpec::Format(const Value& q) const
@@ -516,11 +485,55 @@ Value ConvertRgbColorSpec::Format(const Value& q) const
 	return Upp::ErrorValue(t_("Bad color value"));
 }
 
+int ConvertCmykColorSpec::Filter(int chr) const
+{
+	return IsXDigit(chr)	// 'C' and 'c' are also hex digits...
+		|| chr == 'm' || chr == 'y' || chr == 'k'
+		|| chr == 'M' || chr == 'Y' || chr == 'K'
+		|| chr == ':' || chr == '/' || chr == ',' || chr == '.'
+			?  chr : 0;
+}
+
+Value ConvertCmykColorSpec::Scan(const Value& text) const
+{
+	auto Delimiters = [](int c) -> int
+	{
+		return c == ':' || c == '/';
+	};
+	
+	Vector<String> h = Split(ToLower((const String&) text), Delimiters);
+	int count = h.GetCount();
+	bool cmyk = count == 5 && h[0].IsEqual("cmyk");		// cmyk : %f / %f / %f / %f
+	if(cmyk || (count == 4 && h[0].IsEqual("cmy"))) {	// cmy  : %f / %f / %f
+		double c = ScanDouble(~h[1]);
+		double m = ScanDouble(~h[2]);
+		double y = ScanDouble(~h[3]);
+		double k = cmyk ? ScanDouble(~h[4]) : 0.0;
+		if(!IsNull(c)
+		&& !IsNull(m)
+		&& !IsNull(y)
+		&& !IsNull(k))
+			return CmykColorf(c, m, y, k);
+	}
+	return Upp::ErrorValue(t_("Bad cmy/k color text format"));
+}
+
+Value ConvertCmykColorSpec::Format(const Value& q) const
+{
+	if(q.Is<Color>()) {
+		const Color& r = (Color&) q;
+		double c, m, y, k;
+		RGBtoCMYK(r.GetR() / 255.0, r.GetG() / 255.0, r.GetB() / 255.0, c, m, y, k);
+		return Upp::Format("cmyk:%f/%f/%f/%f", c, m, y, k);
+	}
+	return Upp::ErrorValue(t_("Bad color value"));
+}
+
 Value ConvertColor::Scan(const Value& text) const
 {
-	Value v = ConvertRgbColorSpec().Scan(text);
-	if(IsError(v))
-		v = ConvertHashColorSpec().Scan(text);
+	Value v = ConvertHashColorSpec().Scan(text);
+	if(IsError(v)) v = ConvertRgbColorSpec().Scan(text);
+	if(IsError(v)) v = ConvertCmykColorSpec().Scan(text);
 	return v;
 }
 

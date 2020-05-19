@@ -456,19 +456,21 @@
 
 ## [Supported Color Text Specifications](#color-text-specs)
 
-| Mnemonic| Format                          | Example                    | Device Level  |
-| ---     | ---                             | ---                        | ---           |
-| RGB     | `rgb : %04x / %04x / %04x`      | `rgb:FFFF/A0A0/000`        | Level 1       |            
-| RGB     | `rgb : %02x / %02x / %02x`      | `rgb:FF/A0/00`             | Level 1       |
-| RGB     | `%u , %u , %u`                  | `255,160,0`                | Level 1       |
-| Hash3   | `# %01x %01x %01x`              | `#FA0`                     | Level 1       |
-| Hash6   | `# %02x %02x %02x`              | `#FFAO00`                  | Level 1       |
-| Hash9   | `# %03x %03x %03x`              | `#FF0A00000`               | Level 1       |
-| Hash12  | `# %04x %04x %04x`              | `#FFFFA0A00000`            | Level 1       |
+| Mnemonic| Format                          | Example                     | Device Level  |
+| ---     | ---                             | ---                         | ---           |
+| RGB     | `rgb : %04x / %04x / %04x`      | `rgb:FFFF/A0A0/000`         | Level 1       |            
+| RGB     | `rgb : %02x / %02x / %02x`      | `rgb:FF/A0/00`              | Level 1       |
+| RGB     | `%u , %u , %u`                  | `255,160,0`                 | Level 1       |
+| CMY     | `cmy : %f / %f / %f`            | `cmy:0.0/0.372549/1.0`      | Level 1       |
+| CMYK    | `cmy : %f / %f / %f / %f`       | `cmyk:0.0/0.372549/1.0/0.0` | Level 1       |
+| Hash3   | `# %01x %01x %01x`              | `#FA0`                      | Level 1       |
+| Hash6   | `# %02x %02x %02x`              | `#FFAO00`                   | Level 1       |
+| Hash9   | `# %03x %03x %03x`              | `#FF0A00000`                | Level 1       |
+| Hash12  | `# %04x %04x %04x`              | `#FFFFA0A00000`             | Level 1       |
 
 #### Notes
 
-- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB or hash6 text specifications should be used wherever it is possible.
+- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB, CMY, CMYK or Hash6 text specifications should be used wherever it is possible.
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 
@@ -491,6 +493,7 @@
 - `Ps` is the page scrolling option.  Valid values are 1 (scroll) or 0 (no scroll).
 - Image `data` must be Base64 encoded.
 - The wire protocol reasonably separates the sequences for raw RGB, JPG and PNG image data. In practice, however, Terminal ctrl ignores this distinction, since it uses the StreamRaster interface (the raster image decoder factory) for decoding images. Hence, it can display any raster image via jexer's pre-defined sequences, if the format of the image in question is supported by the Upp::StreamRaster.
+- Jexer inline images protocol is the *recommended* inline images protocol of choice for Terminal ctrl.
 
 ### iTerm2's Inline Images Protocol
 
