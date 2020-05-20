@@ -456,21 +456,23 @@
 
 ## [Supported Color Text Specifications](#color-text-specs)
 
-| Mnemonic| Format                          | Example                     | Device Level  |
-| ---     | ---                             | ---                         | ---           |
-| RGB     | `rgb : %04x / %04x / %04x`      | `rgb:FFFF/A0A0/0000`        | Level 1       |            
-| RGB     | `rgb : %02x / %02x / %02x`      | `rgb:FF/A0/00`              | Level 1       |
-| RGB     | `%u , %u , %u`                  | `255,160,0`                 | Level 1       |
-| CMY     | `cmy : %f / %f / %f`            | `cmy:0.0/0.372549/1.0`      | Level 1       |
-| CMYK    | `cmyk : %f / %f / %f / %f`      | `cmyk:0.0/0.372549/1.0/0.0` | Level 1       |
-| Hash3   | `# %01x %01x %01x`              | `#FA0`                      | Level 1       |
-| Hash6   | `# %02x %02x %02x`              | `#FFAO00`                   | Level 1       |
-| Hash9   | `# %03x %03x %03x`              | `#FF0A00000`                | Level 1       |
-| Hash12  | `# %04x %04x %04x`              | `#FFFFA0A00000`             | Level 1       |
+| Mnemonic| Format                             | Example                     | Device Level  |
+| ---     | ---                                | ---                         | ---           |
+| RGB     | `rgb : %04x / %04x / %04x`         | `rgb:FFFF/A0A0/0000`        | Level 1       |            
+| RGB     | `rgb : %02x / %02x / %02x`         | `rgb:FF/A0/00`              | Level 1       |
+| RGB     | `%u , %u , %u`                     | `255,160,0`                 | Level 1       |
+| RGBA    | `rgba : %04x / %04x / %04x / %04x` | `rgba:FFFF/A0A0/0000/FFFF`  | Level 1       |            
+| RGBA    | `rgba : %02x / %02x / %02x / %02x` | `rgba:FF/A0/00/FF`          | Level 1       |
+| CMY     | `cmy : %f / %f / %f`               | `cmy:0.0/0.372549/1.0`      | Level 1       |
+| CMYK    | `cmyk : %f / %f / %f / %f`         | `cmyk:0.0/0.372549/1.0/0.0` | Level 1       |
+| Hash3   | `# %01x %01x %01x`                 | `#FA0`                      | Level 1       |
+| Hash6   | `# %02x %02x %02x`                 | `#FFAO00`                   | Level 1       |
+| Hash9   | `# %03x %03x %03x`                 | `#FF0A00000`                | Level 1       |
+| Hash12  | `# %04x %04x %04x`                 | `#FFFFA0A00000`             | Level 1       |
 
 #### Notes
 
-- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB, CMY, CMYK or Hash6 text specifications should be used wherever it is possible.
+- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB, RGBA, CMY, CMYK or Hash6 text specifications should be used wherever it is possible.
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 

@@ -1382,7 +1382,7 @@ ctrl.&]
 ::-1 [s0;%- ]
 :: [s0;%- ]}}&]
 [s2; &]
-[ {{1463:3245:3458:1834h43;@(165)-3 [s0;=:ColorTextSpecifications: [* Supported Color Text Specifications]]
+[ {{1463:3757:3361:1419h44;@(165)-3 [s0;=:ColorTextSpecifications: [* Supported Color Text Specifications]]
 ::@2-2 [s0;%- ]
 ::-1 [s0;%- ]
 :: [s0;%- ]
@@ -1397,6 +1397,12 @@ ctrl.&]
 :: [s0; [C rgb:ffff/A0A0/0000]&]
 [s0; [C rgb:ff/A0/00]&]
 [s0; [C 255,160,0]]
+:: [s0;= [C Level 1]]
+:: [s0;= [*@3 RGBA]]
+:: [s0; [C rgba : %04x / %04x / %04x / %04x]&]
+[s0; [C rgba : %02x / %02x / %02x / %02x]]
+:: [s0; [C rgba:ffff/A0A0/0000/ffff]&]
+[s0; [C rgba:ff/A0/00/ff]]
 :: [s0;= [C Level 1]]
 :: [s0;= [*@3 CMY]]
 :: [s0; [C cmy : %f / %f / %f]]
@@ -1429,8 +1435,8 @@ ctrl.&]
 ::-3 [s19;r442; &]
 [s6;#r442;i150;O0; The use of `"hash hex color`" text specifications 
 3, 9, and 12 are discouraged by X.org some time ago. They are 
-supported by Terminal ctrl for backward compatibilty. RGB, CMY, 
-CMYK or Hash6 color text specifications should be used wherever 
+supported by Terminal ctrl for backward compatibilty. RGB, RGBA, 
+CMY, CMYK or Hash6 color text specifications should be used wherever 
 it is possible.&]
 [s6; &]
 [s6; The above listed color text specifications are utilized by [^https`:`/`/invisible`-island`.net`/xterm`/ctlseqs`/ctlseqs`.html^ x

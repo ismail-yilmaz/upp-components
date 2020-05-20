@@ -17,7 +17,7 @@ Terminal& Terminal::ResetColors()
 	// default, and leave it up to client code to change them  on demand.
 	// Note that this rule does not apply to the  default ink, paper, and
 	// selection colors.
-	
+
 	colortable[COLOR_BLACK] = Black();
 	colortable[COLOR_RED] = Red();
 	colortable[COLOR_GREEN] = Green();
@@ -70,7 +70,7 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 	};
 
 	int index = which;
-	
+
 	if(!IsNull(color)) {
 		int c = color.GetSpecial();
 		if(c >= 0) {
@@ -105,22 +105,22 @@ Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
 End:
 	return dim ? AdjustBrightness(color, 0.70) : color;
 }
-	
+
 void Terminal::ReportANSIColor(int opcode, int index, const Color& c)
 {
 	String reply = Format("%d;%d;%", opcode, index, ConvertColor().Format(c));
 
 	LLOG("ReportAnsiColor() -> OSC " << reply);
-	
+
 	PutOSC(reply);
 }
 
 void Terminal::ReportDynamicColor(int opcode, const Color& c)
 {
 	String reply = Format("%d;%", opcode, ConvertColor().Format(c));
-		
+
 	LLOG("ReportDynamicColor() -> OSC " << reply);
-	
+
 	PutOSC(reply);
 }
 
@@ -128,22 +128,22 @@ void Terminal::ChangeColors(int opcode, const String& oscs, bool reset)
 {
 	if(!dynamiccolors)
 		return;
-	
+
 	Vector<String> params = Split(oscs, ';', false);
 	VectorMap<int, String> colormap;
 
 	bool ansicolors = opcode == 4 || opcode == 104;
 	int pos = (ansicolors && !reset) ? 1 : 0;
-	
+
 	for(int i = pos; i < params.GetCount() - pos; i += 2)
 		if(i + 1 < params.GetCount())
 			colormap.Add(StrInt(params[i]), params[i + 1]);
 
 	if(colormap.IsEmpty())
 		return;
-	
+
 	int changed_colors = 0;
-	
+
 	for(int i = 0; i < colormap.GetCount(); i++) {
 		int index = colormap.GetKey(i);
 		String colorspec = colormap[i];
@@ -221,12 +221,12 @@ bool Terminal::ResetLoadColor(int index)
 static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const String& s)
 {
 	// TODO: This function can be more streamlined.
-	
+
 	auto SgrDelimiters = [](int c) -> int
 	{
 		return c == ':' || c == ';';	// Alloe both colon and semicolon.
 	};
-	
+
 	Vector<String> h = Split(s, SgrDelimiters, false);
 	int count = h.GetCount();
 	if(3 <= count && count < 8 && (h[0].IsEqual("38") || h[0].IsEqual("48"))) {
@@ -273,7 +273,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index)
 {
 	// TODO: Optimixization.
-	
+
 	LTIMING("Terminal::SetISOColor");
 
 	// Recognized color sequene formats:
@@ -332,7 +332,7 @@ void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes,
 	int format  = 0;
 	int palette = 0;
 	Color color = Null;
-	
+
 	if(GetSubParameterCount(opcodes[index])) {
 		index += sParseExtendedColorFormat(color, which, palette, opcodes[index]);
 	}
@@ -452,28 +452,44 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 	{
 		return c == ':' || c == '/' || c == ',';
 	};
-	
+
 	Vector<String> h = Split(ToLower((const String&) text), Delimiters);
 	int count = h.GetCount();
-	if(3 == count || count == 4) {				// rgb : %04x / %04x / %04x
-		int index = 0;							// rgb : %02z / %02x / %02x
-		int radix = 10;							// %u , %u , %u
-		if(h[0].IsEqual("rgb")) {
-			index += 1;
-			radix += 6;
-		}
-		int r = ScanInt(~h[index++], nullptr, radix);
-		int g = ScanInt(~h[index++], nullptr, radix);
-		int b = ScanInt(~h[index++], nullptr, radix);
-		if(r > 255) r >>= 8;
-		if(g > 255) g >>= 8;
-		if(b > 255) b >>= 8;
-		if(!IsNull(r)
+
+	auto ParseColorText = [&](int index, int radix, bool alpha) -> Color
+	{
+		int r = ScanInt(h[index++], nullptr, radix);				// rgb : %04x / %04x / %04x
+		int g = ScanInt(h[index++], nullptr, radix);				// rgb : %02z / %02x / %02x
+		int b = ScanInt(h[index++], nullptr, radix);				// rgba  %04x / %04x / %04x / %04x
+		int a = alpha ? ScanInt(h[index], nullptr, radix) : 255;	// rgba  %02x / %02x / %02x / %02x
+		if(!IsNull(r)												// %u , %u , %u
 		&& !IsNull(g)
-		&& !IsNull(b))
-			return Color(r, g, b);
-	}
-	return Upp::ErrorValue(t_("Bad rgb color text format"));
+		&& !IsNull(b)
+		&& !IsNull(a)) {
+			RGBA rgba;
+			rgba.r = byte(r > 255 ? (r >> 8) & 0xFF : r);
+			rgba.g = byte(g > 255 ? (g >> 8) & 0xFF : g);
+			rgba.b = byte(b > 255 ? (b >> 8) & 0xFF : b);
+			rgba.a = byte(a > 255 ? (a >> 8) & 0xFF : a);
+			return Color(rgba);
+		}
+		return Null;
+	};
+
+	Color color = Null;
+
+	if(count == 3)
+		color = ParseColorText(0, 10, false);
+	else
+	if(count == 4 && h[0].IsEqual("rgb"))
+		color = ParseColorText(1, 16, false);
+	else
+	if(count == 5 && h[0].IsEqual("rgba"))
+		color = ParseColorText(1, 16, true);
+
+	if(!IsNull(color))
+		return color;
+	return Upp::ErrorValue(t_("Bad rgb/a color text format"));
 }
 
 Value ConvertRgbColorSpec::Format(const Value& q) const
@@ -500,7 +516,7 @@ Value ConvertCmykColorSpec::Scan(const Value& text) const
 	{
 		return c == ':' || c == '/';
 	};
-	
+
 	Vector<String> h = Split(ToLower((const String&) text), Delimiters);
 	int count = h.GetCount();
 	bool cmyk = count == 5 && h[0].IsEqual("cmyk");		// cmyk : %f / %f / %f / %f
