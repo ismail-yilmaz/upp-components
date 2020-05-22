@@ -153,6 +153,11 @@ void Terminal::SelectAll(bool history)
 	Refresh();
 }
 
+String Terminal::GetSelectionData(const String& fmt) const
+{
+	return IsSelection() ? GetTextClip(GetSelectedText().ToString(), fmt) : Null;
+}
+
 void Terminal::SyncSize(bool notify)
 {
 	// Apparently, the window minimize event on Windows "really" minimizes
@@ -475,8 +480,17 @@ void Terminal::MiddleDown(Point pt, dword keyflags)
 	SetFocus();
 	if(IsTracking())
 		VTMouseEvent(pt, MIDDLEDOWN, keyflags);
-	else
-		Paste();
+	else {
+		WString w;
+		if(IsSelection())
+			w = GetSelectedText();
+		else
+		if(AcceptText(Selection()))
+			w = GetWString(Selection());
+		LeftDown(pt, keyflags);
+		if(!IsNull(w))
+			Paste(w);
+	}
 }
 
 void Terminal::MiddleUp(Point pt, dword keyflags)
@@ -636,6 +650,7 @@ void Terminal::SetSelection(Point pl, Point ph, bool rsel)
 	anchor = min(pl, ph);
 	selpos = max(pl, ph);
 	rectsel = rsel;
+	SetSelectionSource(ClipFmtsText());
 	Refresh();
 }
 
@@ -713,6 +728,8 @@ WString Terminal::GetSelectedText() const
 		}
 	};
 	
+	// TODO: Refactor this ugly thing, using the relevant methods.
+	
 	for(int line = r.top, i = 0; !IsNull(r) && line <= r.bottom; line++) {
 		if(line < page->GetLineCount()) {
 			const VTLine& ln = page->FetchLine(line);
@@ -725,10 +742,13 @@ WString Terminal::GetSelectedText() const
 				PutCrLf(i);
 				i = 0;
 			}
-			if(!rectsel && line == r.top)
+			if(!rectsel && line == r.top) {
 					txt.Cat(s.Mid(r.left, (r.top == r.bottom ? r.right : s.GetLength()) - r.left));
+					if(r.top == r.bottom)
+						break;
+			}
 			else
-			if(rectsel && line == r.bottom)
+			if(!rectsel && line == r.bottom)
 					 txt.Cat(s.Left(r.right));
 			else
 				txt.Cat(s);

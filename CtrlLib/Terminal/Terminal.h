@@ -268,9 +268,10 @@ public:
     void        Paste()                                         { DragAndDrop(Null, Clipboard()); }
     void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
-
     bool        IsSelection() const                             { return !IsNull(anchor) && anchor != selpos; }
 
+    String      GetSelectionData(const String& fmt) const override;
+    
     void        StdBar(Bar& menu);
     void        EditBar(Bar& menu);
     void        LinksBar(Bar& menu);

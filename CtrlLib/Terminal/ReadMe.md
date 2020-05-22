@@ -136,6 +136,7 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 - Supports basic clipboard operations on texts, hyperlinks, and images.
 - Supports basic drag and drop operations on texts, hyperlinks and images.
 - Shows drag and drop animations (i.e thumbnails/samples of images, hyperlinks and plain texts)
+- Supports X11-style copy-on-select.
 - Supports rectangle selection.
 - Supports bracketed paste mode.
 - Supports [explicit hyperlinks.](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) (OSC 8)
