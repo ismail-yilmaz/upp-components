@@ -1180,14 +1180,49 @@ be at most 2084 bytes.&]
 [s5;:Upp`:`:Terminal`:`:Terminal`(`):%- [* Terminal]()&]
 [s2; Default constructor.&]
 [s3; &]
+[s0; &]
+[ {{10000@(113.42.0) [s0; [*@7;4 Terminal`::InlineImage]]}}&]
+[s0; &]
+[s1;:Upp`:`:Terminal`:`:InlineImage`:`:struct:%- [@(0.0.255)3 struct][3 _][*3 InlineImage][3 _
+:_][@(0.0.255)3 public][3 _][*@3;3 ValueType][3 <][*3 InlineImage][3 , ][@3;3 999][3 , 
+][_^Upp`:`:Moveable^3 Moveable][3 <][*3 InlineImage][3 >_>_]&]
+[s2;# This simple structure represents a single inline image and 
+and it is passed on to Terminal ctrl`'s [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:NormalImageCellDisplay`(`)^ i
+mage display].&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:InlineImage`:`:image:%- [_^Upp`:`:Image^ Image]_[* image]&]
+[s2; The actual image. Terminal ctrl always passes the full image 
+on to its image display. For performance reasons, however, it 
+does not paint the image as a whole.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:InlineImage`:`:cellsize:%- [_^Upp`:`:Size^ Size]_[* cellsize]&]
+[s2; The size of the full image in cells.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:InlineImage`:`:fontsize:%- [_^Upp`:`:Size^ Size]_[* fontsize]&]
+[s2; Current font size in pixels.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:InlineImage`:`:paintrect:%- [_^Upp`:`:Rect^ Rect]_[* paintrect]&]
+[s2;# This rectangle represents the portion of the full image to 
+be painted (in pixels).&]
+[s3;%- 1&]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:InlineImage`:`:operator Value`(`)const:%- [* operator_Value]()_
+[@(0.0.255) const]&]
+[s2; Converts the InlineImage structure into a Value.&]
+[s3;%- &]
+[s0; &]
 [ {{10000@(113.42.0) [s0; [*@7;4 Terminal displays]]}}&]
 [s0;%- &]
-[s2;%- Terminal ctrl supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
+[s2;#%- Terminal ctrl supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
 isplay] and its possible custom derivatives for displaying specific 
 objects. [%% Terminal ctrl merely stores a pointer to the provided 
 Display; it is up to client code to keep the display object alive 
 as long as necessary. ]Currenlty, only displays for image objects 
-are supported. There are two predefined terminal displays &]
+are supported. Currently there are two predefined terminal displays.&]
 [s0;%- &]
 [s4;@(0.0.255)%- &]
 [s5;:Upp`:`:NormalImageCellDisplay`(`):%- [@(0.0.255) const]_[_^Upp`:`:Display^ Display][@(0.0.255) `&

@@ -278,18 +278,17 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 		const Rect&  rr = part.c;
 		Rect r = Rect(pt, rr.GetSize());
 		if(w.IsPainting(r)) {
-			ImageData imd = GetCachedImageData(id, Null, fsz);
-			if(!IsNull(imd.image)) {
-				imd.fitsize *= fsz;
-				imd.paintrect = rr;
-				imgdisplay->Paint(w, r, RawPickToValue(pick(imd)), ink, paper, 0);
+			InlineImage& im = GetCachedImageData(id, Null, fsz);
+			if(!IsNull(im.image)) {
+				im.paintrect = rr;	// Keep it updated.
+				im.fontsize  = fsz;	// Keep it updated.
+				imgdisplay->Paint(w, r, im, ink, paper, 0);
 			}
 		}
 	}
 
 	parts.Clear();
 }
-
 
 void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 {
@@ -303,9 +302,9 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 	LTIMING("Terminal::RenderImage");
 
 	dword id = GetHashValue(imgs);
-	ImageData imd = GetCachedImageData(id, imgs, GetFontSize());
+	const InlineImage& imd = GetCachedImageData(id, imgs, GetFontSize());
 	if(!IsNull(imd.image)) {
-		page->AddImage(imd.fitsize, id, scroll, encoded);
+		page->AddImage(imd.cellsize, id, scroll, encoded);
 		RefreshDisplay();
 	}
 }
@@ -313,18 +312,18 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 // Shared image data cache support.
 
 static StaticMutex sImageCacheLock;
-static LRUCache<Terminal::ImageData> sImageDataCache;
+static LRUCache<Terminal::InlineImage> sInlineImagesCache;
 static int sCachedImageMaxSize =  1024 * 1024 * 4 * 128;
 static int sCachedImageMaxCount =  256000;
 
-String Terminal::ImageDataMaker::Key() const
+String Terminal::InlineImageMaker::Key() const
 {
 	StringBuffer h;
 	RawCat(h, id);
 	return h;
 }
 
-int Terminal::ImageDataMaker::Make(ImageData& imagedata) const
+int Terminal::InlineImageMaker::Make(InlineImage& imagedata) const
 {
 	LTIMING("Terminal::ImageDataMaker::Make");
 
@@ -363,25 +362,26 @@ int Terminal::ImageDataMaker::Make(ImageData& imagedata) const
 		Size sz = AdjustSize(imgs.size, img.GetSize());
 		imagedata.image = pick(IsNull(sz) ? img : Rescale(img, sz));
 	}
-	imagedata.fitsize = ToCellSize(imagedata.image.GetSize());
+	imagedata.fontsize = fontsize;
+	imagedata.cellsize = ToCellSize(imagedata.image.GetSize());
 	return imagedata.image.GetLength() * 4;
 }
 
-Terminal::ImageData Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
+Terminal::InlineImage& Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
 {
 	Mutex::Lock __(sImageCacheLock);
 
 	LTIMING("Terminal::GetCachedImageData");
 
-	ImageDataMaker im(id, imgs, fsz);
-	sImageDataCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
-	return sImageDataCache.Get(im);
+	InlineImageMaker im(id, imgs, fsz);
+	sInlineImagesCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
+	return sInlineImagesCache.Get(im);
 }
 
 void Terminal::ClearImageCache()
 {
 	Mutex::Lock __(sImageCacheLock);
-	sImageDataCache.Clear();
+	sInlineImagesCache.Clear();
 }
 
 void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
@@ -448,15 +448,14 @@ class NormalImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		const auto& idata = q.To<Terminal::ImageData>();
-
-		if(!IsNull(idata.image))
-			w.DrawImage(r.left, r.top, idata.image, idata.paintrect);
+		const auto& im = q.To<Terminal::InlineImage>();
+		if(!IsNull(im.image))
+			w.DrawImage(r.left, r.top, im.image, im.paintrect);
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		const auto& idata = q.To<Terminal::ImageData>();
-		return idata.image.GetSize();
+		const auto& im = q.To<Terminal::InlineImage>();
+		return im.image.GetSize();
 	}
 };
 
@@ -466,15 +465,17 @@ class ScaledImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		const auto& idata = q.To<Terminal::ImageData>();
-
-		if(!IsNull(idata.image))
-			w.DrawImage(r, CachedRescale(idata.image, idata.fitsize), idata.paintrect);
+		const auto& im = q.To<Terminal::InlineImage>();
+		if(!IsNull(im.image)) {
+			Size csz = im.cellsize;
+			Size fsz = im.fontsize;
+			w.DrawImage(r, CachedRescale(im.image, csz * fsz), im.paintrect);
+		}
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		const auto& idata = q.To<Terminal::ImageData>();
-		return idata.image.GetSize();
+		const auto& im = q.To<Terminal::InlineImage>();
+		return im.image.GetSize();
 	}
 };
 

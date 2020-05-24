@@ -462,10 +462,10 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 		int index = 0;										// rgba : %04x / %04x / %04x / %04x
 		int radix = 10;										// rgba : %02x / %02x / %02x / %02x
 		if(count > 3) { index = 1; radix = 16; }			// %u , %u, %u
-		int r = ScanInt(h[index++], nullptr, radix);
-		int g = ScanInt(h[index++], nullptr, radix);
-		int b = ScanInt(h[index++], nullptr, radix);
-		int a = count == 5 ? ScanInt(h[index], nullptr, radix) : 255;
+		int r = ScanInt(~h[index++], nullptr, radix);
+		int g = ScanInt(~h[index++], nullptr, radix);
+		int b = ScanInt(~h[index++], nullptr, radix);
+		int a = count == 5 ? ScanInt(~h[index], nullptr, radix) : 255;
 		if(!IsNull(r)
 		&& !IsNull(g)
 		&& !IsNull(b)

@@ -1031,4 +1031,10 @@ void Terminal::Caret::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }
+
+INITBLOCK
+{
+	Value::Register<Terminal::InlineImage>();
+}
+
 }

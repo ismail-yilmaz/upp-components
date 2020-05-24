@@ -12,12 +12,6 @@ namespace Upp {
 
 class Terminal : public Ctrl {
 public:
-   struct ImageData : Moveable<ImageData> {
-       Image image;
-       Size  fitsize;
-       Rect  paintrect;
-   };
-
     const int ANSI_COLOR_COUNT = 16;    // Actually, ANSI + aixterm colors.
 
     enum Colors
@@ -69,6 +63,15 @@ public:
         TIMEID_SIZEHINT,
         TIMEID_BLINK,
         TIMEID_COUNT
+    };
+
+    // Inline image data structure.
+    struct InlineImage : ValueType<InlineImage, 999, Moveable<InlineImage> > {
+        Image       image;
+        Size        cellsize;
+        Size        fontsize;
+        Rect        paintrect;
+        operator    Value() const                               { return RichValue<Terminal::InlineImage>(*this); }
     };
 
     typedef Terminal CLASSNAME;
@@ -403,13 +406,13 @@ private:
         ImageString(String&& s)                                 { SetNull(); data = s;  }
     };
 
-    struct ImageDataMaker : LRUCache<ImageData>::Maker {
+    struct InlineImageMaker : LRUCache<InlineImage>::Maker {
         dword   id;
         const   Size& fontsize;
         const   ImageString& imgs;
         String  Key() const override;
-        int     Make(ImageData& imagedata) const override;
-        ImageDataMaker(int i, const ImageString& s, const Size& sz)
+        int     Make(InlineImage& imagedata) const override;
+        InlineImageMaker(int i, const ImageString& s, const Size& sz)
         : id(i)
         , imgs(s)
         , fontsize(sz)
@@ -434,7 +437,7 @@ private:
     void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
 
     void        RenderImage(const ImageString& simg, bool scroll);
-    ImageData   GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
+    InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
 
     void        RenderHyperlink(const Value& uri);
     String      GetCachedHyperlink(dword id, const Value& data = Null);
