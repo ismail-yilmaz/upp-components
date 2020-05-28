@@ -278,7 +278,7 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 		const Rect&  rr = part.c;
 		Rect r = Rect(pt, rr.GetSize());
 		if(w.IsPainting(r)) {
-			InlineImage& im = GetCachedImageData(id, Null, fsz);
+			InlineImage im = GetCachedImageData(id, Null, fsz);
 			if(!IsNull(im.image)) {
 				im.paintrect = rr;	// Keep it updated.
 				im.fontsize  = fsz;	// Keep it updated.
@@ -301,8 +301,9 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 
 	LTIMING("Terminal::RenderImage");
 
-	dword id = GetHashValue(imgs);
-	const InlineImage& imd = GetCachedImageData(id, imgs, GetFontSize());
+	Size fsz = GetFontSize();
+	dword id = CombineHash(imgs; fsz);
+	const InlineImage& imd = GetCachedImageData(id, imgs, fsz);
 	if(!IsNull(imd.image)) {
 		page->AddImage(imd.cellsize, id, scroll, encoded);
 		RefreshDisplay();
@@ -367,7 +368,7 @@ int Terminal::InlineImageMaker::Make(InlineImage& imagedata) const
 	return imagedata.image.GetLength() * 4;
 }
 
-Terminal::InlineImage& Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
+const Terminal::InlineImage& Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
 {
 	Mutex::Lock __(sImageCacheLock);
 

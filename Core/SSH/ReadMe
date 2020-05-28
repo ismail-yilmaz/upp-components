@@ -4,7 +4,8 @@ SSH package is a flexible, easy-to-use, yet powerful libssh2 wrapper for Ultimat
 It supports both console and GUI-based applications on POSIX-compliant operating systems and
 MS Windows (tm).
 
-Note: SSH package is now officially a part of Ultimate++, and can be found in the U++ nightly builds.
+Note: SSH package is now officially a part of Ultimate++, and can be found in the U++ stable and nightly builds.
+      A copy of the package is kept in this repo only for historical reasons.
 
 Classes:
 --------------------
@@ -49,4 +50,4 @@ Reference examples:
 
 - SshBasics:    Demonstrates basic capabilities of SSH package.
 - SFtpFileSel:  Demonstrates FileSel integration of SFtp class, using FileSystemInfo interface.
-- SFtpBrowser:  Demonstrates a basic sftp browser with GUI.                
+- SFtpBrowser:  Demonstrates a basic sftp browser with GUI.    

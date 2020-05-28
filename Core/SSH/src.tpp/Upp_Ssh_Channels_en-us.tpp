@@ -92,8 +92,10 @@ data transfer.&]
 ][*@3;3 SshChannel]&]
 [s0;#l288; This class encapsulates an SSH2 remote process execution 
 (exec) channel. It provides a means for executing a single shell 
-command on a remote host. If you need to run a real`-time, interactive 
-command line interface, you should consider using [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ S
+command on a remote host. Note that SshExec objects can only 
+be used once, since the protocol does not allow the reuse of 
+exec channels. If you need to run a real`-time, interactive command 
+line interface, you should consider using [^topic`:`/`/Core`/SSH`/src`/Upp`_Ssh`_Channels`_en`-us`#Upp`:`:SshShell`:`:class^ S
 shShell] class instead. SshExec class is derived from SshChannel 
 class, and has pick semantics. &]
 [s3;%- &]
@@ -109,7 +111,8 @@ nt]_[* operator()]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[
 ]_[*@3 err])&]
 [s0;l288; Executes a remote process defined by the [%-*@3 cmd] command 
 line,returns its standard output in [%-*@3 out], its standard error 
-output in [%-*@3 err], and its exit code as the return value.&]
+output in [%-*@3 err], and its exit code as the return value. A 
+negative return value means protocol or internal error.&]
 [s3;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor detail]]}}&]
 [s3;%- &]
@@ -128,7 +131,8 @@ nt]_[* SshExecute]([_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&]_[*@3 session
 [s2; Executes a remote process defined by the [%-*@3 cmd] command line, 
 returns its standard output in [%-*@3 out], its standard error 
 output in [%-*@3 err], and its exit code as the return value. A 
-negative return value means protocol or internal error.&]
+negative return value means protocol or internal error. This 
+helper function will use the timeout value provided by the session.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:SshExecute`(Upp`:`:SshSession`&`,const Upp`:`:String`&`,Upp`:`:String`&`):%- [@(0.0.255) i
@@ -138,14 +142,18 @@ nt]_[* SshExecute]([_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&]_[*@3 session
 [s2; Executes a remote process defined by the [%-*@3 cmd] command line, 
 returns its output (stdout/stderr) in [%-*@3 out], and its exit 
 code as the return value. A negative return value means protocol 
-or internal error.&]
+or internal error. This helper function will use the timeout 
+value provided by the session.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:SshExecute`(Upp`:`:SshSession`&`,const Upp`:`:String`&`):%- [_^Upp`:`:String^ S
 tring]_[* SshExecute]([_^Upp`:`:SshSession^ SshSession][@(0.0.255) `&]_[*@3 session], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 cmd])&]
 [s2; Executes a remote process defined by the [%-*@3 cmd] command line. 
-and returns its output on success, and String`::GetVoid() on failure.&]
+and returns its output on success, and String`::GetVoid() on failure. 
+This helper function will use the timeout value provided by the 
+session.&]
+[s3; &]
 [s0;%- &]
 [ {{10000@(113.42.0) [s0; [*@7;4 SshTunnel]]}}&]
 [s3;%- &]
@@ -218,12 +226,12 @@ into blocking mode if it is not planned to run as a timed session.&]
 [s3;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Public Method List]]}}&]
 [s3;%- &]
-[s5;:Upp`:`:SshShell`:`:Run`(const Upp`:`:String`&`,Upp`:`:Size`):%- [@(0.0.255) bool]_
-[* Run]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 terminal], 
+[s5;:Upp`:`:SshShell`:`:Run`(const Upp`:`:String`&`,Upp`:`:Size`,const Upp`:`:String`&`):%- [@(0.0.255) b
+ool]_[* Run]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 terminal], 
 [_^Upp`:`:Size^ Size]_[*@3 pagesize], [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
 ]_[*@3 tmodes]_`=_Null)&]
-[s5;:Upp`:`:SshShell`:`:Run`(const Upp`:`:String`&`,int`,int`):%- [@(0.0.255) bool]_[* Ru
-n]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 terminal], 
+[s5;:Upp`:`:SshShell`:`:Run`(const Upp`:`:String`&`,int`,int`,const Upp`:`:String`&`):%- [@(0.0.255) b
+ool]_[* Run]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 terminal], 
 [@(0.0.255) int]_[*@3 width], [@(0.0.255) int]_[*@3 height], [@(0.0.255) const]_[_^Upp`:`:String^ S
 tring][@(0.0.255) `&]_[*@3 tmodes]_`=_Null)&]
 [s0;l288; Runs a generic remote command line interface. Returns true 
@@ -231,26 +239,20 @@ on successful exit. [%-*@3 terminal] should be set to preferred
 terminal emulation (ansi, vt100, xterm, etc.). The dimensions 
 of the terminal view (as character cells) can be set using the 
 [%-*@3 width ]and [%-*@3 height], or [%-*@3 pagesize] parameters. Terminal 
-modes can be specified using the [%-*@3 tmodes] string. This string 
-consists of opcode`-argument pairs wherein the opcode is a byte 
-value.representing the byte encoded stream of terminal modes. 
-(See [^https`:`/`/tools`.ietf`.org`/html`/rfc4254^ RFC`-4254] for 
-details.).&]
-[s2; &]
+modes can be specified using the [%-*@3 tmodes] string (see below 
+table for details).&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:SshShell`:`:Console`(const Upp`:`:String`&`):%- [@(0.0.255) bool]_[* Console](
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 terminal], 
 [@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 tmodes]_`=_Null)&]
 [s6;%- Requires console`-based applications.&]
-[s0;l288; Runs a console`-based remote command line interface. Returns 
+[s2; Runs a console`-based remote command line interface. Returns 
 true on successful exit. [%-*@3 terminal] should be set to preferred 
 terminal emulation (ansi, vt100, xterm, etc.). Terminal modes 
-can be specified using the [%-*@3 tmodes] string. This string consists 
-of opcode`-argument pairs wherein the opcode is a byte value.representing 
-the byte encoded stream of terminal modes. (See [^https`:`/`/tools`.ietf`.org`/html`/rfc4254^ R
-FC`-4254] for details.). Note that in console mode SShShell automatically 
-takes care of the local console page resizing.&]
+can be specified using the [%-*@3 tmodes] string (see below table 
+for details). Note that in console mode SshShell automatically 
+takes care of the local console page resizing. &]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:SshShell`:`:ForwardX11`(const Upp`:`:String`&`,int`,int`,int`):%- [_^Upp`:`:SshShell^ S

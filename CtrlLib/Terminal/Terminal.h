@@ -437,7 +437,7 @@ private:
     void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
 
     void        RenderImage(const ImageString& simg, bool scroll);
-    InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
+    const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
 
     void        RenderHyperlink(const Value& uri);
     String      GetCachedHyperlink(dword id, const Value& data = Null);
