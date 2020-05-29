@@ -302,7 +302,7 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 	LTIMING("Terminal::RenderImage");
 
 	Size fsz = GetFontSize();
-	dword id = CombineHash(imgs; fsz);
+	dword id = CombineHash(imgs, fsz);
 	const InlineImage& imd = GetCachedImageData(id, imgs, fsz);
 	if(!IsNull(imd.image)) {
 		page->AddImage(imd.cellsize, id, scroll, encoded);
