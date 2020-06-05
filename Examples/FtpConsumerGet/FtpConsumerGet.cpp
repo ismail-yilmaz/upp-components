@@ -17,7 +17,10 @@ CONSOLE_APP_MAIN
 			data.Cat(static_cast<const char*>(buf), len);
 		};
 		ftpclient.Get("readme.txt", true);
-		Cout() << (!ftpclient.IsError() ? data : ftpclient.GetErrorDesc());
+		if(!ftpclient.IsError()) {
+			RLOG(data);
+			return;
+		}
 	}
-	else Cerr() << ftpclient.GetErrorDesc();
+	RLOG(ftpclient.GetErrorDesc());
 }

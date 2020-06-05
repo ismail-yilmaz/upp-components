@@ -13,8 +13,8 @@ CONSOLE_APP_MAIN
 		
 		auto features = ftpclient.GetFeatures(); // We are not logged in yet.
 		if(!ftpclient.IsError()) {
-			LOG("Available server extensions, and their parameters, if any:");
-			DUMP(features);
+			RLOG("Available server extensions, and their parameters, if any:");
+			RDUMP(features);
 	
 			// Now let's see if the server supports explicit TLS connections with private (full)
 			// data protection.
@@ -23,11 +23,11 @@ CONSOLE_APP_MAIN
 			
 			if(secure) {
 				if(ftpclient.SSL().Login("demo", "password")) {
-					LOG("Secure login successful!");
+					RLOG("Secure login successful!");
 					return;
 				}
 			}
 		}
 	}
-	LOG(ftpclient.GetErrorDesc());
+	RLOG(ftpclient.GetErrorDesc());
 }

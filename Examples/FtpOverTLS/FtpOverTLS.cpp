@@ -5,14 +5,14 @@ using namespace Upp;
 
 bool CheckSSLCertificate(const SSLInfo* info)
 {
-	DUMP(info->cert_issuer);
-	DUMP(info->cert_notafter);
-	DUMP(info->cert_notbefore);
-	DUMP(info->cert_subject);
-	DUMP(info->cert_version);
-	DUMP(info->cert_avail);
-	DUMP(info->cert_verified);
-	DUMP(info->cipher);
+	RDUMP(info->cert_issuer);
+	RDUMP(info->cert_notafter);
+	RDUMP(info->cert_notbefore);
+	RDUMP(info->cert_subject);
+	RDUMP(info->cert_version);
+	RDUMP(info->cert_avail);
+	RDUMP(info->cert_verified);
+	RDUMP(info->cipher);
 	
 	Cout() << "Would you like to continue? (Y/N):";
 	return ToLower(ReadStdIn()).StartsWith("n");
@@ -26,8 +26,8 @@ CONSOLE_APP_MAIN
 	Ftp ftpclient;
 	ftpclient.WhenSSLInfo = callback(CheckSSLCertificate);
 	if(ftpclient.Timeout(30000).Connect("ftps://demo:password@test.rebex.net:21"))
-		LOG("Secure connection established.");
+		RLOG("Secure connection established.");
 	else
-		LOG(ftpclient.GetErrorDesc());
+		RLOG(ftpclient.GetErrorDesc());
 	
 }

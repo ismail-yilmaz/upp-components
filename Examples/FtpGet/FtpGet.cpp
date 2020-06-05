@@ -11,7 +11,10 @@ CONSOLE_APP_MAIN
 	Ftp ftpclient;
 	if(ftpclient.Timeout(60000).Connect("ftps://demo:password@test.rebex.net:21")) {
 		auto f = ftpclient.Get("readme.txt", true);
-		Cout() << (!ftpclient.IsError() ? f : ftpclient.GetErrorDesc());
+		if(!ftpclient.IsError()) {
+			RLOG(f);
+			return;
+		}
 	}
-	else Cerr() << ftpclient.GetErrorDesc();
+	RLOG(ftpclient.GetErrorDesc());
 }

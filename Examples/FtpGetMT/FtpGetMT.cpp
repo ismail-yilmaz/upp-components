@@ -9,9 +9,9 @@ CONSOLE_APP_MAIN
 //	Ftp::Trace();
 
 	try {
-		LOG(Ftp::AsyncGet("ftp://demo:password@test.rebex.net:21/readme.txt?type=ascii").Get());
+		RLOG(Ftp::AsyncGet("ftp://demo:password@test.rebex.net:21/readme.txt?type=ascii").Get());
 	}
 	catch(const Ftp::Error& e) {
-		LOG(e);
+		RLOG(e);
 	}
 }

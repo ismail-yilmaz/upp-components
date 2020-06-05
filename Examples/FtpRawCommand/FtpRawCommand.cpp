@@ -12,10 +12,10 @@ CONSOLE_APP_MAIN
 	if(ftpclient.Timeout(30000).Connect("demo:password@test.rebex.net:21")) {
 		auto reply_code = ftpclient.SendCommand("HELP");
 		if(!ftpclient.IsError()) {
-			LOG(ftpclient.GetReply());
-			DUMP(reply_code);
+			RLOG(ftpclient.GetReply());
+			RDUMP(reply_code);
 			return;
 		}
 	}
-	LOG(ftpclient.GetErrorDesc());
+	RLOG(ftpclient.GetErrorDesc());
 }

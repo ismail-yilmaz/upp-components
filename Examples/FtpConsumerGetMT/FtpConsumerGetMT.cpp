@@ -15,9 +15,9 @@ CONSOLE_APP_MAIN
 	};
 	try {
 		Ftp::AsyncConsumerGet("ftp://demo:password@test.rebex.net:21/readme.txt?type=ascii", pick(consumer)).Get();
-		LOG(file.GetResult());
+		RLOG(file.GetResult());
 	}
 	catch(const Ftp::Error& e) {
-		LOG(e);
+		RLOG(e);
 	}
 }

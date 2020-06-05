@@ -11,5 +11,5 @@ file
 	FtpGUI.lay;
 
 mainconfig
-	"" = "GUI MT";
+	"" = "GUI";
 
