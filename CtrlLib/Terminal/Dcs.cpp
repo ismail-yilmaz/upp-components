@@ -26,8 +26,8 @@ void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 		LLOG("Unhandled device control string.");
 		break;
 	}
-	if(refresh)
-		RefreshPage();
+	//if(refresh)
+	//	RefreshPage();
 }
 
 void Terminal::SetUserDefinedKeys(const VTInStream::Sequence& seq)

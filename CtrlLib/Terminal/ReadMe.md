@@ -79,7 +79,7 @@ It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing b
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
 
 - **Terminal widget supports true color.**
-Ultimate++ Terminal widget is a true color (24-bit color) virtual terminal emulator. It supports RGB, CMY, CMYK, and  indexed (256-color) palettes via SGR extended colors sequences. 
+Ultimate++ Terminal widget is a true color (24-bit/16M color) virtual terminal emulator. It supports RGB, CMY, CMYK, and  indexed (256-color) palettes via SGR extended colors sequences. 
 
 - **Terminal widget supports inline images.**
 Terminal widget has a flexible infrastructure and support for inline images and image manipulation in general. It can handle [sixel graphics](https://en.wikipedia.org/wiki/Sixel?oldformat=true) with 4/16/256 colors, or high/true color.  It also supports JPG, PNG, BMP raster image formats, or raw RGB images via [iTerm2's inline images protocol](https://iterm2.com/documentation-images.html),  and [jexer image protocol](https://gitlab.com/klamonte/jexer/-/wiki_pages/jexer-images), a simple and useful wire protocol which allows terminals to display popular true color image formats. In fact, since the terminal widget uses the common raster decoding api of Ultimate++, theoretically it can display any raster image that has a registered decoder.  Terminal ctrl uses Upp::Display objects to display the embedded images. Client code can set the image display to one of the predefined display objects that'll process or manipulate the images before they are displayed (stretch/scale/colorize/flip/add text, etc., you name it), and the changes will immediately take place. Moreover, developers can create their own cell displays tailored for their specific needs. Terminal widget also supports an external image viewing mode, where the image data is handed to client code for rendering and external viewing.
@@ -115,7 +115,7 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 - Supports extended colors sequences .
 - Supports RGB, CMY, CMYK and indexed color palettes via extended color sequences.
 - Supports xterm dynamic colors and color setting (dynamic ink/paper/selection colors).
-- Supports rgb, cmy, cmyk, hash6 and older hash3, hash9, hash12 color text specifications.
+- Supports rgb, rgba, cmy, cmyk, hash6 and older hash3, hash9, hash12 color text specifications.
 - Supports background color erase (BCE).
 - Supports transparency, i.e. allows background images, even animations. It's up to client code.
 - Supports VT4xx rectangular area operations: copy, invert, fill. erase.
@@ -569,6 +569,7 @@ From left to right: Jexer, htop, GNU nano, ncurses examples (worm, tclock), runn
 There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
+- Implement a font substitution method (prefarably, range-based)
 - Encapsulate the Windows power-shell process in PtyProcess.
 - Improve key handling on Windows.
 - Add Z-compression support to scrollback buffer. 
@@ -576,8 +577,8 @@ There is always room for improvement and new features.
 - DEC locator support.
 - xterm style rectangular area checksum reports.
 - BIDI support.
-- Write a terminfo file
-- Improve API documentation.
+- Write a terminfo file.
+- Write a tutorial.
  
 ## [Known Issues](#issues)
 

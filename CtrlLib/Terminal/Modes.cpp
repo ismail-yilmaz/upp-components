@@ -279,7 +279,7 @@ void Terminal::DECscnm(bool b)
 {
 	modes.Set(DECSCNM, b);
 	page->Invalidate();
-	RefreshPage(true);
+	Ctrl::Refresh();
 	LDUMP(DECSCNM);
 }
 

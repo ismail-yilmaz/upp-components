@@ -281,7 +281,7 @@ public:
     void        ImagesBar(Bar& menu);
     void        OptionsBar(Bar& menu);
 
-    void        Layout() override                               { SyncPage(); }
+    void        Layout() override                               { SyncSize(true); SyncSb(); }
 
     void        Paint(Draw& w)  override                        { Paint0(w); }
     void        PaintPage(Draw& w)                              { Paint0(w, true); }
@@ -320,8 +320,8 @@ public:
 
     void        DragAndDrop(Point pt, PasteClip& d) override;
 
-    void        GotFocus() override;
-    void        LostFocus() override;
+    void        GotFocus() override                             { if(modes[XTFOCUSM]) PutCSI('I'); Refresh(); }
+    void        LostFocus() override                            { if(modes[XTFOCUSM]) PutCSI('O'); Refresh(); }
 
     void        RefreshDisplay();
 
@@ -343,27 +343,22 @@ public:
 
 private:
     void        PreParse()                                      { ScheduleDelayedRefresh(); }
-    void        PostParse()                                     { if(!delayedrefresh) RefreshDisplay(); }
+    void        PostParse()                                     { if(delayedrefresh) return; SyncSb(); RefreshDisplay(); }
 
     void        SyncPage(bool notify = true);
     void        SwapPage();
-    void        RefreshPage(bool full = false);
 
     void        ScheduleDelayedRefresh();
-    void        DoDelayedRefresh();
 
     void        Blink(bool b);
-    void        RefreshBlinkingText();
 
     void        Scroll();
     void        SyncSb();
 
     void        SyncSize(bool notify = true);
-    void        DoLazyResize();
 
-    void        HintNewSize();
-    void        RefreshSizeHint();
     Tuple<String, Rect> GetSizeHint(Rect r, Size sz);
+    void        RefreshSizeHint()                               { Refresh(GetSizeHint(GetView(), GetPageSize()).b.Inflated(8)); }
 
     Rect        GetCaretRect();
     void        PlaceCaret(bool scroll = false);

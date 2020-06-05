@@ -1,5 +1,7 @@
 #include "Terminal.h"
 
+// TODO: Remove refresh flags from the tables. They are not needed anymore.
+
 #define LTIMING(x) // RTIMING(x)
 
 namespace Upp {

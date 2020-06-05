@@ -78,10 +78,13 @@ class sVTCellRenderer {
 public:
 	void DrawCell(int x, int y, const VTCell& cell, Size fsz, Color c, bool link, bool show)
 	{
+		// TODO: Rewrite this horror story...
+		
 		LTIMING("VTCellRenderer::DrawCell");
 
 		dxcount  = dx.GetCount();
 		bool overline = cell.IsOverlined() && show;
+		bool underline = cell.IsUnderlined() && show;
 
 		if(pos.y != y || pos.x >= x || sgr != cell.sgr || color != c || !dxcount) {
 			Flush();
@@ -94,16 +97,16 @@ public:
 			font.Underline(cell.IsUnderlined());
 
 			if(link)
-				p2 = p1 = Point(x, y + fsz.cy);
+				p2 = p1 = Point(x, y + fsz.cy - 1);
 
 			if(overline)
 				p3 = p4 = Point(x, y);
 		}
 
 		if(cell.chr <= 0x20
-			|| cell.IsImage()
-			|| cell.IsConcealed()
-			|| (!show && (cell.IsBlinking() && blink))) {
+		|| cell.IsImage()
+		|| cell.IsConcealed()
+		|| (!show && (cell.IsBlinking() && blink))) {
 			if(dxcount)
 				dx.Top() += fsz.cx;
 		}
@@ -198,11 +201,11 @@ void Terminal::Paint0(Draw& w, bool print)
 					bool highlight = IsSelected(Point(j, i));
 					if(pass == 0) {
 						if(!nobackground
-							|| !IsNull(cell.paper)
-							|| highlight
-							|| cell.IsInverted()
-							|| lnk && cell.data == activelink
-							|| print) {
+						|| !IsNull(cell.paper)
+						|| highlight
+						|| cell.IsInverted()
+						|| lnk && cell.data == activelink
+						|| print) {
 							int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
 							rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);
 						}

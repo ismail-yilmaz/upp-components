@@ -84,7 +84,7 @@ void Terminal::ParseControlChars(byte c)
 		LLOG(Format("Unhandled control byte: 0X%02X", c));
 		break;
 	}
-	if(refresh)
-		RefreshPage();
+	//if(refresh)
+	//	RefreshPage();
 }
 }

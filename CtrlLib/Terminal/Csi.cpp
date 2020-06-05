@@ -208,8 +208,8 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 		LLOG("Unhandled command sequence.");
 		break;
 	}
-	if(refresh)
-		RefreshPage();
+	//if(refresh)
+	//	RefreshPage();
 }
 
 void Terminal::ProtectAttributes(bool protect)

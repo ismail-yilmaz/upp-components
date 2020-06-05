@@ -152,7 +152,7 @@ void Terminal::ChangeColors(int opcode, const String& oscs, bool reset)
 	}
 
 	if(changed_colors > 0)
-		RefreshPage(true);
+		Ctrl::Refresh();
 }
 
 bool Terminal::SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset)
@@ -457,11 +457,11 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 	int count = h.GetCount();
 
 	if(count == 3
-	|| (count == 4 && h[0].IsEqual("rgb"))					// rgb : %04x / %04x / %04x
-	|| (count == 5 && h[0].IsEqual("rgba"))) {				// rgb : %02z / %02x / %02x
-		int index = 0;										// rgba : %04x / %04x / %04x / %04x
-		int radix = 10;										// rgba : %02x / %02x / %02x / %02x
-		if(count > 3) { index = 1; radix = 16; }			// %u , %u, %u
+    || (count == 4 && h[0].IsEqual("rgb"))                  // rgb : %04x / %04x / %04x
+    || (count == 5 && h[0].IsEqual("rgba"))) {              // rgb : %02z / %02x / %02x
+        int index = 0;                                      // rgba : %04x / %04x / %04x / %04x
+        int radix = 10;                                     // rgba : %02x / %02x / %02x / %02x
+        if(count > 3) { index = 1; radix = 16; }            // %u , %u, %u
 		int r = ScanInt(~h[index++], nullptr, radix);
 		int g = ScanInt(~h[index++], nullptr, radix);
 		int b = ScanInt(~h[index++], nullptr, radix);

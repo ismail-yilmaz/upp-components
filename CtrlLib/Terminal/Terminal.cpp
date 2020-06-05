@@ -61,7 +61,8 @@ Terminal::Terminal()
 	WhenBar = THISFN(StdBar);
 	sb.WhenScroll = THISFN(Scroll);
 	caret.WhenAction = [=] { PlaceCaret(); };
-	dpage.WhenScroll = [=] { SyncPage(); ScheduleDelayedRefresh(); };
+	dpage.WhenScroll = THISFN(ScheduleDelayedRefresh);
+	apage.WhenScroll = THISFN(ScheduleDelayedRefresh);
 }
 
 Size Terminal::GetFontSize() const
@@ -92,7 +93,7 @@ void Terminal::PlaceCaret(bool scroll)
 		Refresh(caretrect);
 		Refresh(GetCaretRect());
 	}
-	if(scroll) {
+	if(scroll && IsDefaultPage()) {
 		sb.ScrollInto(GetCursorPos().y);
 	}
 }
@@ -167,31 +168,34 @@ void Terminal::SyncSize(bool notify)
 
 	Size newsize = GetPageSize();
 	resizing = page->GetSize() != newsize;
+
+	auto OnSizeHint	= [=]
+	{
+		RefreshSizeHint();
+		hinting = false;
+	};
+	
+	auto OnResize = [=]
+	{
+		resizing = false;
+		WhenResize();
+	};
 	
 	if(resizing && newsize.cx > 1 && 1 < newsize.cy) {
 		page->SetSize(newsize);
 		if(notify) {
 			if(sizehint) {
 				hinting = true;
-				KillSetTimeCallback(1000, THISFN(HintNewSize), TIMEID_SIZEHINT);
+				KillSetTimeCallback(1000, OnSizeHint, TIMEID_SIZEHINT);
 			}
 			if(lazyresize)
-				KillSetTimeCallback(100, THISFN(DoLazyResize), TIMEID_REFRESH);
-			else {
-				resizing = false;
-				WhenResize();
-			}
+				KillSetTimeCallback(100, OnResize, TIMEID_REFRESH);
+			else
+				OnResize();
 		}
 		else
 			resizing = false;
 	}
-}
-
-void Terminal::DoLazyResize()
-{
-	KillTimeCallback(TIMEID_REFRESH);
-	resizing = false;
-	WhenResize();
 }
 
 void Terminal::ScheduleDelayedRefresh()
@@ -199,20 +203,7 @@ void Terminal::ScheduleDelayedRefresh()
 	if(delayedrefresh
 	&& (!lazyresize || !resizing)
 	&& !ExistsTimeCallback(TIMEID_REFRESH))  // Don't cancel a pending refresh.
-		SetTimeCallback(16, THISFN(DoDelayedRefresh), TIMEID_REFRESH);
-}
-
-void Terminal::DoDelayedRefresh()
-{
-	KillTimeCallback(TIMEID_REFRESH);
-	RefreshDisplay();
-}
-
-void Terminal::HintNewSize()
-{
-	KillTimeCallback(TIMEID_SIZEHINT);
-	RefreshSizeHint();
-	hinting = false;
+		SetTimeCallback(16, [=] { SyncSb(); RefreshDisplay(); }, TIMEID_REFRESH);
 }
 
 Tuple<String, Rect> Terminal::GetSizeHint(Rect r, Size sz)
@@ -223,16 +214,17 @@ Tuple<String, Rect> Terminal::GetSizeHint(Rect r, Size sz)
 	return pick(hint);
 }
 
-void Terminal::RefreshSizeHint()
-{
-	Refresh(GetSizeHint(GetView(), GetPageSize()).b.Inflated(8));
-}
-
 void Terminal::SyncSb()
 {
+	if(IsAlternatePage())
+		return;
+
 	sb.SetTotal(page->GetLineCount());
 	sb.SetPage(page->GetSize().cy);
 	sb.SetLine(1);
+
+	if(!ignorescroll)
+		sb.End();
 }
 
 void Terminal::Scroll()
@@ -254,27 +246,11 @@ void Terminal::Scroll()
 	PlaceCaret();
 }
 
-void Terminal::SyncPage(bool notify)
-{
-	SyncSize(notify);
-	SyncSb();
-	if(!ignorescroll)
-		sb.End();
-}
-
 void Terminal::SwapPage()
 {
-	SyncPage(false);
+	SyncSize(false);
+	SyncSb();
 	ClearSelection();
-}
-
-void Terminal::RefreshPage(bool full)
-{
-	if(full)
-		Refresh();
-	else
-	if(!delayedrefresh)
-		RefreshDisplay();
 }
 
 void Terminal::RefreshDisplay()
@@ -296,7 +272,7 @@ void Terminal::RefreshDisplay()
 			if(hyperlinks && cell.IsHyperlink()
 				&& (cell.data == activelink || cell.data == prevlink)) {
 					if(!line.IsInvalid())
-						Refresh(RectC(x, y, fsz.cx, fsz.cy).InflatedVert(1));
+						Refresh(RectC(x, y, fsz.cx, fsz.cy));
 			}
 			else
 			if(blinkingtext && cell.IsBlinking()) {
@@ -319,33 +295,13 @@ void Terminal::Blink(bool b)
 {
 	bool bb = ExistsTimeCallback(TIMEID_BLINK);
 	if(blinkingtext && b && !bb)
-		SetTimeCallback(-blinkinterval, THISFN(RefreshBlinkingText), TIMEID_BLINK);
+		SetTimeCallback(-blinkinterval, [=]{ blinking ^= 1; RefreshDisplay(); }, TIMEID_BLINK);
 	else
 	if(!blinkingtext || !b) {
 		blinking = false;
 		if(bb)
 			KillTimeCallback(TIMEID_BLINK);
 	}
-}
-
-void Terminal::RefreshBlinkingText()
-{
-	blinking ^= 1;
-	RefreshDisplay();
-}
-
-void Terminal::GotFocus()
-{
-	if(modes[XTFOCUSM])
-		PutCSI('I');
-	Refresh();
-}
-
-void Terminal::LostFocus()
-{
-	if(modes[XTFOCUSM])
-		PutCSI('O');
-	Refresh();
 }
 
 void Terminal::DragAndDrop(Point pt, PasteClip& d)
@@ -704,7 +660,7 @@ bool Terminal::IsSelected(Point pt) const
 	
 	Point pl, ph;
 	if(GetSelection(pl, ph)) {
-		Size psz = page->GetSize();
+		Size psz = GetPageSize();
 		int x = sGetPos(pt, psz);
 		int b = sGetPos(pl, psz);
 		int e = sGetPos(ph, psz);

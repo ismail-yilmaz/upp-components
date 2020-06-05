@@ -45,18 +45,18 @@ struct VTCell : Moveable<VTCell> {
     };
     
     VTCell& Normal()                         { sgr = SGR_NORMAL; return *this; }
-    VTCell& Bold(bool b = true)              { if(b) sgr |= SGR_BOLD; else sgr &= ~SGR_BOLD; return *this;                 }
-    VTCell& Faint(bool b = true)             { if(b) sgr |= SGR_FAINT; else sgr &= ~SGR_FAINT; return *this;               }
-    VTCell& Italic(bool b = true)            { if(b) sgr |= SGR_ITALIC; else sgr &= ~SGR_ITALIC; return *this;             }
-    VTCell& Underline(bool b = true)         { if(b) sgr |= SGR_UNDERLINE; else sgr &= ~SGR_UNDERLINE; return *this;       }
-    VTCell& Overline(bool b = true)          { if(b) sgr |= SGR_OVERLINE; else sgr &= ~SGR_OVERLINE; return *this;         }
-    VTCell& Blink(bool b = true)             { if(b) sgr |= SGR_BLINK; else sgr &= ~SGR_BLINK; return *this;               }
-    VTCell& Strikeout(bool b = true)         { if(b) sgr |= SGR_STRIKEOUT; else sgr &= ~SGR_STRIKEOUT; return *this;       }
-    VTCell& Invert(bool b = true)            { if(b) sgr |= SGR_INVERTED; else sgr &= ~SGR_INVERTED; return *this;         }
-    VTCell& Conceal(bool b = true)           { if(b) sgr |= SGR_HIDDEN; else sgr &= ~SGR_HIDDEN; return *this;             }
-    VTCell& Image(bool b = true)             { if(b) sgr |= SGR_IMAGE; else sgr &= ~SGR_IMAGE; return *this;               }
-    VTCell& Hyperlink(bool b = true)         { if(b) sgr |= SGR_HYPERLINK; else sgr &= ~SGR_HYPERLINK; return *this;       }
-    VTCell& Protect(bool b = true)           { if(b) attrs |= ATTR_PROTECTED; else attrs &= ~ATTR_PROTECTED; return *this; }
+    VTCell& Bold(bool b = true)              { sgr = (sgr & ~SGR_BOLD)      | (-b & SGR_BOLD);  return *this;     }
+    VTCell& Faint(bool b = true)             { sgr = (sgr & ~SGR_FAINT)     | (-b & SGR_FAINT); return *this;     }
+    VTCell& Italic(bool b = true)            { sgr = (sgr & ~SGR_ITALIC)    | (-b & SGR_ITALIC); return *this;    }
+    VTCell& Underline(bool b = true)         { sgr = (sgr & ~SGR_UNDERLINE) | (-b & SGR_UNDERLINE); return *this; }
+    VTCell& Overline(bool b = true)          { sgr = (sgr & ~SGR_OVERLINE)  | (-b & SGR_OVERLINE); return *this;  }
+    VTCell& Blink(bool b = true)             { sgr = (sgr & ~SGR_BLINK)     | (-b & SGR_BLINK); return *this;     }
+    VTCell& Strikeout(bool b = true)         { sgr = (sgr & ~SGR_STRIKEOUT) | (-b & SGR_STRIKEOUT); return *this; }
+    VTCell& Invert(bool b = true)            { sgr = (sgr & ~SGR_INVERTED)  | (-b & SGR_INVERTED); return *this;  }
+    VTCell& Conceal(bool b = true)           { sgr = (sgr & ~SGR_HIDDEN)    | (-b & SGR_HIDDEN); return *this;    }
+    VTCell& Image(bool b = true)             { sgr = (sgr & ~SGR_IMAGE)     | (-b & SGR_IMAGE); return *this;     }
+    VTCell& Hyperlink(bool b = true)         { sgr = (sgr & ~SGR_HYPERLINK) | (-b & SGR_HYPERLINK); return *this; }
+    VTCell& Protect(bool b = true)           { attrs = (attrs & ~ATTR_PROTECTED) | (-b & ATTR_PROTECTED); return *this; }
 
     static const VTCell& Void();
     

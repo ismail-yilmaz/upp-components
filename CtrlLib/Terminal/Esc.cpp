@@ -193,8 +193,8 @@ void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		LLOG("Unhandled escape sequence.");
 		break;
 	}
-	if(refresh)
-		RefreshPage();
+	//if(refresh)
+	//	RefreshPage();
 }
 
 bool Terminal::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
