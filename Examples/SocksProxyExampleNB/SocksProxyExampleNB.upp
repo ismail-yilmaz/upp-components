@@ -1,0 +1,12 @@
+description "Demonstrates a simple non-blocking SOCKS5 connection, using the NetProxy package.\377";
+
+uses
+	Core,
+	NetProxy;
+
+file
+	SocksProxyExampleNB.cpp;
+
+mainconfig
+	"" = "";
+
