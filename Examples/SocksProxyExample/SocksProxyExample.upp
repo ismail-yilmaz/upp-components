@@ -1,0 +1,12 @@
+description "Demonstrates a simple SOCK5 connection example, using NetProxy package.\377";
+
+uses
+	Core,
+	NetProxy;
+
+file
+	SocksProxyExample.cpp;
+
+mainconfig
+	"" = "";
+
