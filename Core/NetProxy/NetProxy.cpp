@@ -143,23 +143,24 @@ bool NetProxy::Get()
 	while(!IsTimeout()) {
 		char c;
 		if(socket->Get(&c, sizeof(char)) == 0)
-			return false;
+			break;
 		packet.Cat(c);
 		if(IsEof()) {
 			return true;
 		}
 	}
+	return false;
 }
 
 bool NetProxy::Put()
 {
 	while(!IsTimeout()) {
-		int n = packet.GetCharCount() - packet_length;
+		int n = packet.GetLength() - packet_length;
 		n = socket->Put(~packet + packet_length, n);
 		if(n == 0)
 			break;
 		packet_length += n;
-		if(packet_length == packet.GetCharCount()) {
+		if(packet_length == packet.GetLength()) {
 			packet.Clear();
 			packet_length = 0;
 			return true;
@@ -486,13 +487,14 @@ bool NetProxy::Socks5ParseReply()
 		return SocksCommand(command);
 	}
 	NEVER();
+	return true;
 }
 
 bool NetProxy::Socks5IsEof()
 {
 	auto n = packet.GetLength();
-	if(packet_type == SOCKS5_HELO && n == sizeof(Reply::Helo) ||
-	   packet_type == SOCKS5_AUTH && n == sizeof(Reply::Auth))
+	if((packet_type == SOCKS5_HELO && n == sizeof(Reply::Helo))
+	|| (packet_type == SOCKS5_AUTH && n == sizeof(Reply::Auth)))
 		return Socks5ParseReply();
 	if(packet_type == SOCKS5_REQUEST) {
 		auto* p = (Reply::Socks5*) packet.Begin();
@@ -506,7 +508,7 @@ bool NetProxy::Socks5IsEof()
 			else
 			if(p->addrtype == 0x04)
 				packet_length = header + sizeof(p->ipv6);		// 16 bytes for IPv6 address.
-			packet_length += int(2);					// 2 bytes for server bound port number.
+			packet_length += int(2);							// 2 bytes for server bound port number.
 		}
 		if(n == packet_length) {
 			return Socks5ParseReply();

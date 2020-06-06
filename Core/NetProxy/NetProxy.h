@@ -150,7 +150,7 @@ public:
     NetProxy(TcpSocket& sock, const String& proxy, int port) : NetProxy(sock)   { Proxy(proxy, port); }
     virtual ~NetProxy();
 
-    enum ProxyTypes     { SOCKS4 = 0x04, SOCKS5, HTTP };
+    enum ProxyTypes     { SOCKS4 = 0x04, SOCKS5 = 0x05, HTTP };
     enum ErrorCodes {
         // NetProxy errors.
         NO_SOCKET_ATTACHED = 10000,
