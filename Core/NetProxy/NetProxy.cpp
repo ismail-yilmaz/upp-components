@@ -110,10 +110,12 @@ bool NetProxy::Init()
 
 bool NetProxy::Exit()
 {
-	socket->Timeout(timeout_backup);
-	socket = NULL;
-	events  = 0;
-	LLOG("Exiting...");
+	if(socket) {
+		socket->Timeout(timeout_backup);
+		socket = nullptr;
+		events  = 0;
+		LLOG("Exiting...");
+	}
 	return true;
 }
 
@@ -578,8 +580,9 @@ bool NetProxy::Do()
 			queue.DropHead();
 		}
 		if(queue.IsEmpty()) {
-			status = FINISHED;
 			LLOG("Proxy connection is successful.");
+			status = FINISHED;
+			Exit();
 		}
 		else WhenDo();
 	}
