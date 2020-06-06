@@ -22,17 +22,18 @@ CONSOLE_APP_MAIN
 	TcpSocket sock;
 
 	NetProxy socksproxy(sock, proxy_server, proxy_port);
-	if(socksproxy.Timeout(10000).NonBlocking().Socks5().Connect("test.rebex.net", 21)) {
-		while(socksproxy.Do()) {
-			SocketWaitEvent we;
-			socksproxy.AddTo(we);
-			we.Wait(100);
-			// Do other stuff...
-		}
+	socksproxy.Timeout(10000).NonBlocking().Socks5().Connect("test.rebex.net", 21);
+	while(socksproxy.Do()) {
+		SocketWaitEvent we;
+		socksproxy.AddTo(we);
+		we.Wait(100);
+		// Do other stuff...
+	}
+	if(socksproxy.IsError())
+		RLOG(socksproxy.GetErrorDesc());
+	else {
 		RLOG("-------------");	// Here, the socket is in its original state (blocking).
 		RLOG(sock.GetLine());	// Get the first line of FTP server HELO...
 		RLOG("-------------");
-		return;
 	}
-	RLOG(socksproxy.GetErrorDesc());
 }
