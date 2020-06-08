@@ -204,7 +204,7 @@ GUI_APP_MAIN
 Yup, that's all.
 
 #### Screenshots
-Jexer with sixel support, running on the basic terminal example. (Linux)
+Jexer with modern image formats (png/jpg, etc.) support, running on the basic terminal example. (Linux)
 ![ ](../Images/terminal_jexer_linux_screenshot.png)
 
 tmux/screen, running on the basic terminal example. (Linux)
