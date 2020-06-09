@@ -395,6 +395,9 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 		}
 		else
 		if(modifier && IsMouseOverImage(pt)) {
+			// Unfortunately, Turtle and VirtualGui (e.g. linux framebuffer)
+			// backends does not support image drag-and-drop, at the moment.
+		#if !defined(TURTLE) && !defined(VIRTUALGUI)
 			Image isample = GetInlineImage(pt, modifier);
 			Append(data, isample);
 			Size isz = GetFitSize(isample.GetSize(), StdSampleSize());
@@ -402,6 +405,7 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 			iw.DrawImage(isz, isample);
 			DoDragAndDrop(data, iw, DND_COPY);
 			ClearSelection();
+		#endif
 		}
 	}
 }
