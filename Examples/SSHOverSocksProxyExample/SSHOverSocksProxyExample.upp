@@ -1,0 +1,13 @@
+description "Demonstrates an SSH2 connection over a socks5 proxy, using SSH and NetProxy packages.\377";
+
+uses
+	Core,
+	Core/SSH,
+	NetProxy;
+
+file
+	SSHOverSocksProxy.cpp;
+
+mainconfig
+	"" = "";
+
