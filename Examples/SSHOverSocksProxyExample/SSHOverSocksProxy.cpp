@@ -21,13 +21,11 @@ CONSOLE_APP_MAIN
 	Ssh::Trace();
 	NetProxy::Trace();
 	
-	const char *proxy_server = "88.249.26.113";		// Anonymous socks proxy server of a well-known ISP in Turkey (Turk Telekom).
+	const char *proxy_server = "88.249.26.113";  // Anonymous socks proxy server of a well-known ISP in Turkey (Turk Telekom).
 	const int   proxy_port   = 1080;
 	
-	const char *ssh_server   = "test.rebex.net";	// A well-known and popular SSH test server.
+	const char *ssh_server   = "test.rebex.net"; // A well-known and popular SSH test server.
 	const int   ssh_port     = 22;
-
-	TcpSocket sock;
 
 	SshSession session;
 	session.WhenProxy = [&]() -> bool

@@ -395,8 +395,8 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 		}
 		else
 		if(modifier && IsMouseOverImage(pt)) {
-			// Unfortunately, Turtle and VirtualGui (e.g. linux framebuffer)
-			// backends do  not support image  drag-and-drop, at the moment.
+		// Unfortunately, Turtle and VirtualGui (e.g. linux framebuffer)
+		// backends do  not support image  drag-and-drop, at the moment.
 		#if !defined(TURTLE) && !defined(VIRTUALGUI)
 			Image isample = GetInlineImage(pt, modifier);
 			Append(data, isample);
