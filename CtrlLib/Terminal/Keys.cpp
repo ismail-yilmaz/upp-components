@@ -16,7 +16,7 @@ bool Terminal::VTKey(dword key, int count)
         VTKEY_EDITPAD
     };
 
-    static Tuple<dword, int, int, const char*> vtkeys[] = {
+    static const Tuple<dword, int, int, const char*> vtkeys[] = {
         {   K_UP,       VTKEY_CURSOR,   LEVEL_0,    "A"     },
         {   K_DOWN,     VTKEY_CURSOR,   LEVEL_0,    "B"     },
         {   K_RIGHT,    VTKEY_CURSOR,   LEVEL_0,    "C"     },
@@ -218,9 +218,9 @@ bool Terminal::NavKey(dword key, int count)
 
 bool Terminal::Key(dword key, int count)
 {
-	if(IsReadOnly() ||
-		(!modes[DECARM] && count > 1))
-			return MenuBar::Scan(WhenBar, key);
+	if(IsReadOnly()
+	|| (!modes[DECARM] && count > 1))
+		return MenuBar::Scan(WhenBar, key);
 
 	dword keyflags = 0;
 	
@@ -286,7 +286,9 @@ KeyAccepted:
 	PlaceCaret(true);
 
 End:
-	if(hidemousecursor)	mousehidden = true;
+	if(hidemousecursor)
+		mousehidden = true;
+	
 	return true;
 }
 
