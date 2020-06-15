@@ -11,7 +11,7 @@ using namespace Upp;
 //          proxy server (with  no authentication) to access  a public  SFTP
 //          server.
 //
-//			NEVER  USE A PUBLIC PROXY SERVER FOR YOUR SSH CONNECTIONS. IN FACT,
+//          NEVER  USE A PUBLIC PROXY SERVER FOR YOUR SSH CONNECTIONS. IN FACT,
 //          IT IS HIGHLY RECOMMENDED TO COMPLETELY AVOID USING PROXY SERVERS FOR
 //          SENSITIVE/ENCRYPTED DATA TRANSFERS.
 

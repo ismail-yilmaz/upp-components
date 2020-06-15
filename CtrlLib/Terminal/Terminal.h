@@ -291,8 +291,8 @@ public:
     virtual bool UDKey(dword key, int count);
     virtual bool NavKey(dword key, int count);
 
-    Terminal&   MetaEscapesKeys(bool b = true);
-    Terminal&   MetaShiftsKeys(bool b = true);
+    Terminal&   MetaEscapesKeys(bool b = true)					{ metakeyflags = (metakeyflags & ~MKEY_ESCAPE) | (-b & MKEY_ESCAPE); return *this; }
+    Terminal&   MetaShiftsKeys(bool b = true)					{ metakeyflags = (metakeyflags & ~MKEY_SHIFT)  | (-b & MKEY_SHIFT);  return *this; }
     Terminal&   MetaKeyDoesNothing()                            { modes.Set(XTALTESCM, false); metakeyflags = MKEY_NONE; return *this; }
 
     void        LeftDown(Point pt, dword keyflags) override;

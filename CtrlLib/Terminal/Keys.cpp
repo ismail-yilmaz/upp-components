@@ -266,9 +266,7 @@ bool Terminal::Key(dword key, int count)
 		if(keyflags & K_CTRL)
 			key = ToAscii(key) & 0x1F;
 		
-		if(key < 0x80 && keyflags & K_ALT) {
-			if(metakeyflags == MKEY_NONE)
-				return false;
+		if(key < 0x80 && (keyflags & K_ALT) && metakeyflags != MKEY_NONE) {
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
 			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
@@ -290,24 +288,5 @@ End:
 		mousehidden = true;
 	
 	return true;
-}
-
-Terminal& Terminal::MetaEscapesKeys(bool b)
-{
-	if(b)
-		metakeyflags |=  MKEY_ESCAPE;
-	else
-		metakeyflags &= ~MKEY_ESCAPE;
-	return *this;
-}
-
-Terminal& Terminal::MetaShiftsKeys(bool b)
-{
-	if(b)
-		metakeyflags |=  MKEY_SHIFT;
-	else
-		metakeyflags &= ~MKEY_SHIFT;
-	return *this;
-
 }
 }
