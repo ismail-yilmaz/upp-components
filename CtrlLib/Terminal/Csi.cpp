@@ -354,31 +354,39 @@ void Terminal::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 {
 	static constexpr const char* VTID_52   = "/Z";
 	static constexpr const char* VTID_1XX  = "?6c";
-	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;17;22;444c";
-	static constexpr const char* VTID_3XX  = "?63;1;4;6;8;9;15;17;22;444c";
-	static constexpr const char* VTID_4XX  = "?64;1;4;6;8;9;15;17;21;22;28;444c";
+	static constexpr const char* VTID_2XX  = "?62;1;6;8;9;15;17;22";
+	static constexpr const char* VTID_3XX  = "?63;1;6;8;9;15;17;22";
+	static constexpr const char* VTID_4XX  = "?64;1;6;8;9;15;17;21;22;28";
 	static constexpr const char* VTID_UNIT = "!|00000000";
-
+	
 	if(seq.mode == '\0') {
+		String s;
 		switch(clevel) {
 		case LEVEL_0:
 			PutESC(VTID_52);
-			break;
+			return;
 		case LEVEL_1:
 			PutCSI(VTID_1XX);
-			break;
+			return;
 		case LEVEL_2:
-			PutCSI(VTID_2XX);
+			s = VTID_2XX;
 			break;
 		case LEVEL_3:
-			PutCSI(VTID_3XX);
+			s = VTID_3XX;
 			break;
 		case LEVEL_4:
-			PutCSI(VTID_4XX);
+			s = VTID_4XX;
 			break;
 		default:
-			break;
+			return;
 		}
+		
+		// Advertise individually switchable capabilities.
+		if(sixelimages)  s << ";4";
+		if(jexerimages)  s << ";444";
+		if(iterm2images) s << ";1337";
+		
+		PutCSI(s + "c");
 	}
 	else
 	if(seq.mode == '>')
