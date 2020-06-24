@@ -74,7 +74,7 @@ A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the firs
 Although it is easy to use, and requires very little coding, Terminal ctrl is by no means restrictive. It it highly configurable.
 
 - **Terminal widget is a regular ctrl.**
-It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as adding Terminal instances to a TreeCtrl or ArrayCtrl. ;)
+It is derived from Upp::Ctrl, and is following the same basic rule: *Everthing belongs somewhere*. It supports most of the generic Ctrl methods where applicable or makes sense. Of course, If you are determined enough, you can even do some “interesting” things, such as embedding Terminal instances into TreeCtrl nodes or Arrayctrl rows. ;)
 
 - ***Everything belongs somewhere* rule runs through the heart of Terminal package.**
 There are no manual memory allocations/deallocations, no new/delete pairs, and no smart/not-so-smart/shared pointers in the code; only the containers, and extensive application of the [RAII](https://www.wikiwand.com/en/Resource_acquisition_is_initialization) principle.
