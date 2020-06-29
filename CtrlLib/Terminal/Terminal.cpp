@@ -67,8 +67,7 @@ Terminal::Terminal()
 
 Size Terminal::GetFontSize() const
 {
-	FontInfo fi = font.Info();
-	return Size(max(fi['M'], fi['W']), fi.GetHeight());
+	return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy());
 }
 
 Size Terminal::GetPageSize() const

@@ -323,10 +323,10 @@ void Terminal::PutEncoded(const String& s, bool noctl)
 
 	for(int c : buf) {
 		c = ConvertToCharset(c, gsets.Get(c, IsLevel2()));
-		if(!noctl		||
-			IsSpace(c)	||
-				(c >= 0x20 && c <= 0xFFFF))
-					txt.Cat(c == DEFAULTCHAR ? '?' : c);
+		if(!noctl
+		|| IsSpace(c)
+		|| (c >= 0x20 && c <= 0xFFFF))
+			txt.Cat(c == DEFAULTCHAR ? '?' : c);
 	}
 	PutRaw(txt);
 }
