@@ -432,18 +432,23 @@ void VTInStream::NextState(State::Id  sid)
 
 void VTInStream::Parse(const void *data, int size, bool utf8)
 {
-	Create(data, size);
+	String iutf8;	// A buffer to hold incomplete UTF-8 bytes.
+
+	// TODO: Add pseudo-rentrancy.
+	
+	buffer.Cat((const char *) data, size);
+	Create(~buffer, buffer.GetLength());
 
 	LTIMING("VTInStream::Parse");
 
 	while(!IsEof()) {
-		int c = utf8 ? GetUtf8() : Get();
+		int c = utf8 ? GetUtf8(iutf8) : Get();
 		const State* st;
 		if(!(st = GetState(c)))
 			continue;
 		switch(st->action) {
 		case State::Action::Mode:
-			sequence.mode = (byte)c;
+			sequence.mode = byte(c);
 			break;
 		case State::Action::Parameter:
 			collected.Cat(c);
@@ -452,10 +457,10 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 			sequence.intermediate.Cat(c);
 			break;
 		case State::Action::Final:
-			sequence.opcode = (byte)c;
+			sequence.opcode = byte(c);
 			break;
 		case State::Action::Control:
-			WhenCtl((byte)c);
+			WhenCtl(byte(c));
 			break;
 		case State::Action::Ground:
 			WhenChr(c);
@@ -465,11 +470,11 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 			sequence.payload.Cat(c);
 			break;
 		case State::Action::DispatchEsc:
-			sequence.opcode = (byte)c;
+			sequence.opcode = byte(c);
 			Dispatch(WhenEsc);
 			break;
 		case State::Action::DispatchCsi:
-			sequence.opcode = (byte)c;
+			sequence.opcode = byte(c);
 			Dispatch(WhenCsi);
 			break;
 		case State::Action::DispatchDcs:
@@ -489,6 +494,115 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 			NEVER();
 		}
 		NextState(st->next);
+	}
+	
+	buffer.Clear();
+	
+	if(!iutf8.IsEmpty())
+		buffer = iutf8;
+}
+
+int VTInStream::GetUtf8(String& iutf8)
+{
+	// This method is a slightly modified version of Upp::Stream::GetUtf8
+	// The modifications allow the VTInStream to collect and  process the
+	// incomplete (sequential) UTF-8 bytes that can occur at  the end  of
+	// an incoming data stream, or simply substitute them with 0xFFFD, if
+	// they happen to appear anywhere else in the data stream.
+
+	// TODO: Cosmetics.
+
+	int code = Get();
+	if(code < 0) {
+		LoadError();
+		return -1;
+	}
+	else
+	if(code < 0x80)
+		return code;
+	else
+	if(code < 0xC2)
+		return -1;
+	else
+	if(code < 0xE0) {
+		if(IsEof()) {
+			iutf8.Cat(code);
+			LoadError();
+			return -1;
+		}
+		return ((code - 0xC0) << 6) + Get() - 0x80;
+	}
+	else
+	if(code < 0xF0) {
+		int c0 = Get();
+		int c1 = Get();
+		if(c1 < 0) {
+			if(!IsEof()) return 0xFFFD;
+			iutf8.Cat(code);
+			if(c0 >= 0) iutf8.Cat(c0);
+			LoadError();
+			return -1;
+		}
+		return ((code - 0xE0) << 12) + ((c0 - 0x80) << 6) + c1 - 0x80;
+	}
+	else
+	if(code < 0xF8) {
+		int c0 = Get();
+		int c1 = Get();
+		int c2 = Get();
+		if(c2 < 0) {
+			if(!IsEof()) return 0xFFFD;
+			iutf8.Cat(code);
+			if(c0 >= 0) iutf8.Cat(c0);
+			if(c1 >= 0) iutf8.Cat(c1);
+			LoadError();
+			return -1;
+		}
+		return ((code - 0xf0) << 18) + ((c0 - 0x80) << 12) + ((c1 - 0x80) << 6) + c2 - 0x80;
+	}
+	else
+	if(code < 0xFC) {
+		int c0 = Get();
+		int c1 = Get();
+		int c2 = Get();
+		int c3 = Get();
+		if(c3 < 0) {
+			if(!IsEof()) return 0xFFFD;
+			iutf8.Cat(code);
+			if(c0 >= 0) iutf8.Cat(c0);
+			if(c1 >= 0) iutf8.Cat(c1);
+			if(c2 >= 0) iutf8.Cat(c2);
+			LoadError();
+			return -1;
+		}
+		return ((code - 0xF8) << 24) + ((c0 - 0x80) << 18) + ((c1 - 0x80) << 12) +
+		       ((c2 - 0x80) << 6) + c3 - 0x80;
+	}
+	else
+	if(code < 0xFE) {
+		int c0 = Get();
+		int c1 = Get();
+		int c2 = Get();
+		int c3 = Get();
+		int c4 = Get();
+		if(c4 < 0) {
+			if(!IsEof()) return 0xFFFD;
+			iutf8.Cat(code);
+			if(c0 >= 0) iutf8.Cat(c0);
+			if(c1 >= 0) iutf8.Cat(c1);
+			if(c2 >= 0) iutf8.Cat(c2);
+			if(c3 >= 0) iutf8.Cat(c3);
+			LoadError();
+			return -1;
+		}
+		return ((code - 0xFC) << 30) + ((c0 - 0x80) << 24) + ((c1 - 0x80) << 18) +
+		       ((c2 - 0x80) << 12) + ((c3 - 0x80) << 6) + c4 - 0x80;
+
+	}
+	else {
+		if(!IsEof()) return 0xFFFD;
+		LoadError();
+		return -1;
 	}
 }
 

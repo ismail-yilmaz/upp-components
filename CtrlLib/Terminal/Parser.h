@@ -12,12 +12,7 @@ namespace Upp {
 class VTInStream : public MemReadStream {
 public:
     struct Sequence {
-        enum Type : byte {
-            ESC,
-            CSI,
-            DCS,
-            OSC
-        };
+        enum Type : byte { ESC, CSI, DCS, OSC, APC, PM, SOS };
         byte            opcode;
         byte            mode;
         Vector<String>  parameters;
@@ -98,6 +93,7 @@ public:
     virtual ~VTInStream() {}
 
 private:
+    int             GetUtf8(String& iutf8);
     void            NextState(State::Id sid);
     const State*    GetState(const int& c) const;
     void            Dispatch(const Event<const VTInStream::Sequence&>& fn);
@@ -106,6 +102,7 @@ private:
 private:
     Sequence    sequence;
     bool        waschr;
+    String      buffer;
     String      collected;
     const Vector<VTInStream::State>*  state;
 };

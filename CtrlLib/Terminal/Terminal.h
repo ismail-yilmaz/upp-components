@@ -102,7 +102,6 @@ public:
     void        Write(const void *data, int size, bool utf8 = true);
     void        Write(const String& s, bool utf8 = true)        { Write(~s, s.GetLength(), utf8); }
     void        WriteUtf8(const String& s)                      { Write(s, true);         }
-    void        CheckWriteUtf8(const String& s)                 { Write(s, CheckUtf8(s)); }
 
     Terminal&   SetLevel(int level)                             { SetEmulation(level); return *this; }
     bool        IsLevel0() const                                { return !modes[DECANM]; }
