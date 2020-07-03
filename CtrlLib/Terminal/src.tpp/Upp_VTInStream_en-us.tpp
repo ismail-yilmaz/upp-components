@@ -25,8 +25,8 @@ diagram publicized by Paul`-Flo Williams]. &]
 [s2;%% VTInStream can handle UTF`-8 and non UTF`-8 characters, C0 
 and C1 control bytes, and ESC, CSI, DCS, OSC, and APC sequences 
 in both 7`-bits and 8`-bits forms, allows switching between UTF`-8 
-and non UTF`-8 modes on`-the`-fly (e.g., using [^topic`:`/`/Core`/src`/Utf`_en`-us`#CheckUtf8`(const String`&`)^ C
-heckUtf8()] method), and can be used as both a parser and a filter.&]
+and non UTF`-8 modes on`-the`-fly, and can be used as both a 
+parser and a filter.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]

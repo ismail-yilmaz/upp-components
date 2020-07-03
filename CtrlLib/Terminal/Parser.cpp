@@ -504,104 +504,117 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 
 int VTInStream::GetUtf8(String& iutf8)
 {
-	// This method is a slightly modified version of Upp::Stream::GetUtf8
-	// The modifications allow the VTInStream to collect and  process the
-	// incomplete (sequential) UTF-8 bytes that can occur at  the end  of
-	// an incoming data stream, or simply substitute them with 0xFFFD, if
-	// they happen to appear anywhere else in the data stream.
+	// This method is a slightly modified version of Stream::GetUtf8()
 
-	// TODO: Cosmetics.
-
-	int code = Get();
-	if(code < 0) {
+	int cx = Get();
+	if(cx < 0) {
 		LoadError();
 		return -1;
 	}
 	else
-	if(code < 0x80)
-		return code;
+	if(cx < 0x80)
+		return cx;
 	else
-	if(code < 0xC2)
+	if(cx < 0xC2)
 		return -1;
 	else
-	if(code < 0xE0) {
+	if(cx < 0xE0) {
 		if(IsEof()) {
-			iutf8.Cat(code);
+			iutf8.Cat(cx);
 			LoadError();
 			return -1;
 		}
-		return ((code - 0xC0) << 6) + Get() - 0x80;
+		return ((cx - 0xC0) << 6) + Get() - 0x80;
 	}
 	else
-	if(code < 0xF0) {
+	if(cx < 0xF0) {
 		int c0 = Get();
 		int c1 = Get();
-		if(c1 < 0) {
-			if(!IsEof()) return 0xFFFD;
-			iutf8.Cat(code);
+		if(c1 >= 0) {
+			return ((cx - 0xE0) << 12)
+				 + ((c0 - 0x80) << 6)
+				 + c1 - 0x80;
+		}
+		else
+		if(IsEof()) {
+			iutf8.Cat(cx);
 			if(c0 >= 0) iutf8.Cat(c0);
 			LoadError();
-			return -1;
 		}
-		return ((code - 0xE0) << 12) + ((c0 - 0x80) << 6) + c1 - 0x80;
+		return -1;
 	}
 	else
-	if(code < 0xF8) {
+	if(cx < 0xF8) {
 		int c0 = Get();
 		int c1 = Get();
 		int c2 = Get();
-		if(c2 < 0) {
-			if(!IsEof()) return 0xFFFD;
-			iutf8.Cat(code);
+		if(c2 >= 0) {
+			return ((cx - 0xf0) << 18)
+				 + ((c0 - 0x80) << 12)
+				 + ((c1 - 0x80) << 6)
+				 + c2 - 0x80;
+		}
+		else
+		if(IsEof()) {
+			iutf8.Cat(cx);
 			if(c0 >= 0) iutf8.Cat(c0);
 			if(c1 >= 0) iutf8.Cat(c1);
 			LoadError();
-			return -1;
 		}
-		return ((code - 0xf0) << 18) + ((c0 - 0x80) << 12) + ((c1 - 0x80) << 6) + c2 - 0x80;
+		return -1;
 	}
 	else
-	if(code < 0xFC) {
+	if(cx < 0xFC) {
 		int c0 = Get();
 		int c1 = Get();
 		int c2 = Get();
 		int c3 = Get();
-		if(c3 < 0) {
-			if(!IsEof()) return 0xFFFD;
-			iutf8.Cat(code);
+		if(c3 >= 0) {
+			return ((cx - 0xF8) << 24)
+				 + ((c0 - 0x80) << 18)
+				 + ((c1 - 0x80) << 12)
+				 + ((c2 - 0x80) << 6)
+				 + c3 - 0x80;
+		}
+		else
+		if(IsEof()) {
+			iutf8.Cat(cx);
 			if(c0 >= 0) iutf8.Cat(c0);
 			if(c1 >= 0) iutf8.Cat(c1);
 			if(c2 >= 0) iutf8.Cat(c2);
 			LoadError();
-			return -1;
 		}
-		return ((code - 0xF8) << 24) + ((c0 - 0x80) << 18) + ((c1 - 0x80) << 12) +
-		       ((c2 - 0x80) << 6) + c3 - 0x80;
+		return -1;
 	}
 	else
-	if(code < 0xFE) {
+	if(cx < 0xFE) {
 		int c0 = Get();
 		int c1 = Get();
 		int c2 = Get();
 		int c3 = Get();
 		int c4 = Get();
-		if(c4 < 0) {
-			if(!IsEof()) return 0xFFFD;
-			iutf8.Cat(code);
+		if(c4 >= 0) {
+			return ((cx - 0xFC) << 30)
+				 + ((c0 - 0x80) << 24)
+				 + ((c1 - 0x80) << 18)
+				 + ((c2 - 0x80) << 12)
+				 + ((c3 - 0x80) << 6)
+				 + c4 - 0x80;
+		}
+		else
+		if(IsEof()) {
+			iutf8.Cat(cx);
 			if(c0 >= 0) iutf8.Cat(c0);
 			if(c1 >= 0) iutf8.Cat(c1);
 			if(c2 >= 0) iutf8.Cat(c2);
 			if(c3 >= 0) iutf8.Cat(c3);
 			LoadError();
-			return -1;
 		}
-		return ((code - 0xFC) << 30) + ((c0 - 0x80) << 24) + ((c1 - 0x80) << 18) +
-		       ((c2 - 0x80) << 12) + ((c3 - 0x80) << 6) + c4 - 0x80;
-
+		return -1;
 	}
 	else {
-		if(!IsEof()) return 0xFFFD;
-		LoadError();
+		if(IsEof())
+			LoadError();
 		return -1;
 	}
 }
