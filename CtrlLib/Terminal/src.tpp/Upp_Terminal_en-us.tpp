@@ -322,6 +322,20 @@ UDKs, SGR attributes, legacy charsets. Does not clear the history
 buffer or alternate screen.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:Write`(const void`*`,int`,bool`):%- [@(0.0.255) void]_[* Write]([@(0.0.255) c
+onst]_[@(0.0.255) void]_`*[*@3 data], [@(0.0.255) int]_[*@3 size], [@(0.0.255) bool]_[*@3 utf
+8])&]
+[s5;:Upp`:`:Terminal`:`:Write`(const Upp`:`:String`&`,bool`):%- [@(0.0.255) void]_[* Writ
+e]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
+[@(0.0.255) bool]_[*@3 utf8]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:Terminal`:`:WriteUtf8`(const Upp`:`:String`&`):%- [@(0.0.255) void]_[* WriteU
+tf8]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s])&]
+[s2; Writes a block of raw [%-*@3 data], or a String containing raw 
+data, to the terminal. [%-*@3 utf8] flag can be used to enable 
+or disable the UTF`-8 byte processing mode of the parser. UTF`-8 
+mode is the default and recommended byte processing mode.&]
+[s3; &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:History`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* H
 istory]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables the history (scrollback) buffer. Returns 
