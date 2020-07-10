@@ -479,17 +479,24 @@ void Terminal::RightUp(Point pt, dword keyflags)
 
 void Terminal::MouseMove(Point pt, dword keyflags)
 {
+	auto sGetMouseMotionEvent = [](bool b) -> dword
+	{
+		if(!b) return Ctrl::MOUSEMOVE;
+		if(GetMouseLeft()) return Ctrl::LEFTDRAG;
+		if(GetMouseRight()) return Ctrl::RIGHTDRAG;
+	//	if(GetMouseMiddle()) return Ctrl::MIDDLEDRAG;
+		return 0;
+	};
+
 	pt = GetView().Bind(pt);
-	bool b = HasCapture();
+	bool captured = HasCapture();
+
 	if(IsTracking()) {
-		if(b && modes[XTDRAGM])
-			VTMouseEvent(pt, LEFTDRAG, keyflags);
-		else
-		if(modes[XTANYMM])
-			VTMouseEvent(pt, b ? LEFTDRAG : MOUSEMOVE, keyflags);
+		if((modes[XTDRAGM] && captured) || modes[XTANYMM])
+			VTMouseEvent(pt, sGetMouseMotionEvent(captured), keyflags);
 	}
 	else
-	if(HasCapture()) {
+	if(captured) {
 		selpos = ClientToPagePos(pt);
 		Refresh();
 	}
@@ -527,11 +534,10 @@ Image Terminal::MouseEvent(int event, Point pt, int zdelta, dword keyflags)
 
 void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 {
-	bool buttondown = (event & UP) != UP; // Combines everything else with a button-down event
 	int  mouseevent = 0;
-	
+
 	pt = ClientToPagePos(pt) + 1;
-	
+
 	switch(event) {
 	case LEFTUP:
 	case LEFTDOWN:
@@ -546,9 +552,19 @@ void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 	case MIDDLEDOWN:
 		mouseevent = 0x01;
 		break;
+//	case MIDDLEDRAG:
+//		if(pt == mousepos)
+//			return;
+//		mouseevent = 0x21;
+//		break;
 	case RIGHTUP:
 	case RIGHTDOWN:
 		mouseevent = 0x02;
+		break;
+	case RIGHTDRAG:
+		if(pt == mousepos)
+			return;
+		mouseevent = 0x22;
 		break;
 	case MOUSEMOVE:
 		if(pt == mousepos)
@@ -559,15 +575,26 @@ void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 		mouseevent = zdelta > 0 ? 0x40 : 0x41;
 		break;
 	default:
+		ReleaseCapture();
 		return;
 	}
 
 	mousepos = pt;
-	
+
 	if(keyflags & K_SHIFT) mouseevent |= 0x04;
 	if(keyflags & K_ALT)   mouseevent |= 0x08;
 	if(keyflags & K_CTRL)  mouseevent |= 0x10;
-	
+
+	bool buttondown = false;
+
+	if((event & UP) == UP) {
+		ReleaseCapture();
+	}
+	else {
+		buttondown = true;	// Combines everything else with a button-down event
+		if((event & DOWN) == DOWN)
+			SetCapture();
+	}
 
 	if(modes[XTSGRMM])
 		PutCSI(Format("<%d;%d;%d%[1:M;m]s", mouseevent, pt.x, pt.y, buttondown));
@@ -644,6 +671,7 @@ Rect Terminal::GetSelectionRect() const
 
 void Terminal::ClearSelection()
 {
+	ReleaseCapture();
 	anchor = Null;
 	selpos = Null;
 	rectsel = false;
@@ -916,6 +944,8 @@ void Terminal::OptionsBar(Bar& menu)
 
 Terminal& Terminal::ShowScrollBar(bool b)
 {
+	GuiLock __;
+
 	if(!sb.IsChild() && b) {
 		ignorescroll = true;
 		AddFrame(sb.AutoDisable());
