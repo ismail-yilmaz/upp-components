@@ -8,9 +8,8 @@ namespace Upp {
 void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 {
 	for(const String& s : seq.parameters) {		// Multiple terminal modes can be set/reset at once.
-		bool refresh;
 		int modenum = StrInt(s);
-		switch(FindModeId(modenum, seq.mode, clevel, refresh)) {
+		switch(FindModeId(modenum, seq.mode, clevel)) {
 		case KAM:
 			ANSIkam(enable);
 			break;
@@ -128,9 +127,8 @@ void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 
 void Terminal::ReportMode(const VTInStream::Sequence& seq)
 {
-	bool refresh;
 	int modenum = seq.GetInt(1, 0);
-	int mid = FindModeId(modenum, seq.mode, clevel, refresh);  // Only one mode at a time can be reported
+	int mid = FindModeId(modenum, seq.mode, clevel);  // Only one mode at a time can be reported
 
 	// Possible reply codes:
 	// ====================

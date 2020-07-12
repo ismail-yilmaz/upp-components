@@ -686,11 +686,10 @@ private:
     void        XTx11mm(bool b);
 
     void        SetMode(const VTInStream::Sequence& seq, bool enable);
-    static int  FindModeId(word modenum, byte modetype, byte level, bool& refresh);
+    static int  FindModeId(word modenum, byte modetype, byte level);
 
 public:
     // DEC and xterm style caret (cursor) support.
-
     class Caret {
         int       style;
         bool      blinking;
@@ -1014,8 +1013,8 @@ private:
         UNHANDLED
     };
 
-    static ControlId  FindControlId(byte ctl, byte level, bool& refresh);
-    static SequenceId FindSequenceId(byte type, byte level, const VTInStream::Sequence& seq, bool& refresh);
+    static ControlId  FindControlId(byte ctl, byte level);
+    static SequenceId FindSequenceId(const VTInStream::Sequence& seq, byte level);
 };
 
 // Custom displays.

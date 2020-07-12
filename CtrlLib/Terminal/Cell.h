@@ -13,7 +13,7 @@ struct VTCell : Moveable<VTCell> {
     Color   ink;
     Color   paper;
 
-    enum Attrs : byte {
+    enum Attrs : word {
         ATTR_PROTECTED  = 0x0001,
     };
     

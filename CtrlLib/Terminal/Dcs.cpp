@@ -8,8 +8,7 @@ void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 {
 	LLOG("DCS " << seq);
 
-	bool refresh;
-	switch(FindSequenceId(VTInStream::Sequence::DCS, clevel, seq, refresh)) {
+	switch(FindSequenceId(seq, clevel)) {
 	case SequenceId::DECRQSS:
 		ReportControlFunctionSettings(seq);
 		break;
@@ -26,8 +25,6 @@ void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 		LLOG("Unhandled device control string.");
 		break;
 	}
-	//if(refresh)
-	//	RefreshPage();
 }
 
 void Terminal::SetUserDefinedKeys(const VTInStream::Sequence& seq)

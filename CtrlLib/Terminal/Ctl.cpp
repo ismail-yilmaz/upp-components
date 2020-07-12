@@ -13,8 +13,7 @@ void Terminal::ParseControlChars(byte c)
 		return;
 	}
 
-	bool refresh;
-	switch(FindControlId(c, clevel, refresh)) {
+	switch(FindControlId(c, clevel)) {
 	case ControlId::NUL:
 		break;
 	case ControlId::ENQ:
@@ -84,7 +83,5 @@ void Terminal::ParseControlChars(byte c)
 		LLOG(Format("Unhandled control byte: 0X%02X", c));
 		break;
 	}
-	//if(refresh)
-	//	RefreshPage();
 }
 }

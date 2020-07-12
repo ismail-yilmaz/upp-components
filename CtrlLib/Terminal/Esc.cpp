@@ -20,8 +20,7 @@ void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
 	if(Convert7BitC1To8BitC1(seq))	// Redirection
 		return;
 
-	bool refresh;
-	switch(FindSequenceId(VTInStream::Sequence::ESC, clevel, seq, refresh)) {
+	switch(FindSequenceId(seq, clevel)) {
 	case SequenceId::DECKPAM:
 		DECkpam(true);
 		break;
@@ -193,8 +192,6 @@ void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
 		LLOG("Unhandled escape sequence.");
 		break;
 	}
-	//if(refresh)
-	//	RefreshPage();
 }
 
 bool Terminal::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
