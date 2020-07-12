@@ -484,7 +484,7 @@ void Terminal::MouseMove(Point pt, dword keyflags)
 		if(!b) return Ctrl::MOUSEMOVE;
 		if(GetMouseLeft()) return Ctrl::LEFTDRAG;
 		if(GetMouseRight()) return Ctrl::RIGHTDRAG;
-	//	if(GetMouseMiddle()) return Ctrl::MIDDLEDRAG;
+		if(GetMouseMiddle()) return Ctrl::MIDDLEDRAG;
 		return 0;
 	};
 
@@ -552,11 +552,11 @@ void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 	case MIDDLEDOWN:
 		mouseevent = 0x01;
 		break;
-//	case MIDDLEDRAG:
-//		if(pt == mousepos)
-//			return;
-//		mouseevent = 0x21;
-//		break;
+	case MIDDLEDRAG:
+		if(pt == mousepos)
+			return;
+		mouseevent = 0x21;
+		break;
 	case RIGHTUP:
 	case RIGHTDOWN:
 		mouseevent = 0x02;
@@ -588,12 +588,14 @@ void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 	bool buttondown = false;
 
 	if((event & UP) == UP) {
-		ReleaseCapture();
+		if(HasCapture())
+			ReleaseCapture();
 	}
 	else {
 		buttondown = true;	// Combines everything else with a button-down event
 		if((event & DOWN) == DOWN)
-			SetCapture();
+			if(!HasCapture())
+				SetCapture();
 	}
 
 	if(modes[XTSGRMM])
