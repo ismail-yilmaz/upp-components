@@ -106,6 +106,11 @@ is received.&]
 depending on the VTInStream context.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:VTInStream`:`:Sequence`:`:type: [_^Upp`:`:byte^ byte]_[* type]&]
+[s2;%% Represents the type of the sequence. Currently the valid values 
+are ESC, CSI, DCS, OSC, and APC.&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:opcode: [_^Upp`:`:byte^ byte]_[* opcode]&]
 [s2;%% Also known as the `"final`" or `"terminator`" byte. Usually 
 represents the opcode of received function.&]

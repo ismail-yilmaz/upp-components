@@ -471,22 +471,22 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 			break;
 		case State::Action::DispatchEsc:
 			sequence.opcode = byte(c);
-			Dispatch(WhenEsc);
+			Dispatch(Sequence::ESC, WhenEsc);
 			break;
 		case State::Action::DispatchCsi:
 			sequence.opcode = byte(c);
-			Dispatch(WhenCsi);
+			Dispatch(Sequence::CSI, WhenCsi);
 			break;
 		case State::Action::DispatchDcs:
-			Dispatch(WhenDcs);
+			Dispatch(Sequence::DCS, WhenDcs);
 			break;
 		case State::Action::DispatchOsc:
 			sequence.payload = collected;
-			Dispatch(WhenOsc);
+			Dispatch(Sequence::OSC, WhenOsc);
 			break;
 		case State::Action::DispatchApc:
 			sequence.payload = collected;
-			Dispatch(WhenApc);
+			Dispatch(Sequence::APC, WhenApc);
 			break;
 		case State::Action::Ignore:
 			break;
@@ -640,8 +640,9 @@ const VTInStream::State* VTInStream::GetState(const int& c) const
 	return nullptr;
 }
 
-void VTInStream::Dispatch(const Event<const VTInStream::Sequence&>& fn)
+void VTInStream::Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn)
 {
+	sequence.type = type;
 	sequence.parameters = pick(Split(collected, ';', false));
 	fn(sequence);
 	waschr = false;
@@ -681,7 +682,7 @@ String VTInStream::Sequence::GetStr(int n) const
 
 void VTInStream::Sequence::Clear()
 {
-	opcode = mode = 0;
+	type = opcode = mode = NUL;
 	parameters.Clear();
 	intermediate.Clear();
 	payload.Clear();
