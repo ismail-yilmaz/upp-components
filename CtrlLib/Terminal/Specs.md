@@ -321,6 +321,7 @@
 |11         | Change paper color.                        | Level 1      |
 |17         | Change selection ink color.                | Level 1      |
 |19         | Change selection paper color.              | Level 1      |
+|52         | Clipboard access and manipulation.         | Level 1      |
 |104        | Reset ANSI colors.                         | Level 1      |
 |110        | Reset ink color.                           | Level 1      |
 |111        | Reset paper color.                         | Level 1      |
@@ -568,3 +569,18 @@
 - `parameters` are optional `key=value` pairs.
 - The original protocol defines only the the `id` parameter. However, *currently*, this parameter is also ignored by Terminal ctrl.
 - The maximum `URI` length is 2083 characters.
+
+### Clipboard Manipulation Protocol
+
+|Access Type            | Sequence                        | Description                      | Device Level |
+| ---                   | ---                             | ---                              | ---          |
+| Write                 |`OSC 52 ; [clipboard] ; data ST` | Write data to the clipboard.     | Level 1      |
+| Read                  |`OSC 52 ; [clipboard] ; ? ST`    | Read data from the clipboard.    | Level 1      |
+| Clear                 |`OSC 52 ; [clipboard] ;   ST`    | Clears selection/clipboard.      | Level 1      |
+
+
+#### Notes
+
+- The `clipboard` parameter can be empty or `s0`. Currently, Terminal ctrl omits this parameter.
+- When the `data` is a `?`, Terminal ctrl will reply to the host with the selection/clipboard data encoded using the same protocol.
+- When the `data` is *neither a base64 string nor a `?`*, Terminal ctrl will clear the selection/clipboard.

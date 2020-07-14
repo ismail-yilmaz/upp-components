@@ -245,6 +245,18 @@ public:
     Terminal&   NoWindowActions()                               { return WindowActions(false);  }
     bool        HasWindowActions() const                        { return windowactions; }
 
+    Terminal&   PermitClipboardAccess(bool b = true)            { return PermitClipboardRead(b).PermitClipboardWrite(b); }
+    Terminal&   ForbidClipboardAccess()                         { clipaccess = CLIP_NONE;  return *this; }
+    bool        IsClipboardAccessPermitted() const              { return clipaccess != CLIP_NONE; }
+
+    Terminal&   PermitClipboardRead(bool b = true)              { clipaccess = (clipaccess & ~CLIP_READ) | (-b & CLIP_READ); return *this; }
+    Terminal&   ForbidClipboardRead()                           { return PermitClipboardRead(false); }
+    bool        IsClipboardReadPermitted() const                { return clipaccess & CLIP_READ; }
+
+    Terminal&   PermitClipboardWrite(bool b = true)             { clipaccess = (clipaccess & ~CLIP_WRITE) | (-b & CLIP_WRITE); return *this; }
+    Terminal&   ForbidClipboardWrite()                          { return PermitClipboardWrite(false); }
+    bool        IsClipboardWritePermitted() const               { return clipaccess & CLIP_WRITE; }
+ 
     Terminal&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
     const Display& GetImageDisplay() const                      { return *imgdisplay; }
 
@@ -443,6 +455,12 @@ private:
         MKEY_SHIFT  = 2
     };
 
+    enum ClipboardAccessFlags : dword {
+        CLIP_NONE   = 0,
+        CLIP_READ   = 1,
+        CLIP_WRITE  = 2
+    };
+
     const Display *imgdisplay;
     VScrollBar  sb;
     Scroller    scroller;
@@ -461,6 +479,7 @@ private:
     int         blinkinterval   = 500;
     int         wheelstep       = GUI_WheelScrollLines();
     int         metakeyflags    = MKEY_ESCAPE;
+    int         clipaccess      = CLIP_NONE;
     dword       activelink      = 0;
     dword       prevlink        = 0;
 
@@ -553,6 +572,8 @@ private:
 
     void        ParseHyperlinks(const VTInStream::Sequence& seq);
 
+    void        ParseClipboardRequests(const VTInStream::Sequence& seq);
+    
     void        ProtectAttributes(bool protect);
 
     void        SetCaretStyle(const VTInStream::Sequence& seq);
@@ -880,7 +901,7 @@ private:
 
     // Currently supported ESC, CSI, and DCS sequences.
 
-    enum class SequenceId : byte
+    enum class SequenceId : word
     {
         ANSICL1,
         ANSICL2,

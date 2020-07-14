@@ -891,6 +891,77 @@ onst]&]
 is enabled.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:PermitClipboardRead`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* PermitClipboardRead]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;# Enables or disables the clipboard read access for the terminal 
+applications that support the clipboard access and manipulation 
+protocol. (OSC 52) Returns `*this for method chaining. Note that 
+this feature must be handled with care by the client code, as 
+it may pose a security threat.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:ForbidClipboardRead`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* ForbidClipboardRead]()&]
+[s2; Disables clipboard read access for the terminal applications 
+that support the clipboard access and manipulation protocol. 
+(OSC 52). This is the default setting. Returns `*this for method 
+chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsClipboardReadPermitted`(`)const:%- [@(0.0.255) bool]_[* IsClipb
+oardReadPermitted]()_[@(0.0.255) const]&]
+[s2;# Returns true if the clipboard read access is granted to the 
+applications that support the clipboard access and manipulation 
+protocol.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:PermitClipboardWrite`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* PermitClipboardWrite]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;# Enables or disables the clipboard write access for the terminal 
+applications that support the clipboard access and manipulation 
+protocol. (OSC 52) Returns `*this for method chaining. Note that 
+this feature must be handled with care by the client code, as 
+it may pose a security threat.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:ForbidClipboardWrite`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* ForbidClipboardWrite]()&]
+[s2; Disables clipboard write access for the terminal applications 
+that support the clipboard access and manipulation protocol. 
+(OSC 52). This is the default setting. Returns `*this for method 
+chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsClipboardWritePermitted`(`)const:%- [@(0.0.255) bool]_[* IsClip
+boardWritePermitted]()_[@(0.0.255) const]&]
+[s2;# Returns true if the clipboard write access is granted to the 
+applications that support the clipboard access and manipulation 
+protocol.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:PermitClipboardAccess`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* PermitClipboardAccess]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s2;# Enables or disables the clipboard access and manipulation protocol 
+(OSC 52) as a whole. Returns `*this for method chaining. This 
+protocol grants clipboard read and write access to the terminal 
+applications that support this feature. Note that this feature 
+must be handled with care by the client code, as it may pose 
+a security threat.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:ForbidClipboardAccess`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
+]_[* ForbidClipboardAccess]()&]
+[s2; Disables the clipboard access and manipualtion protocol (OSC 
+52) as a whole. Same ae PermitClipboardAccess(false). This is 
+the default setting. Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsClipboardAccessPermitted`(`)const:%- [@(0.0.255) bool]_[* IsCli
+pboardAccessPermitted]()_[@(0.0.255) const]&]
+[s2; Returns true if the clipboard access and manipulation protocol 
+is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:UDK`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* UDK](
 [@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s6;%- Requires at least a level 2 device emulation.&]

@@ -30,6 +30,9 @@ void Terminal::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	case 8:		// Explicit hyperlinks protocol.
 		ParseHyperlinks(seq);
 		break;
+	case 52:	// Clipboard manipulation protocol.
+		ParseClipboardRequests(seq);
+		break;
 	case 444:	// Jexer inline images protocol.
 		ParseJexerGraphics(seq);
 		break;
@@ -155,6 +158,37 @@ void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)
 		cellattrs.Hyperlink(true);
 		cellattrs.data = GetHashValue(uri);
 		RenderHyperlink(uri);
+	}
+}
+
+void Terminal::ParseClipboardRequests(const VTInStream::Sequence& seq)
+{
+	// For more information on application clipboard access, see:
+	// https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+	
+	if(!IsClipboardAccessPermitted() || !HasFocus())
+		return;
+
+	auto CheckInvalidBase64Chars = [](int c) -> bool
+	{
+		return !IsAlNum(c) && c != '=' && c != '+' && c != '/';
+	};
+	
+	String params = seq.GetStr(2);	// We don't support multiple clipboard buffers...
+	String data   = seq.GetStr(3);
+
+	if(IsClipboardReadPermitted() && data.IsEqual("?")) {
+		WString out = GetWString(Selection());
+		if(IsNull(out))
+			out = GetWString(Clipboard());
+		PutOSC("52;s0;" + Base64Encode(ToUtf8(out)));
+	}
+	else
+	if(IsClipboardWritePermitted()) {
+		if(FindMatch(data, CheckInvalidBase64Chars) < 0)
+			Copy(Base64Decode(data).ToWString());
+		else
+			ClearClipboard();
 	}
 }
 }

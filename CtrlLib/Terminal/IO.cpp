@@ -354,7 +354,7 @@ void Terminal::Serialize(Stream& s)
 	if(version >= 1) {
 		s % clevel;
 		s % chrset;
-		s %	eightbit;
+		s % eightbit;
 		s % font;
 		s % caret;
 		s % reversewrap;
@@ -372,6 +372,7 @@ void Terminal::Serialize(Stream& s)
 		s % jexerimages;
 		s % iterm2images;
 		s % hyperlinks;
+		s % clipaccess;
 		s % delayedrefresh;
 		s % lazyresize;
 		s % sizehint;
@@ -423,6 +424,7 @@ void Terminal::Jsonize(JsonIO& jio)
         ("JexerGraphics",       jexerimages)
         ("iTerm2Graphics",      iterm2images)
         ("Hyperlinks",          hyperlinks)
+        ("ClipboardAccess",     clipaccess)
         ("DelayedRefresh",      delayedrefresh)
         ("LazyResize",          lazyresize)
         ("SizeHint",            sizehint)

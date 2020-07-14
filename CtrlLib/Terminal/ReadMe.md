@@ -135,6 +135,7 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 - Supports user configurable cursor styles (block, beam, underscore, blinking/steady).
 - Supports cursor locking.
 - Supports basic clipboard operations on texts, hyperlinks, and images.
+- Supports application clipboard/selection manipulation protocol (OSC 52)
 - Supports basic drag and drop operations on texts, hyperlinks and images.
 - Shows drag and drop animations (i.e thumbnails/samples of images, hyperlinks and plain texts)
 - Supports X11-style copy-on-select.
@@ -588,7 +589,6 @@ There is always room for improvement and new features.
 Nothing is perfect and Terminal package is no exception. Known major issues are listed below.
 
 - Function keys and editor keys are not handled properly on some notebooks.
-- Image zoom in and out keys are not working with jexer (v0.3.2)
 
 ## [Version](#version)
 
