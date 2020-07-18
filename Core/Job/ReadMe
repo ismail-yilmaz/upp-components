@@ -29,6 +29,8 @@ Known Issues
 History
 -----------------------
 
+- 2020-07-18: Pick() method is added.
+
 - 2018-10-29: New version.
               Job heavily refactored.
               Class interface trimmed down.

@@ -65,6 +65,12 @@ Rethrows the exception thrown in worker thread.&]
 [s2;%% Waits for the work to be finished (if necessary), then returns 
 the result. If there was an exception, it is rethrown.&]
 [s3; &]
+[s4; &]
+[s5;:Upp`:`:Job`:`:Pick`(`): [*@4 T]_[* Pick]()&]
+[s2;%% Similar to Get. Waits for the work to be finished (if necessary), 
+then returns the result but uses pick constructor instead of 
+copy constructor to pass the return value.&]
+[s3; &]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]

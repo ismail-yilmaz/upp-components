@@ -41,6 +41,7 @@ private:
         template<class Function, class... Args>
         bool       Start(Function&& f, Args&&... args)  { return v.Start([=]{ ret = f(args...);}); }
         const R&   Get()                                { v.Wait(); v.Rethrow(); return ret; }
+        R          Pick()                               { v.Wait(); v.Rethrow(); return pick(ret); }
     };
 
     struct VoidResult {
@@ -48,6 +49,7 @@ private:
         template<class Function, class... Args>
         bool       Start(Function&& f, Args&&... args)  { return v.Start([=]{ f(args...); }); }
         void       Get()                                { v.Wait(); v.Rethrow(); }
+        void       Pick()                               {}
     };
 
     using ResType = typename std::conditional<std::is_void<T>::value, VoidResult, Result<T>>::type;
@@ -61,8 +63,12 @@ public:
     static bool IsCanceled()                            { return JobWorker::IsCanceled(); }
     T       Get()                                       { ASSERT(worker); return worker->Get(); }
     T       operator~()                                 { return Get(); }
+    T       Pick()                                      { ASSERT(worker); return worker->Pick(); }
     Job()                                               { worker.Create(); }
-    ~Job()                                              { worker.Clear();  }
+    ~Job()                                              { if(worker) worker.Clear();  }
+
+    Job& operator=(Job&&) = default;
+    Job(Job&&) = default;
 };
 }
 #endif

@@ -28,6 +28,13 @@ CONSOLE_APP_MAIN
 			Sleep(1);
 		RLOG("Job2 is canceled.");
 	});
+	
+	{
+		Job<Vector<int>> job3;
+		job3.Do([=]{ return MakeIota(100); });
+		RDUMP(job3.Pick());
+	}
+
 	Sleep(1000);
 	// job2.Cancel(); // Worker will automatically cancel the job when it goes out of scope.
 }
