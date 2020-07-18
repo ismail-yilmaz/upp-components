@@ -49,7 +49,7 @@ private:
         template<class Function, class... Args>
         bool       Start(Function&& f, Args&&... args)  { return v.Start([=]{ f(args...); }); }
         void       Get()                                { v.Wait(); v.Rethrow(); }
-        void       Pick()                               {}
+        void       Pick()                               { v.Wait(); v.Rethrow(); }
     };
 
     using ResType = typename std::conditional<std::is_void<T>::value, VoidResult, Result<T>>::type;
