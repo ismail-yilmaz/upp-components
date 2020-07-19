@@ -16,7 +16,7 @@ public:
     void                Cancel()                    { cancel = true; Wait();  Rethrow(); }
     static bool         IsCanceled()                { return ptr && ptr->cancel; }
     void                Rethrow()                   { Mutex::Lock __(lock); if(exc) std::rethrow_exception(exc); }
-    inline bool         Is(int stat) const          { return status == stat; }
+    bool                Is(int stat) const          { return status == stat; }
     
     enum State : int { IDLE, WORKING, SHUTDOWN };
     
