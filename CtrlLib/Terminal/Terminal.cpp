@@ -338,11 +338,11 @@ void Terminal::LeftDown(Point pt, dword keyflags)
 	if(IsTracking())
 		VTMouseEvent(pt, LEFTDOWN, keyflags);
 	else{
-		pt = ClientToPagePos(pt);
-		if(IsSelected(pt)) {
+		if(IsSelected(ClientToPagePos(pt))) {
 			return;
 		}
 		else {
+			pt = SelectionToPagePos(pt);
 			SetSelection(pt, pt, keyflags & K_CTRL);
 		}
 	}
@@ -497,7 +497,7 @@ void Terminal::MouseMove(Point pt, dword keyflags)
 	}
 	else
 	if(captured) {
-		selpos = ClientToPagePos(pt);
+		selpos = SelectionToPagePos(pt);
 		Refresh();
 	}
 	else
@@ -628,9 +628,19 @@ Point Terminal::ClientToPagePos(Point pt) const
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
-	pt.y = pt.y * psz.cy / (wsz.cy -= wsz.cy % psz.cy) + GetSbPos();
-	pt.x = pt.x * psz.cx / wsz.cx;
+	pt.y = psz.cy * pt.y / (wsz.cy -= wsz.cy % psz.cy) + GetSbPos();
+	pt.x = psz.cx * pt.x / (wsz.cx -= wsz.cx % psz.cx);
 	return pt;
+}
+
+Point Terminal::SelectionToPagePos(Point pt) const
+{
+	// Aligns the anchor or selection point to cell boundaries.
+
+	Size fsz = GetFontSize();
+	int mx = pt.x % fsz.cx;
+	pt.x += int(mx >= fsz.cx / 2) * fsz.cx - mx;
+	return ClientToPagePos(pt);
 }
 
 void Terminal::SetSelection(Point pl, Point ph, bool rsel)
@@ -649,8 +659,12 @@ bool Terminal::GetSelection(Point& pl, Point& ph) const
 		return false;
 	}
 	
-	Size psz = GetPageSize();
-	if(sGetPos(selpos, psz) < sGetPos(anchor, psz)) {
+	if(anchor.y == selpos.y || anchor.x == selpos.x || rectsel) {
+		pl = min(anchor, selpos);
+		ph = max(anchor, selpos);
+	}
+	else
+	if(anchor.y > selpos.y) {
 		pl = selpos;
 		ph = anchor;
 	}
@@ -667,7 +681,7 @@ Rect Terminal::GetSelectionRect() const
 	Rect r = Null;
 	Point pl, ph;
 	if(GetSelection(pl, ph))
-		r.Set(min(pl, ph), max(pl, ph));
+		r.Set(pl, ph);
 	return r;
 }
 
@@ -682,24 +696,34 @@ void Terminal::ClearSelection()
 
 bool Terminal::IsSelected(Point pt) const
 {
-	if(rectsel) {
-		Rect r = GetSelectionRect();
-		return !IsNull(r)
-			&& pt.x >= r.left
-			&& pt.y >= r.top
-			&& pt.x <  r.right
-			&& pt.y <= r.bottom;
-	}
-	
 	Point pl, ph;
-	if(GetSelection(pl, ph)) {
-		Size psz = GetPageSize();
-		int x = sGetPos(pt, psz);
-		int b = sGetPos(pl, psz);
-		int e = sGetPos(ph, psz);
-		return b <= x && x < e;
+	if(!GetSelection(pl, ph))
+		return false;
+
+	if(rectsel) {
+		return pt.x >= pl.x
+			&& pt.y >= pl.y
+			&& pt.x <  ph.x
+			&& pt.y <= ph.y;
 	}
-	return false;
+	else
+	if(pl.y == ph.y) {
+		return pt.y == pl.y
+			&& pt.x >= pl.x
+			&& pt.x <  ph.x;
+	}
+	else
+	if(pt.y == pl.y) {
+		Size psz = GetPageSize();
+		return pt.x >= pl.x
+			&& pt.x <  psz.cx;
+	}
+	else
+	if(pt.y == ph.y) {
+		return pt.x >= 0 && pt.x < ph.x;
+	}
+
+	return pl.y <= pt.y && pt.y <= ph.y;
 }
 
 WString Terminal::GetSelectedText() const

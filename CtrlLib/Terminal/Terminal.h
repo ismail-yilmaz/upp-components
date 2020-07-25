@@ -379,6 +379,7 @@ private:
     Point       GetCursorPos() const                            { return --page->GetPos(); /* VT cursor position is 1-based */ }
 
     Point       ClientToPagePos(Point pt) const;
+    Point       SelectionToPagePos(Point pt) const;
 
     void        SetSelection(Point  l, Point h, bool rsel);
     bool        GetSelection(Point& l, Point& h) const;
