@@ -58,37 +58,30 @@ const VTLine& VTLine::Void()
 
 String VTLine::ToString() const
 {
-	return AsWString(*this, 0, GetCount()).ToString();
+	return ToWString().ToString();
 }
 
 WString VTLine::ToWString() const
 {
-	return AsWString(*this, 0, GetCount());
+	return AsWString(SubRange(Begin(), End()));
 }
 
-WString AsWString(const VTLine& line, int begin, int end)
+WString AsWString(VTLine::ConstRange& cellrange, bool tspaces)
 {
-	begin = max(0, begin);
-	end   = min(end, line.GetCount());
-
-	WString s;
-	if(!line.IsEmpty()) {
-		int j = 0;
-		for(int i = begin; i < end; i++) {
-			const VTCell& cell = line[i];
-			if(cell.chr == 0 || cell.IsImage()) {
-				j++;
+	WString txt;
+	int j = 0;
+	for(const VTCell& cell : cellrange) {
+		if((cell.chr == 0 && tspaces) || cell.IsImage())
+			j++;
+		else {
+			if(j) {
+				txt.Cat(' ', j);
+				j = 0;
 			}
-			else {
-				if(j) {
-					s.Cat(' ', j);
-					j = 0;
-				}
-				s.Cat(cell.chr);
-			}
+			txt.Cat(cell.chr);
 		}
 	}
-	return pick(s);
+	return pick(txt);
 }
 
 VTPage::VTPage()
@@ -1278,5 +1271,26 @@ String VTPage::Cursor::ToString() const
 	return Format(
 		"[%d:%d] - Flags: displaced: %`, EOL: %",
 			x, y, displaced, eol);
+}
+
+WString AsWString(const VTPage& page, const Rect& r, bool rectsel, bool tspaces)
+{
+	WString txt;
+
+	auto RangeToWString = [&](const VTLine& line, VTLine::ConstRange& range) -> bool
+	{
+		WString s = AsWString(range, tspaces);
+		txt.Cat(s);
+		if(rectsel || !line.IsWrapped() || IsNull(s)) {
+		#ifdef PLATFORM_WIN32
+			txt.Cat("\r");
+		#endif
+			txt.Cat("\n");
+		}
+		return false;
+	};
+
+	page.FetchRange(r, RangeToWString, rectsel);
+	return pick(txt);
 }
 }

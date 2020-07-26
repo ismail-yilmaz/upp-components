@@ -446,7 +446,6 @@ void Terminal::MiddleDown(Point pt, dword keyflags)
 		else
 		if(AcceptText(Selection()))
 			w = GetWString(Selection());
-		LeftDown(pt, keyflags);
 		if(!IsNull(w))
 			Paste(w);
 	}
@@ -680,9 +679,7 @@ Rect Terminal::GetSelectionRect() const
 {
 	Rect r = Null;
 	Point pl, ph;
-	if(GetSelection(pl, ph))
-		r.Set(pl, ph);
-	return r;
+	return GetSelection(pl, ph) ? Rect(pl, ph) : Null;
 }
 
 void Terminal::ClearSelection()
@@ -728,48 +725,7 @@ bool Terminal::IsSelected(Point pt) const
 
 WString Terminal::GetSelectedText() const
 {
-	WString txt;
-	Rect r = GetSelectionRect();
-
-	auto PutCrLf = [&txt](int cnt = 1) -> void
-	{
-		while(cnt-- > 0) {
-		#ifdef PLATFORM_WIN32
-			txt.Cat('\r');
-		#endif
-			txt.Cat('\n');
-		}
-	};
-	
-	// TODO: Refactor this ugly thing, using the relevant methods.
-	
-	for(int line = r.top, i = 0; !IsNull(r) && line <= r.bottom; line++) {
-		if(line < page->GetLineCount()) {
-			const VTLine& ln = page->FetchLine(line);
-			WString s = rectsel ? AsWString(ln, r.left, r.right) : ln.ToWString();
-			if(IsNull(s)) {
-				i++;
-				continue;
-			}
-			if(i) {
-				PutCrLf(i);
-				i = 0;
-			}
-			if(!rectsel && line == r.top) {
-					txt.Cat(s.Mid(r.left, (r.top == r.bottom ? r.right : s.GetLength()) - r.left));
-					if(r.top == r.bottom)
-						break;
-			}
-			else
-			if(!rectsel && line == r.bottom)
-					 txt.Cat(s.Left(r.right));
-			else
-				txt.Cat(s);
-			if(rectsel || !ln.IsWrapped())
-				PutCrLf();
-		}
-	}
-	return txt;
+	return AsWString((const VTPage&)*page, GetSelectionRect(), rectsel);
 }
 
 Image Terminal::GetInlineImage(Point pt, bool modifier)

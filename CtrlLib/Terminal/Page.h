@@ -36,7 +36,7 @@ private:
     mutable bool wrapped:1;
 };
 
-WString AsWString(const VTLine& line, int begin, int end);
+WString AsWString(VTLine::ConstRange& cellrange, bool tspaces = true);
 
 class VTPage : Moveable<VTPage> {
     struct Cursor
@@ -268,5 +268,8 @@ private:
     bool            tabsync;
     VTCell          cellattrs;
 };
+
+WString AsWString(const VTPage& page, const Rect& r, bool rectsel = false, bool tspaces = true);
+
 }
 #endif
