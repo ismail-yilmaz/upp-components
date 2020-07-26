@@ -5,17 +5,6 @@
 
 namespace Upp {
 
-static inline int sGetPos(Point pt, Size sz) // 2D -> 1D
-{
-	return pt.y * sz.cx + pt.x;
-}
-
-static inline Point sGetCoords(int pos, Size sz) // 1D -> 2D
-{
-	int x = pos % sz.cx;
-	return Point(x, (pos - x) / sz.cx);
-}
-
 Terminal::Terminal()
 : page(&dpage)
 , legacycharsets(false)
@@ -677,7 +666,6 @@ bool Terminal::GetSelection(Point& pl, Point& ph) const
 
 Rect Terminal::GetSelectionRect() const
 {
-	Rect r = Null;
 	Point pl, ph;
 	return GetSelection(pl, ph) ? Rect(pl, ph) : Null;
 }
