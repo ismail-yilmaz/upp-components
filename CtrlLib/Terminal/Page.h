@@ -28,6 +28,9 @@ public:
     String          ToString() const;
     WString         ToWString() const;
 
+    using Range = SubRangeOf<Vector<VTCell>>;
+    using ConstRange = const SubRangeOf<const Vector<VTCell>>;
+
 private:
     mutable bool invalid:1;
     mutable bool wrapped:1;
@@ -209,7 +212,10 @@ public:
     // Point: 0-based.
     const VTCell&   FetchCell(const Point& pt) const;
     const VTCell&   operator()(const Point& pt) const        { return FetchCell(pt);  }
-    
+
+    // Rect: 0-based.
+    bool            FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> consumer, bool rect = false) const;
+
     const VTLine*    begin() const                           { return lines.begin(); }
     VTLine*          begin()                                 { return lines.begin(); }
     const VTLine*    end() const                             { return lines.end();   }

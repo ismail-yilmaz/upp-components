@@ -1047,6 +1047,40 @@ const VTLine& VTPage::FetchLine(int i) const
 	return VTLine::Void();
 }
 
+bool VTPage::FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> consumer, bool rect) const
+{
+	Rect rr = Rect(0, 0, size.cx, GetLineCount());
+	if(IsNull(r) || r.left > r.right || r.top > r.bottom || !rr.Contains(r) || !consumer)
+		return false;
+
+	for(int i = r.top; i <= r.bottom; i++) {
+		const VTLine& line = FetchLine(i);
+		int length = line.GetCount();
+		if(!line.IsVoid()) {
+			int b = 0, e = length;
+			if(r.top == r.bottom || rect) {
+				b = r.left;
+				e = min(length, r.right - r.left);
+			}
+			else
+			if(r.top == i) {
+				b = r.left;
+				e = min(length, length - r.left);
+			}
+			else
+			if(r.bottom == i) {
+				b = 0;
+				e = min(length, r.right);
+			}
+			auto range  = SubRange(line, b, e);
+			if(consumer(line, range))
+				return false;
+		}
+	}
+
+	return true;
+}
+
 void VTPage::LineFill(int pos, int begin, int end, const VTCell& filler, dword flags)
 {
 	if(lines[pos - 1].Fill(begin, end, filler, flags))
