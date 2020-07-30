@@ -89,19 +89,23 @@ void Terminal::PlaceCaret(bool scroll)
 Rect Terminal::GetCaretRect()
 {
 	Size fsz = GetFontSize();
-	Point pt = GetCursorPos() * fsz;
+	Point pt = GetCursorPos();
+	int   cw = page->GetCell().GetWidth();
 
+	pt *= fsz;
 	pt.y -= (fsz.cy * GetSbPos());
-	
+
 	switch(caret.GetStyle()) {
 	case Caret::BEAM:
 		fsz.cx = 1;
 		break;
 	case Caret::UNDERLINE:
+		fsz.cx *= max(cw, 1); // Adjust the caret widt to cell size.
 		pt.y += fsz.cy - 1;
 		fsz.cy = 1;
 		break;
 	case Caret::BLOCK:
+		fsz.cx *= max(cw, 1); // Adjust the caret width to cell size.
 		break;
 	}
 
