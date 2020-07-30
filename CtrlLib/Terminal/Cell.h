@@ -63,6 +63,8 @@ struct VTCell : Moveable<VTCell> {
     VTCell& Ink(Color c)                     { ink = c; return *this;   }
     VTCell& Paper(Color c)                   { paper = c; return *this; }
 
+    int  GetWidth() const;
+    
     bool IsVoid() const                      { return this == &Void();       }
     bool IsNormal() const                    { return sgr == SGR_NORMAL;     }
     bool IsBold() const                      { return sgr & SGR_BOLD;        }
@@ -77,7 +79,6 @@ struct VTCell : Moveable<VTCell> {
     bool IsImage() const                     { return sgr & SGR_IMAGE;       }
     bool IsHyperlink() const                 { return sgr & SGR_HYPERLINK;   }
     bool IsProtected() const                 { return attrs & ATTR_PROTECTED;}
-    bool IsDoubleWidth() const;
     bool IsNullInstance() const;
 
     void    Fill(const VTCell& filler, dword flags);

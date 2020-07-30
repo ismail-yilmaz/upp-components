@@ -78,7 +78,8 @@ WString AsWString(VTLine::ConstRange& cellrange, bool tspaces)
 				txt.Cat(' ', j);
 				j = 0;
 			}
-			txt.Cat(cell.chr);
+			if(cell.chr >= 32)
+				txt.Cat(cell.chr);
 		}
 	}
 	return pick(txt);
@@ -315,8 +316,11 @@ const VTCell& VTPage::GetCell(int x, int y) const
 	return ViewContains(Point(x, y)) ? lines[y - 1][x - 1] : VTCell::Void();
 }
 
-int VTPage::AddCell(const VTCell& cell)
+int VTPage::CellAdd(const VTCell& cell, int width)
 {
+	if(width <= 0)
+		return cursor.x;
+
 	if(autowrap && cursor.eol)
 	{
 		lines[cursor.y - 1].Wrap();
@@ -329,11 +333,11 @@ int VTPage::AddCell(const VTCell& cell)
 	if(next <= margins.right)
 	{
 		MoveRight();
-		if(cell.IsDoubleWidth())
+		if(width == 2)
 		{
 			VTCell ext = cell;
-			ext.chr = 0;
-			next = AddCell(ext);
+			ext.chr = 1;
+			next = CellAdd(ext);
 		}
 	}
 	else
@@ -346,8 +350,9 @@ VTPage& VTPage::InsertCell(const VTCell& cell)
 {
 	LLOG("InsertCell()");
 
-	InsertCells(cursor.x, 1 + (int) cell.IsDoubleWidth());
-	AddCell(cell);
+	int width = cell.GetWidth();
+	if(width > 0) InsertCells(cursor.x, width);
+	CellAdd(cell, width);
 	return *this;
 }
 
@@ -356,7 +361,8 @@ VTPage& VTPage::RepeatCell(int n)
 	LLOG("RepeatCell(" << n << ")");
 
 	const VTCell& cell = GetCell(cursor.x - 1, cursor.y);
-	for(int i = 0; i < n; i++) AddCell(cell);
+	for(int i = 0, w = cell.GetWidth(); i < n; i++)
+		CellAdd(cell, w);
 	return *this;
 }
 

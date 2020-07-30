@@ -126,7 +126,7 @@ public:
     const VTCell&   GetCell(int x, int y) const;
     const VTCell&   GetCell(Point pt) const                 { return GetCell(pt.x, pt.y);   }
     const VTCell&   GetCell() const                         { return GetCell(cursor);       }
-    int             AddCell(const VTCell& cell);
+    int             AddCell(const VTCell& cell)             { return CellAdd(cell, cell.GetWidth()); }
     VTPage&         InsertCell(const VTCell& cell);
     VTPage&         RepeatCell(int n);
 
@@ -239,6 +239,7 @@ private:
     int             GetAbsRow(int row) const                                        { return cursor.displaced ? row - margins.top + 1 : row;  }
     int             LineInsert(int pos, int n, const VTCell& attrs);
     int             LineRemove(int pos, int n, const VTCell& attrs);
+    int             CellAdd(const VTCell& cell, int width = 1);
     int             CellInsert(int pos, int n, const VTCell& attrs, bool pan);
     int             CellRemove(int pos, int n, const VTCell& attrs, bool pan);
     int             SetTabStop(int col, bool b);
