@@ -218,15 +218,15 @@ bool Terminal::ResetLoadColor(int index)
 	return true;
 }
 
-static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const String& s)
+static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const String& s, int format)
 {
 	// TODO: This function can be more streamlined.
-	
+
 	auto SgrDelimiters = [](int c) -> int
 	{
 		return c == ':' || c == ';';	// Alloe both colon and semicolon.
 	};
-	
+
 	Vector<String> h = Split(s, SgrDelimiters, false);
 	int count = h.GetCount();
 	if(3 <= count && count < 8 && (h[0].IsEqual("38") || h[0].IsEqual("48"))) {
@@ -234,7 +234,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 		palette  = StrInt(h[1]);
 		int index = 2;
 		if(palette == 2 && (4 < count && count < 8)) {		// True color (RGB)
-			index += (int) count > 5;
+			index += int(count > 5 && format != 3);
 			int r =	clamp(StrInt(h[index++]), 0, 255);
 			int g =	clamp(StrInt(h[index++]), 0, 255);
 			int b =	clamp(StrInt(h[index]),   0, 255);
@@ -243,7 +243,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 		}
 		else
 		if(palette == 3 && (4 < count && count < 8)) {		// True color (CMY)
-			index += (int) count > 5;
+			index += int(count > 5 && format != 3);
 			double c = StrInt(h[index++]) / 100.0;
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index])   / 100.0;
@@ -252,7 +252,7 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 		}
 		else
 		if(palette == 4 && (6 == count || count == 7)) {	// True color (CMYK)
-			index += (int) count > 6;
+			index += int(count > 6 && format != 3);
 			double c = StrInt(h[index++]) / 100.0;
 			double m = StrInt(h[index++]) / 100.0;
 			double y = StrInt(h[index++]) / 100.0;
@@ -319,39 +319,33 @@ void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes,
 	// SGR 38 ; 5 ; I
 	// SGR 38 ; 5 ; I
 
-	auto GetSubParameterCount = [](const String& s) -> int
-	{
-		int rc = 0;
-		for(const int& c : s)
-			rc += c == ':';
-		return rc + (rc != 0);
-	};
-
-	int remaining = opcodes.GetCount() - index;
-	int which   = 0;
-	int format  = 0;
-	int palette = 0;
 	Color color = Null;
-	
-	if(GetSubParameterCount(opcodes[index])) {
-		index += sParseExtendedColorFormat(color, which, palette, opcodes[index]);
+	int which   = 0;
+	int palette = 0;
+	int remaining = opcodes.GetCount() - index;
+		
+	if(Count(opcodes[index], ':')) {
+		int format = 1;
+		index += sParseExtendedColorFormat(color, which, palette, opcodes[index], format);
 	}
 	else
 	if(remaining > 1) {
-		if(GetSubParameterCount(opcodes[index + 1])) {
+		if(Count(opcodes[index + 1], ':')) {
+			int format = 2;
 			String s = opcodes[index] + ":" + opcodes[index + 1];
-			index += sParseExtendedColorFormat(color, which, palette, s);
+			index += sParseExtendedColorFormat(color, which, palette, s, format);
 		}
 		else {
+			int format = 3;
 			int count = min(remaining, 6);
 			auto r = SubRange(opcodes, index, count);
 			String s = Join((Vector<String>&) r, ":", false);
-			index += sParseExtendedColorFormat(color, which, palette, s);
+			index += sParseExtendedColorFormat(color, which, palette, s, format);
 		}
 	}
 	else return;
 
-	if(2 == palette || palette == 5) {
+	if(2 <= palette && palette <= 5) {
 		switch(which) {
 		case 38:
 			attrs.ink = color;
