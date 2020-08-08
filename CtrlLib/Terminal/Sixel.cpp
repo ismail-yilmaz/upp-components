@@ -115,9 +115,9 @@ void SixelRenderer::SetPalette()
 
 	if(pass == 0 && params.GetCount() == 5) {
 		if(params[1] == 1) { //	 HSL
-			double h = params[2];
-			double l = params[3];
-			double s = params[4];
+			int h = params[2];
+			int l = params[3];
+			int s = params[4];
 			palette.At(params[0]) = sHSLColor(h, s, l);
 		}
 		else
@@ -215,10 +215,12 @@ void SixelRenderer::SetOptions()
 	for(int i = 0; i < params.GetCount(); i++) {
 		if(i == 0) {
 			switch(params[0]) {
-			case 5 ... 6:
+			case 5:
+			case 6:
 				aspectratio = 2;
 				break;
-			case 3 ... 4:
+			case 3:
+			case 4:
 				aspectratio = 3;
 				break;
 			case 2:
@@ -288,10 +290,9 @@ Image SixelRenderer::Get()
 			case 0x2D:
 				LineFeed();
 				break;
-			case 0x3F ... 0x7E:
-				DrawSixel(buffer, c - 0x3F);
-				break;
 			default:
+				if(0x3F <= c && c <= 0x7E)
+					DrawSixel(buffer, c - 0x3F);
 				break;
 			}
 		}

@@ -76,17 +76,11 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 		case 29:
 			attrs.sgr &= ~VTCell::SGR_STRIKEOUT;
 			break;
-		case 30 ... 37:
-			attrs.ink = Color::Special(opcode - 30);
-			break;
 		case 38:
 			ParseExtendedColors(attrs, opcodes, i);
 			break;
 		case 39:
 			attrs.ink = Null;
-			break;
-		case 40 ... 47:
-			attrs.paper = Color::Special(opcode - 40);
 			break;
 		case 48:
 			ParseExtendedColors(attrs, opcodes, i);
@@ -100,14 +94,20 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 		case 55:
 			attrs.sgr &= ~VTCell::SGR_OVERLINE;
 			break;
-		case 90 ... 97:
-			attrs.ink = Color::Special(opcode - 82);
-			break;
-		case 100 ... 107:
-			attrs.paper = Color::Special(opcode - 92);
-			break;
 		default:
-			LOG("Unhandled SGR code: " << opcode);
+			if(opcode >= 30 && opcode <= 37)
+				attrs.ink = Color::Special(opcode - 30);
+			else
+			if(opcode >= 40 && opcode <= 47)
+				attrs.paper = Color::Special(opcode - 40);
+			else
+			if(opcode >= 90 && opcode <= 97)
+				attrs.ink = Color::Special(opcode - 82);
+			else
+			if(opcode >= 100 && opcode <= 107)
+				attrs.paper = Color::Special(opcode - 92);
+			else
+				LOG("Unhandled SGR code: " << opcode);
 			break;
 		}
 	}

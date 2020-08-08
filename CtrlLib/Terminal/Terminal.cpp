@@ -722,32 +722,30 @@ WString Terminal::GetSelectedText() const
 
 Image Terminal::GetInlineImage(Point pt, bool modifier)
 {
-	if(!modifier)
-		return Null;
-	
-	Image img;
-	const VTCell& cell = page->FetchCell(pt);
-	if(cell.IsImage()) {
-		img = GetCachedImageData(cell.chr, Null, GetFontSize()).image;
-		if(IsNull(img))
+	if(modifier) {
+		const VTCell& cell = page->FetchCell(pt);
+		if(cell.IsImage()) {
+			Image img = GetCachedImageData(cell.chr, Null, GetFontSize()).image;
+			if(!IsNull(img))
+				return pick(img);
 			LLOG("Unable to retrieve image from cache. Link id: " << cell.chr);
+		}
 	}
-	return pick(img);
+	return Null;
 }
 
 String Terminal::GetHyperlinkURI(Point pt, bool modifier)
 {
-	if(!modifier)
-		return Null;
-	
-	String uri;
-	const VTCell& cell = page->FetchCell(pt);
-	if(cell.IsHyperlink()) {
-		uri = GetCachedHyperlink(cell.data);
-		if(IsNull(uri))
+	if(modifier) {
+		const VTCell& cell = page->FetchCell(pt);
+		if(cell.IsHyperlink()) {
+			String uri = GetCachedHyperlink(cell.data);
+			if(!IsNull(uri))
+				return uri;
 			LLOG("Unable to retrieve URI from link cache. Link id: " << cell.data);
+		}
 	}
-	return uri;
+	return Null;
 }
 
 void Terminal::HighlightHyperlink(Point pt)

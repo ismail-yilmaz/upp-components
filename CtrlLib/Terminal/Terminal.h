@@ -249,11 +249,11 @@ public:
     Terminal&   ForbidClipboardAccess()                         { clipaccess = CLIP_NONE;  return *this; }
     bool        IsClipboardAccessPermitted() const              { return clipaccess != CLIP_NONE; }
 
-    Terminal&   PermitClipboardRead(bool b = true)              { clipaccess = (clipaccess & ~CLIP_READ) | (-b & CLIP_READ); return *this; }
+    Terminal&   PermitClipboardRead(bool b = true)              { if(b) clipaccess |= CLIP_READ; else clipaccess &= ~CLIP_READ; return *this; }
     Terminal&   ForbidClipboardRead()                           { return PermitClipboardRead(false); }
     bool        IsClipboardReadPermitted() const                { return clipaccess & CLIP_READ; }
 
-    Terminal&   PermitClipboardWrite(bool b = true)             { clipaccess = (clipaccess & ~CLIP_WRITE) | (-b & CLIP_WRITE); return *this; }
+    Terminal&   PermitClipboardWrite(bool b = true)             { if(b) clipaccess |= CLIP_WRITE; else clipaccess &= ~CLIP_WRITE; return *this; }
     Terminal&   ForbidClipboardWrite()                          { return PermitClipboardWrite(false); }
     bool        IsClipboardWritePermitted() const               { return clipaccess & CLIP_WRITE; }
  
@@ -302,8 +302,8 @@ public:
     virtual bool UDKey(dword key, int count);
     virtual bool NavKey(dword key, int count);
 
-    Terminal&   MetaEscapesKeys(bool b = true)                  { metakeyflags = (metakeyflags & ~MKEY_ESCAPE) | (-b & MKEY_ESCAPE); return *this; }
-    Terminal&   MetaShiftsKeys(bool b = true)                   { metakeyflags = (metakeyflags & ~MKEY_SHIFT)  | (-b & MKEY_SHIFT);  return *this; }
+    Terminal&   MetaEscapesKeys(bool b = true)                  { if(b) metakeyflags |= MKEY_ESCAPE; else metakeyflags &= ~MKEY_ESCAPE; return *this; }
+    Terminal&   MetaShiftsKeys(bool b = true)                   { if(b) metakeyflags |= MKEY_SHIFT;  else metakeyflags &= ~MKEY_SHIFT;  return *this; }
     Terminal&   MetaKeyDoesNothing()                            { modes.Set(XTALTESCM, false); metakeyflags = MKEY_NONE; return *this; }
 
     void        LeftDown(Point pt, dword keyflags) override;

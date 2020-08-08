@@ -324,7 +324,7 @@ String Terminal::InlineImageMaker::Key() const
 {
 	StringBuffer h;
 	RawCat(h, id);
-	return h;
+	return String(h); // Make MSVC happy...
 }
 
 int Terminal::InlineImageMaker::Make(InlineImage& imagedata) const
@@ -411,7 +411,7 @@ String Terminal::HyperlinkMaker::Key() const
 {
 	StringBuffer h;
 	RawCat(h, id);
-	return h;
+	return String(h); // Make MSVC happy...
 }
 
 int Terminal::HyperlinkMaker::Make(String& link) const
