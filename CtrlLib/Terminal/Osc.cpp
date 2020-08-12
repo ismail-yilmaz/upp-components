@@ -181,12 +181,15 @@ void Terminal::ParseClipboardRequests(const VTInStream::Sequence& seq)
 		WString out = GetWString(Selection());
 		if(IsNull(out))
 			out = GetWString(Clipboard());
-		PutOSC("52;s0;" + Base64Encode(ToUtf8(out)));
+		PutOSC("52;s0;" + Base64Encode(EncodeDataString(out)));
 	}
 	else
 	if(IsClipboardWritePermitted()) {
-		if(FindMatch(data, CheckInvalidBase64Chars) < 0)
-			Copy(Base64Decode(data).ToWString());
+		if(FindMatch(data, CheckInvalidBase64Chars) < 0) {
+			String in = Base64Decode(data);
+			if(!IsNull(in))
+				Copy(DecodeDataString(in));
+		}
 		else
 			ClearClipboard();
 	}
