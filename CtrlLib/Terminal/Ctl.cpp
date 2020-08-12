@@ -17,7 +17,7 @@ void Terminal::ParseControlChars(byte c)
 	case ControlId::NUL:
 		break;
 	case ControlId::ENQ:
-		Put(answerback);
+		Put(answerback.ToWString());
 		break;
 	case ControlId::BEL:
 		WhenBell();

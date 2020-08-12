@@ -14,7 +14,7 @@ topic "PtyProcess";
 [s0; &]
 [s1;:Upp`:`:PtyProcess`:`:class: [@(0.0.255)3 class][3 _][*3 PtyProcess][3 _:_][@(0.0.255)3 publ
 ic][3 _][*@3;3 AProcess]&]
-[s6;%% POSIX specific.&]
+[s6;%% Requires POSIX&]
 [s2;%% This class represents a pseudo`-terminal process on a local 
 machine.&]
 [s3; &]
@@ -42,13 +42,15 @@ on failure.&]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:SetAttrs`(const termios`&`): [@(0.0.255) bool]_[* SetAttrs]([@(0.0.255) c
 onst]_[_^termios^ termios][@(0.0.255) `&]_[*@3 t])&]
+[s6; POSIX only&]
 [s2;%% Sets the attributes of the active pty to [%-*@3 t]. Returns 
 true on success.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:GetAttrs`(termios`&`): [@(0.0.255) bool]_[* GetAttrs]([_^termios^ t
 ermios][@(0.0.255) `&]_[*@3 t])&]
-[s2;%%  Fetches the attributes of the active pty into [%-*@3 t]. Return 
+[s6; POSIX only&]
+[s2;%% Fetches the attributes of the active pty into [%-*@3 t]. Return 
 true on success.&]
 [s3;%% &]
 [s4; &]
@@ -59,10 +61,11 @@ har]_`*[*@3 cd]_`=_nullptr)&]
 [s2;# [@N Starts a new pseudo`-terminal process defined by ][*@3 cmdline][@N . 
 ][*@3 env ][@N can provide a new environment for the process. The 
 new proces will inherit the caller`'s environment if the ][*@3 env 
-][@N argument is NULL. Additionally, if the ][*@3 env ][%% argument 
-doesn`'t contain a `"][%%C TERM][%% `" key, then the `"TERM`=][%%C xterm][%% `" 
-key/value pair will be used as a fallback. ][*@3 cd ][@N can be used 
-to specify the new current directory for the process.]&]
+][@N argument is NULL. Additionally, o][%% n POSIX systems ][@N if 
+the ][*@3 env ][%% argument doesn`'t contain a `"][%%C TERM][%% `" key, 
+then the `"][%%C TERM`=xterm][%% `" key/value pair will be used as 
+a fallback.. ][*@3 cd ][@N can be used to specify the new current 
+directory for the process.]&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const Upp`:`:Vector`<Upp`:`:String`>`*`,const char`*`,const char`*`): [@(0.0.255) b
@@ -72,13 +75,14 @@ nv]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
 [s2;#%% Starts a new pseudo`-terminal process defined by [%-*@3 cmd] 
 and [%-*@3 args]. [%-*@3 env] can provide a new environment for the 
 process. [%-@N The new proces will inherit the caller`'s environment 
-if the ][%-*@3 env ][%-@N argument is NULL. Additionally, if the 
-][%-*@3 env ]argument doesn`'t contain a `"[C TERM]`" key, then the 
-`"TERM`=[C xterm]`" key/value pair will be used as a fallback. 
-This variant passes individual arguments instead of whole commandline. 
-On POSIX this has the advantage of passing the commands directly 
-to execv, without parsing the command line. [%-*@3 cd] can be used 
-to specify the new current directory for the process.&]
+if the ][%-*@3 env ][%-@N argument is NULL. Additionally, o]n POSIX 
+systems [%-@N if the ][%-*@3 env ]argument doesn`'t contain a `"[C TERM]`" 
+key, then the `"[C TERM`=xterm]`" key/value pair will be used as 
+a fallback. This variant passes individual arguments instead 
+of whole commandline. On POSIX this has the advantage of passing 
+the commands directly to execv, without parsing the command line. 
+[%-*@3 cd] can be used to specify the new current directory for 
+the process.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const Upp`:`:VectorMap`<Upp`:`:String`,Upp`:`:String`>`&`,const char`*`): [@(0.0.255) b
@@ -87,10 +91,10 @@ ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline],
 [_^Upp`:`:String^ String]>`&_[*@3 env], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd])&]
 [s2;# [%% Start a new pseudo terminal process defined by ][*@3 cmdline][%% . 
 ][*@3 env][%%  is a map of key/value pairs that can provide a new 
-environment for the process. If the ][*@3 env][%%  argument doesn`'t 
-contain a `"TERM`" key, then the `"TERM`=xterm`" key/value pair 
-will be used as a fallback. ][@N  ][*@3 cd][%%  ][@N can be used to specify 
-the new current directory for the process.]&]
+environment for the process. On POSIX systems if the ][*@3 env][%%  
+argument doesn`'t contain a `"][%%C TERM][%% `" key, then the `"][%%C TERM`=xterm][%% `" 
+key/value pair will be used as a fallback. ][*@3 cd][%%  ][@N can be 
+used to specify the new current directory for the process.]&]
 [s3;%% &]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]

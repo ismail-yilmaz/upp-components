@@ -180,10 +180,12 @@ bool Terminal::UDKey(dword key, int count)
 	}
 	
 	String s;
-	bool b = GetUDKString(userkey, s);
-	if(b && !IsNull(s))
-		Put(s, count);
-	return b;
+	if(GetUDKString(userkey, s)) {
+		Put(s.ToWString(), count);
+		return true;
+	}
+
+	return false;
 }
 
 bool Terminal::NavKey(dword key, int count)
@@ -259,8 +261,7 @@ bool Terminal::Key(dword key, int count)
 		key &= ~K_DELTA;
 		bool utf8 = GetCharset() == CHARSET_UTF8;
 	
-		key =  ConvertToCharset(key, GetLegacyCharsets().Get(key, IsLevel2()));
-		if(key == DEFAULTCHAR)
+		if((key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()))) == DEFAULTCHAR)
 			return true;
 		
 		if(keyflags & K_CTRL)
@@ -270,14 +271,13 @@ bool Terminal::Key(dword key, int count)
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
 			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
-				utf8
-					? PutESC(key, count)
-					: Put(key, count);
+				if(IsUtf8Mode())
+					PutESC(key, count);
+				else
+					Put(key, count);
 		}
 		else
-			utf8
-				? PutUtf8(key, count)
-				: Put(key, count);
+			Put(key, count);
 	}
 
 KeyAccepted:

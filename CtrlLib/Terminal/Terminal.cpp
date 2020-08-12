@@ -89,10 +89,9 @@ void Terminal::PlaceCaret(bool scroll)
 Rect Terminal::GetCaretRect()
 {
 	Size fsz = GetFontSize();
-	Point pt = GetCursorPos();
+	Point pt = GetCursorPos() * fsz;
 	int   cw = page->GetCell().GetWidth();
 
-	pt *= fsz;
 	pt.y -= (fsz.cy * GetSbPos());
 
 	switch(caret.GetStyle()) {

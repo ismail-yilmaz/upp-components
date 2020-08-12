@@ -107,7 +107,7 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 			if(opcode >= 100 && opcode <= 107)
 				attrs.paper = Color::Special(opcode - 92);
 			else
-				LOG("Unhandled SGR code: " << opcode);
+				LLOG("Unhandled SGR code: " << opcode);
 			break;
 		}
 	}

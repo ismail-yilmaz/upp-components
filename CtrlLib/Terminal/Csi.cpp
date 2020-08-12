@@ -880,7 +880,7 @@ void Terminal::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 
 		const VTCell& cell = page->GetCell(pt);
 		if(!cell.IsVoid()) {
-			checksum -= cell.chr == 0 ? 0x20 : ConvertToCharset(cell, gsets.Get(cell, IsLevel2()));
+			checksum -= cell.chr == 0 ? 0x20 : EncodeCodepoint(cell, gsets.Get(cell, IsLevel2()));
 			if(cell.IsUnderlined())
 				checksum -= 0x10;
 			if(cell.IsInverted())

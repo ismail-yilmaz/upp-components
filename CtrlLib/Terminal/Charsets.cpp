@@ -98,42 +98,77 @@ INITIALIZER(DECGSets)
 	CHARSET_DEC_MCS  = AddCharSet("dec-mcs", CHRTAB_DEC_MULTINATIONAL);
 	CHARSET_DEC_TCS  = AddCharSet("dec-tcs", CHRTAB_DEC_TECHNICAL);
 }
-EXITBLOCK
-{
-}
 
-int Terminal::ConvertToUnicode(int c, byte gset)
+int Terminal::DecodeCodepoint(int c, byte gset)
 {
-	byte cs = ResolveCharset(legacycharsets ? gset : charset);
+	byte cs = ResolveVTCharset(gset);
 	
-	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
-	   gset == CHARSET_DEC_TCS ||
-	   gset == CHARSET_DEC_VT52)
+	if(c < 0x80
+	&&(gset == CHARSET_DEC_DCS		// Allow these charsets even when the g-sets are overridden.
+	|| gset == CHARSET_DEC_TCS
+	|| gset == CHARSET_DEC_VT52))
         c = ToUnicode(c | 0x80, gset);
 	else
 	if(cs == CHARSET_TOASCII)
 		c = ToAscii(c);
 	else
 	if(cs != CHARSET_UNICODE)
-		c = ToUnicode(c | (legacycharsets ? 0x80 : 0x00), cs);
+		c = ToUnicode(c, cs);
+
 	return c != DEFAULTCHAR ? c : 0xFFFD;
 }
 
-int Terminal::ConvertToCharset(int c, byte gset)
+int Terminal::EncodeCodepoint(int c, byte gset)
 {
-	byte cs = ResolveCharset(legacycharsets ? gset : charset);
+	byte cs = ResolveVTCharset(gset);
 	
-	if(gset == CHARSET_DEC_DCS ||	// Allow these charsets even when the g-sets are overridden.
-	   gset == CHARSET_DEC_TCS ||
-	   gset == CHARSET_DEC_VT52)
-	    c = FromUnicode(c, gset) & 0x7F;
+	if(gset == CHARSET_DEC_DCS		// Allow these charsets even when the g-sets are overridden.
+	|| gset == CHARSET_DEC_TCS
+	|| gset == CHARSET_DEC_VT52)
+		return FromUnicode(c, gset) & 0x7F;
 	else
 	if(cs == CHARSET_TOASCII)
-		c = ToAscii(c);
+		return ToAscii(c);
 	else
 	if(cs != CHARSET_UNICODE)
-		c = FromUnicode(c, cs);
+		return FromUnicode(c, cs);
+
 	return c;
+}
+
+WString Terminal::DecodeDataString(const String& s)
+{
+	if(IsUtf8Mode() && CheckUtf8(s))
+		return s.ToWString();
+	
+	WString txt;
+	bool b = IsLevel2();
+	const char *p = ~s;
+
+	while(*p) {
+		byte c = *p++;
+		txt.Cat(DecodeCodepoint(c, gsets.Get(c, b)));
+	}
+
+	return txt;
+}
+
+String Terminal::EncodeDataString(const WString& ws)
+{
+	if(IsUtf8Mode())
+		return ToUtf8(ws);
+
+	String txt;
+	bool b = IsLevel2();
+	const wchar *s = ~ws;
+
+	while(*s) {
+		wchar c = *s++;
+		c = (wchar) EncodeCodepoint(c, gsets.Get(c, b));
+		txt.Cat(c == DEFAULTCHAR ? '?' : c);
+	}
+
+	return txt;
 }
 
 int Terminal::LookupChar(int c)
@@ -144,16 +179,16 @@ int Terminal::LookupChar(int c)
 	if(IsLevel1() && gsets.GetSS() != 0x00) {
 		switch(gsets.GetSS()) {
 		case 0x8E: // SS2
-			c = ConvertToUnicode(c, gsets.GetG2());
+			c = DecodeCodepoint(c, gsets.GetG2());
 			break;
 		case 0x8F: // SS3
-			c = ConvertToUnicode(c, gsets.GetG3());
+			c = DecodeCodepoint(c, gsets.GetG3());
 			break;
 		}
 		gsets.SS(0x00);
 		return c;
 	}
-	return ConvertToUnicode(c, gsets.Get(c, IsLevel2()));
+	return DecodeCodepoint(c, gsets.Get(c, IsLevel2()));
 }
 
 Terminal::GSets::GSets(byte defgset)

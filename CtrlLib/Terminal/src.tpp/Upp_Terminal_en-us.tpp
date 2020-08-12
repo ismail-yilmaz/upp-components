@@ -310,8 +310,19 @@ onst]&]
 [s2; Returns true if Terminal ctrl is in 7`-bit output mode. (Default)&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:Terminal`:`:IsUtf8Mode`(`)const:%- [@(0.0.255) bool]_[* IsUtf8Mode]()_[@(0.0.255) c
+onst]&]
+[s2;# Returns true if Terminal ctrl is in UTF`-8 (unicode) input 
+mode. UTF`-8 input mode is enabled by default. If the terminal`'s 
+input locale is not CHARSET`_UNICODE or the legacy charsets (g`-sets) 
+feature is enabled, then the keyboard and clipboard inputs will 
+be translated to/from the designated 8`-bit character set. In 
+that case, g`-sets  will have precedence over the current locale 
+settings.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:Terminal`:`:HardReset`(`):%- [@(0.0.255) void]_[* HardReset]()&]
-[s2; This method will return the Terminal ctrl into its initial state. 
+[s2; This method will return Terminal ctrl into its initial state. 
 This method is meant to be used as a last resort.&]
 [s3; &]
 [s4;%- &]

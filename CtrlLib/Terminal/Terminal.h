@@ -115,6 +115,8 @@ public:
     bool        Is8BitMode() const                              { return IsLevel2() && eightbit; }
     bool        Is7BitMode() const                              { return !Is8BitMode(); }
 
+    bool        IsUtf8Mode() const                              { return charset == CHARSET_UNICODE && !legacycharsets; }
+
     void        HardReset()                                     { Reset(true);  }
     void        SoftReset()                                     { Reset(false); }
 
@@ -325,6 +327,7 @@ public:
     bool        IsTracking() const;
 
     const VTCell& GetCellAtMousePos() const                     { Point pt = GetMouseViewPos(); return page->FetchCell(ClientToPagePos(pt));; }
+    const VTCell& GetCellAtCursorPos() const                    { return page->GetCell(); };
 
     String      GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
     Image       GetInlineImage()                                { return GetInlineImage(mousepos, true);  }
@@ -632,27 +635,25 @@ private:
     VTPage&     GetAlternatePage()                              { return apage; }
     bool        IsAlternatePage() const                         { return page == &apage; }
 
-    void        PutC(int c);
-    void        PutC(const String& s1);
-    void        Put(const String& s, int cnt = 1);
-    void        Put(int c, int cnt = 1);
-    void        PutUtf8(int c, int cnt = 1);
-    void        PutRaw(const String& s, int cnt = 1);
-    void        PutESC(const String& s, int cnt = 1);
-    void        PutESC(int c, int cnt = 1);
-    void        PutCSI(const String& s, int cnt = 1);
-    void        PutCSI(int c, int cnt = 1);
-    void        PutOSC(const String& s, int cnt = 1);
-    void        PutOSC(int c, int cnt = 1);
-    void        PutDCS(const String& s, int cnt = 1);
-    void        PutDCS(int c, int cnt = 1);
-    void        PutSS2(const String& s, int cnt = 1);
-    void        PutSS2(int c, int cnt = 1);
-    void        PutSS3(const String& s, int cnt = 1);
-    void        PutSS3(int c, int cnt = 1);
-    void        PutEncoded(const String& s, bool noctl = false);
-    void        PutEncoded(const WString& s, bool noctl = false);
-    void        PutEol();
+    Terminal&   Put0(const String& s, int cnt = 1);
+    Terminal&   Put0(int c, int cnt = 1);
+    Terminal&   Put(const WString& s, int cnt = 1);
+    Terminal&   Put(int c, int cnt = 1);
+    Terminal&   PutRaw(const String& s, int cnt = 1);
+    Terminal&   PutESC(const String& s, int cnt = 1);
+    Terminal&   PutESC(int c, int cnt = 1);
+    Terminal&   PutCSI(const String& s, int cnt = 1);
+    Terminal&   PutCSI(int c, int cnt = 1);
+    Terminal&   PutOSC(const String& s, int cnt = 1);
+    Terminal&   PutOSC(int c, int cnt = 1);
+    Terminal&   PutDCS(const String& s, int cnt = 1);
+    Terminal&   PutDCS(int c, int cnt = 1);
+    Terminal&   PutSS2(const String& s, int cnt = 1);
+    Terminal&   PutSS2(int c, int cnt = 1);
+    Terminal&   PutSS3(const String& s, int cnt = 1);
+    Terminal&   PutSS3(int c, int cnt = 1);
+    Terminal&   PutEncoded(const WString& s, bool noctl = false);
+    Terminal&   PutEol();
 
     void        Flush();
     void        CancelOut()                                     { out.Clear(); }
@@ -767,7 +768,7 @@ public:
         GSets&     G3(byte c)                                   { g[3] = c; return *this; }
         GSets&     SS(byte c)                                   { ss   = c; return *this; }
 
-        byte        Get(int c, bool allowgr = true) const       { return allowgr && c > 0x7F ? g[r] : g[l]; }
+        byte        Get(int c, bool allowgr = true) const       { return c < 0x80 || !allowgr ? g[l] : g[r]; }
 
         int         GetGLNum()                                  { return l; }
         int         GetGRNum()                                  { return r; }
@@ -804,8 +805,11 @@ public:
     Terminal&       NoLegacyCharsets()                          { return LegacyCharsets(false); }
 
 private:
-    int             ConvertToUnicode(int c, byte gset);
-    int             ConvertToCharset(int c, byte gset);
+    byte            ResolveVTCharset(byte cs)                   { return ResolveCharset(legacycharsets ? cs : charset); }
+    int             DecodeCodepoint(int c, byte gset);
+    int             EncodeCodepoint(int c, byte gset);
+    WString         DecodeDataString(const String& s);
+    String          EncodeDataString(const WString& ws);
 
 private:
     GSets           gsets;

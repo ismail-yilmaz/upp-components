@@ -114,231 +114,215 @@ void Terminal::Write(const void *data, int size, bool utf8)
 
 void Terminal::Flush()
 {
+	if(out.IsEmpty())
+		return;
+	
+	LLOG("Flush() -> " << out.GetLength() << " bytes.");
+	
 	WhenOutput(out);
 	if(!modes[SRM]) // Local echo on/off.
 		WriteUtf8(out);
 	out = Null;
 }
 
-void Terminal::PutC(int c)
+Terminal& Terminal::Put0(int c, int cnt)
 {
-	if(Is8BitMode())
-		out.Cat(c);
-	else
-	if(c >= 0x80 && 0x9F >= c) {
-		out.Cat(0x1B);
-		out.Cat(c - 0x40);
+	bool bit8 = Is8BitMode();
+	bool lvl2 = IsLevel2();
+
+	c &= 0xFF;
+
+	while(cnt-- > 0)
+	{
+		if(c >= 0x00 && c <= 0x7F)
+		{
+			out.Cat(c);
+		}
+		else
+		if(c >= 0x80 && c <= 0x9F)
+		{
+			if(bit8)
+			{
+				 out.Cat(c);
+			}
+			else
+			{
+				out.Cat(0x1B);
+				out.Cat(c - 0x40);
+			}
+		}
+		else
+		if(c >= 0xA0 && c <= 0xFF)
+		{
+			if(lvl2)
+			{
+				out.Cat(c);
+			}
+			else
+			{
+				out.Cat(c & 0x7F);
+			}
+		}
 	}
-	else
-	if(!IsLevel2() && c >= 0xA0 && 0xFF >= c)
-		out.Cat(c & 0x7F);
-	else
-		out.Cat(c);
-	// Don't flush
-}
-
-void Terminal::PutC(const String& s)
-{
-	for(const auto& c: s)
-		PutC(c);
-}
-
-void Terminal::Put(const String& s, int cnt)
-{
-	while(cnt-- > 0)
-		PutC(s);
-	Flush();
-}
-
-void Terminal::Put(int c, int cnt)
-{
-	while(cnt-- > 0)
-		PutC(c);
-	Flush();
-}
-
-void Terminal::PutUtf8(int c, int cnt)
-{
-	String s;
 	
-	word code = c;
-	if(code < 0x80)
-		s.Cat(code);
-	else
-	if(code < 0x800) {
-		s.Cat(0xc0 | (code >> 6));
-		s.Cat(0x80 | (code & 0x3f));
-	}
-	else
-	if((code & 0xFF00) == 0xEE00)
-		s.Cat(code);
-	else {
-		s.Cat(0xe0 | (code >> 12));
-		s.Cat(0x80 | ((code >> 6) & 0x3f));
-		s.Cat(0x80 | (code & 0x3f));
-	}
-	PutRaw(s, cnt);
+	return *this;
 }
 
-void Terminal::PutRaw(const String& s, int cnt)
+Terminal& Terminal::Put0(const String& s, int cnt)
 {
 	while(cnt-- > 0)
-		out.Cat(s);
-	Flush();
+		for(const byte& c : s) Put0(c);
+	return *this;
 }
 
-void Terminal::PutESC(const String& s, int cnt)
+Terminal& Terminal::Put(const WString& s, int cnt)
+{
+	if(IsUtf8Mode()) {
+		String txt = ToUtf8(s);
+		while(cnt-- > 0) out.Cat(txt);
+	}
+	else
+		Put0(s.ToString(), cnt);
+	Flush();
+	return *this;
+}
+
+Terminal& Terminal::Put(int c, int cnt)
+{
+	if(IsUtf8Mode())
+		while(cnt-- > 0) out.Cat(ToUtf8(c));
+	else
+		Put0(c, cnt);
+	Flush();
+	return *this;
+}
+
+Terminal& Terminal::PutRaw(const String& s, int cnt)
+{
+	LLOG("PutRaw() -> " << s);
+	
+	while(cnt-- > 0) out.Cat(s);
+	return *this;
+}
+
+Terminal& Terminal::PutESC(const String& s, int cnt)
 {
 	LLOG("PutESC() -> " << s);
 	
-	while(cnt-- > 0) {
-		PutC(0x1B);
-		PutC(s);
-	}
+	while(cnt-- > 0) { Put0(0x1B).Put0(s); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutESC(int c, int cnt)
+Terminal& Terminal::PutESC(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x1b);
-		Put(c);
-	}
+	while(cnt-- > 0) { Put0(0x1B).Put0(c); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutCSI(const String& s, int cnt)
+Terminal& Terminal::PutCSI(const String& s, int cnt)
 {
 	LLOG("PutOSC() -> " << s);
-	
-	while(cnt-- > 0) {
-		PutC(0x9B);
-		PutC(s);
-	}
+
+	while(cnt-- > 0) { Put0(0x9B).Put0(s); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutCSI(int c, int cnt)
+Terminal& Terminal::PutCSI(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x9B);
-		PutC(c);
-	}
+	while(cnt-- > 0) { Put0(0x9B).Put0(c); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutOSC(const String& s, int cnt)
+Terminal& Terminal::PutOSC(const String& s, int cnt)
 {
 	LLOG("PutOSC() -> " << s);
-	
-	while(cnt-- > 0) {
-		PutC(0x9D);
-		PutRaw(s);
-		PutC(0x9C);
-	}
+
+	while(cnt-- > 0) { Put0(0x9D).PutRaw(s).Put0(0x9C); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutOSC(int c, int cnt)
+Terminal& Terminal::PutOSC(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x9D);
-		PutC(c);
-		PutC(0x9C);
-	}
-	
+	while(cnt-- > 0) { Put0(0x9D).Put0(c).Put0(0x9C); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutDCS(const String& s, int cnt)
+Terminal& Terminal::PutDCS(const String& s, int cnt)
 {
 	LLOG("PutDCS() -> " << s);
-	
-	while(cnt-- > 0) {
-		PutC(0x90);
-		PutRaw(s);
-		PutC(0x9C);
-	}
+
+	while(cnt-- > 0) { Put0(0x90).PutRaw(s).Put0(0x9C); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutDCS(int c, int cnt)
+Terminal& Terminal::PutDCS(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x90);
-		PutC(c);
-		PutC(0x9C);
-	}
+	while(cnt-- > 0) { Put0(0x90).Put0(c).Put0(0x9C); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutSS2(const String& s, int cnt)
+Terminal& Terminal::PutSS2(const String& s, int cnt)
 {
 	LLOG("PutSS2() -> " << s);
-	
-	while(cnt-- > 0) {
-		PutC(0x8E);
-		PutC(s);
-	}
+
+	while(cnt-- > 0) { Put0(0x8E).Put0(s); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutSS2(int c, int cnt)
+Terminal& Terminal::PutSS2(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x8E);
-		PutC(c);
-	}
+	while(cnt-- > 0) { Put0(0x8E).Put0(c); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutSS3(const String& s, int cnt)
+Terminal& Terminal::PutSS3(const String& s, int cnt)
 {
 	LLOG("PutSS3() -> " << s);
 	
-	while(cnt-- > 0) {
-		PutC(0x8F);
-		PutC(s);
-	}
+	while(cnt-- > 0) { Put0(0x8F).Put0(s); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutSS3(int c, int cnt)
+Terminal& Terminal::PutSS3(int c, int cnt)
 {
-	while(cnt-- > 0) {
-		PutC(0x8F);
-		PutC(c);
-	}
+	while(cnt-- > 0) { Put0(0x8F).Put0(c); }
 	Flush();
+	return *this;
 }
 
-void Terminal::PutEncoded(const String& s, bool noctl)
+Terminal& Terminal::PutEncoded(const WString& s, bool noctl)
 {
 	LTIMING("Terminal::PutEncoded");
 
-	String txt, buf = s;
+	WString txt = s;
 
 	if(!modes[LNM])
-		buf.Replace("\n", "\r");
+		txt.Replace("\r\n", "\r");
 
-	for(int c : buf) {
-		c = ConvertToCharset(c, gsets.Get(c, IsLevel2()));
-		if(!noctl
-		|| IsSpace(c)
-		|| (c >= 0x20 && c <= 0xFFFF))
-			txt.Cat(c == DEFAULTCHAR ? '?' : c);
-	}
-	PutRaw(txt);
+	auto sControlCharFilter = [](int c) -> int
+	{
+		return c * int(c > 0x20 || IsSpace(c));
+	};
+
+	return Put(noctl ? Filter(~txt, sControlCharFilter) : txt);
 }
 
-void Terminal::PutEncoded(const WString& s, bool noctl)
+Terminal& Terminal::PutEol()
 {
-	PutEncoded(ToUtf8(s), noctl);
-}
-
-void Terminal::PutEol()
-{
-	Put(modes[LNM] ? "\r\n" : "\r");
+	Put0(modes[LNM] ? "\r\n" : "\r");
+	Flush();
+	return *this;
 }
 
 void Terminal::Serialize(Stream& s)

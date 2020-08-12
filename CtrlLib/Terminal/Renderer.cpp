@@ -204,7 +204,7 @@ void Terminal::Paint0(Draw& w, bool print)
 						|| !IsNull(cell.paper)
 						|| highlight
 						|| cell.IsInverted()
-						|| lnk && cell.data == activelink
+						|| (lnk && cell.data == activelink)
 						|| print) {
 							int fcx = (j == psz.cx - 1) ? wsz.cx - x : fsz.cx;
 							rr.DrawRect(x, y, fcx, fsz.cy, highlight ? colortable[COLOR_PAPER_SELECTED] : paper);

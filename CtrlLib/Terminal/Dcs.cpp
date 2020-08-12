@@ -59,7 +59,7 @@ bool Terminal::GetUDKString(byte key, String& val)
 	if(i >= 0)
 		val = udk[i];
 
-	return i >= 0;
+	return i >= 0 && val.GetCount();
 }
 
 void Terminal::ReportControlFunctionSettings(const VTInStream::Sequence& seq)

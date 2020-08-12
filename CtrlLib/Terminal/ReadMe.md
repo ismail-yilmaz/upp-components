@@ -1,7 +1,3 @@
-
-
-
-
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*

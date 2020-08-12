@@ -68,8 +68,8 @@ and maintainability in mind.&]
 [s0; &]
 [s5;i150;O0; Ultimate`+`+ (ver. >`= 2019.1)&]
 [s5;i150;O0; POSIX, Windows, MacOS.&]
-[s5;i150;O0; A decent enough C/C`+`+ compiler that supports at least 
-C`+`+11 (GCC/CLANG/MinGW/Msc).&]
+[s5;i150;O0; A decent C/C`+`+ compiler that supports at least C`+`+11 
+(GCC/CLANG/MinGW/Msc).&]
 [s5;i150;O0; Snacks `& beer.&]
 [s0; &]
 [s22;:Chapter2: 3. Highlights&]
@@ -84,11 +84,11 @@ using the ctrl on any platform supported by Ultimate`+`+, directly
 as a front`-end for other terminal based services, such as SSH 
 or TELNET, etc., has become possible.&]
 [s5;#l160; This point is demonstrated with [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Example2^ o
-ne of the provided examples]: While the PtyProcess is currently 
-not available on Windows (it`'s a TBD), Terminal widget can be 
-compiled, run, and used on Windows, or on other supported platforms, 
-as an SSH terminal with no code modification required at least 
-on Windows and Linux.&]
+ne of the provided examples]: While the PtyProcess class is available 
+on POSIX`-compliant operating systems and on Microsoft Windows 
+(tm) 10, Terminal widget can be compiled, run and used on the 
+other versions of Windows or on other supported platforms as 
+an SSH terminal.&]
 [s5;#i150;O0; [* Terminal package is designed with simplicity in mind.]&]
 [s5;#l160; A fully`-fledged terminal emulation requires less than 
 50 sLoC. In fact, [^topic`:`/`/Terminal`/srcdoc`/Terminal`_Info`_en`-us`#Ezample1^ t
@@ -159,6 +159,9 @@ will be available soon.&]
 [s0; &]
 [s5;i150;O0; Supports whatever platform Ultimate`+`+ supports. (Linux, 
 Windows, MacOS).&]
+[s5;i150;O0; Supports both POSIX pty and Windows (tm) 10 pseudoconsole 
+APIs via a unified, basic interface, using the PtyProcess class. 
+(Note: Windows 10 support is still experimental.)&]
 [s5;i150;O0; Supports VT52/VT1xx/VT2xx, partial VT4XX/5XX, and xterm 
 emulation modes.&]
 [s5;i150;O0; Supports user configurable device conformance levels 
@@ -711,7 +714,6 @@ T to split the view)`"));&]
 [s0; &]
 [s5;i150;O0; Implement the remaining useful DEC, ANSI, and xterm 
 sequences and modes.&]
-[s5;i150;O0; Encapsulate the Windows power`-shell process in PtyProcess..&]
 [s5;i150;O0; Improve modifier keys handling.&]
 [s5;i150;O0; Add Z`-compression support to history buffer.&]
 [s5;i150;O0; Improve legacy charsets support.&]
@@ -727,8 +729,6 @@ major issues are listed below.&]
 [s0; &]
 [s5;i150;O0; Function keys and editor keys are not handled properly 
 on some notebooks.&]
-[s5;i150;O0; Image zoom in and out keys are not working with jexer 
-(v0.3.2)&]
 [s0; &]
 [s22;:Version: 8. Version&]
 [s0; &]
