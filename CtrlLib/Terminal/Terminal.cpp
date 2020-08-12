@@ -50,8 +50,8 @@ Terminal::Terminal()
 	WhenBar = THISFN(StdBar);
 	sb.WhenScroll = THISFN(Scroll);
 	caret.WhenAction = [=] { PlaceCaret(); };
-	dpage.WhenScroll = THISFN(ScheduleDelayedRefresh);
-	apage.WhenScroll = THISFN(ScheduleDelayedRefresh);
+	dpage.WhenScroll = THISFN(ScheduleRefresh);
+	apage.WhenScroll = THISFN(ScheduleRefresh);
 }
 
 Size Terminal::GetFontSize() const
@@ -189,7 +189,7 @@ void Terminal::SyncSize(bool notify)
 	}
 }
 
-void Terminal::ScheduleDelayedRefresh()
+void Terminal::ScheduleRefresh()
 {
 	if(delayedrefresh
 	&& (!lazyresize || !resizing)

@@ -356,13 +356,13 @@ public:
     static void SetHyperlinkCacheMaxSize(int maxcount);
 
 private:
-    void        PreParse()                                      { ScheduleDelayedRefresh(); }
+    void        PreParse()                                      { ScheduleRefresh(); }
     void        PostParse()                                     { if(delayedrefresh) return; SyncSb(); RefreshDisplay(); }
 
     void        SyncPage(bool notify = true);
     void        SwapPage();
 
-    void        ScheduleDelayedRefresh();
+    void        ScheduleRefresh();
 
     void        Blink(bool b);
 
