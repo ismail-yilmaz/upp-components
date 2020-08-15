@@ -305,7 +305,7 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 	LTIMING("Terminal::RenderImage");
 
 	Size fsz = GetFontSize();
-	dword id = CombineHash(imgs, fsz);
+	dword id = FoldHash(CombineHash(imgs, fsz));
 	const InlineImage& imd = GetCachedImageData(id, imgs, fsz);
 	if(!IsNull(imd.image)) {
 		page->AddImage(imd.cellsize, id, scroll, encoded);
@@ -397,7 +397,7 @@ void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
 
 void Terminal::RenderHyperlink(const Value& uri)
 {
-	GetCachedHyperlink(GetHashValue(uri), uri);
+	GetCachedHyperlink(FoldHash(GetHashValue(uri)), uri);
 }
 
 // Shared hyperlink cache support.

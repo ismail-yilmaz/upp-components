@@ -156,7 +156,7 @@ void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)
 		uri = UrlDecode(uri);
 		cellattrs.Image(false);
 		cellattrs.Hyperlink(true);
-		cellattrs.data = GetHashValue(uri);
+		cellattrs.data = FoldHash(GetHashValue(uri));
 		RenderHyperlink(uri);
 	}
 }

@@ -408,7 +408,7 @@ private:
         Size    size;
         bool    encoded:1;
         bool    keepratio:1;
-        dword   GetHashValue() const                            { return CombineHash(data, size, encoded, keepratio);   }
+        dword   GetHashValue() const                            { return FoldHash(CombineHash(data, size, encoded, keepratio)); }
         void    SetNull()                                       { data = Null; size = Null; encoded = keepratio = true; }
         bool    IsNullInstance() const                          { return Upp::IsNull(data); }
         ImageString()                                           { SetNull(); }

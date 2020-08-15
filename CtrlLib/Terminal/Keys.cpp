@@ -270,11 +270,12 @@ bool Terminal::Key(dword key, int count)
 		if(key < 0x80 && (keyflags & K_ALT) && metakeyflags != MKEY_NONE) {
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
-			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM])
+			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM]) {
 				if(IsUtf8Mode())
 					PutESC(key, count);
 				else
 					Put(key, count);
+			}
 		}
 		else
 			Put(key, count);
