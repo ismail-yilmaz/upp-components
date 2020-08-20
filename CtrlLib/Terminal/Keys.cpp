@@ -259,8 +259,7 @@ bool Terminal::Key(dword key, int count)
 			return true;
 
 		key &= ~K_DELTA;
-		bool utf8 = GetCharset() == CHARSET_UTF8;
-	
+
 		if((key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()))) == DEFAULTCHAR)
 			return true;
 		

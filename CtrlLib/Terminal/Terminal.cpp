@@ -35,13 +35,7 @@ Terminal::Terminal()
 	Unicode();
 	SetLevel(LEVEL_4);
 	SetCharset(CHARSET_UNICODE);
-	parser.WhenChr = THISFN(PutChar);
-	parser.WhenCtl = THISFN(ParseControlChars);
-	parser.WhenEsc = THISFN(ParseEscapeSequences);
-	parser.WhenCsi = THISFN(ParseCommandSequences);
-	parser.WhenDcs = THISFN(ParseDeviceControlStrings);
-	parser.WhenOsc = THISFN(ParseOperatingSystemCommands);
-	parser.WhenApc = THISFN(ParseApplicationProgrammingCommands);
+	InitParser(parser);
 	SetImageDisplay(NormalImageCellDisplay());
 	SetFrame(FieldFrame());
 	History();

@@ -5,6 +5,18 @@
 
 namespace Upp {
 
+void Terminal::InitParser(VTInStream& vts)
+{
+	vts.Reset();
+	vts.WhenChr = THISFN(PutChar);
+	vts.WhenCtl = THISFN(ParseControlChars);
+	vts.WhenEsc = THISFN(ParseEscapeSequences);
+	vts.WhenCsi = THISFN(ParseCommandSequences);
+	vts.WhenDcs = THISFN(ParseDeviceControlStrings);
+	vts.WhenOsc = THISFN(ParseOperatingSystemCommands);
+	vts.WhenApc = THISFN(ParseApplicationProgrammingCommands);
+}
+
 void Terminal::SetEmulation(int level, bool reset)
 {
 	if(reset)
@@ -121,7 +133,7 @@ void Terminal::Flush()
 	
 	WhenOutput(out);
 	if(!modes[SRM]) // Local echo on/off.
-		WriteUtf8(out);
+		Echo(out);
 	out = Null;
 }
 
@@ -322,6 +334,14 @@ Terminal& Terminal::PutEol()
 {
 	Put0(modes[LNM] ? "\r\n" : "\r");
 	Flush();
+	return *this;
+}
+
+Terminal& Terminal::Echo(const String& s)
+{
+	VTInStream echoparser;
+	InitParser(echoparser);
+	echoparser.Parse(out, IsUtf8Mode());
 	return *this;
 }
 

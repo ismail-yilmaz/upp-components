@@ -356,6 +356,8 @@ public:
     static void SetHyperlinkCacheMaxSize(int maxcount);
 
 private:
+    void        InitParser(VTInStream& vts);
+    
     void        PreParse()                                      { ScheduleRefresh(); }
     void        PostParse()                                     { if(delayedrefresh) return; SyncSb(); RefreshDisplay(); }
 
@@ -635,6 +637,7 @@ private:
     VTPage&     GetAlternatePage()                              { return apage; }
     bool        IsAlternatePage() const                         { return page == &apage; }
 
+    Terminal&   Echo(const String& s);
     Terminal&   Put0(const String& s, int cnt = 1);
     Terminal&   Put0(int c, int cnt = 1);
     Terminal&   Put(const WString& s, int cnt = 1);
