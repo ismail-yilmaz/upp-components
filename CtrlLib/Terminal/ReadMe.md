@@ -1,3 +1,8 @@
+
+
+
+
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -55,13 +60,13 @@ Note that the example code used in these videos can be found in the *Examples* s
 
 - Ultimate++ (ver. >= 2020.1)
 - POSIX (GNU/Linux, FreeBSD, etc.), Windows, or MacOS
-- A decent enough C/C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/Msc)
+- A decent C/C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/MSC)
 - Snacks & beer.
 
 ## [Highlights](#highlights)
 
 - **Terminal package completely separates the virtual terminal from the pseudo-terminal process (pty)**.
-As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the Terminal widget on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible. This point is demonstrated with one of the provided  examples: While the PtyProcess is currently not available on Windows (it's a TODO), Terminal widget can be compiled, run, and used on Windows, or on other supported platforms, as an SSH terminal. (See the *Examples* section.)
+As a result, Terminal package and its Terminal ctrl are not bound by any platform-specific pty implementation. Instead, they are decoupled, and an optional pty process class, PtyProcess, is provided with tha package as the default option. In this way, using the Terminal widget on any platform supported by Ultimate++, directly as a front-end for some other terminal based services, such as SSH or TELNET, etc., has become possible. This point is demonstrated with one of the provided  examples: While the PtyProcess class is available on POSIX-compliant operating systems and on Microsoft Windows (tm) 10, Terminal widget can be compiled, run and used on the other versions of Windows or on other supported platforms as an SSH terminal. (See the *Examples* section.)
 
 - **Terminal package is designed with simplicity in mind.**
 A fully-fledged terminal emulation requires less than 50 sLoC. In fact, the first basic example provided with the package is only a single .cpp file with 29 sLoC, and it can run complex/heavy applications with mouse tracking and embedded images support, such as [GNU Emacs](https://www.gnu.org/software/emacs/), [vim](https://github.com/vim/vim) text editor, [Lynx](https://lynx.browser.org/), [GNUPlot](http://www.gnuplot.info/), [tmux](https://github.com/tmux/tmux/wiki), [Ranger](https://github.com/ranger/ranger), a vim inspired file manager with inline image preview support, or [mapscii](https://github.com/rastapasta/mapscii), an OpenStreetMap implementation for [xterm](https://invisible-island.net/xterm/) compatible virtual terminal emulator, or even [Jexer](https://jexer.sourceforge.io/), a java-based modern and slick text user interface (TUI) and windowing system for modern terminal emulators, and [xterm Window Manager,](https://gitlab.com/klamonte/xtermwm) with ease.
@@ -92,9 +97,10 @@ Terminal widget has a flexible infrastructure and support for inline images and 
 ## [Features](#features)
 
 - Supports whatever platform Ultimate++ supports. (Linux, Windows, MacOS).
+- Supports both POSIX pty and Windows (tm) 10 pseudoconsole APIs via a unified, basic interface, using the PtyProcess class. (Note: Windows 10 support is still experimental.)
 - Supports VT52/VT1xx/VT2xx, partial VT4XX/5XX, and xterm emulation modes.
 - Supports user configurable device conformance levels (1, 2, 3, 4, and 0 as VT52 emulation).
-- Supports both 7-bits and 8-bits I/O.
+- Supports both 7-bit and 8-bit I/O.
 - Supports Unicode/UTF8.
 - Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).
 - Supports ANSI conformance levels.
@@ -167,9 +173,15 @@ This example demonstrates the basic usage of the Terminal widget and its interac
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-using namespace Upp;
+// This example requires at least Windows 10 on Windows platform.
 
-const char *nixshell = "/bin/bash";
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif  PLATFORM_WIN32
+const char *tshell = "cmd.exe";
+#endif
+
+using namespace Upp;
 
 struct TerminalExample : TopWindow {
 	Terminal term;
@@ -184,7 +196,7 @@ struct TerminalExample : TopWindow {
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(nixshell, Environment(), GetHomeDirectory());
+		pty.Start(tshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
 			term.WriteUtf8(pty.Get());
@@ -301,9 +313,15 @@ Ultimate++ has a package named "Turtle", which allows any U++ GUI application to
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-using namespace Upp;
+// This example requires at least Windows 10 on Windows platform.
 
-const char *nixshell = "/bin/bash";
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif  PLATFORM_WIN32
+const char *tshell = "cmd.exe";
+#endif
+
+using namespace Upp;
 
 struct TerminalExample : TopWindow {
 	Terminal term;
@@ -318,7 +336,7 @@ struct TerminalExample : TopWindow {
 		term.WhenOutput = [=](String s) { pty.Write(s);      };
 		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(nixshell, Environment(), GetHomeDirectory());
+		pty.Start(tshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
 			term.WriteUtf8(pty.Get());
@@ -376,10 +394,14 @@ Below two example illustrate a way of creating more advanced user interfaces wit
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This  example  demonstrates a  simple terminal  splitter.
-// It uses PtyProcess, therefore it is currently POSIX-only.
+// This example requires at least Windows 10 on Windows platform.
 
-const char *nixshell = "/bin/bash";
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif  PLATFORM_WIN32
+const char *tshell = "cmd.exe";
+#endif
+
 const int  MAXPANECOUNT = 4;  // You can increase the number of panes if you like.
 
 using namespace Upp;
@@ -392,7 +414,7 @@ struct TerminalPane : Terminal, PtyProcess {
 		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
 		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		PtyProcess::Start(tshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
 		parent.Add(Terminal::SizePos());
 	}
 	
@@ -570,7 +592,6 @@ There is always room for improvement and new features.
 
 - Implement the remaining useful DEC, ANSI, and xterm sequences and modes.
 - Implement a font substitution method (prefarably, range-based)
-- Encapsulate the Windows power-shell process in PtyProcess.
 - Improve key handling on Windows.
 - Add Z-compression support to scrollback buffer. 
 - Improve legacy charsets support.

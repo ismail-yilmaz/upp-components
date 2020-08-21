@@ -1,6 +1,5 @@
 #include <TabBar/TabBar.h>
 #include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
 
 // This example demonstrates a simple, cross-platform (POSIX/Windows)
 // tabbed terminal example.
