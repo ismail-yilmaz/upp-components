@@ -1,9 +1,20 @@
 #include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
 
 using namespace Upp;
 
-const char *nixshell = "/bin/bash";
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// terminal example.
+
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "GUI WIN10")
+
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
+#endif
 
 struct TerminalExample : TopWindow {
 	Terminal term;
@@ -19,7 +30,7 @@ struct TerminalExample : TopWindow {
 		term.WhenLink   = [=](const String& s) { PromptOK(DeQtf(s)); };
 		term.WhenResize	= [=]()   { pty.SetSize(term.GetPageSize()); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(nixshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
+		pty.Start(tshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
 		SetTimeCallback(-1, [=] ()
 		{
 			term.WriteUtf8(pty.Get());

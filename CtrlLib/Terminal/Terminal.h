@@ -7,6 +7,7 @@
 #include "Parser.h"
 #include "Page.h"
 #include "Sixel.h"
+#include "PtyProcess.h"
 
 namespace Upp {
 

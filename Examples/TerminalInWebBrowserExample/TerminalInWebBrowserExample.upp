@@ -9,6 +9,6 @@ file
 	main.cpp;
 
 mainconfig
-	"" = "GUI",
-	"" = "TURTLE";
+	"" = "TURTLE",
+	"" = "TURTLE WIN10";
 

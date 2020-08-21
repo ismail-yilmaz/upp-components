@@ -2,10 +2,20 @@
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This example demonstrates a simple tabbed terminal.
-// It uses PtyProcess, therefore it is currently POSIX-only.
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// tabbed terminal example.
 
-const char *nixshell = "/bin/bash";
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "GUI WIN10")
+
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
+#endif
+
 const int MAXTABS    = 10;
 
 using namespace Upp;
@@ -17,7 +27,7 @@ struct TerminalTab : Terminal, PtyProcess {
 		WhenBell   = [=]()         { BeepExclamation();    };
 		WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		Start(tshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
 	}
 	
 	bool Do()

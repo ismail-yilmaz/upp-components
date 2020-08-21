@@ -10,5 +10,5 @@ file
 
 mainconfig
 	"" = "GUI",
-	"" = "GUI .TRUECOLOR";
+	"" = "GUI WIN10";
 

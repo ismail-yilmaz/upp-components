@@ -1,10 +1,20 @@
 #include <Terminal/Terminal.h>
 #include <Terminal/PtyProcess.h>
 
-// This  example  demonstrates a  simple terminal  splitter.
-// It uses PtyProcess, therefore it is currently POSIX-only.
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// terminal splitter example.
 
-const char *nixshell = "/bin/bash";
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "GUI WIN10")
+
+#ifdef PLATFORM_POSIX
+const char *tshell = "/bin/bash";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
+#endif
+
 const int  MAXPANECOUNT = 4;  // You can increase the number of panes if you like.
 
 using namespace Upp;
@@ -17,7 +27,7 @@ struct TerminalPane : Terminal, PtyProcess {
 		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
 		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		PtyProcess::Start(nixshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		PtyProcess::Start(tshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
 		parent.Add(Terminal::SizePos());
 	}
 	
