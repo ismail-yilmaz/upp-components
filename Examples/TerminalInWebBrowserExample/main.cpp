@@ -19,9 +19,6 @@ const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
 
 using namespace Upp;
 
-
-const char *nixshell = "/bin/bash";
-
 struct TerminalExample : TopWindow {
 	Terminal  term;
 	PtyProcess pty;					// This class is completely optional
