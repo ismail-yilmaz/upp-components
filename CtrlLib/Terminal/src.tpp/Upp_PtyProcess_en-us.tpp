@@ -14,7 +14,7 @@ topic "PtyProcess";
 [s0; &]
 [s1;:Upp`:`:PtyProcess`:`:class: [@(0.0.255)3 class][3 _][*3 PtyProcess][3 _:_][@(0.0.255)3 publ
 ic][3 _][*@3;3 AProcess]&]
-[s6;%% Requires POSIX&]
+[s6;%% Requires POSIX or at least Windows 10.&]
 [s2;%% This class represents a pseudo`-terminal process on a local 
 machine.&]
 [s3; &]
@@ -42,14 +42,14 @@ on failure.&]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:SetAttrs`(const termios`&`): [@(0.0.255) bool]_[* SetAttrs]([@(0.0.255) c
 onst]_[_^termios^ termios][@(0.0.255) `&]_[*@3 t])&]
-[s6; POSIX only&]
+[s6; POSIX specific.&]
 [s2;%% Sets the attributes of the active pty to [%-*@3 t]. Returns 
 true on success.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:GetAttrs`(termios`&`): [@(0.0.255) bool]_[* GetAttrs]([_^termios^ t
 ermios][@(0.0.255) `&]_[*@3 t])&]
-[s6; POSIX only&]
+[s6; POSIX specific.&]
 [s2;%% Fetches the attributes of the active pty into [%-*@3 t]. Return 
 true on success.&]
 [s3;%% &]

@@ -3,6 +3,7 @@
 
 
 
+
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2020, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -171,17 +172,22 @@ This example demonstrates the basic usage of the Terminal widget and its interac
 
 ```C++    	
 #include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
 
-// This example requires at least Windows 10 on Windows platform.
+using namespace Upp;
+
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// terminal example.
+
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "GUI WIN10")
 
 #ifdef PLATFORM_POSIX
 const char *tshell = "/bin/bash";
-#elif  PLATFORM_WIN32
-const char *tshell = "cmd.exe";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
 #endif
-
-using namespace Upp;
 
 struct TerminalExample : TopWindow {
 	Terminal term;
@@ -189,14 +195,15 @@ struct TerminalExample : TopWindow {
 	
 	TerminalExample()
 	{
-		SetRect(term.GetStdSize());  // 80 x 24 cells (scaled).
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled).
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-		term.WhenBell   = [=]()         { BeepExclamation(); };
-		term.WhenTitle  = [=](String s) { Title(s);          };
-		term.WhenOutput = [=](String s) { pty.Write(s);      };
-		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
+		term.WhenBell	= [=]()                { BeepExclamation();  };
+		term.WhenTitle	= [=](String s)        { Title(s);           };
+		term.WhenOutput	= [=](String s)        { pty.Write(s);       };
+		term.WhenLink   = [=](const String& s) { PromptOK(DeQtf(s)); };
+		term.WhenResize	= [=]()   { pty.SetSize(term.GetPageSize()); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(tshell, Environment(), GetHomeDirectory());
+		pty.Start(tshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
 		SetTimeCallback(-1, [=] ()
 		{
 			term.WriteUtf8(pty.Get());
@@ -311,38 +318,54 @@ Ultimate++ has a package named "Turtle", which allows any U++ GUI application to
 
 ```C++
 #include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
 
-// This example requires at least Windows 10 on Windows platform.
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// terminal example, running on the U++ Turtle backend.Turtle allows
+// U++ GUI applications to run on modern web browsers  that  support
+// HTML-5 canvas and websockets. Turtle can be switched on or off by
+// a compile-time flag.
+
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "TURTLE WIN10")
 
 #ifdef PLATFORM_POSIX
 const char *tshell = "/bin/bash";
-#elif  PLATFORM_WIN32
-const char *tshell = "cmd.exe";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
 #endif
 
 using namespace Upp;
 
+
+const char *nixshell = "/bin/bash";
+
 struct TerminalExample : TopWindow {
-	Terminal term;
-	PtyProcess pty;
+	Terminal  term;
+	PtyProcess pty;					// This class is completely optional
 	
 	TerminalExample()
 	{
-		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled).
+		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
-		term.WhenBell   = [=]()         { BeepExclamation(); };
-		term.WhenTitle  = [=](String s) { Title(s);          };
-		term.WhenOutput = [=](String s) { pty.Write(s);      };
-		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
+
+		term.WhenBell   = [=]()			{ BeepExclamation(); };
+		term.WhenTitle  = [=](String s)	{ Title(s);	};
+		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s)	{ PutGet(s); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(tshell, Environment(), GetHomeDirectory());
-		SetTimeCallback(-1, [=] ()
-		{
-			term.WriteUtf8(pty.Get());
-			 if(!pty.IsRunning())
-				Break();
-		});
+		
+		SetTimeCallback(-1, [=] { PutGet(); });
+		pty.Start(tshell, Environment(), GetHomeDirectory()); // Defaults to TERM=xterm
+	}
+	
+	void PutGet(String out = Null)
+	{
+		term.WriteUtf8(pty.Get());
+		pty.Write(out);
+		if(!pty.IsRunning())
+			Break();
 	}
 };
 
@@ -355,14 +378,14 @@ void Main()
 CONSOLE_APP_MAIN
 {
 	StdLogSetup(LOG_COUT|LOG_FILE);
-
+	
 	MemoryLimitKb(100000000);
 	Ctrl::host = "localhost";
 	Ctrl::port = 8888;
-	Ctrl::connection_limit = 15; // Maximum number of concurrent users (preventing DDoS)
+	Ctrl::connection_limit = 15;		// Maximum number of concurrent users (preventing DDoS)
 
 #ifdef _DEBUG
-	Ctrl::debugmode = true;      // Only single session in debug (no forking)
+	Ctrl::debugmode = true;				// Only single session in debug (no forking)
 #endif
 	if(Ctrl::StartSession()) {
 		Main();
@@ -392,14 +415,19 @@ Below two example illustrate a way of creating more advanced user interfaces wit
 
 ```C++
 #include <Terminal/Terminal.h>
-#include <Terminal/PtyProcess.h>
 
-// This example requires at least Windows 10 on Windows platform.
+// This example demonstrates a simple, cross-platform (POSIX/Windows)
+// terminal splitter example.
+
+// On Windows, the PtyProcess class requires at least Windows 10 (tm)
+// for the new pseudoconsole API support. To enable this feature, you
+// need to set the WIN10 flag in TheIDE's main package configurations
+// dialog. (i.e. "GUI WIN10")
 
 #ifdef PLATFORM_POSIX
 const char *tshell = "/bin/bash";
-#elif  PLATFORM_WIN32
-const char *tshell = "cmd.exe";
+#elif PLATFORM_WIN32
+const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
 #endif
 
 const int  MAXPANECOUNT = 4;  // You can increase the number of panes if you like.
@@ -482,6 +510,9 @@ The same terminal splitter example compiled with Ultimate++'s Turtle HTML-5 back
 Rectangle selection, and programmable right mouse button (context) menu in action, on the terminal splitter example. (Linux)
 
 ![ ](../Images/terminal_rectangle_selection._linux_screenshot.jpg)
+
+Terminal splitter example running multiple cmd.exe instances via Windows 10 (tm) pseudoconsole API. (Windows)
+![ ](https://i.imgur.com/7HRp7ly.jpg)
 
 ### Ssh Terminal Splitter Example
 Given the flexiblity and power of Ultimate++, it is easy to modify the above splitter example, so that it can be used as a relatively fancy front-end for SSH2 shells. This example is cross-platform, and demonstrates the interaction between the Terminal widget and the Ultimate++'s Core/SSH package, in a multithreaded environment. 

@@ -11,7 +11,6 @@
 
 namespace Upp {
 
-#ifdef PLATFORM_POSIX
 class PtyProcess : public AProcess {
 public:
     PtyProcess()                                                                                                    { Init(); }
@@ -26,8 +25,12 @@ public:
     bool        SetSize(Size sz);
     bool        SetSize(int col, int row)           { return SetSize(Size(col, row)); }
     Size        GetSize();
+
+#ifdef PLATFORM_POSIX
     bool        SetAttrs(const termios& t);
     bool        GetAttrs(termios& t);
+#endif
+
     bool        Start(const char *cmdline, const char *env = nullptr, const char *cd = nullptr)                         { return DoStart(cmdline, nullptr, env, cd); }
     bool        Start(const char *cmd, const Vector<String> *args, const char *env = nullptr, const char *cd = nullptr) { return DoStart(cmd, args, env, cd); }
     bool        Start(const char *cmdline, const VectorMap<String, String>& env, const char *cd = nullptr);
@@ -38,27 +41,44 @@ public:
     bool        Read(String& s) override;
     void        Write(String s) override;
 
-    int         GetPid() const                      { return pid; }
     int         GetExitCode() override;
+
+#ifdef PLATFORM_POSIX
+    int         GetPid() const                      { return pid; }
+#elif PLATFORM_WIN32
+    HANDLE      GetProcessHandle() const;
+#endif
 
 private:
     void        Init();
     void        Free();
-    bool        Open();
-    bool        ResetSignals();
-    bool        DecodeExitCode(int status);
     bool        DoStart(const char *cmd, const Vector<String> *args, const char *env, const char *cd);
 
+#ifdef PLATFORM_POSIX
+    bool        ResetSignals();
+    bool        Wait(dword event, int ms = 10);
+    bool        DecodeExitCode(int status);
+
     int         master, slave;
-    int         exit_code;
-    bool        convertcharset;
     String      exit_string;
     String      sname;
-    String      wread;
-    String      wbuffer;
     pid_t       pid;
-};
+#elif flagWIN10
+	// Windows 10 pseudoconsole API support. (Experimental)
+    HPCON       hConsole;
+    HANDLE      hProcess;
+    HANDLE      hOutputRead;
+    HANDLE      hErrorRead;
+    HANDLE      hInputWrite;
+    DWORD       dwProcessId;
+    Size        cSize;
+    String      rbuffer;
+    PPROC_THREAD_ATTRIBUTE_LIST hProcAttrList;
 #endif
+    String      wbuffer;
+    int         exit_code;
+    bool        convertcharset;
+};
 }
 
 #endif
