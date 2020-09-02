@@ -1,21 +1,25 @@
 ctrl Terminal {
 	group "Complex";
 
-	Frame	SetFrame = FieldFrame() @1;
-	Font	SetFont  = Monospace();
-	Color	Ink   = :SBlack;
-	Color	Paper = :SWhite;
-	bool	NoBackground = false;
-	bool	AdjustColors = true;
-	bool	ShowSizeHint = true;
-	bool	History = true;
-	int	SetHistorySize = 65536;
-	bool	ShowScrollBar = false;
-	bool	BlinkingText = true;
-	int	BlinkInterval = 500;
-	bool	LockCursor = false;
-	bool	DelayedRefresh = true;
-	bool	LazyResize = false;
+	Frame   SetFrame        = FieldFrame() @1;
+	Font    SetFont         = Monospace();
+	Color   Ink             = :SBlack;
+	Color   Paper           = :SWhite;
+	bool    NoBackground    = false;
+	bool    AdjustColors    = true;
+	bool    ShowSizeHint    = true;
+	bool    History         = true;
+	int     SetHistorySize  = 65536;
+	bool    ShowScrollBar   = false;
+	bool    BlinkingText    = true;
+	int     BlinkInterval   = 500;
+	bool    LockCursor      = false;
+	bool    InlineImages    = false;
+	bool    Hyperlinks      = false;
+	bool    WindowActions   = false;
+	bool    WindowReports   = false;
+	bool    DelayedRefresh  = true;
+	bool    LazyResize      = false;
 
 	FontSize() {
 		return GetTextSize("X", .SetFont);
