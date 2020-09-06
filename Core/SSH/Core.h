@@ -66,8 +66,6 @@ protected:
     bool                IsTimeout() const                       { return !IsNull(ssh->timeout) && ssh->timeout > 0 &&  msecs(ssh->start_time) >= ssh->timeout; }
     void                SetError(int rc, const String& reason = Null);
     void                ReportError(int rc, const String& reason);
-    void                AddTo(SocketWaitEvent& e)               { e.Add(*ssh->socket, GetWaitEvents()); }
-    dword               GetWaitEvents();
     inline void         RefreshUI()                             { WhenWait  ? WhenWait() : ssh->whenwait(); }
     
 private:
