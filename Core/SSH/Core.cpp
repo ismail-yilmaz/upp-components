@@ -95,7 +95,7 @@ void Ssh::Wait()
 {
 	// Here we disregard libssh2's socket event flags, and always wait for "any"
 	// socket event. Because we might have multiple channels waiting on the same
-	// session socket simutaneously (in MT). In those cases, waiting for a single
+	// session socket simultaneously (in MT). In those cases, waiting for a single
 	// event could lead the waiting channels to timeout errors. This way we give
 	// them a chance to fetch or send their data.
 
