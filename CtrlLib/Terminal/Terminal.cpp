@@ -752,7 +752,8 @@ void Terminal::HighlightHyperlink(Point pt)
 				activelink = cell.data;
 				RefreshDisplay();
 			}
-			Tip(GetCachedHyperlink(activelink));
+			String lnk = GetCachedHyperlink(activelink);
+			Tip(UrlDecode(lnk));
 		}
 	}
 }
