@@ -1,4 +1,4 @@
-topic "PtyProcess";
+topic "class PtyProcess : public AProcess";
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
@@ -11,12 +11,12 @@ topic "PtyProcess";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_} 
 [ {{10000@(113.42.0) [s0;%% [*@7;4 PtyProcess]]}}&]
-[s1; &]
+[s0; &]
 [s1;:Upp`:`:PtyProcess`:`:class: [@(0.0.255)3 class][3 _][*3 PtyProcess][3 _:_][@(0.0.255)3 publ
 ic][3 _][*@3;3 AProcess]&]
+[s6;%% Requires POSIX or at least Windows 10.&]
 [s2;%% This class represents a pseudo`-terminal process on a local 
 machine.&]
-[s6;%% POSIX specific.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Public Method List]]}}&]
 [s3; &]
@@ -24,77 +24,103 @@ machine.&]
 ]_[* ConvertCharset]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s5;:Upp`:`:PtyProcess`:`:NoConvertCharset`(`): [_^Upp`:`:PtyProcess^ PtyProcess][@(0.0.255) `&
 ]_[* NoConvertCharset]()&]
-[s2;%% Enables converting the character encoding from system to the 
-pseudo`-terminal. Default setting is false.&]
+[s2;%% Determines if PtyProcess should convert encoding from system 
+to the pseudo`-terminal. Default setting is false.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:SetSize`(Upp`:`:Size`): [@(0.0.255) bool]_[* SetSize]([_^Upp`:`:Size^ S
 ize]_[*@3 sz])&]
-[s2;%% Sets or changes the size (in character cells) of terminal 
-to [%-*@3 sz]. Calling this method before the start of a pty process 
-is valid, and returns true. In that case, [%-*@3 sz] will be used 
-as the initial size for the new pseudo`-terminal.&]
+[s5;:Upp`:`:PtyProcess`:`:SetSize`(int`,int`): [@(0.0.255) bool]_[* SetSize]([@(0.0.255) in
+t]_[*@3 col], [@(0.0.255) int]_[*@3 row])&]
+[s2;%% Setst the page size of the active pty. Returns true on success.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:GetSize`(`): [_^Upp`:`:Size^ Size]_[* GetSize]()&]
-[s2;%% Returns the size (in character cells) of a running pty on 
-success, Null on failure.&]
+[s2;%% Returns the page size of the active pty on success and Null 
+on failure.&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:PtyProcess`:`:SetAtrributes`(const termios`&`): [@(0.0.255) bool]_[* SetAtrri
-butes]([@(0.0.255) const]_[_^termios^ termios][@(0.0.255) `&]_[*@3 t])&]
-[s2;%% Sets or changes the terminal attributes to [%-*@3 t]. Returns 
-true on success. Calling this method before the start of a pty 
-process is valid, and returns true. In that case, [%-*@3 t] will 
-be used as the initial attributes for the new pseudo`-terminal.&]
+[s5;:Upp`:`:PtyProcess`:`:SetAttrs`(const termios`&`): [@(0.0.255) bool]_[* SetAttrs]([@(0.0.255) c
+onst]_[_^termios^ termios][@(0.0.255) `&]_[*@3 t])&]
+[s6; POSIX specific.&]
+[s2;%% Sets the attributes of the active pty to [%-*@3 t]. Returns 
+true on success.&]
 [s3;%% &]
 [s4; &]
-[s5;:Upp`:`:PtyProcess`:`:GetAttributes`(termios`&`): [@(0.0.255) bool]_[* GetAttributes](
-[_^termios^ termios][@(0.0.255) `&]_[*@3 t])&]
-[s2;%% Fetches the attributes of a running pty. Return true on success.&]
+[s5;:Upp`:`:PtyProcess`:`:GetAttrs`(termios`&`): [@(0.0.255) bool]_[* GetAttrs]([_^termios^ t
+ermios][@(0.0.255) `&]_[*@3 t])&]
+[s6; [%%  ]POSIX specific.&]
+[s2;%% Fetches the attributes of the active pty into [%-*@3 t]. Return 
+true on success.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const char`*`,const char`*`): [@(0.0.255) b
 ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], 
 [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 env]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) c
 har]_`*[*@3 cd]_`=_nullptr)&]
-[s0;l288;%% Starts a new pseudo`-terminal process defined by [%-*@3 cmdline]. 
-[%-*@3 env] can provide a new environment for the process, if NULL, 
-then the new process inherits caller`'s environment. [%-*@3 cd] 
-can be used to specify the new current directory for the process.&]
+[s2;# [@N Starts a new pseudo`-terminal process defined by ][*@3 cmdline][@N . 
+][*@3 env ][@N can provide a new environment for the process. The 
+new proces will inherit the caller`'s environment if the ][*@3 env 
+][@N argument is NULL. Additionally, o][%% n POSIX systems ][@N if 
+the ][*@3 env ][%% argument doesn`'t contain a `"][%%C TERM][%% `" key, 
+then the `"][%%C TERM`=xterm][%% `" key/value pair will be used as 
+a fallback.. ][*@3 cd ][@N can be used to specify the new current 
+directory for the process.]&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const Upp`:`:Vector`<Upp`:`:String`>`*`,const char`*`,const char`*`): [@(0.0.255) b
 ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmd], [@(0.0.255) const]_[_^Upp`:`:Vector^ V
 ector]<[_^Upp`:`:String^ String]>_`*[*@3 args], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 e
 nv]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
-[s2;%% Starts a new process defined by [%-*@3 cmd], [%-*@3 args]. [%-*@3 env] 
-can provide a new environment for the process, if NULL, then 
-the new process inherits caller`'s environment. This variant 
-passes individual arguments instead of whole commandline, this 
-has advantage that arguments are in POSIX passed directly to 
-execv, without parsing the commandline. [%-*@3 cd] can be used 
-to specify the new current directory for the process.&]
+[s2;%% Starts a new pseudo`-terminal process defined by [%-*@3 cmd] 
+and [%-*@3 args]. [%-*@3 env] can provide a new environment for the 
+process. [%-@N The new proces will inherit the caller`'s environment 
+if the ][%-*@3 env ][%-@N argument is NULL. Additionally, o]n POSIX 
+systems [%-@N if the ][%-*@3 env ]argument doesn`'t contain a `"[C TERM]`" 
+key, then the `"[C TERM`=xterm]`" key/value pair will be used as 
+a fallback. This variant passes individual arguments instead 
+of whole commandline. On POSIX this has the advantage of passing 
+the commands directly to execv, without parsing the command line. 
+[%-*@3 cd] can be used to specify the new current directory for 
+the process.&]
 [s3;%% &]
-[s0; &]
+[s4; &]
+[s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const Upp`:`:VectorMap`<Upp`:`:String`,Upp`:`:String`>`&`,const char`*`): [@(0.0.255) b
+ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], 
+[@(0.0.255) const]_[_^Upp`:`:VectorMap^ VectorMap]<[_^Upp`:`:String^ String], 
+[_^Upp`:`:String^ String]>`&_[*@3 env], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd])&]
+[s2; [%% Start a new pseudo terminal process defined by ][*@3 cmdline][%% . 
+][*@3 env][%%  is a map of key/value pairs that can provide a new 
+environment for the process. On POSIX systems if the ][*@3 env][%%  
+argument doesn`'t contain a `"][%%C TERM][%% `" key, then the `"][%%C TERM`=xterm][%% `" 
+key/value pair will be used as a fallback. ][*@3 cd][%%  ][@N can be 
+used to specify the new current directory for the process.]&]
+[s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
 [s5;:Upp`:`:PtyProcess`:`:PtyProcess`(`): [* PtyProcess]()&]
 [s2;%% Default constructor.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const Upp`:`:VectorMap`<Upp`:`:String`,Upp`:`:String`>`&`,const char`*`): [* P
+tyProcess]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], [@(0.0.255) const]_[_^Upp`:`:VectorMap^ V
+ectorMap]<[_^Upp`:`:String^ String], [_^Upp`:`:String^ String]>`&_[*@3 env], 
+[@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
+[s2;%%  Equivalent of default constructor and then invoking Start([%-*@3 cmdline], 
+[%-*@3 env], [%-*@3 cd]).&]
+[s3;%% &]
+[s4; &]
 [s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const char`*`,const char`*`): [* Pt
 yProcess]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], [@(0.0.255) const]_[@(0.0.255) c
 har]_`*[*@3 env]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
-[s2;%%  Constructor. Calls Start method with the given [%-*@3 cmdline], 
-[%-*@3 env], and [%-*@3 cd].&]
+[s2;%% Equivalent of default constructor and then invoking Start([%-*@3 cmdline], 
+[%-*@3 env], [%-*@3 cd]).&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:PtyProcess`(const char`*`,const Upp`:`:Vector`<Upp`:`:String`>`*`,const char`*`,const char`*`): [* P
 tyProcess]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmd], [@(0.0.255) const]_[_^Upp`:`:Vector^ V
 ector]<[_^Upp`:`:String^ String]>_`*[*@3 args], [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 e
 nv]_`=_nullptr, [@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cd]_`=_nullptr)&]
-[s2;%%  Constructor. Calls Start method with the given [%-*@3 cmd], 
-[%-*@3 args], [%-*@3 env], and [%-*@3 cd].&]
-[s3;%% &]
-[s0;%% ]]
+[s2;%% Equivalent of default constructor and then invoking Start([%-*@3 cmd], 
+[%-*@3 args], [%-*@3 env], [%-*@3 cd]).&]
+[s3; ]]

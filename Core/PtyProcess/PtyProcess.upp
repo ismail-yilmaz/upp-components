@@ -6,6 +6,9 @@ uses
 file
 	PtyProcess.h,
 	PtyProcess.cpp,
+	Info readonly separator,
+	ReadMe,
+	Copying,
 	Docs readonly separator,
 	src.tpp;
 

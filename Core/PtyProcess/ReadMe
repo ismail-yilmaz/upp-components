@@ -1,0 +1,10 @@
+PtyProcess package for Ultimate++
+---------------------------------
+
+This package provides a unified and easy-to use interface for POSIX pty and Window 10
+pseudoconsole APIs.
+
+Notes:
+- This package simply covers a standalone version of the Terminal/PtyProcess class.
+- Accordingly, it is synced with the Terminal/PtyProcess class.
+- See the terminal examples in the Examples section for PtyProcess reference examples.
