@@ -1049,13 +1049,13 @@ const VTLine& VTPage::FetchLine(int i) const
 bool VTPage::FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> consumer, bool rect) const
 {
 	Rect rr = Rect(0, 0, size.cx, GetLineCount());
-	if(IsNull(r) || r.left > r.right || r.top > r.bottom || !rr.Contains(r) || !consumer)
+	if(IsNull(r) || !rr.Contains(r) || !consumer)
 		return false;
 
 	for(int i = r.top; i <= r.bottom; i++) {
 		const VTLine& line = FetchLine(i);
-		int length = line.GetCount();
 		if(!line.IsVoid()) {
+			int length = line.GetCount();
 			int b = 0, e = length;
 			if(r.top == r.bottom || rect) {
 				b = r.left;
