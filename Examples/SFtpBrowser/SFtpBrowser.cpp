@@ -180,31 +180,10 @@ void SFtpBrowser::LoadDir()
 {
 	if(browser->InProgress())
 		return;
-	SFtp::DirList ls;
-	if(!browser->ListDir(GetWorkdir(), ls)) {
-		BrowserError();
-		return;
-	}
 	list.Clear();
-	for(const auto& e : ls) {
-		if(e.IsSymLink()      ||
-		   e.GetName() == "." ||
-		   e.GetName() == "..")
-			continue;
-		list.Add(
-			e.GetName(),
-			e.IsFile()
-				? CtrlImg::File()
-				: CtrlImg::Dir(),
-			StdFont().Bold(e.IsDirectory()),
-			SColorText(),
-			e.IsDirectory(),
-			e.GetSize(),
-			e.GetLastModified(),
-			SLtBlue()
-		);
-	}
-	sortbyext ? SortByExt(list) : SortByName(list);
+	SFtpFileSystemInfo sfsi(*browser);
+	if(Upp::Load(list, GetWorkdir(), "*", false, Null, (FileSystemInfo&) sfsi, Null, false))
+		sortbyext ? SortByExt(list) : SortByName(list);
 	Summary();
 	Sync();
 }
