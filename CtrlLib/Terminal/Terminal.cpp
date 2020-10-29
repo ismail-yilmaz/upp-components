@@ -404,8 +404,8 @@ void Terminal::LeftDouble(Point pt, dword keyflags)
 		Ctrl::LeftDouble(pt, keyflags);
 	else {
 		ClearSelection();
+		pt = ClientToPagePos(pt);
 		if((keyflags & K_CTRL) == K_CTRL) {
-			pt = ClientToPagePos(pt);
 			if(IsMouseOverImage(pt)) {
 				Image img = GetInlineImage(pt, true);
 				if(!IsNull(img))
@@ -420,7 +420,7 @@ void Terminal::LeftDouble(Point pt, dword keyflags)
 		}
 		else {
 			Point pl, ph;
-			if(GetWordSelection(SelectionToPagePos(pt), pl, ph)) {
+			if(GetWordSelection(pt, pl, ph)) {
 				SetSelection(pl, ph, false);
 				dblclick = true;
 			}
@@ -722,18 +722,18 @@ WString Terminal::GetSelectedText() const
 	return AsWString((const VTPage&)*page, GetSelectionRect(), rectsel);
 }
 
-bool Terminal::GetWordSelection(const Point& pt, Point& l, Point& h) const
+bool Terminal::GetWordSelection(const Point& pt, Point& pl, Point& ph) const
 {
-	l = h = pt;
+	pl = ph = pt;
 
 	const VTLine& line = page->FetchLine(pt.y);
 	if(!line.IsVoid()) {
 		const VTCell& cell = line[pt.x];
 		if(!cell.IsImage() && (cell.chr == 1 || cell.chr >= 32)) {
-			h.x++;
-			if(IsLeNum(cell.chr)) {
-				GetWordPosL(line, l);
-				GetWordPosH(line, h);
+			ph.x++;
+			if(IsLeNum(cell.chr) || cell.chr == '_') {
+				GetWordPosL(line, pl);
+				GetWordPosH(line, ph);
 			}
 			return true;
 		}
@@ -747,38 +747,38 @@ bool IsWCh(const VTCell& cell, bool line_wrap)
 		&& (IsLeNum(cell) || findarg(cell, 1, '_', '-') >= 0 || (cell == 0 && line_wrap));
 }
 
-void Terminal::GetWordPosL(const VTLine& line, Point& l) const
+void Terminal::GetWordPosL(const VTLine& line, Point& pl) const
 {
 	bool stopped = false;
 	bool wrapped = line.IsWrapped();
 
-	while(l.x > 0 && !(stopped = !IsWCh(line[l.x - 1], wrapped)))
-		l.x--;
+	while(pl.x > 0 && !(stopped = !IsWCh(line[pl.x - 1], wrapped)))
+		pl.x--;
 
-	if(l.x == 0 && !stopped) {
-		const VTLine& prev = page->FetchLine(l.y - 1);
+	if(pl.x == 0 && !stopped) {
+		const VTLine& prev = page->FetchLine(pl.y - 1);
 		if(prev.IsWrapped()) {
-			l.x = prev.GetCount();
-			l.y--;
-			GetWordPosL(prev, l);
+			pl.x = prev.GetCount();
+			pl.y--;
+			GetWordPosL(prev, pl);
 		}
 	}
 }
 
-void Terminal::GetWordPosH(const VTLine& line, Point& h) const
+void Terminal::GetWordPosH(const VTLine& line, Point& ph) const
 {
 	bool stopped = false;
 	bool wrapped = line.IsWrapped();
 
-	while(h.x < line.GetCount() && !(stopped = !IsWCh(line[h.x], wrapped)))
-		h.x++;
+	while(ph.x < line.GetCount() && !(stopped = !IsWCh(line[ph.x], wrapped)))
+		ph.x++;
 
-	if(h.x == line.GetCount() && !stopped) {
-		const VTLine& next = page->FetchLine(h.y + 1);
+	if(ph.x == line.GetCount() && !stopped) {
+		const VTLine& next = page->FetchLine(ph.y + 1);
 		if(line.IsWrapped()) {
-			h.x = 0;
-			h.y++;
-			GetWordPosH(next, h);
+			ph.x = 0;
+			ph.y++;
+			GetWordPosH(next, ph);
 		}
 	}
 }

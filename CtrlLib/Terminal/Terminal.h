@@ -387,15 +387,15 @@ private:
     Point       ClientToPagePos(Point pt) const;
     Point       SelectionToPagePos(Point pt) const;
 
-    void        SetSelection(Point  l, Point h, bool rsel);
-    bool        GetSelection(Point& l, Point& h) const;
+    void        SetSelection(Point  pl, Point ph, bool rsel);
+    bool        GetSelection(Point& pl, Point& ph) const;
     Rect        GetSelectionRect() const;
     void        ClearSelection();
     bool        IsSelected(Point pt) const;
     WString     GetSelectedText() const;
-    bool        GetWordSelection(const Point& pt, Point& l, Point& h) const;
-    void        GetWordPosL(const VTLine& line, Point& l) const;
-    void        GetWordPosH(const VTLine& line, Point& h) const;
+    bool        GetWordSelection(const Point& pt, Point& pl, Point& ph) const;
+    void        GetWordPosL(const VTLine& line, Point& pl) const;
+    void        GetWordPosH(const VTLine& line, Point& ph) const;
 
     bool        IsMouseOverImage(Point pt) const                { return !IsSelected(pt) && page->FetchCell(pt).IsImage(); }
     bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
