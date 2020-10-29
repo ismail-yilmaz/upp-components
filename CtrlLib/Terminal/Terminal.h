@@ -393,6 +393,9 @@ private:
     void        ClearSelection();
     bool        IsSelected(Point pt) const;
     WString     GetSelectedText() const;
+    bool        GetWordSelection(const Point& pt, Point& l, Point& h) const;
+    void        GetWordPosL(const VTLine& line, Point& l) const;
+    void        GetWordPosH(const VTLine& line, Point& h) const;
 
     bool        IsMouseOverImage(Point pt) const                { return !IsSelected(pt) && page->FetchCell(pt).IsImage(); }
     bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
@@ -478,6 +481,7 @@ private:
     Point       anchor          = Null;
     Point       selpos          = Null;
     bool        rectsel         = false;
+    bool        dblclick        = false;
     bool        ignorescroll    = false;
     bool        mousehidden     = false;
     bool        resizing        = false;

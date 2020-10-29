@@ -343,6 +343,9 @@ void Terminal::LeftUp(Point pt, dword keyflags)
 	}
 	else {
 		pt = ClientToPagePos(pt);
+		if(dblclick)
+			dblclick = false;
+		else
 		if(!HasCapture() && IsSelected(pt))
 			ClearSelection();
 	}
@@ -397,14 +400,12 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 
 void Terminal::LeftDouble(Point pt, dword keyflags)
 {
-	// TODO: Word selection.
-	
 	if(IsTracking())
 		Ctrl::LeftDouble(pt, keyflags);
 	else {
 		ClearSelection();
-		pt = ClientToPagePos(pt);
 		if((keyflags & K_CTRL) == K_CTRL) {
+			pt = ClientToPagePos(pt);
 			if(IsMouseOverImage(pt)) {
 				Image img = GetInlineImage(pt, true);
 				if(!IsNull(img))
@@ -415,6 +416,13 @@ void Terminal::LeftDouble(Point pt, dword keyflags)
 				String uri = GetHyperlinkURI(pt, true);
 				if(!IsNull(uri))
 					WhenLink(uri);
+			}
+		}
+		else {
+			Point pl, ph;
+			if(GetWordSelection(SelectionToPagePos(pt), pl, ph)) {
+				SetSelection(pl, ph, false);
+				dblclick = true;
 			}
 		}
 	}
@@ -630,8 +638,8 @@ Point Terminal::SelectionToPagePos(Point pt) const
 
 void Terminal::SetSelection(Point pl, Point ph, bool rsel)
 {
-	anchor = min(pl, ph);
-	selpos = max(pl, ph);
+	anchor = pl;
+	selpos = ph;
 	rectsel = rsel;
 	SetSelectionSource(ClipFmtsText());
 	Refresh();
@@ -673,6 +681,7 @@ void Terminal::ClearSelection()
 	anchor = Null;
 	selpos = Null;
 	rectsel = false;
+	dblclick = false;
 	Refresh();
 }
 
@@ -711,6 +720,67 @@ bool Terminal::IsSelected(Point pt) const
 WString Terminal::GetSelectedText() const
 {
 	return AsWString((const VTPage&)*page, GetSelectionRect(), rectsel);
+}
+
+bool Terminal::GetWordSelection(const Point& pt, Point& l, Point& h) const
+{
+	l = h = pt;
+
+	const VTLine& line = page->FetchLine(pt.y);
+	if(!line.IsVoid()) {
+		const VTCell& cell = line[pt.x];
+		if(!cell.IsImage() && (cell.chr == 1 || cell.chr >= 32)) {
+			h.x++;
+			if(IsLeNum(cell.chr)) {
+				GetWordPosL(line, l);
+				GetWordPosH(line, h);
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+bool IsWCh(const VTCell& cell, bool line_wrap)
+{
+	return !cell.IsImage()
+		&& (IsLeNum(cell) || findarg(cell, 1, '_', '-') >= 0 || (cell == 0 && line_wrap));
+}
+
+void Terminal::GetWordPosL(const VTLine& line, Point& l) const
+{
+	bool stopped = false;
+	bool wrapped = line.IsWrapped();
+
+	while(l.x > 0 && !(stopped = !IsWCh(line[l.x - 1], wrapped)))
+		l.x--;
+
+	if(l.x == 0 && !stopped) {
+		const VTLine& prev = page->FetchLine(l.y - 1);
+		if(prev.IsWrapped()) {
+			l.x = prev.GetCount();
+			l.y--;
+			GetWordPosL(prev, l);
+		}
+	}
+}
+
+void Terminal::GetWordPosH(const VTLine& line, Point& h) const
+{
+	bool stopped = false;
+	bool wrapped = line.IsWrapped();
+
+	while(h.x < line.GetCount() && !(stopped = !IsWCh(line[h.x], wrapped)))
+		h.x++;
+
+	if(h.x == line.GetCount() && !stopped) {
+		const VTLine& next = page->FetchLine(h.y + 1);
+		if(line.IsWrapped()) {
+			h.x = 0;
+			h.y++;
+			GetWordPosH(next, h);
+		}
+	}
 }
 
 Image Terminal::GetInlineImage(Point pt, bool modifier)
