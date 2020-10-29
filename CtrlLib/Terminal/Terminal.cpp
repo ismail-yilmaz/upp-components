@@ -329,7 +329,7 @@ void Terminal::LeftDown(Point pt, dword keyflags)
 		}
 		else {
 			pt = SelectionToPagePos(pt);
-			SetSelection(pt, pt, keyflags & K_CTRL);
+			SetSelection(pt, pt, (keyflags & K_CTRL) ? SEL_RECT : SEL_TEXT);
 		}
 	}
 	SetCapture();
@@ -343,8 +343,8 @@ void Terminal::LeftUp(Point pt, dword keyflags)
 	}
 	else {
 		pt = ClientToPagePos(pt);
-		if(dblclick)
-			dblclick = false;
+		if(multiclick)
+			multiclick = false;
 		else
 		if(!HasCapture() && IsSelected(pt))
 			ClearSelection();
@@ -421,10 +421,23 @@ void Terminal::LeftDouble(Point pt, dword keyflags)
 		else {
 			Point pl, ph;
 			if(GetWordSelection(pt, pl, ph)) {
-				SetSelection(pl, ph, false);
-				dblclick = true;
+				SetSelection(pl, ph, SEL_WORD);
+				multiclick = true;
 			}
 		}
+	}
+}
+
+void Terminal::LeftTriple(Point pt, dword keyflags)
+{
+	if(IsTracking())
+		Ctrl::LeftTriple(pt, keyflags);
+	else {
+		ClearSelection();
+		Point pl, ph;
+		GetLineSelection(ClientToPagePos(pt), pl, ph);
+		SetSelection(pl, ph, SEL_LINE);
+		multiclick = IsSelection();
 	}
 }
 
@@ -636,11 +649,11 @@ Point Terminal::SelectionToPagePos(Point pt) const
 	return ClientToPagePos(pt);
 }
 
-void Terminal::SetSelection(Point pl, Point ph, bool rsel)
+void Terminal::SetSelection(Point pl, Point ph, dword type)
 {
 	anchor = pl;
 	selpos = ph;
-	rectsel = rsel;
+	seltype = type;
 	SetSelectionSource(ClipFmtsText());
 	Refresh();
 }
@@ -652,7 +665,7 @@ bool Terminal::GetSelection(Point& pl, Point& ph) const
 		return false;
 	}
 	
-	if(anchor.y == selpos.y || anchor.x == selpos.x || rectsel) {
+	if(anchor.y == selpos.y || anchor.x == selpos.x || seltype == SEL_RECT) {
 		pl = min(anchor, selpos);
 		ph = max(anchor, selpos);
 	}
@@ -664,6 +677,11 @@ bool Terminal::GetSelection(Point& pl, Point& ph) const
 	else {
 		pl = anchor;
 		ph = selpos;
+	}
+
+	if(seltype == SEL_LINE) {
+		// Updates the horizontal highlight on display resize.
+		ph.x = GetPageSize().cx;
 	}
 	
 	return true;
@@ -680,8 +698,8 @@ void Terminal::ClearSelection()
 	ReleaseCapture();
 	anchor = Null;
 	selpos = Null;
-	rectsel = false;
-	dblclick = false;
+	seltype = SEL_NONE;
+	multiclick = false;
 	Refresh();
 }
 
@@ -691,7 +709,7 @@ bool Terminal::IsSelected(Point pt) const
 	if(!GetSelection(pl, ph))
 		return false;
 
-	if(rectsel) {
+	if(seltype == SEL_RECT) {
 		return pt.x >= pl.x
 			&& pt.y >= pl.y
 			&& pt.x <  ph.x
@@ -719,7 +737,20 @@ bool Terminal::IsSelected(Point pt) const
 
 WString Terminal::GetSelectedText() const
 {
-	return AsWString((const VTPage&)*page, GetSelectionRect(), rectsel);
+	return AsWString((const VTPage&)*page, GetSelectionRect(), seltype & SEL_RECT);
+}
+
+void Terminal::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
+{
+	pl = ph = pt;
+	pl.x = 0;
+	ph.x = GetPageSize().cx;
+	int cy = page->GetLineCount();
+	
+	while(pl.y > 0 && page->FetchLine(pl.y - 1).IsWrapped())
+		pl.y--;
+	while(ph.y < cy && page->FetchLine(ph.y).IsWrapped())
+		ph.y++;
 }
 
 bool Terminal::GetWordSelection(const Point& pt, Point& pl, Point& ph) const

@@ -285,7 +285,7 @@ public:
     void        Paste()                                         { DragAndDrop(Null, Clipboard()); }
     void        Paste(const WString& s, bool filter = false);
     void        SelectAll(bool history = false);
-    bool        IsSelection() const                             { return !IsNull(anchor) && anchor != selpos; }
+    bool        IsSelection() const                             { return !IsNull(anchor) && anchor != selpos && seltype != SEL_NONE; }
 
     String      GetSelectionData(const String& fmt) const override;
     
@@ -313,6 +313,7 @@ public:
     void        LeftUp(Point pt, dword keyflags) override;
     void        LeftDrag(Point pt, dword keyflags) override;
     void        LeftDouble(Point pt, dword keyflags) override;
+    void        LeftTriple(Point pt, dword keyflags) override;
     void        MiddleDown(Point pt, dword keyflags) override;
     void        MiddleUp(Point pt, dword keyflags) override;
     void        RightDown(Point pt, dword keyflags) override;
@@ -387,12 +388,13 @@ private:
     Point       ClientToPagePos(Point pt) const;
     Point       SelectionToPagePos(Point pt) const;
 
-    void        SetSelection(Point  pl, Point ph, bool rsel);
+    void        SetSelection(Point  pl, Point ph, dword selflag);
     bool        GetSelection(Point& pl, Point& ph) const;
     Rect        GetSelectionRect() const;
     void        ClearSelection();
     bool        IsSelected(Point pt) const;
     WString     GetSelectedText() const;
+    void        GetLineSelection(const Point& pt, Point& pl, Point& ph) const;
     bool        GetWordSelection(const Point& pt, Point& pl, Point& ph) const;
     void        GetWordPosL(const VTLine& line, Point& pl) const;
     void        GetWordPosH(const VTLine& line, Point& ph) const;
@@ -459,6 +461,14 @@ private:
     String      GetCachedHyperlink(dword id, const Value& data = Null);
 
 private:
+    enum TextSelectionTypes : dword {
+        SEL_NONE    = 0,
+        SEL_TEXT    = 1,
+        SEL_RECT    = 2,
+        SEL_WORD    = 3,
+        SEL_LINE    = 4
+    };
+    
     enum ModifierKeyFlags : dword {
         MKEY_NONE   = 0,
         MKEY_ESCAPE = 1,
@@ -480,8 +490,8 @@ private:
     Rect        caretrect;
     Point       anchor          = Null;
     Point       selpos          = Null;
-    bool        rectsel         = false;
-    bool        dblclick        = false;
+    dword       seltype         = SEL_NONE;
+    bool        multiclick      = false;
     bool        ignorescroll    = false;
     bool        mousehidden     = false;
     bool        resizing        = false;
