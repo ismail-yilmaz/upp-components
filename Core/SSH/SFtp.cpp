@@ -135,7 +135,10 @@ int SFtp::Read(SFtpHandle handle, void* ptr, int size)
 {
 	int sz = min(size - done, ssh->chunk_size);
 
-	int rc = libssh2_sftp_read(handle, (char*) ptr + done, sz);
+	int rc = static_cast<int>(
+		libssh2_sftp_read(handle, (char*) ptr + done, size_t(sz))
+		);
+
 	if(!WouldBlock(rc) && rc < 0)
 		SetError(rc);
 	if(rc > 0) {
@@ -152,7 +155,10 @@ int SFtp::Write(SFtpHandle handle, const void* ptr, int size)
 {
 	int sz = min(size - done, ssh->chunk_size);
 
-	int rc = libssh2_sftp_write(handle, (const char*) ptr + done, sz);
+	int rc = static_cast<int>(
+		libssh2_sftp_write(handle, (const char*) ptr + done, size_t(sz))
+		);
+
 	if(!WouldBlock(rc) && rc < 0)
 		SetError(rc);
 	if(rc > 0) {
@@ -597,6 +603,20 @@ FileSystemInfo::FileInfo SFtp::DirEntry::ToFileInfo() const
 	fi.is_read_only     = IsReadOnly();
 	fi.root_style       = FileSystemInfo::ROOT_FIXED;
 	return pick(fi);
+}
+
+void SFtp::DirEntry::Serialize(Stream& s)
+{
+	ASSERT(a);
+
+	s % a->flags;
+	s % a->permissions;
+	s % a->uid;
+	s % a->gid;
+	s % a->filesize;
+	s % a->mtime;
+	s % a->atime;
+	s % filename;
 }
 
 bool SFtp::DirEntry::CanMode(dword u, dword g, dword o) const

@@ -57,9 +57,10 @@ public:
             bool IsExecutable() const               { return !IsDirectory() && CanMode(IXUSR, IXGRP, IXOTH); }
 
             String ToString() const;
-            String ToXml() const;
             FileSystemInfo::FileInfo ToFileInfo() const;
 
+            void Serialize(Stream& s);
+            
             DirEntry(const String& path);
             DirEntry(const String& path, const SFtpAttrs& attrs);
             DirEntry()                              { Zero();  }
@@ -67,7 +68,11 @@ public:
 
             DirEntry(DirEntry&&) = default;
             DirEntry& operator=(DirEntry&&) = default;
-
+            
+            // Deprecated stuff.
+            [[deprecated("Will be removed with U++ 2021.2.")]]
+            String ToXml() const;
+            
         private:
             bool CanMode(dword u, dword g, dword o) const;
             void Zero();
