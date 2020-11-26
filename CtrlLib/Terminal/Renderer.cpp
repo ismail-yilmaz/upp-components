@@ -84,7 +84,6 @@ public:
 
 		dxcount  = dx.GetCount();
 		bool overline = cell.IsOverlined() && show;
-		bool underline = cell.IsUnderlined() && show;
 
 		if(pos.y != y || pos.x >= x || sgr != cell.sgr || color != c || !dxcount) {
 			Flush();
@@ -103,7 +102,7 @@ public:
 				p3 = p4 = Point(x, y);
 		}
 
-		if(cell.chr <= 0x20
+		if(cell.chr < 0x20
 		|| cell.IsImage()
 		|| cell.IsConcealed()
 		|| (!show && (cell.IsBlinking() && blink))) {
