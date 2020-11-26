@@ -220,8 +220,7 @@ bool Terminal::NavKey(dword key, int count)
 
 bool Terminal::Key(dword key, int count)
 {
-	if(IsReadOnly()
-	|| (!modes[DECARM] && count > 1))
+	if(IsReadOnly() || (!modes[DECARM] && count > 1))
 		return MenuBar::Scan(WhenBar, key);
 
 	dword keyflags = 0;
@@ -241,9 +240,7 @@ bool Terminal::Key(dword key, int count)
 	if(key & K_KEYUP)	// We don't really need to handle key-ups...
 		return true;
 	
-	if((key & K_ALT_KEY) == K_ALT_KEY
-	|| (key & K_CTRL_KEY) == K_CTRL_KEY
-	|| (key & K_SHIFT_KEY) == K_SHIFT_KEY)
+	if(findarg(key, K_CTRL_KEY, K_ALT_KEY, K_SHIFT_KEY) >= 0)
 		return false;
 
 	keyflags = key & (K_ALT|K_CTRL);
@@ -269,7 +266,7 @@ bool Terminal::Key(dword key, int count)
 		if(key < 0x80 && (keyflags & K_ALT) && metakeyflags != MKEY_NONE) {
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
-			if(metakeyflags & MKEY_ESCAPE || modes[XTALTESCM]) {
+			if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM]) {
 				if(IsUtf8Mode())
 					PutESC(key, count);
 				else
