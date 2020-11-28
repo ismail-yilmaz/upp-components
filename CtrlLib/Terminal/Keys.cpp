@@ -220,10 +220,31 @@ bool Terminal::NavKey(dword key, int count)
 
 bool Terminal::Key(dword key, int count)
 {
-	if(IsReadOnly() || (!modes[DECARM] && count > 1))
+	if(IsReadOnly()	|| (!modes[DECARM] && count > 1))
 		return MenuBar::Scan(WhenBar, key);
 
-	dword keyflags = 0;
+	bool ctrlkey  = key & K_CTRL;
+	bool altkey   = key & K_ALT;
+	bool shiftkey = key & K_SHIFT;
+	
+	auto ProcessKey = [=](dword key, bool ctrlkey, bool altkey) -> void
+	{
+		if(ctrlkey)
+			key = ToAscii(key) & 0x1F;
+
+		if(altkey && metakeyflags != MKEY_NONE) {
+			if(metakeyflags & MKEY_SHIFT)
+				key |= 0x80;
+			if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM]) {
+				if(IsUtf8Mode())
+					PutESC(key, count);
+				else
+					Put(key, count);
+			}
+		}
+		else
+			Put(key, count);
+	};
 	
 	if(UDKey(key, count))
 		goto KeyAccepted;
@@ -239,42 +260,49 @@ bool Terminal::Key(dword key, int count)
 
 	if(key & K_KEYUP)	// We don't really need to handle key-ups...
 		return true;
-	
+
+	key &= ~(K_CTRL|K_ALT|K_SHIFT);
 	if(findarg(key, K_CTRL_KEY, K_ALT_KEY, K_SHIFT_KEY) >= 0)
-		return false;
+		return true;
 
-	keyflags = key & (K_ALT|K_CTRL);
-
-	switch(key &= ~(keyflags|K_SHIFT)) {
-	case K_RETURN:
+	if(key == K_RETURN) {
 		PutEol();
-		break;
-	case K_BACKSPACE:
-		key = modes[DECBKM] ? 0x08 : 0x7F;
-	default:
-		if(key > 65535 && !keyflags)
-			return true;
-
-		key &= ~K_DELTA;
-
-		if((key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()))) == DEFAULTCHAR)
-			return true;
-		
-		if(keyflags & K_CTRL)
-			key = ToAscii(key) & 0x1F;
-		
-		if(key < 0x80 && (keyflags & K_ALT) && metakeyflags != MKEY_NONE) {
-			if(metakeyflags & MKEY_SHIFT)
-				key |= 0x80;
-			if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM]) {
-				if(IsUtf8Mode())
-					PutESC(key, count);
-				else
-					Put(key, count);
-			}
+	}
+	else {
+		switch(key) {
+		case K_BREAK:
+			key = 0x03;
+			break;
+		case K_BACKSPACE:
+			key = modes[DECBKM] ? 0x08 : 0x7F;
+			break;
+		case K_ESCAPE:
+			key = 0x1B;
+			break;
+		case K_TAB:
+			key = 0x09;
+			break;
+		case K_DELETE:
+			key = 0x7F;
+			break;
+		default:
+			break;
 		}
-		else
-			Put(key, count);
+		if(key > K_DELTA) {
+			if((ctrlkey || altkey))
+				ProcessKey(key & ~K_DELTA, ctrlkey, altkey);
+			else
+				goto End;
+		}
+		else {
+			if(shiftkey || (key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()))) == DEFAULTCHAR)
+				return true;
+			#if defined(PLATFORM_WIN32)
+			ProcessKey(key, GetCtrl(), GetAlt());
+			#else
+			ProcessKey(key, ctrlkey, altkey);
+			#endif
+		}
 	}
 
 KeyAccepted:
