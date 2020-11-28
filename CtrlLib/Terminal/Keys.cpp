@@ -289,8 +289,13 @@ bool Terminal::Key(dword key, int count)
 			break;
 		}
 		if(key > K_DELTA) {
-			if((ctrlkey || altkey))
+			if((ctrlkey || altkey)) {
+				#if defined(VIRTUALGUI)
+				if(key >= K_A && key <= K_Z)
+					key = 'A' + (key - K_A);
+				#endif
 				ProcessKey(key & ~K_DELTA, ctrlkey, altkey);
+			}
 			else
 				goto End;
 		}
