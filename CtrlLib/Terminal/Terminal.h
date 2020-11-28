@@ -78,7 +78,7 @@ public:
     typedef Terminal CLASSNAME;
 
     Terminal();
-    virtual ~Terminal()                                         {}
+    virtual ~Terminal();
 
     Event<>              WhenBell;
     Event<>              WhenResize;

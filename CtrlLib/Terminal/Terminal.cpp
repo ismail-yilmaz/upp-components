@@ -48,6 +48,14 @@ Terminal::Terminal()
 	apage.WhenScroll = THISFN(ScheduleRefresh);
 }
 
+Terminal::~Terminal()
+{
+	// Make sure that no callback is left dangling...
+	KillTimeCallback(TIMEID_REFRESH);
+	KillTimeCallback(TIMEID_SIZEHINT);
+	KillTimeCallback(TIMEID_BLINK);
+}
+
 Size Terminal::GetFontSize() const
 {
 	return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy());
