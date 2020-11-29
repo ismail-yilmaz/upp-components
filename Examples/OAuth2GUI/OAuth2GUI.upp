@@ -18,5 +18,6 @@ file
 
 mainconfig
 	"" = "GUI MT .NOGTK",
-	"" = "GUI MT .NOGTK .USEMALLOC";
+	"" = "GUI MT .NOGTK .USEMALLOC",
+	"" = "GUI";
 

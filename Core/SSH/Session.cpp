@@ -6,9 +6,9 @@ namespace Upp {
 #define LLOG(x)       do { if(SSH::sTrace) RLOG(SSH::GetName(ssh->otype, ssh->oid) << x); } while(false)
 #define LDUMPHEX(x)   do { if(SSH::sTraceVerbose) RDUMPHEX(x); } while(false)
 
-// ssh_keyboard_callback: Authenticates a session, using keyboard-interactive authentication.
+// sKeyboardCallback: Authenticates a session, using keyboard-interactive authentication.
 
-static void ssh_keyboard_callback(const char *name, int name_len, const char *instruction,
+static void sKeyboardCallback(const char *name, int name_len, const char *instruction,
 	int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
 	LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
 {
@@ -32,9 +32,9 @@ static void ssh_keyboard_callback(const char *name, int name_len, const char *in
 	}
 }
 
-// ssh_password_change: Requests that the client's password be changed.
+// sChangePasswordCallback: Requests that the client's password be changed.
 
-static void ssh_password_change(LIBSSH2_SESSION *session, char **pwd, int *len, void **abstract)
+static void sChangePasswordCallback(LIBSSH2_SESSION *session, char **pwd, int *len, void **abstract)
 {
 	String newpwd = reinterpret_cast<SshSession*>(*abstract)->WhenPasswordChange();
 #ifdef UPP_HEAP
@@ -45,17 +45,17 @@ static void ssh_password_change(LIBSSH2_SESSION *session, char **pwd, int *len, 
 #endif
 }
 
-// ssh_x11_request: Dispatches incoming X11 requests.
+// sX11RequestCallback: Dispatches incoming X11 requests.
 
-static void ssh_x11_request(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, char *shost, int sport, void **abstract)
+static void sX11RequestCallback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, char *shost, int sport, void **abstract)
 {
 	reinterpret_cast<SshSession*>(*abstract)->WhenX11((SshX11Handle) channel);
 }
 
-// ssh_session_libtrace: Allows full-level logging (redirection) of libsssh2 diagnostic messages.
+// slibssh2DebugCallback: Allows full-level logging (redirection) of libsssh2 diagnostic messages.
 
 #ifdef flagLIBSSH2TRACE
-static void ssh_session_libtrace(LIBSSH2_SESSION *session, void *context, const char *data, size_t length)
+static void slibssh2DebugCallback(LIBSSH2_SESSION *session, void *context, const char *data, size_t length)
 {
 	if(!session  || !SSH::sTraceVerbose)
 		return;
@@ -101,7 +101,7 @@ bool SshSession::Connect(const String& url)
 	auto b = findarg(u.scheme, "ssh", "sftp", "scp", "exec") >= 0 || (u.scheme.IsEmpty() && !u.host.IsEmpty());
 	int port = (u.port.IsEmpty() || !b) ? 22 : StrInt(u.port);
 	if(b) return Connect(u.host, port, u.username, u.password);
-	ReportError(-1, "Malformed secure shell URL.");
+	SetError(-1, "Malformed secure shell URL.");
 	return false;
 }
 
@@ -111,7 +111,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 
 	if(!Run([=, &ipinfo] () mutable {
 		if(host.IsEmpty())
-			SetError(-1, "Host is not specified.");
+			ThrowError(-1, "Host is not specified.");
 		ssh->session = nullptr;
 		session->socket.Timeout(0);
 		if(!WhenProxy) {
@@ -129,7 +129,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			if(ipinfo.InProgress())
 				return false;
 			if(!ipinfo.GetResult())
-				SetError(-1, "DNS lookup failed.");
+				ThrowError(-1, "DNS lookup failed.");
 			WhenPhase(PHASE_CONNECTION);
 			return true;
 		})) goto Bailout;
@@ -151,7 +151,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 	else {
 		if(!Run([=] () mutable {
 			if(!WhenProxy())
-				SetError(-1, "Proxy connection attempt failed.");
+				ThrowError(-1, "Proxy connection attempt failed.");
 			LLOG("Proxy connection to " << host << ":" << port << " is successful.");
 			return true;
 		})) goto Bailout;
@@ -166,9 +166,9 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			ssh->session = libssh2_session_init_ex(nullptr, nullptr, nullptr, this);
 #endif
 			if(!ssh->session)
-				SetError(-1, "Failed to initalize libssh2 session.");
+				ThrowError(-1, "Failed to initalize libssh2 session.");
 #ifdef flagLIBSSH2TRACE
-			if(libssh2_trace_sethandler(ssh->session, this, &ssh_session_libtrace))
+			if(libssh2_trace_sethandler(ssh->session, this, &slibssh2DebugCallback))
 				LLOG("Warning: Unable to set trace (debug) handler for libssh2.");
 			else {
 				libssh2_trace(ssh->session, SSH::sTraceVerbose);
@@ -190,7 +190,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 			int    method = session->iomethods.GetKey(0);
 			String mnames = GetMethodNames(method);
 			int rc = libssh2_session_method_pref(ssh->session, method, ~mnames);
-			if(!WouldBlock(rc) && rc < 0) SetError(rc);
+			if(!WouldBlock(rc) && rc < 0) ThrowError(rc);
 			if(!rc && !session->iomethods.IsEmpty()) {
 				LLOG("Transport method: #" << method << " is set to [" << mnames << "]");
 				session->iomethods.Remove(0);
@@ -201,7 +201,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 
 	if(!Run([=] () mutable {
 			int rc = libssh2_session_handshake(ssh->session, session->socket.GetSOCKET());
-			if(!WouldBlock(rc) && rc < 0) SetError(rc);
+			if(!WouldBlock(rc) && rc < 0) ThrowError(rc);
 			if(!rc) {
 				LLOG("Handshake successful.");
 				WhenPhase(PHASE_AUTHORIZATION);
@@ -227,7 +227,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 				break;
 			}
 			if(WhenVerify && !WhenVerify(host, port))
-				SetError(-1);
+				ThrowError(-1);
 			return true;
 	})) goto Bailout;
 
@@ -242,7 +242,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 				}
 				else
 				if(!WouldBlock())
-					SetError(-1);
+					ThrowError(-1);
 				return false;
 			}
 			LLOG("Authentication methods list successfully retrieved: [" << session->authmethods << "]");
@@ -264,7 +264,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 							~password,
 							 password.GetLength(),
 							 WhenPasswordChange
-								? &ssh_password_change
+								? &sChangePasswordCallback
 									: nullptr);
 					break;
 				case PUBLICKEY:
@@ -287,7 +287,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 					break;
 				case HOSTBASED:
 					if(!session->keyfile)
-						SetError(-1, "Keys cannot be loaded from memory.");
+						ThrowError(-1, "Keys cannot be loaded from memory.");
 					else
 					rc = libssh2_userauth_hostbased_fromfile(
 							ssh->session,
@@ -301,7 +301,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 					rc = libssh2_userauth_keyboard_interactive(
 						ssh->session,
 						~user,
-						&ssh_keyboard_callback);
+						&sKeyboardCallback);
 					break;
 				case SSHAGENT:
 					rc = TryAgent(user);
@@ -311,7 +311,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 
 			}
 			if(rc != 0 && !WouldBlock(rc))
-				SetError(rc);
+				ThrowError(rc);
 			if(rc == 0 && libssh2_userauth_authenticated(ssh->session)) {
 				LLOG("Client succesfully authenticated.");
 				WhenPhase(PHASE_SUCCESS);
@@ -322,7 +322,7 @@ bool SshSession::Connect(const String& host, int port, const String& user, const
 
 Finalize:
 #ifdef PLATFORM_POSIX
-	libssh2_session_callback_set(ssh->session, LIBSSH2_CALLBACK_X11, (void*) ssh_x11_request);
+	libssh2_session_callback_set(ssh->session, LIBSSH2_CALLBACK_X11, (void*) sX11RequestCallback);
 	LLOG("X11 dispatcher is set.");
 #endif
 	return true;
@@ -421,14 +421,14 @@ int SshSession::TryAgent(const String& username)
 	LLOG("Attempting to authenticate via ssh-agent...");
 	auto agent = libssh2_agent_init(ssh->session);
 	if(!agent)
-		SetError(-1, "Couldn't initialize ssh-agent support.");
+		ThrowError(-1, "Couldn't initialize ssh-agent support.");
 	if(libssh2_agent_connect(agent)) {
 		libssh2_agent_free(agent);
-		SetError(-1, "Couldn't connect to ssh-agent.");
+		ThrowError(-1, "Couldn't connect to ssh-agent.");
 	}
 	if(libssh2_agent_list_identities(agent)) {
 		FreeAgent(agent);
-		SetError(-1, "Couldn't request identities to ssh-agent.");
+		ThrowError(-1, "Couldn't request identities to ssh-agent.");
 	}
 	libssh2_agent_publickey *id = nullptr, *previd = nullptr;
 
@@ -436,7 +436,7 @@ int SshSession::TryAgent(const String& username)
 		auto rc = libssh2_agent_get_identity(agent, &id, previd);
 		if(rc < 0) {
 			FreeAgent(agent);
-			SetError(-1, "Unable to obtain identity from ssh-agent.");
+			ThrowError(-1, "Unable to obtain identity from ssh-agent.");
 		}
 		if(rc != 1) {
 			if(libssh2_agent_userauth(agent, ~username, id)) {
@@ -451,7 +451,7 @@ int SshSession::TryAgent(const String& username)
 		}
 		else {
 			FreeAgent(agent);
-			SetError(-1, "Couldn't authenticate via ssh-agent");
+			ThrowError(-1, "Couldn't authenticate via ssh-agent");
 		}
 		previd = id;
 	}
