@@ -8,13 +8,13 @@ namespace Upp {
 void Terminal::InitParser(VTInStream& vts)
 {
 	vts.Reset();
-	vts.WhenChr = THISFN(PutChar);
-	vts.WhenCtl = THISFN(ParseControlChars);
-	vts.WhenEsc = THISFN(ParseEscapeSequences);
-	vts.WhenCsi = THISFN(ParseCommandSequences);
-	vts.WhenDcs = THISFN(ParseDeviceControlStrings);
-	vts.WhenOsc = THISFN(ParseOperatingSystemCommands);
-	vts.WhenApc = THISFN(ParseApplicationProgrammingCommands);
+	vts.WhenChr = [=](int c) { PutChar(c); };
+	vts.WhenCtl = [=](byte c) { ParseControlChars(c); };
+	vts.WhenEsc = [=](const VTInStream::Sequence& seq) { ParseEscapeSequences(seq); };
+	vts.WhenCsi = [=](const VTInStream::Sequence& seq) { ParseCommandSequences(seq); };
+	vts.WhenDcs = [=](const VTInStream::Sequence& seq) { ParseDeviceControlStrings(seq); };
+	vts.WhenOsc = [=](const VTInStream::Sequence& seq) { ParseOperatingSystemCommands(seq); };
+	vts.WhenApc = [=](const VTInStream::Sequence& seq) { ParseApplicationProgrammingCommands(seq); };
 }
 
 void Terminal::SetEmulation(int level, bool reset)

@@ -75,8 +75,6 @@ public:
         operator    Value() const                               { return RichValue<Terminal::InlineImage>(*this); }
     };
 
-    typedef Terminal CLASSNAME;
-
     Terminal();
     virtual ~Terminal();
 

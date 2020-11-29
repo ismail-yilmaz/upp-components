@@ -41,11 +41,11 @@ Terminal::Terminal()
 	History();
 	ResetColors();
 	HideScrollBar();
-	WhenBar = THISFN(StdBar);
-	sb.WhenScroll = THISFN(Scroll);
-	caret.WhenAction = [=] { PlaceCaret(); };
-	dpage.WhenScroll = THISFN(ScheduleRefresh);
-	apage.WhenScroll = THISFN(ScheduleRefresh);
+	WhenBar = [=](Bar& menu) { StdBar(menu); };
+	sb.WhenScroll = [=]() { Scroll(); };
+	caret.WhenAction = [=]() { PlaceCaret(); };
+	dpage.WhenScroll = [=]() { ScheduleRefresh(); };
+	apage.WhenScroll = [=]() { ScheduleRefresh(); };
 }
 
 Terminal::~Terminal()
