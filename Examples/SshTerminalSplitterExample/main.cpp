@@ -11,23 +11,23 @@ String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test 
 
 const int MAXPANECOUNT = 4; // You can increase the number of panes if you like.
 
-struct SshTerminalPane : Terminal, SshShell {
+struct SshTerminalPane : TerminalCtrl, SshShell {
 	Splitter& parent;
 	SshTerminalPane(SshSession& session, Splitter& ctrl) : SshShell(session), parent(ctrl)
 	{
 		SshShell::Timeout(Null);
 		SshShell::ChunkSize(65536);
-		SshShell::WhenOutput = [=](const void *data, int size) { GuiLock __; Terminal::Write(data, size);     };
-		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
-		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
-		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::InlineImages().Hyperlinks().WindowOps();
-		parent.Add(Terminal::SizePos());
+		SshShell::WhenOutput = [=](const void *data, int size) { GuiLock __; TerminalCtrl::Write(data, size);};
+		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort(); };
+		TerminalCtrl::WhenOutput = [=](String data)            { SshShell::Send(data); };
+		TerminalCtrl::WhenResize = [=]()                       { SshShell::PageSize(TerminalCtrl::GetPageSize()); };
+		TerminalCtrl::InlineImages().Hyperlinks().WindowOps();
+		parent.Add(TerminalCtrl::SizePos());
 	}
 	
 	void Run(const String& termtype)
 	{
-		SshShell::Run(termtype, Terminal::GetPageSize());
+		SshShell::Run(termtype, TerminalCtrl::GetPageSize());
 		GuiLock __;
 		parent.Remove(*this);
 		parent.Layout();
@@ -36,7 +36,7 @@ struct SshTerminalPane : Terminal, SshShell {
 	bool Key(dword key, int count) override
 	{
 		// Let the parent handle the SHIFT + CTRL + T key.
-		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+		return key != K_SHIFT_CTRL_T ? TerminalCtrl::Key(key, count) : false;
 	}
 };
 

@@ -19,14 +19,14 @@ const int MAXTABS    = 10;
 
 using namespace Upp;
 
-struct TerminalTab : Terminal, PtyProcess {
+struct TerminalTab : TerminalCtrl, PtyProcess {
 	TerminalTab()
 	{
 		InlineImages().Hyperlinks().WindowOps();
 		WhenBell   = [=]()         { BeepExclamation();    };
 		WhenOutput = [=](String s) { PtyProcess::Write(s); };
 		WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		Start(tshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
+		Start(tshell, Environment(), GetHomeDirectory());
 	}
 	
 	bool Do()
@@ -38,7 +38,7 @@ struct TerminalTab : Terminal, PtyProcess {
 	bool Key(dword key, int count) override
 	{
 		// Let the parent handle the SHIFT + CTRL + T key.
-		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+		return key != K_SHIFT_CTRL_T ? TerminalCtrl::Key(key, count) : false;
 	}
 };
 

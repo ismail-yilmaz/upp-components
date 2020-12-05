@@ -26,8 +26,8 @@ const char *tshell = "cmd.exe"; // Alternatively, you can use powershell...
 using namespace Upp;
 
 struct TerminalExample : TopWindow {
-	Terminal  term;
-	PtyProcess pty;					// This class is completely optional
+	TerminalCtrl  term;
+	PtyProcess    pty;  // This class is completely optional
 	
 	TerminalExample()
 	{

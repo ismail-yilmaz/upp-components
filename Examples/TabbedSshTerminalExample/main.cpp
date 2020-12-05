@@ -11,23 +11,23 @@ using namespace Upp;
 String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
 const int MAXTABCOUNT = 8; // You can increase the number of tabs if you like.
 
-struct SshTerminalTab : Terminal, SshShell {
+struct SshTerminalTab : TerminalCtrl, SshShell {
 	TabBarCtrl& parent;
 	SshTerminalTab(SshSession& session, TabBarCtrl& ctrl) : SshShell(session), parent(ctrl)
 	{
 		SshShell::Timeout(Null);
 		SshShell::ChunkSize(65536);
-		SshShell::WhenOutput = [=](const void *data, int size) { GuiLock __; Terminal::Write(data, size);     };
-		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort();  };
-		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
-		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::InlineImages().Hyperlinks().WindowOps();
-		parent.AddCtrl(Terminal::SizePos(), Format("Ssh Terminal #%d", SshShell::GetId()));
+		SshShell::WhenOutput = [=](const void *data, int size) { GuiLock __; TerminalCtrl::Write(data, size);};
+		SshShell::WhenWait   = [=]()                           { if(CoWork::IsCanceled()) SshShell::Abort(); };
+		TerminalCtrl::WhenOutput = [=](String data)            { SshShell::Send(data); };
+		TerminalCtrl::WhenResize = [=]()                       { SshShell::PageSize(TerminalCtrl::GetPageSize()); };
+		TerminalCtrl::InlineImages().Hyperlinks().WindowOps();
+		parent.AddCtrl(TerminalCtrl::SizePos(), Format("Ssh Terminal #%d", SshShell::GetId()));
 	}
 	
 	void Run(const String& termtype)
 	{
-		SshShell::Run(termtype, Terminal::GetPageSize());
+		SshShell::Run(termtype, TerminalCtrl::GetPageSize());
 		GuiLock __;
 		parent.RemoveCtrl(*this);
 	}
@@ -35,7 +35,7 @@ struct SshTerminalTab : Terminal, SshShell {
 	bool Key(dword key, int count) override
 	{
 		// Let the parent handle the SHIFT + CTRL + T key.
-		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+		return key != K_SHIFT_CTRL_T ? TerminalCtrl::Key(key, count) : false;
 	}
 };
 

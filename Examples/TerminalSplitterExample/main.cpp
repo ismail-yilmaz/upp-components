@@ -18,21 +18,21 @@ const int  MAXPANECOUNT = 4;  // You can increase the number of panes if you lik
 
 using namespace Upp;
 
-struct TerminalPane : Terminal, PtyProcess {
+struct TerminalPane : TerminalCtrl, PtyProcess {
 	Splitter& parent;
 	TerminalPane(Splitter& ctrl) : parent(ctrl)
 	{
-		Terminal::InlineImages().Hyperlinks().WindowOps();
-		Terminal::WhenBell   = [=]()         { BeepExclamation();    };
-		Terminal::WhenOutput = [=](String s) { PtyProcess::Write(s); };
-		Terminal::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
-		PtyProcess::Start(tshell, Environment(), GetHomeDirectory());	// Defaults to TERM=xterm
-		parent.Add(Terminal::SizePos());
+		TerminalCtrl::InlineImages().Hyperlinks().WindowOps();
+		TerminalCtrl::WhenBell   = [=]()         { BeepExclamation();    };
+		TerminalCtrl::WhenOutput = [=](String s) { PtyProcess::Write(s); };
+		TerminalCtrl::WhenResize = [=]()         { PtyProcess::SetSize(GetPageSize()); };
+		PtyProcess::Start(tshell, Environment(), GetHomeDirectory());
+		parent.Add(TerminalCtrl::SizePos());
 	}
 	
 	void Do()
 	{
-		Terminal::WriteUtf8(PtyProcess::Get());
+		TerminalCtrl::WriteUtf8(PtyProcess::Get());
 		if(!PtyProcess::IsRunning()) {
 			parent.Remove(*this);
 			parent.Layout();
@@ -42,7 +42,7 @@ struct TerminalPane : Terminal, PtyProcess {
 	bool Key(dword key, int count) override
 	{
 		// Let the parent handle the SHIFT + CTRL + T key.
-		return key != K_SHIFT_CTRL_T ? Terminal::Key(key, count) : false;
+		return key != K_SHIFT_CTRL_T ? TerminalCtrl::Key(key, count) : false;
 	}
 };
 

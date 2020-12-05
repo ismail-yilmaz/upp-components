@@ -10,6 +10,6 @@ file
 	main.cpp;
 
 mainconfig
-	"" = "GUI MT",
-	"" = "GUI MT .NOGTK";
+	"" = "GUI",
+	"" = "GUI .NOGTK";
 

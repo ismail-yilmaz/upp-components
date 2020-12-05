@@ -5,20 +5,20 @@ using namespace Upp;
 
 String url = "demo:password@test.rebex.net:22";	// A well-known public SSH test server.
 
-struct SshTerminal : Terminal, SshShell {
+struct SshTerminal : TerminalCtrl, SshShell {
 	SshTerminal(SshSession& session) : SshShell(session)
 	{
 		SshShell::Timeout(Null);
 		SshShell::ChunkSize(65536);
-		SshShell::WhenOutput = [=](const void *data, int size) { Terminal::Write(data, size);                 };
-		Terminal::WhenOutput = [=](String data)                { SshShell::Send(data);                        };
-		Terminal::WhenResize = [=]()                           { SshShell::PageSize(Terminal::GetPageSize()); };
-		Terminal::InlineImages().Hyperlinks().WindowOps();
+		SshShell::WhenOutput = [=](const void *data, int size) { TerminalCtrl::Write(data, size); };
+		TerminalCtrl::WhenOutput = [=](String data)            { SshShell::Send(data); };
+		TerminalCtrl::WhenResize = [=]()                       { SshShell::PageSize(TerminalCtrl::GetPageSize()); };
+		TerminalCtrl::InlineImages().Hyperlinks().WindowOps();
 	}
 
 	void Run(const String& termtype)
 	{
-		SshShell::Run(termtype, Terminal::GetPageSize());
+		SshShell::Run(termtype, TerminalCtrl::GetPageSize());
 		if(SshShell::IsError())
 			ErrorOK(DeQtf(GetErrorDesc()));
 	}

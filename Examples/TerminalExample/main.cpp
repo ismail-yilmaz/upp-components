@@ -17,8 +17,8 @@ const char *tshell = "cmd.exe"; // Alternatively you can use powershell...
 #endif
 
 struct TerminalExample : TopWindow {
-	Terminal term;
-	PtyProcess pty;
+	TerminalCtrl term;
+	PtyProcess   pty;
 	
 	TerminalExample()
 	{
@@ -30,7 +30,7 @@ struct TerminalExample : TopWindow {
 		term.WhenLink   = [=](const String& s) { PromptOK(DeQtf(s)); };
 		term.WhenResize	= [=]()   { pty.SetSize(term.GetPageSize()); };
 		term.InlineImages().Hyperlinks().WindowOps();
-		pty.Start(tshell, Environment(), GetHomeDirectory()); // defaults to TERM=xterm
+		pty.Start(tshell, Environment(), GetHomeDirectory());
 		SetTimeCallback(-1, [=] ()
 		{
 			term.WriteUtf8(pty.Get());
