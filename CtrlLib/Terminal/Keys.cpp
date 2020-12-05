@@ -227,11 +227,15 @@ bool Terminal::Key(dword key, int count)
 	bool altkey   = key & K_ALT;
 	bool shiftkey = key & K_SHIFT;
 	
-	auto ProcessKey = [=](dword key, bool ctrlkey, bool altkey) -> void
+	auto ProcessKey = [=](dword key, bool ctrlkey, bool altkey) -> bool
 	{
-		if(ctrlkey)
-			key = ToAscii(key) & 0x1F;
+		key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()));
+		if(key == DEFAULTCHAR)
+			return false;
 
+		if(ctrlkey) {
+			key = ToAscii(key) & 0x1F;
+		}
 		if(altkey && metakeyflags != MKEY_NONE) {
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
@@ -244,6 +248,7 @@ bool Terminal::Key(dword key, int count)
 		}
 		else
 			Put(key, count);
+		return true;
 	};
 	
 	if(UDKey(key, count))
@@ -261,52 +266,99 @@ bool Terminal::Key(dword key, int count)
 	if(key & K_KEYUP)	// We don't really need to handle key-ups...
 		return true;
 
-	key &= ~(K_CTRL|K_ALT|K_SHIFT);
-	if(findarg(key, K_CTRL_KEY, K_ALT_KEY, K_SHIFT_KEY) >= 0)
+#ifdef PLATFORM_COCOA
+	if(findarg(key & ~(K_CTRL|K_ALT|K_SHIFT|K_OPTION), K_CTRL_KEY, K_ALT_KEY, K_SHIFT_KEY, K_OPTION_KEY) >= 0)
 		return true;
+	key &= ~K_OPTION;
+#else
+	if(findarg(key & ~(K_CTRL|K_ALT|K_SHIFT), K_CTRL_KEY, K_ALT_KEY, K_SHIFT_KEY) >= 0)
+		return true;
+#endif
 
 	if(key == K_RETURN) {
 		PutEol();
 	}
 	else {
-		switch(key) {
-		case K_BREAK:
-			key = 0x03;
-			break;
-		case K_BACKSPACE:
-			key = modes[DECBKM] ? 0x08 : 0x7F;
-			break;
-		case K_ESCAPE:
-			key = 0x1B;
-			break;
-		case K_TAB:
-			key = 0x09;
-			break;
-		case K_DELETE:
-			key = 0x7F;
-			break;
-		default:
-			break;
-		}
-		if(key > K_DELTA) {
-			if((ctrlkey || altkey)) {
-				#if defined(VIRTUALGUI)
-				if(key >= K_A && key <= K_Z)
-					key = 'A' + (key - K_A);
-				#endif
-				ProcessKey(key & ~K_DELTA, ctrlkey, altkey);
-			}
-			else
-				goto End;
+		// Handle character.
+		if(!shiftkey && key >= ' ' && key < 65536) {
+			if(!ProcessKey(key, ctrlkey, altkey))
+				return false;
 		}
 		else {
-			if(shiftkey || (key = EncodeCodepoint(key, gsets.Get(key, IsLevel2()))) == DEFAULTCHAR)
-				return true;
-			#if defined(PLATFORM_WIN32)
-			ProcessKey(key, GetCtrl(), GetAlt());
-			#else
-			ProcessKey(key, ctrlkey, altkey);
+			// Handle control key (including information separators).
+			switch(key & ~(K_ALT|K_SHIFT)) {
+			case K_BREAK:
+				key = 0x03;
+				break;
+			case K_BACKSPACE:
+				key = modes[DECBKM] ? 0x08 : 0x7F;
+				break;
+			case K_ESCAPE:
+				key = 0x1B;
+				break;
+			case K_TAB:
+				key = 0x09;
+				break;
+			case K_DELETE:
+				key = 0x7F;
+				break;
+			case K_CTRL_LBRACKET:
+				key = '[';
+				break;
+			case K_CTRL_RBRACKET:
+				key = ']';
+				break;
+			case K_CTRL_MINUS:
+				key = '-';
+				break;
+			case K_CTRL_GRAVE:
+				key = '`';
+				break;
+			case K_CTRL_SLASH:
+				key = '/';
+				break;
+			case K_CTRL_BACKSLASH:
+				key = '\\';
+				break;
+			case K_CTRL_COMMA:
+				key = ',';
+				break;
+			case K_CTRL_PERIOD:
+				key = '.';
+				break;
+			#ifndef PLATFORM_WIN32 // U++ ctrl + period and ctrl + semicolon enumeratos have the same value on Windows (a bug?)
+			case K_CTRL_SEMICOLON:
+				key = ';';
+				break;
 			#endif
+			case K_CTRL_EQUAL:
+				key = '=';
+				break;
+			case K_CTRL_APOSTROPHE:
+				key = '\'';
+				break;
+			default:
+				if(ctrlkey || altkey) {
+					key &= ~(K_CTRL|K_ALT|K_SHIFT);
+					if(key >= K_A && key <= K_Z) {
+						key = 'A' + (key - K_A);
+					}
+					else
+					if(key == K_2) {
+						key = '@';
+					}
+					else
+					if(key >= K_3 && key <= K_8) {
+						key = '[' + (key - K_3);
+					}
+					else
+					if(key < K_DELTA + 65535) {
+						key &= ~K_DELTA;
+					}
+				}
+			}
+			if(key > K_DELTA || !ProcessKey(key, ctrlkey, altkey))
+				return false;
 		}
 	}
 
