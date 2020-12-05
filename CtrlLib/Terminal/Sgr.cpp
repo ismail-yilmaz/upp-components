@@ -1,19 +1,19 @@
 #include "Terminal.h"
 
-#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("TerminalCtrl: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
-void Terminal::SelectGraphicsRendition(const VTInStream::Sequence& seq)
+void TerminalCtrl::SelectGraphicsRendition(const VTInStream::Sequence& seq)
 {
 	SetGraphicsRendition(cellattrs, seq.parameters);
 	page->Attributes(cellattrs);	// This update is required for BCE (background color erase).
 }
 
-void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
+void TerminalCtrl::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
-	LTIMING("Terminal::SetGraphicsRendition");
+	LTIMING("TerminalCtrl::SetGraphicsRendition");
 
 	for(int i = 0; i < opcodes.GetCount(); i++) {
 		int opcode = Nvl(StrInt(opcodes[i]), 0);
@@ -113,7 +113,7 @@ void Terminal::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes
 	}
 }
 
-void Terminal::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
+void TerminalCtrl::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
 	for(const auto& opcode : opcodes) {
 		switch(Nvl(StrInt(opcode), 0)) {
@@ -149,7 +149,7 @@ void Terminal::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opco
 	}
 }
 
-String Terminal::GetGraphicsRenditionOpcodes(const VTCell& attrs)
+String TerminalCtrl::GetGraphicsRenditionOpcodes(const VTCell& attrs)
 {
 	Vector<String> v;
 	

@@ -1,10 +1,10 @@
 #include "Terminal.h"
 
-#define LLOG(x)	 // RLOG("Terminal: " << x)
+#define LLOG(x)	 // RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 
-void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseEscapeSequences(const VTInStream::Sequence& seq)
 {
 	LLOG("ESC " << seq);
 
@@ -194,7 +194,7 @@ void Terminal::ParseEscapeSequences(const VTInStream::Sequence& seq)
 	}
 }
 
-bool Terminal::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
+bool TerminalCtrl::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
 {
 	bool b = IsLevel1() && seq.intermediate.IsEmpty();
 	if(b) {
@@ -205,7 +205,7 @@ bool Terminal::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
 	return b;
 }
 
-void Terminal::DisplayAlignmentTest()
+void TerminalCtrl::DisplayAlignmentTest()
 {
 	LLOG("Performing display alignment test...");
 

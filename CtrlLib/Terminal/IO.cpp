@@ -1,11 +1,11 @@
 #include "Terminal.h"
 
-#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("TerminalCtrl: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
-void Terminal::InitParser(VTInStream& vts)
+void TerminalCtrl::InitParser(VTInStream& vts)
 {
 	vts.Reset();
 	vts.WhenChr = [=](int c) { PutChar(c); };
@@ -17,7 +17,7 @@ void Terminal::InitParser(VTInStream& vts)
 	vts.WhenApc = [=](const VTInStream::Sequence& seq) { ParseApplicationProgrammingCommands(seq); };
 }
 
-void Terminal::SetEmulation(int level, bool reset)
+void TerminalCtrl::SetEmulation(int level, bool reset)
 {
 	if(reset)
 		SoftReset();
@@ -37,7 +37,7 @@ void Terminal::SetEmulation(int level, bool reset)
 	}
 }
 
-void Terminal::Reset(bool full)
+void TerminalCtrl::Reset(bool full)
 {
 	LLOG("Performing " << (full ? "full" : "soft") << " reset...");
 	
@@ -48,7 +48,7 @@ void Terminal::Reset(bool full)
 		apage.Reset();
 		gsets_backup.Reset();
 		cellattrs_backup = Null;
-		dpage.WhenScroll();
+		dpage.WhenUpdate();
 	}
 
 	gsets.Reset();
@@ -79,7 +79,7 @@ void Terminal::Reset(bool full)
 	CancelOut();
 }
 
-void Terminal::Backup(bool tpage, bool csets, bool attrs)
+void TerminalCtrl::Backup(bool tpage, bool csets, bool attrs)
 {
 	if(tpage)
 		page->Backup();
@@ -91,7 +91,7 @@ void Terminal::Backup(bool tpage, bool csets, bool attrs)
 	}
 }
 
-void Terminal::Restore(bool tpage, bool csets, bool attrs)
+void TerminalCtrl::Restore(bool tpage, bool csets, bool attrs)
 {
 	if(tpage)
 		page->Restore();
@@ -105,7 +105,7 @@ void Terminal::Restore(bool tpage, bool csets, bool attrs)
 	}
 }
 
-void Terminal::PutChar(int c)
+void TerminalCtrl::PutChar(int c)
 {
 	VTCell cell = cellattrs;
 	cell.chr = LookupChar(c);
@@ -115,7 +115,7 @@ void Terminal::PutChar(int c)
 		page->AddCell(cell);
 }
 
-void Terminal::Write(const void *data, int size, bool utf8)
+void TerminalCtrl::Write(const void *data, int size, bool utf8)
 {
 	if(size > 0) {
 		PreParse();
@@ -124,7 +124,7 @@ void Terminal::Write(const void *data, int size, bool utf8)
 	}
 }
 
-void Terminal::Flush()
+void TerminalCtrl::Flush()
 {
 	if(out.IsEmpty())
 		return;
@@ -137,7 +137,7 @@ void Terminal::Flush()
 	out = Null;
 }
 
-Terminal& Terminal::Put0(int c, int cnt)
+TerminalCtrl& TerminalCtrl::Put0(int c, int cnt)
 {
 	bool bit8 = Is8BitMode();
 	bool lvl2 = IsLevel2();
@@ -180,14 +180,14 @@ Terminal& Terminal::Put0(int c, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::Put0(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::Put0(const String& s, int cnt)
 {
 	while(cnt-- > 0)
 		for(const byte& c : s) Put0(c);
 	return *this;
 }
 
-Terminal& Terminal::Put(const WString& s, int cnt)
+TerminalCtrl& TerminalCtrl::Put(const WString& s, int cnt)
 {
 	if(IsUtf8Mode()) {
 		String txt = ToUtf8(s);
@@ -199,7 +199,7 @@ Terminal& Terminal::Put(const WString& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::Put(int c, int cnt)
+TerminalCtrl& TerminalCtrl::Put(int c, int cnt)
 {
 	if(IsUtf8Mode())
 		while(cnt-- > 0) out.Cat(ToUtf8(c));
@@ -209,7 +209,7 @@ Terminal& Terminal::Put(int c, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutRaw(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutRaw(const String& s, int cnt)
 {
 	LLOG("PutRaw() -> " << s);
 	
@@ -217,7 +217,7 @@ Terminal& Terminal::PutRaw(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutESC(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutESC(const String& s, int cnt)
 {
 	LLOG("PutESC() -> " << s);
 	
@@ -226,14 +226,14 @@ Terminal& Terminal::PutESC(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutESC(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutESC(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x1B).Put0(c); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutCSI(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutCSI(const String& s, int cnt)
 {
 	LLOG("PutOSC() -> " << s);
 
@@ -242,14 +242,14 @@ Terminal& Terminal::PutCSI(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutCSI(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutCSI(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x9B).Put0(c); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutOSC(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutOSC(const String& s, int cnt)
 {
 	LLOG("PutOSC() -> " << s);
 
@@ -258,14 +258,14 @@ Terminal& Terminal::PutOSC(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutOSC(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutOSC(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x9D).Put0(c).Put0(0x9C); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutDCS(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutDCS(const String& s, int cnt)
 {
 	LLOG("PutDCS() -> " << s);
 
@@ -274,14 +274,14 @@ Terminal& Terminal::PutDCS(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutDCS(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutDCS(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x90).Put0(c).Put0(0x9C); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutSS2(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutSS2(const String& s, int cnt)
 {
 	LLOG("PutSS2() -> " << s);
 
@@ -290,14 +290,14 @@ Terminal& Terminal::PutSS2(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutSS2(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutSS2(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x8E).Put0(c); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutSS3(const String& s, int cnt)
+TerminalCtrl& TerminalCtrl::PutSS3(const String& s, int cnt)
 {
 	LLOG("PutSS3() -> " << s);
 	
@@ -306,16 +306,16 @@ Terminal& Terminal::PutSS3(const String& s, int cnt)
 	return *this;
 }
 
-Terminal& Terminal::PutSS3(int c, int cnt)
+TerminalCtrl& TerminalCtrl::PutSS3(int c, int cnt)
 {
 	while(cnt-- > 0) { Put0(0x8F).Put0(c); }
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::PutEncoded(const WString& s, bool noctl)
+TerminalCtrl& TerminalCtrl::PutEncoded(const WString& s, bool noctl)
 {
-	LTIMING("Terminal::PutEncoded");
+	LTIMING("TerminalCtrl::PutEncoded");
 
 	WString txt = s;
 
@@ -330,14 +330,14 @@ Terminal& Terminal::PutEncoded(const WString& s, bool noctl)
 	return Put(noctl ? Filter(~txt, sControlCharFilter) : txt);
 }
 
-Terminal& Terminal::PutEol()
+TerminalCtrl& TerminalCtrl::PutEol()
 {
 	Put0(modes[LNM] ? "\r\n" : "\r");
 	Flush();
 	return *this;
 }
 
-Terminal& Terminal::Echo(const String& s)
+TerminalCtrl& TerminalCtrl::Echo(const String& s)
 {
 	VTInStream echoparser;
 	InitParser(echoparser);
@@ -345,7 +345,7 @@ Terminal& Terminal::Echo(const String& s)
 	return *this;
 }
 
-void Terminal::Serialize(Stream& s)
+void TerminalCtrl::Serialize(Stream& s)
 {
 	GuiLock __;
 
@@ -399,7 +399,7 @@ void Terminal::Serialize(Stream& s)
 	}
 }
 
-void Terminal::Jsonize(JsonIO& jio)
+void TerminalCtrl::Jsonize(JsonIO& jio)
 {
 	GuiLock __;
 
@@ -448,7 +448,7 @@ void Terminal::Jsonize(JsonIO& jio)
     }
 }
 
-void Terminal::Xmlize(XmlIO& xio)
+void TerminalCtrl::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }

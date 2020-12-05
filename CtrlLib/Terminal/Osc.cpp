@@ -1,10 +1,10 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 
-void Terminal::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 {
 	LLOG(Format("OSC [%s]", seq.payload));
 
@@ -45,7 +45,7 @@ void Terminal::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseJexerGraphics(const VTInStream::Sequence& seq)
 {
 	// For more information on Jexer image protocol, see:
 	// https://gitlab.com/klamonte/jexer/-/wikis/jexer-images
@@ -76,7 +76,7 @@ void Terminal::ParseJexerGraphics(const VTInStream::Sequence& seq)
 	RenderImage(simg, scroll);
 }
 
-void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 {
 	// iTerm2's file and image download and display protocol,
 	// Currently, we only support its inline images  portion.
@@ -136,7 +136,7 @@ void Terminal::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 	RenderImage(simg, modes[DECSDM]);	// Rely on sixel scrolling mode.
 }
 
-void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseHyperlinks(const VTInStream::Sequence& seq)
 {
 	// For more information on explicit hyperlinks, see:
 	// https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
@@ -161,7 +161,7 @@ void Terminal::ParseHyperlinks(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ParseClipboardRequests(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseClipboardRequests(const VTInStream::Sequence& seq)
 {
 	// For more information on application clipboard access, see:
 	// https://invisible-island.net/xterm/ctlseqs/ctlseqs.html

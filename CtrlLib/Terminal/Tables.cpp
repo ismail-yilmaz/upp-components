@@ -7,10 +7,10 @@ namespace Upp {
 #define VT_CTL(id, cbyte, minlevel, maxlevel)                           \
 {                                                                       \
     { cbyte },                                                          \
-    { ControlId::id, MAKEWORD(Terminal::minlevel, Terminal::maxlevel) } \
+    { ControlId::id, MAKEWORD(TerminalCtrl::minlevel, TerminalCtrl::maxlevel) } \
 }
 
-Terminal::ControlId Terminal::FindControlId(byte ctl, byte level)
+TerminalCtrl::ControlId TerminalCtrl::FindControlId(byte ctl, byte level)
 {
 	const static VectorMap<dword, Tuple<ControlId, word> > vtcbytes = {
         VT_CTL(NUL,         0x00,   LEVEL_0, LEVEL_4),	// Ignored
@@ -57,7 +57,7 @@ constexpr dword MakeVTSequenceKey(byte a, byte b, byte c, byte d) noexcept
 #define VT_SEQUENCE(seq, id, opcode, mode, interm, minlevel, maxlevel)      \
 {                                                                           \
     { MakeVTSequenceKey(VTInStream::Sequence::seq, opcode, mode, interm) }, \
-    { SequenceId::id, MAKEWORD(Terminal::minlevel, Terminal::maxlevel)   }  \
+    { SequenceId::id, MAKEWORD(TerminalCtrl::minlevel, TerminalCtrl::maxlevel)   }  \
 }
     
 #define VT_ESC(id, opcode, mode, interm, minlevel, maxlevel)                \
@@ -69,7 +69,7 @@ constexpr dword MakeVTSequenceKey(byte a, byte b, byte c, byte d) noexcept
 #define VT_DCS(id, opcode, mode, interm, minlevel, maxlevel)                \
     VT_SEQUENCE(DCS, id, opcode, mode, interm, minlevel, maxlevel)
 
-Terminal::SequenceId Terminal::FindSequenceId(const VTInStream::Sequence& seq, byte level)
+TerminalCtrl::SequenceId TerminalCtrl::FindSequenceId(const VTInStream::Sequence& seq, byte level)
 {
     // TODO: Allow up to three intermediate bytes in the sequence lookup table.
     //       See: DEC STD-070, p. 3-40.
@@ -215,7 +215,7 @@ Terminal::SequenceId Terminal::FindSequenceId(const VTInStream::Sequence& seq, b
         VT_DCS(DECUDK,          '|', 0x00, 0x00, LEVEL_2, LEVEL_4)    // Set user-defined keys
     };
     
-    LTIMING("Terminal::FındSequenceId");
+    LTIMING("TerminalCtrl::FındSequenceId");
 	
     const auto *p = vtsequences.FindPtr(
 	    MakeVTSequenceKey(
@@ -232,10 +232,10 @@ Terminal::SequenceId Terminal::FindSequenceId(const VTInStream::Sequence& seq, b
 #define VT_MODE(id, mode, type, minlevel, maxlevel)            \
 {                                                              \
     { MAKELONG(mode, type) },                                  \
-    { id, MAKEWORD(Terminal::minlevel, Terminal::maxlevel) }   \
+    { id, MAKEWORD(TerminalCtrl::minlevel, TerminalCtrl::maxlevel) }   \
 }
     
-int Terminal::FindModeId(word modenum, byte modetype, byte level)
+int TerminalCtrl::FindModeId(word modenum, byte modetype, byte level)
 {
     const static VectorMap<dword, Tuple<word, word> > vtmodes = {
         // ANSI modes

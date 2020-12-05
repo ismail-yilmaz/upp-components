@@ -3,12 +3,12 @@
 // Basic ANSI, dynamic, and extended colors support.
 // See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
 
-#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("TerminalCtrl: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
-Terminal& Terminal::ResetColors()
+TerminalCtrl& TerminalCtrl::ResetColors()
 {
 	// The U++ color constants with 'S' prefix are automatically adjusted
 	// to the color theme of OS. On the other hand, the 8 ANSI colors and
@@ -44,7 +44,7 @@ Terminal& Terminal::ResetColors()
 	return *this;
 }
 
-void Terminal::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
+void TerminalCtrl::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
 {
 	ink = GetColorFromIndex(cell, COLOR_INK);
 	paper = GetColorFromIndex(cell, COLOR_PAPER);
@@ -57,7 +57,7 @@ void Terminal::SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper)
 		Swap(ink, paper);
 }
 
-Color Terminal::GetColorFromIndex(const VTCell& cell, int which) const
+Color TerminalCtrl::GetColorFromIndex(const VTCell& cell, int which) const
 {
 	Color color = which == COLOR_INK ? cell.ink : cell.paper;
 	bool dim = which == COLOR_INK && cell.IsFaint();
@@ -106,7 +106,7 @@ End:
 	return dim ? AdjustBrightness(color, 0.70) : color;
 }
 	
-void Terminal::ReportANSIColor(int opcode, int index, const Color& c)
+void TerminalCtrl::ReportANSIColor(int opcode, int index, const Color& c)
 {
 	String reply = Format("%d;%d;%", opcode, index, ConvertColor().Format(c));
 
@@ -115,7 +115,7 @@ void Terminal::ReportANSIColor(int opcode, int index, const Color& c)
 	PutOSC(reply);
 }
 
-void Terminal::ReportDynamicColor(int opcode, const Color& c)
+void TerminalCtrl::ReportDynamicColor(int opcode, const Color& c)
 {
 	String reply = Format("%d;%", opcode, ConvertColor().Format(c));
 		
@@ -124,7 +124,7 @@ void Terminal::ReportDynamicColor(int opcode, const Color& c)
 	PutOSC(reply);
 }
 
-void Terminal::ChangeColors(int opcode, const String& oscs, bool reset)
+void TerminalCtrl::ChangeColors(int opcode, const String& oscs, bool reset)
 {
 	if(!dynamiccolors)
 		return;
@@ -155,7 +155,7 @@ void Terminal::ChangeColors(int opcode, const String& oscs, bool reset)
 		Ctrl::Refresh();
 }
 
-bool Terminal::SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset)
+bool TerminalCtrl::SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset)
 {
 	if(ansicolor && index >= ANSI_COLOR_COUNT)
 		return false;
@@ -198,7 +198,7 @@ bool Terminal::SetColorTable(int opcode, int index, String colorspec, bool ansic
 			: SetSaveColor(index, ConvertColor().Scan(colorspec));
 }
 
-bool Terminal::SetSaveColor(int index, const Color& c)
+bool TerminalCtrl::SetSaveColor(int index, const Color& c)
 {
 	if(IsNull(c))
 		return false;
@@ -208,7 +208,7 @@ bool Terminal::SetSaveColor(int index, const Color& c)
 	return true;
 }
 
-bool Terminal::ResetLoadColor(int index)
+bool TerminalCtrl::ResetLoadColor(int index)
 {
 	int i = savedcolors.Find(index);
 	if(i < 0)
@@ -270,11 +270,11 @@ static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const S
 	return 1;
 }
 
-void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index)
+void TerminalCtrl::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index)
 {
 	// TODO: Optimixization.
 	
-	LTIMING("Terminal::SetISOColor");
+	LTIMING("TerminalCtrl::SetISOColor");
 
 	// Recognized color sequene formats:
 
@@ -357,26 +357,26 @@ void Terminal::ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes,
 	}
 }
 
-void Terminal::ColorTableSerializer::Serialize(Stream& s)
+void TerminalCtrl::ColorTableSerializer::Serialize(Stream& s)
 {
-	for(int i = 0; i < Terminal::MAX_COLOR_COUNT; i++)
+	for(int i = 0; i < TerminalCtrl::MAX_COLOR_COUNT; i++)
 		s % table[i];
 }
 
-void Terminal::ColorTableSerializer::Jsonize(JsonIO& jio)
+void TerminalCtrl::ColorTableSerializer::Jsonize(JsonIO& jio)
 {
-	for(int i = 0; i < Terminal::MAX_COLOR_COUNT; i++)
+	for(int i = 0; i < TerminalCtrl::MAX_COLOR_COUNT; i++)
 		switch(i) {
-		case Terminal::COLOR_INK:
+		case TerminalCtrl::COLOR_INK:
 			jio("Ink", table[i]);
 			break;
-		case Terminal::COLOR_PAPER:
+		case TerminalCtrl::COLOR_PAPER:
 			jio("Paper", table[i]);
 			break;
-		case Terminal::COLOR_INK_SELECTED:
+		case TerminalCtrl::COLOR_INK_SELECTED:
 			jio("SelectionInk", table[i]);
 			break;
-		case Terminal::COLOR_PAPER_SELECTED:
+		case TerminalCtrl::COLOR_PAPER_SELECTED:
 			jio("SelectionPaper", table[i]);
 			break;
 		default:
@@ -385,7 +385,7 @@ void Terminal::ColorTableSerializer::Jsonize(JsonIO& jio)
 		}
 }
 
-void Terminal::ColorTableSerializer::Xmlize(XmlIO& xio)
+void TerminalCtrl::ColorTableSerializer::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }

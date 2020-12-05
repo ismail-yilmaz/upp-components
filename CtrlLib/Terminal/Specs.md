@@ -1,5 +1,5 @@
 
-# Technical Capabilities of Ultimate++ Terminal Ctrl
+# Technical Capabilities of Ultimate++ TerminalCtrl
 
 #### Note: *This document is only a draft.*
 
@@ -25,7 +25,7 @@
 ## [Requirements](#requirements)
 
 - Ultimate++, cross-platform C/C++ rapid application development framework.
-- A C/C++ compiler, that supports at least C++11.
+- A C/C++ compiler, that supports at least C++14.
  
 ## [Supported Platforms](#platforms)
 
@@ -50,7 +50,7 @@
 - In reality, there is no such conformance level as "0". However, since the VT 52 emulation has to be treated as a special case, it is labelled as "level 0", for convenience.
 - Not all terminal sequences or modes pertaining to the above listed device conformance levels or model ranges are implemented. Some of these emulations are complete while others cover only a set of selected features.
 - DEC terminals are (or were) backward compatible devices. For example, a level 4 conforming device such as, say, VT 420, recognizes virtually all terminal sequences and modes that apply to lower level devices. Terminal package follows this behavior where applicable.
-- Level 5 (VT 5xx) emulation is yet to be implemented. However, Terminal ctrl already recognizes and utilizes some useful sequences and modes pertaining to the conformance level 5, such as some cursor movements and caret customization commands.
+- Level 5 (VT 5xx) emulation is yet to be implemented. However, TerminalCtrl already recognizes and utilizes some useful sequences and modes pertaining to the conformance level 5, such as some cursor movements and caret customization commands.
 - Extensions (such as xterm's window manipulation sequences, jexer inline images protocol, or hyperlinks protocol, etc.) apply to all emulation levels, with the reasonable exception of level 0.
 
 ## [Supported I/O Modes and Parser Capabilities](#Capabilities)
@@ -67,9 +67,9 @@
 
 #### Notes
 
-- Both 7-bit and 8-bit I/O modes are supported by Terminal ctrl. However, it is highly recommended that 8-bit mode be only enabled to support legacy applications that require it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. They will likely to confuse the parser.
-- Terminal ctrl's parser also allows switching between UTF-8 and non UTF-8 modes on-the-fly, if required. This can come in handy on networked environments.
-- APCs are supported for both internal and external scripting: Future versions of Terminal ctrl will add an internal scripting interface. Applications using Terminal ctrl can externally utilize the APCs to create their application specific scripting channels.
+- Both 7-bit and 8-bit I/O modes are supported by TerminalCtrl. However, it is highly recommended that 8-bit mode be only enabled to support legacy applications that require it. 8-bit I/O does not play well with UTF-8, since some control bytes in the 8-bit C1 region are also legitimate UTF-8 sequences. They will likely to confuse the parser.
+- TerminalCtrl's parser also allows switching between UTF-8 and non UTF-8 modes on-the-fly, if required. This can come in handy on networked environments.
+- APCs are supported for both internal and external scripting: Future versions of TerminalCtrl will add an internal scripting interface. Applications using TerminalCtrl can externally utilize the APCs to create their application specific scripting channels.
 
 ## [Supported Control Bytes](#controlbytes)
 
@@ -159,7 +159,7 @@
 #### Notes
 
 - GATM, VEM, HEM, PUM, FEAM, FETM, MATM, TTM, SATM, TSM, EBM modes are set as "permanently reset".
-- XTSPREG is always set. Terminal ctrl does not support shared color palette for sixel images.
+- XTSPREG is always set. TerminalCtrl does not support shared color palette for sixel images.
 
 
 ## [Supported Escape Sequences](#esc-sequences)
@@ -220,7 +220,7 @@
 
 #### Notes
 
-- Terminal ctrl's responses to commands and report requests are not included in this table.
+- TerminalCtrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Command Sequences](@csi-sequences)
 
@@ -294,7 +294,7 @@
 
 #### Notes
 
-- Terminal ctrl's responses to commands and report requests are not included in this table.
+- TerminalCtrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Device Control Strings](#dcs-sequences)
 
@@ -307,7 +307,7 @@
 
 #### Notes
 
-- Terminal ctrl's responses to commands and report requests are not included in this table.
+- TerminalCtrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Operating System Commands](#osc-sequences)
 
@@ -331,7 +331,7 @@
 
 #### Notes
 
-- Terminal ctrl's responses to commands and report requests are not included in this table.
+- TerminalCtrl's responses to commands and report requests are not included in this table.
 
 ## [Supported Graphics Rendition Opcodes](#sgr-sequences)
 
@@ -449,10 +449,10 @@
 
 - 38 designates the pen.
 - 48 designates the paper.
-- Since Terminal ctrl is a true color virtual terminal emulator, there are no restrictions on its color palette. It can use a color palette ranging from 2 to 16 million colors.
+- Since TerminalCtrl is a true color virtual terminal emulator, there are no restrictions on its color palette. It can use a color palette ranging from 2 to 16 million colors.
 - CMY and CMYK planes are projected onto RGB plane.
-- Terminal ctrl does not keep a static palette for indexed color, or 256-color mode, if you will. It calculates the the 6x6x6 cube from the given index.
-- Color space identifiers are ignored by Terminal ctrl.
+- TerminalCtrl does not keep a static palette for indexed color, or 256-color mode, if you will. It calculates the the 6x6x6 cube from the given index.
+- Color space identifiers are ignored by TerminalCtrl.
 - Transparent colors are not implemented (TODO).
 
 ## [Supported Color Text Specifications](#color-text-specs)
@@ -473,7 +473,7 @@
 
 #### Notes
 
-- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by Terminal ctrl for backward compatibilty. RGB, RGBA, CMY, CMYK or Hash6 text specifications should be used wherever it is possible.
+- The use of "hash hex color" text specifications 3, 9, and 12 are discouraged by X.org. They are supported by TerminalCtrl for backward compatibilty. RGB, RGBA, CMY, CMYK or Hash6 text specifications should be used wherever it is possible.
 - The above listed color text specifications are utilized by xterm's dynamic colors feature.
 
 
@@ -495,8 +495,8 @@
 - `Ph` is the height in pixels.  Valid range is 1 to 10000.
 - `Ps` is the page scrolling option.  Valid values are 1 (scroll) or 0 (no scroll).
 - Image `data` must be Base64 encoded.
-- The wire protocol reasonably separates the sequences for raw RGB, JPG and PNG image data. In practice, however, Terminal ctrl ignores this distinction, since it uses the StreamRaster interface (the raster image decoder factory) for decoding images. Hence, it can display any raster image via jexer's pre-defined sequences, if the format of the image in question is supported by the Upp::StreamRaster.
-- Jexer inline images protocol is the *recommended* inline images protocol of choice for Terminal ctrl.
+- The wire protocol reasonably separates the sequences for raw RGB, JPG and PNG image data. In practice, however, TerminalCtrl ignores this distinction, since it uses the StreamRaster interface (the raster image decoder factory) for decoding images. Hence, it can display any raster image via jexer's pre-defined sequences, if the format of the image in question is supported by the Upp::StreamRaster.
+- Jexer inline images protocol is the *recommended* inline images protocol of choice for TerminalCtrl.
 
 ### iTerm2's Inline Images Protocol
 
@@ -507,7 +507,7 @@
 
 #### Notes
 
-- iTerm2's inline images feature is a part of its file download and display protocol. Terminal ctrl currenty supports only the inline image display command of this protocol and some of its relevant arguments. These arguments should be in key=value pairs, delimited with semicolons.
+- iTerm2's inline images feature is a part of its file download and display protocol. TerminalCtrl currenty supports only the inline image display command of this protocol and some of its relevant arguments. These arguments should be in key=value pairs, delimited with semicolons.
 - The image `data` must be base64 encoded.
 - The `inline` argument is mandatory and its value must be 1.
 - The `width` and `height` arguments are optional. They are given as a number followed by a unit, or the word "auto":
@@ -567,7 +567,7 @@
 #### Notes
 
 - `parameters` are optional `key=value` pairs.
-- The original protocol defines only the the `id` parameter. However, *currently*, this parameter is also ignored by Terminal ctrl.
+- The original protocol defines only the the `id` parameter. However, *currently*, this parameter is also ignored by TerminalCtrl.
 - The maximum `URI` length is 2083 characters.
 
 ### Clipboard Manipulation Protocol
@@ -581,6 +581,6 @@
 
 #### Notes
 
-- The `clipboard` parameter can be empty or `s0`. Currently, Terminal ctrl omits this parameter.
-- When the `data` is a `?`, Terminal ctrl will reply to the host with the selection/clipboard data encoded using the same protocol.
-- When the `data` is *neither a base64 string nor a `?`*, Terminal ctrl will clear the selection/clipboard.
+- The `clipboard` parameter can be empty or `s0`. Currently, TerminalCtrl omits this parameter.
+- When the `data` is a `?`, TerminalCtrl will reply to the host with the selection/clipboard data encoded using the same protocol.
+- When the `data` is *neither a base64 string nor a `?`*, TerminalCtrl will clear the selection/clipboard.

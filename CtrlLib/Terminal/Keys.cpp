@@ -1,12 +1,10 @@
 #include "Terminal.h"
 
-// TODO: Refactor and improve key handling...
-
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 
-bool Terminal::VTKey(dword key, int count)
+bool TerminalCtrl::VTKey(dword key, int count)
 {
     enum {
         VTKEY_CONTROL,
@@ -106,7 +104,7 @@ bool Terminal::VTKey(dword key, int count)
 	return k;
 }
 
-bool Terminal::UDKey(dword key, int count)
+bool TerminalCtrl::UDKey(dword key, int count)
 {
 	if(!HasUDK())
 		return false;
@@ -188,7 +186,7 @@ bool Terminal::UDKey(dword key, int count)
 	return false;
 }
 
-bool Terminal::NavKey(dword key, int count)
+bool TerminalCtrl::NavKey(dword key, int count)
 {
 	if(!keynavigation)
 		return false;
@@ -218,7 +216,7 @@ bool Terminal::NavKey(dword key, int count)
 	return true;
 }
 
-bool Terminal::Key(dword key, int count)
+bool TerminalCtrl::Key(dword key, int count)
 {
 	if(IsReadOnly()	|| (!modes[DECARM] && count > 1))
 		return MenuBar::Scan(WhenBar, key);

@@ -1,4 +1,4 @@
-description "A flexible and powerful terminal emulation library for Ultimate++\377";
+description "A flexible and powerful terminal emulation widget and library for Ultimate++\377";
 
 uses
 	CtrlLib,
@@ -36,7 +36,7 @@ file
 	PtyProcess.h,
 	PtyProcess.cpp,
 	Meta readonly separator,
-	Terminal.usc,
+	TerminalCtrl.usc,
 	Docs readonly separator,
 	src.tpp,
 	srcdoc.tpp,

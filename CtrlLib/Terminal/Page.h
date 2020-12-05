@@ -74,8 +74,7 @@ public:
     VTPage(Size sz) : VTPage()                              { SetSize(sz); }
     virtual ~VTPage()                                       {}
 
-    Event<>         WhenCursor;
-    Event<>         WhenScroll;
+    Event<>         WhenUpdate;
 
     VTPage&         Displaced(bool b = true);
     bool            IsDisplaced() const                     { return cursor.displaced; }

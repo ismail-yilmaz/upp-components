@@ -1,11 +1,11 @@
 #include "Terminal.h"
 
-#define LLOG(x)	 // RLOG("Terminal: " << x)
-#define LDUMP(x) // RLOG("Terminal: Mode: " << #x << " = " << modes[x])
+#define LLOG(x)	 // RLOG("TerminalCtrl: " << x)
+#define LDUMP(x) // RLOG("TerminalCtrl: Mode: " << #x << " = " << modes[x])
 
 namespace Upp {
 
-void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
+void TerminalCtrl::SetMode(const VTInStream::Sequence& seq, bool enable)
 {
 	for(const String& s : seq.parameters) {		// Multiple terminal modes can be set/reset at once.
 		int modenum = StrInt(s);
@@ -125,7 +125,7 @@ void Terminal::SetMode(const VTInStream::Sequence& seq, bool enable)
 	}
 }
 
-void Terminal::ReportMode(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportMode(const VTInStream::Sequence& seq)
 {
 	int modenum = seq.GetInt(1, 0);
 	int mid = FindModeId(modenum, seq.mode, clevel);  // Only one mode at a time can be reported
@@ -166,43 +166,43 @@ void Terminal::ReportMode(const VTInStream::Sequence& seq)
 	PutCSI(Format("%[1:?;]s%d;%d`$y", seq.mode == '?', modenum, reply));
 }
 
-void Terminal::ANSIkam(bool b)
+void TerminalCtrl::ANSIkam(bool b)
 {
 	modes.Set(KAM, b);
 	LDUMP(KAM);
 }
 
-void Terminal::ANSIcrm(bool b)
+void TerminalCtrl::ANSIcrm(bool b)
 {
 	modes.Set(CRM, b);
 	LDUMP(CRM);
 }
 
-void Terminal::ANSIirm(bool b)
+void TerminalCtrl::ANSIirm(bool b)
 {
 	modes.Set(IRM, b);
 	LDUMP(IRM);
 }
 
-void Terminal::ANSIsrm(bool b)
+void TerminalCtrl::ANSIsrm(bool b)
 {
 	modes.Set(SRM, b);
 	LDUMP(SRM);
 }
 
-void Terminal::ANSIerm(bool b)
+void TerminalCtrl::ANSIerm(bool b)
 {
 	modes.Set(ERM, b);
 	LDUMP(ERM);
 }
 
-void Terminal::ANSIlnm(bool b)
+void TerminalCtrl::ANSIlnm(bool b)
 {
 	modes.Set(LNM, b);
 	LDUMP(LNM);
 }
 
-void Terminal::DECom(bool b)
+void TerminalCtrl::DECom(bool b)
 {
 	modes.Set(DECOM, b);
 	page->Displaced(b);
@@ -210,13 +210,13 @@ void Terminal::DECom(bool b)
 	LDUMP(DECOM);
 }
 
-void Terminal::DECckm(bool b)
+void TerminalCtrl::DECckm(bool b)
 {
 	modes.Set(DECCKM, b);
 	LDUMP(DECCKM);
 }
 
-void Terminal::DECanm(bool b)
+void TerminalCtrl::DECanm(bool b)
 {
 	// According to DEC'S internal VT52 emulation document
 	// (EL-00070-0A, p. A-45), exiting the VT52 mode always
@@ -237,7 +237,7 @@ void Terminal::DECanm(bool b)
 	LDUMP(DECANM);
 }
 
-void Terminal::DECawm(bool b)
+void TerminalCtrl::DECawm(bool b)
 {
 	modes.Set(DECAWM, b);
 	page->AutoWrap(b);
@@ -246,19 +246,19 @@ void Terminal::DECawm(bool b)
 	LDUMP(DECAWM);
 }
 
-void Terminal::DECarm(bool b)
+void TerminalCtrl::DECarm(bool b)
 {
 	modes.Set(DECARM, b);
 	LDUMP(DECARM);
 }
 
-void Terminal::DECkpam(bool b)
+void TerminalCtrl::DECkpam(bool b)
 {
 	modes.Set(DECKPAM, b);
 	LDUMP(DECKPAM);
 }
 
-void Terminal::DECcolm(bool b)
+void TerminalCtrl::DECcolm(bool b)
 {
 	modes.Set(DECCOLM, b);
 	DECom(false);
@@ -267,13 +267,13 @@ void Terminal::DECcolm(bool b)
 	LDUMP(DECCOLM);
 }
 
-void Terminal::DECsclm(bool b)
+void TerminalCtrl::DECsclm(bool b)
 {
 	modes.Set(DECSCLM, b);
 	LDUMP(DECSCLM);
 }
 
-void Terminal::DECscnm(bool b)
+void TerminalCtrl::DECscnm(bool b)
 {
 	modes.Set(DECSCNM, b);
 	page->Invalidate();
@@ -281,45 +281,45 @@ void Terminal::DECscnm(bool b)
 	LDUMP(DECSCNM);
 }
 
-void Terminal::DECtcem(bool b)
+void TerminalCtrl::DECtcem(bool b)
 {
 	modes.Set(DECTCEM, b);
 	caret.WhenAction();
 	LDUMP(DECTCEM);
 }
 
-void Terminal::DEClrmm(bool b)
+void TerminalCtrl::DEClrmm(bool b)
 {
 	modes.Set(DECLRMM, b);
 	if(!b) page->ResetMargins();
 	LDUMP(DECLRMM);
 }
 
-void Terminal::DECbkm(bool b)
+void TerminalCtrl::DECbkm(bool b)
 {
 	modes.Set(DECBKM, b);
 	LDUMP(DECBKM);
 }
 
-void Terminal::DECsdm(bool b)
+void TerminalCtrl::DECsdm(bool b)
 {
 	modes.Set(DECSDM, b);
 	LDUMP(DECSDM);
 }
 
-void Terminal::XTascm(bool b)
+void TerminalCtrl::XTascm(bool b)
 {
 	modes.Set(XTASCM, b);
 	LDUMP(XTASCM);
 }
 
-void Terminal::XTbrpm(bool b)
+void TerminalCtrl::XTbrpm(bool b)
 {
 	modes.Set(XTBRPM, b);
 	LDUMP(XTBRPM);
 }
 
-void Terminal::XTrewrapm(bool b)
+void TerminalCtrl::XTrewrapm(bool b)
 {
 	// Let reverse wrap require auto wrapping.
 	
@@ -330,14 +330,14 @@ void Terminal::XTrewrapm(bool b)
 	}
 }
 
-void Terminal::XTsrcm(bool b)
+void TerminalCtrl::XTsrcm(bool b)
 {
 	modes.Set(XTSRCM, b);
 	b ? Backup() : Restore(); // This mode is used in conjunction with the private mode 1047.
 	LDUMP(XTSRCM);
 }
 
-void Terminal::XTasbm(int mode, bool b)
+void TerminalCtrl::XTasbm(int mode, bool b)
 {
 	modes.Set(XTASBM, b);
 	if(mode == 47) {
@@ -359,49 +359,49 @@ void Terminal::XTasbm(int mode, bool b)
 	LDUMP(XTASBM);
 }
 
-void Terminal::XTx10mm(bool b)
+void TerminalCtrl::XTx10mm(bool b)
 {
 	modes.Set(XTX10MM, b);
 	LDUMP(XTX10MM);
 }
 
-void Terminal::XTx11mm(bool b)
+void TerminalCtrl::XTx11mm(bool b)
 {
 	modes.Set(XTX11MM, b);
 	LDUMP(XTX11MM);
 }
 
-void Terminal::XTsgrmm(bool b)
+void TerminalCtrl::XTsgrmm(bool b)
 {
 	modes.Set(XTSGRMM, b);
 	LDUMP(XTSGRMM);
 }
 
-void Terminal::XTutf8mm(bool b)
+void TerminalCtrl::XTutf8mm(bool b)
 {
 	modes.Set(XTUTF8MM, b);
 	LDUMP(XTUTF8MM);
 }
 
-void Terminal::XTdragm(bool b)
+void TerminalCtrl::XTdragm(bool b)
 {
 	modes.Set(XTDRAGM, b);
 	LDUMP(XTDRAGM);
 }
 
-void Terminal::XTfocusm(bool b)
+void TerminalCtrl::XTfocusm(bool b)
 {
 	modes.Set(XTFOCUSM, b);
 	LDUMP(XTFOCUSM);
 }
 
-void Terminal::XTaltkeym(bool b)
+void TerminalCtrl::XTaltkeym(bool b)
 {
 	modes.Set(XTALTESCM, b);
 	LDUMP(XTALTESCM);
 }
 
-void Terminal::XTanymm(bool b)
+void TerminalCtrl::XTanymm(bool b)
 {
 	modes.Set(XTANYMM, b);
 	LDUMP(XTANYMM);

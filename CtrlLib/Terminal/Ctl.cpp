@@ -1,10 +1,10 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 	
-void Terminal::ParseControlChars(byte c)
+void TerminalCtrl::ParseControlChars(byte c)
 {
 	LLOG(Format("CTL 0x%02X (C%[1:0;1]s`)", c, c < 0x80));
 	

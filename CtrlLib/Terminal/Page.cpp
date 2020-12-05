@@ -175,7 +175,7 @@ void VTPage::EraseHistory()
 	saved.Clear();
 	saved.Shrink();
 	lines.Shrink();
-	WhenScroll();
+	WhenUpdate();
 }
 
 void VTPage::SetHistorySize(int sz)
@@ -473,12 +473,12 @@ VTPage& VTPage::MoveVert(int pos, dword flags)
 	if(scrollable) {
 		if(pos < top) {
 			if(LineInsert(top, top - pos, cellattrs) > 0)
-				WhenScroll();
+				WhenUpdate();
 		}
 		else
 		if(pos > bottom) {
 			if(LineRemove(top, pos - bottom, cellattrs) > 0)
-				WhenScroll();
+				WhenUpdate();
 		}
 	}
 
@@ -732,14 +732,14 @@ int VTPage::LineRemove(int pos, int n, const VTCell& attrs)
 VTPage& VTPage::ScrollUp(int n)
 {
 	if(LineInsert(margins.top, n, cellattrs) > 0)
-		WhenScroll();
+		WhenUpdate();
 	return *this;
 }
 
 VTPage& VTPage::ScrollDown(int n)
 {
 	if(LineRemove(margins.top, n, cellattrs) > 0)
-		WhenScroll();
+		WhenUpdate();
 	return *this;
 }
 
@@ -839,7 +839,7 @@ VTPage& VTPage::InsertLines(int pos, int n)
 
 	if(MarginsContain(cursor) && LineInsert(pos, n, cellattrs) > 0) {
 		MoveHome();
-		WhenScroll();
+		WhenUpdate();
 	}
 	return *this;
 }
@@ -850,7 +850,7 @@ VTPage& VTPage::RemoveLines(int pos, int n)
 
 	if(MarginsContain(cursor) && LineRemove(pos, n, cellattrs) > 0) {
 		MoveHome();
-		WhenScroll();
+		WhenUpdate();
 	}
 	return *this;
 }

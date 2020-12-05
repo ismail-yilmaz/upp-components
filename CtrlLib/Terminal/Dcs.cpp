@@ -1,10 +1,10 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 
-void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 {
 	LLOG("DCS " << seq);
 
@@ -27,7 +27,7 @@ void Terminal::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::SetUserDefinedKeys(const VTInStream::Sequence& seq)
+void TerminalCtrl::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 {
 	if(!userdefinedkeys || userdefinedkeyslocked)
 		return;
@@ -50,7 +50,7 @@ void Terminal::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 		LockUDK();
 }
 
-bool Terminal::GetUDKString(byte key, String& val)
+bool TerminalCtrl::GetUDKString(byte key, String& val)
 {
 	if(!IsLevel2() || udk.IsEmpty())
 		return false;
@@ -62,7 +62,7 @@ bool Terminal::GetUDKString(byte key, String& val)
 	return i >= 0 && val.GetCount();
 }
 
-void Terminal::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 {
 	// TODO
 	String reply;// = "0$r";	// Invalid request (unhandled sequence)
@@ -148,7 +148,7 @@ void Terminal::ReportControlFunctionSettings(const VTInStream::Sequence& seq)
 	PutDCS(reply);
 }
 
-void Terminal::RestorePresentationState(const VTInStream::Sequence& seq)
+void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 {
 	int which = seq.GetInt(1, 0);
 	
@@ -276,7 +276,7 @@ void Terminal::RestorePresentationState(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ParseSixelGraphics(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseSixelGraphics(const VTInStream::Sequence& seq)
 {
 	if(!sixelimages)
 		return;

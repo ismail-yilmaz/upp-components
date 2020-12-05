@@ -1,10 +1,10 @@
 #include "Terminal.h"
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 namespace Upp {
 
-void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
+void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 {
 	LLOG("CSI " << seq);
 
@@ -209,13 +209,13 @@ void Terminal::ParseCommandSequences(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ProtectAttributes(bool protect)
+void TerminalCtrl::ProtectAttributes(bool protect)
 {
 	cellattrs.Protect(protect);
 	page->Attributes(cellattrs);
 }
 
-void Terminal::ClearPage(const VTInStream::Sequence& seq)
+void TerminalCtrl::ClearPage(const VTInStream::Sequence& seq)
 {
 	dword flags = GetFillerFlags(seq);
 
@@ -236,7 +236,7 @@ void Terminal::ClearPage(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ClearLine(const VTInStream::Sequence& seq)
+void TerminalCtrl::ClearLine(const VTInStream::Sequence& seq)
 {
 	dword flags = GetFillerFlags(seq);
 
@@ -255,7 +255,7 @@ void Terminal::ClearLine(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ClearTabs(const VTInStream::Sequence& seq)
+void TerminalCtrl::ClearTabs(const VTInStream::Sequence& seq)
 {
 	switch(seq.GetInt(1, 0)) {
 	case 0:
@@ -269,7 +269,7 @@ void Terminal::ClearTabs(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::ReportDeviceStatus(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportDeviceStatus(const VTInStream::Sequence& seq)
 {
 	int opcode = seq.GetInt(1, 0);
 	Point p = page->GetRelPos();
@@ -331,7 +331,7 @@ void Terminal::ReportDeviceStatus(const VTInStream::Sequence& seq)
 		}
 }
 
-void Terminal::ReportDeviceParameters(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportDeviceParameters(const VTInStream::Sequence& seq)
 {
 	if(IsLevel2()) // Reply only in VT1XX mode
 		return;
@@ -347,7 +347,7 @@ void Terminal::ReportDeviceParameters(const VTInStream::Sequence& seq)
 		PutCSI(Format("%d;1;1;1;1;1;0x", opcode + 2));
 }
 
-void Terminal::ReportDeviceAttributes(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 {
 	static constexpr const char* VTID_52   = "/Z";
 	static constexpr const char* VTID_1XX  = "?6c";
@@ -393,7 +393,7 @@ void Terminal::ReportDeviceAttributes(const VTInStream::Sequence& seq)
 		PutDCS(VTID_UNIT);	// DECREPTUI
 }
 
-void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportPresentationState(const VTInStream::Sequence& seq)
 {
 	int report = seq.GetInt(1, 0);
 
@@ -476,7 +476,7 @@ void Terminal::ReportPresentationState(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
+void TerminalCtrl::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 {
 	// This method implements most of the xterm's WindowOps feature.
 	// See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
@@ -624,7 +624,7 @@ void Terminal::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::WindowMoveRequest(TopWindow *w, int x, int y)
+void TerminalCtrl::WindowMoveRequest(TopWindow *w, int x, int y)
 {
 	Rect r(Point(x, y), w->GetRect().GetSize());
 	
@@ -633,7 +633,7 @@ void Terminal::WindowMoveRequest(TopWindow *w, int x, int y)
 	WhenWindowGeometryChange(r);
 }
 
-void Terminal::WindowResizeRequest(TopWindow *w, int cx, int cy)
+void TerminalCtrl::WindowResizeRequest(TopWindow *w, int cx, int cy)
 {
 	Rect r = w->GetRect();
 	Rect wr = GetWorkArea();
@@ -648,7 +648,7 @@ void Terminal::WindowResizeRequest(TopWindow *w, int cx, int cy)
 	WhenWindowGeometryChange(Rect(r.TopLeft(), sz));
 }
 
-void Terminal::WindowPageResizeRequest(TopWindow *w, int cx, int cy)
+void TerminalCtrl::WindowPageResizeRequest(TopWindow *w, int cx, int cy)
 {
 	LLOG("WindowPageResizeRequest(" << cx << ", " << cy << ")");
 	
@@ -663,21 +663,21 @@ void Terminal::WindowPageResizeRequest(TopWindow *w, int cx, int cy)
 	WhenWindowGeometryChange(Rect(r.TopLeft(), sz));
 }
 
-void Terminal::WindowMaximizeHorzRequest(TopWindow *w)
+void TerminalCtrl::WindowMaximizeHorzRequest(TopWindow *w)
 {
 	Rect r = GetWorkArea();
 	r.bottom = r.top + w->GetView().Height();
 	WhenWindowGeometryChange(r);
 }
 
-void Terminal::WindowMaximizeVertRequest(TopWindow *w)
+void TerminalCtrl::WindowMaximizeVertRequest(TopWindow *w)
 {
 	Rect r = GetWorkArea();
 	r.right = r.left + w->GetView().Width();
 	WhenWindowGeometryChange(r);
 }
 
-void Terminal::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
+void TerminalCtrl::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
 {
 	int level = seq.GetInt(1, 0);
 	int mode  = seq.GetInt(2, -1);
@@ -707,7 +707,7 @@ void Terminal::SetDeviceConformanceLevel(const VTInStream::Sequence& seq)
 				(int) clevel, Is8BitMode() ? 8 : 7 ));
 }
 
-void Terminal::SetProgrammableLEDs(const VTInStream::Sequence& seq)
+void TerminalCtrl::SetProgrammableLEDs(const VTInStream::Sequence& seq)
 {
 	int  led = seq.GetInt(1, 0);
 	bool set = led >= 1 && led < 21;
@@ -733,7 +733,7 @@ void Terminal::SetProgrammableLEDs(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::SetCaretStyle(const VTInStream::Sequence& seq)
+void TerminalCtrl::SetCaretStyle(const VTInStream::Sequence& seq)
 {
 	if(caret.IsLocked())
 		return;
@@ -758,7 +758,7 @@ void Terminal::SetCaretStyle(const VTInStream::Sequence& seq)
 	}
 }
 
-void Terminal::CopyRectArea(const VTInStream::Sequence& seq)
+void TerminalCtrl::CopyRectArea(const VTInStream::Sequence& seq)
 {
 	int srcpage  = seq.GetInt(5);
 	int destpage = seq.GetInt(8);
@@ -781,7 +781,7 @@ void Terminal::CopyRectArea(const VTInStream::Sequence& seq)
 	page->CopyRect(pt, r);
 }
 
-void Terminal::FillRectArea(const VTInStream::Sequence& seq)
+void TerminalCtrl::FillRectArea(const VTInStream::Sequence& seq)
 {
 	int chr = seq.GetInt(1, 0x20);
 
@@ -802,7 +802,7 @@ void Terminal::FillRectArea(const VTInStream::Sequence& seq)
 	page->FillRect(r, LookupChar(chr));
 }
 
-void Terminal::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
+void TerminalCtrl::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
 {
 	Rect view = page->GetView();
 
@@ -819,12 +819,12 @@ void Terminal::ClearRectArea(const VTInStream::Sequence& seq, bool selective)
 	page->EraseRect(r, flags);
 }
 
-void Terminal::SelectRectAreaAttrsChangeExtent(const VTInStream::Sequence& seq)
+void TerminalCtrl::SelectRectAreaAttrsChangeExtent(const VTInStream::Sequence& seq)
 {
 	streamfill = seq.GetInt(1) != 2;
 }
 
-void Terminal::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
+void TerminalCtrl::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
 {
 	Rect view = page->GetView();
 
@@ -853,7 +853,7 @@ void Terminal::ChangeRectAreaAttrs(const VTInStream::Sequence& seq, bool invert)
 		: page->FillRect(r,  filler, flags);
 }
 
-void Terminal::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
+void TerminalCtrl::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 {
 	int id = seq.GetInt(1);
 	int pn = seq.GetInt(2, 0);
@@ -902,7 +902,7 @@ void Terminal::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 	PutDCS(Format("%d!~%2X", id, (word) checksum));
 }
 
-void Terminal::AlternateScreenBuffer(bool b)
+void TerminalCtrl::AlternateScreenBuffer(bool b)
 {
 	if(b && IsDefaultPage())
 		page = &apage;
@@ -913,7 +913,7 @@ void Terminal::AlternateScreenBuffer(bool b)
 	LLOG("Alternate screen buffer: " << (b ? "on" : "off"));
 }
 
-dword Terminal::GetFillerFlags(const VTInStream::Sequence& seq) const
+dword TerminalCtrl::GetFillerFlags(const VTInStream::Sequence& seq) const
 {
 	dword flags = VTCell::FILL_NORMAL;
 	if(!modes[ERM] || (IsLevel2() && seq.mode == '?'))

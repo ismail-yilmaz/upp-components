@@ -1,11 +1,11 @@
 #include "Terminal.h"
 
-#define LLOG(x)		// RLOG("Terminal: " << x)
+#define LLOG(x)		// RLOG("TerminalCtrl: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 
-Terminal::Terminal()
+TerminalCtrl::TerminalCtrl()
 : page(&dpage)
 , legacycharsets(false)
 , eightbit(false)
@@ -44,11 +44,11 @@ Terminal::Terminal()
 	WhenBar = [=](Bar& menu) { StdBar(menu); };
 	sb.WhenScroll = [=]() { Scroll(); };
 	caret.WhenAction = [=]() { PlaceCaret(); };
-	dpage.WhenScroll = [=]() { ScheduleRefresh(); };
-	apage.WhenScroll = [=]() { ScheduleRefresh(); };
+	dpage.WhenUpdate = [=]() { ScheduleRefresh(); };
+	apage.WhenUpdate = [=]() { ScheduleRefresh(); };
 }
 
-Terminal::~Terminal()
+TerminalCtrl::~TerminalCtrl()
 {
 	// Make sure that no callback is left dangling...
 	KillTimeCallback(TIMEID_REFRESH);
@@ -56,19 +56,19 @@ Terminal::~Terminal()
 	KillTimeCallback(TIMEID_BLINK);
 }
 
-Size Terminal::GetFontSize() const
+Size TerminalCtrl::GetFontSize() const
 {
 	return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy());
 }
 
-Size Terminal::GetPageSize() const
+Size TerminalCtrl::GetPageSize() const
 {
 	Size wsz = GetSize();
 	Size fsz = GetFontSize();
 	return clamp(wsz / fsz, Size(1, 1), GetScreenSize() / fsz);
 }
 
-void Terminal::PlaceCaret(bool scroll)
+void TerminalCtrl::PlaceCaret(bool scroll)
 {
 	bool  b = modes[DECTCEM];
 
@@ -88,7 +88,7 @@ void Terminal::PlaceCaret(bool scroll)
 	}
 }
 
-Rect Terminal::GetCaretRect()
+Rect TerminalCtrl::GetCaretRect()
 {
 	Size fsz = GetFontSize();
 	Point pt = GetCursorPos() * fsz;
@@ -114,7 +114,7 @@ Rect Terminal::GetCaretRect()
 	return Rect(GetSize()).Contains(caretrect) ? caretrect : Null;
 }
 
-void Terminal::Copy(const WString& s)
+void TerminalCtrl::Copy(const WString& s)
 {
 	if(!IsNull(s)) {
 		ClearClipboard();
@@ -123,7 +123,7 @@ void Terminal::Copy(const WString& s)
 	}
 }
 
-void Terminal::Paste(const WString& s, bool filter)
+void TerminalCtrl::Paste(const WString& s, bool filter)
 {
 	if(IsReadOnly())
 		return;
@@ -137,7 +137,7 @@ void Terminal::Paste(const WString& s, bool filter)
 		PutEncoded(s, filter);
 }
 
-void Terminal::SelectAll(bool history)
+void TerminalCtrl::SelectAll(bool history)
 {
 	Size psz = GetPageSize();
 	bool h = IsDefaultPage() && history;
@@ -147,12 +147,12 @@ void Terminal::SelectAll(bool history)
 	Refresh();
 }
 
-String Terminal::GetSelectionData(const String& fmt) const
+String TerminalCtrl::GetSelectionData(const String& fmt) const
 {
 	return IsSelection() ? GetTextClip(GetSelectedText().ToString(), fmt) : Null;
 }
 
-void Terminal::SyncSize(bool notify)
+void TerminalCtrl::SyncSize(bool notify)
 {
 	// Apparently, the window minimize event on Windows "really" minimizes
 	// the window. This results in a damaged terminal display. In order to
@@ -191,7 +191,7 @@ void Terminal::SyncSize(bool notify)
 	}
 }
 
-void Terminal::ScheduleRefresh()
+void TerminalCtrl::ScheduleRefresh()
 {
 	if(delayedrefresh
 	&& (!lazyresize || !resizing)
@@ -199,7 +199,7 @@ void Terminal::ScheduleRefresh()
 		SetTimeCallback(16, [=] { SyncSb(); RefreshDisplay(); }, TIMEID_REFRESH);
 }
 
-Tuple<String, Rect> Terminal::GetSizeHint(Rect r, Size sz)
+Tuple<String, Rect> TerminalCtrl::GetSizeHint(Rect r, Size sz)
 {
 	Tuple<String, Rect> hint;
 	hint.a << sz.cx << " x " << sz.cy;
@@ -207,7 +207,7 @@ Tuple<String, Rect> Terminal::GetSizeHint(Rect r, Size sz)
 	return pick(hint);
 }
 
-void Terminal::SyncSb()
+void TerminalCtrl::SyncSb()
 {
 	if(IsAlternatePage())
 		return;
@@ -220,7 +220,7 @@ void Terminal::SyncSb()
 		sb.End();
 }
 
-void Terminal::Scroll()
+void TerminalCtrl::Scroll()
 {
 	// It is possible to  have  an  alternate screen buffer with a history  buffer.
 	// Some terminal  emulators already  come  with  this feature enabled. Terminal
@@ -239,14 +239,14 @@ void Terminal::Scroll()
 	PlaceCaret();
 }
 
-void Terminal::SwapPage()
+void TerminalCtrl::SwapPage()
 {
 	SyncSize(false);
 	SyncSb();
 	ClearSelection();
 }
 
-void Terminal::RefreshDisplay()
+void TerminalCtrl::RefreshDisplay()
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
@@ -254,7 +254,7 @@ void Terminal::RefreshDisplay()
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
 	
-	LTIMING("Terminal::RefreshDisplay");
+	LTIMING("TerminalCtrl::RefreshDisplay");
 
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		const VTLine& line = page->FetchLine(i);
@@ -284,7 +284,7 @@ void Terminal::RefreshDisplay()
 	Blink(blinking_cells > 0);
 }
 
-void Terminal::Blink(bool b)
+void TerminalCtrl::Blink(bool b)
 {
 	bool bb = ExistsTimeCallback(TIMEID_BLINK);
 	if(blinkingtext && b && !bb)
@@ -297,7 +297,7 @@ void Terminal::Blink(bool b)
 	}
 }
 
-void Terminal::DragAndDrop(Point pt, PasteClip& d)
+void TerminalCtrl::DragAndDrop(Point pt, PasteClip& d)
 {
 	if(IsReadOnly() || IsDragAndDropSource())
 		return;
@@ -326,7 +326,7 @@ void Terminal::DragAndDrop(Point pt, PasteClip& d)
 		Paste(s, noctl);
 }
 
-void Terminal::LeftDown(Point pt, dword keyflags)
+void TerminalCtrl::LeftDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
@@ -343,7 +343,7 @@ void Terminal::LeftDown(Point pt, dword keyflags)
 	SetCapture();
 }
 
-void Terminal::LeftUp(Point pt, dword keyflags)
+void TerminalCtrl::LeftUp(Point pt, dword keyflags)
 {
 	if(IsTracking()) {
 		if(!modes[XTX10MM])
@@ -360,7 +360,7 @@ void Terminal::LeftUp(Point pt, dword keyflags)
 	ReleaseCapture();
 }
 
-void Terminal::LeftDrag(Point pt, dword keyflags)
+void TerminalCtrl::LeftDrag(Point pt, dword keyflags)
 {
 	pt = ClientToPagePos(pt);
 	bool modifier = keyflags & K_CTRL;
@@ -406,7 +406,7 @@ void Terminal::LeftDrag(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::LeftDouble(Point pt, dword keyflags)
+void TerminalCtrl::LeftDouble(Point pt, dword keyflags)
 {
 	if(IsTracking())
 		Ctrl::LeftDouble(pt, keyflags);
@@ -436,7 +436,7 @@ void Terminal::LeftDouble(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::LeftTriple(Point pt, dword keyflags)
+void TerminalCtrl::LeftTriple(Point pt, dword keyflags)
 {
 	if(IsTracking())
 		Ctrl::LeftTriple(pt, keyflags);
@@ -449,7 +449,7 @@ void Terminal::LeftTriple(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::MiddleDown(Point pt, dword keyflags)
+void TerminalCtrl::MiddleDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
@@ -466,13 +466,13 @@ void Terminal::MiddleDown(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::MiddleUp(Point pt, dword keyflags)
+void TerminalCtrl::MiddleUp(Point pt, dword keyflags)
 {
 	if(IsTracking() && !modes[XTX10MM])
 		VTMouseEvent(pt, MIDDLEUP, keyflags);
 }
 
-void Terminal::RightDown(Point pt, dword keyflags)
+void TerminalCtrl::RightDown(Point pt, dword keyflags)
 {
 	SetFocus();
 	if(IsTracking())
@@ -485,13 +485,13 @@ void Terminal::RightDown(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::RightUp(Point pt, dword keyflags)
+void TerminalCtrl::RightUp(Point pt, dword keyflags)
 {
 	if(IsTracking() && !modes[XTX10MM])
 		VTMouseEvent(pt, RIGHTUP, keyflags);
 }
 
-void Terminal::MouseMove(Point pt, dword keyflags)
+void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 {
 	auto sGetMouseMotionEvent = [](bool b) -> dword
 	{
@@ -520,7 +520,7 @@ void Terminal::MouseMove(Point pt, dword keyflags)
 	}
 }
 
-void Terminal::MouseWheel(Point pt, int zdelta, dword keyflags)
+void TerminalCtrl::MouseWheel(Point pt, int zdelta, dword keyflags)
 {
 	bool b = IsTracking();
 	if(!b && page->HasHistory())
@@ -536,7 +536,7 @@ void Terminal::MouseWheel(Point pt, int zdelta, dword keyflags)
 	}
 }
 
-Image Terminal::MouseEvent(int event, Point pt, int zdelta, dword keyflags)
+Image TerminalCtrl::MouseEvent(int event, Point pt, int zdelta, dword keyflags)
 {
 	if(hidemousecursor) {
 		if(mousehidden && event == Ctrl::CURSORIMAGE)
@@ -546,7 +546,7 @@ Image Terminal::MouseEvent(int event, Point pt, int zdelta, dword keyflags)
 	return Ctrl::MouseEvent(event, pt, zdelta, keyflags);
 }
 
-void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
+void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 {
 	int  mouseevent = 0;
 
@@ -630,7 +630,7 @@ void Terminal::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta)
 	}
 }
 
-bool Terminal::IsTracking() const
+bool TerminalCtrl::IsTracking() const
 {
 	return modes[XTX10MM]
 		|| modes[XTX11MM]
@@ -638,7 +638,7 @@ bool Terminal::IsTracking() const
 		|| modes[XTDRAGM];
 }
 
-Point Terminal::ClientToPagePos(Point pt) const
+Point TerminalCtrl::ClientToPagePos(Point pt) const
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
@@ -647,7 +647,7 @@ Point Terminal::ClientToPagePos(Point pt) const
 	return pt;
 }
 
-Point Terminal::SelectionToPagePos(Point pt) const
+Point TerminalCtrl::SelectionToPagePos(Point pt) const
 {
 	// Aligns the anchor or selection point to cell boundaries.
 
@@ -657,7 +657,7 @@ Point Terminal::SelectionToPagePos(Point pt) const
 	return ClientToPagePos(pt);
 }
 
-void Terminal::SetSelection(Point pl, Point ph, dword type)
+void TerminalCtrl::SetSelection(Point pl, Point ph, dword type)
 {
 	anchor = pl;
 	selpos = ph;
@@ -666,7 +666,7 @@ void Terminal::SetSelection(Point pl, Point ph, dword type)
 	Refresh();
 }
 
-bool Terminal::GetSelection(Point& pl, Point& ph) const
+bool TerminalCtrl::GetSelection(Point& pl, Point& ph) const
 {
 	if(IsNull(anchor) || anchor == selpos) {
 		pl = ph = selpos;
@@ -695,13 +695,13 @@ bool Terminal::GetSelection(Point& pl, Point& ph) const
 	return true;
 }
 
-Rect Terminal::GetSelectionRect() const
+Rect TerminalCtrl::GetSelectionRect() const
 {
 	Point pl, ph;
 	return GetSelection(pl, ph) ? Rect(pl, ph) : Null;
 }
 
-void Terminal::ClearSelection()
+void TerminalCtrl::ClearSelection()
 {
 	ReleaseCapture();
 	anchor = Null;
@@ -711,7 +711,7 @@ void Terminal::ClearSelection()
 	Refresh();
 }
 
-bool Terminal::IsSelected(Point pt) const
+bool TerminalCtrl::IsSelected(Point pt) const
 {
 	Point pl, ph;
 	if(!GetSelection(pl, ph))
@@ -743,12 +743,12 @@ bool Terminal::IsSelected(Point pt) const
 	return pl.y <= pt.y && pt.y <= ph.y;
 }
 
-WString Terminal::GetSelectedText() const
+WString TerminalCtrl::GetSelectedText() const
 {
 	return AsWString((const VTPage&)*page, GetSelectionRect(), seltype & SEL_RECT);
 }
 
-void Terminal::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
+void TerminalCtrl::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
 {
 	pl = ph = pt;
 	pl.x = 0;
@@ -761,7 +761,7 @@ void Terminal::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
 		ph.y++;
 }
 
-bool Terminal::GetWordSelection(const Point& pt, Point& pl, Point& ph) const
+bool TerminalCtrl::GetWordSelection(const Point& pt, Point& pl, Point& ph) const
 {
 	pl = ph = pt;
 
@@ -786,7 +786,7 @@ bool IsWCh(const VTCell& cell, bool line_wrap)
 		&& (IsLeNum(cell) || findarg(cell, 1, '_', '-') >= 0 || (cell == 0 && line_wrap));
 }
 
-void Terminal::GetWordPosL(const VTLine& line, Point& pl) const
+void TerminalCtrl::GetWordPosL(const VTLine& line, Point& pl) const
 {
 	bool stopped = false;
 	bool wrapped = line.IsWrapped();
@@ -804,7 +804,7 @@ void Terminal::GetWordPosL(const VTLine& line, Point& pl) const
 	}
 }
 
-void Terminal::GetWordPosH(const VTLine& line, Point& ph) const
+void TerminalCtrl::GetWordPosH(const VTLine& line, Point& ph) const
 {
 	bool stopped = false;
 	bool wrapped = line.IsWrapped();
@@ -822,7 +822,7 @@ void Terminal::GetWordPosH(const VTLine& line, Point& ph) const
 	}
 }
 
-Image Terminal::GetInlineImage(Point pt, bool modifier)
+Image TerminalCtrl::GetInlineImage(Point pt, bool modifier)
 {
 	if(modifier) {
 		const VTCell& cell = page->FetchCell(pt);
@@ -836,7 +836,7 @@ Image Terminal::GetInlineImage(Point pt, bool modifier)
 	return Null;
 }
 
-String Terminal::GetHyperlinkURI(Point pt, bool modifier)
+String TerminalCtrl::GetHyperlinkURI(Point pt, bool modifier)
 {
 	if(modifier) {
 		const VTCell& cell = page->FetchCell(pt);
@@ -850,7 +850,7 @@ String Terminal::GetHyperlinkURI(Point pt, bool modifier)
 	return Null;
 }
 
-void Terminal::HighlightHyperlink(Point pt)
+void TerminalCtrl::HighlightHyperlink(Point pt)
 {
 	if(mousepos != pt) {
 		mousepos = pt;
@@ -867,7 +867,7 @@ void Terminal::HighlightHyperlink(Point pt)
 	}
 }
 
-void Terminal::StdBar(Bar& menu)
+void TerminalCtrl::StdBar(Bar& menu)
 {
 	menu.Sub(t_("Options"), [=](Bar& menu) { OptionsBar(menu); });
 	menu.Separator();
@@ -889,7 +889,7 @@ void Terminal::StdBar(Bar& menu)
 	}
 }
 
-void Terminal::EditBar(Bar& menu)
+void TerminalCtrl::EditBar(Bar& menu)
 {
 	menu.Add(IsSelection(), t_("Copy"), CtrlImg::copy(),  [=] { Copy();  })
 		.Key(K_SHIFT_CTRL_C);
@@ -900,7 +900,7 @@ void Terminal::EditBar(Bar& menu)
 		.Key(K_SHIFT_CTRL_A);
 }
 
-void Terminal::LinksBar(Bar& menu)
+void TerminalCtrl::LinksBar(Bar& menu)
 {
 	String uri = GetHyperlinkUri();
 	if(IsNull(uri))
@@ -912,7 +912,7 @@ void Terminal::LinksBar(Bar& menu)
 		.Key(K_SHIFT_CTRL_O);
 }
 
-void Terminal::ImagesBar(Bar& menu)
+void TerminalCtrl::ImagesBar(Bar& menu)
 {
 	Point pt = mousepos;
 
@@ -932,7 +932,7 @@ void Terminal::ImagesBar(Bar& menu)
 		.Key(K_SHIFT_CTRL_O);
 }
 
-void Terminal::OptionsBar(Bar& menu)
+void TerminalCtrl::OptionsBar(Bar& menu)
 {
 	bool inlineimages = jexerimages || sixelimages || iterm2images;
 
@@ -1017,7 +1017,7 @@ void Terminal::OptionsBar(Bar& menu)
 		.Check(lazyresize);
 }
 
-Terminal& Terminal::ShowScrollBar(bool b)
+TerminalCtrl& TerminalCtrl::ShowScrollBar(bool b)
 {
 	GuiLock __;
 
@@ -1034,7 +1034,7 @@ Terminal& Terminal::ShowScrollBar(bool b)
 	return *this;
 }
 
-Image Terminal::CursorImage(Point p, dword keyflags)
+Image TerminalCtrl::CursorImage(Point p, dword keyflags)
 {
 	if(IsTracking())
 		return Image::Arrow();
@@ -1045,26 +1045,26 @@ Image Terminal::CursorImage(Point p, dword keyflags)
 		return Image::IBeam();
 }
 
-void Terminal::State(int reason)
+void TerminalCtrl::State(int reason)
 {
 	if(reason == Ctrl::OPEN)
 		WhenResize();
 }
 
-Terminal::Caret::Caret()
+TerminalCtrl::Caret::Caret()
 : style(BLOCK)
 , blinking(true)
 , locked(false)
 {
 }
 
-Terminal::Caret::Caret(int style_, bool blink, bool lock)
+TerminalCtrl::Caret::Caret(int style_, bool blink, bool lock)
 {
 	Set(style_, blink);
 	locked = lock;
 }
 
-void Terminal::Caret::Set(int style_, bool blink)
+void TerminalCtrl::Caret::Set(int style_, bool blink)
 {
 	if(!locked) {
 		style = clamp(style_, int(BLOCK), int(UNDERLINE));
@@ -1073,7 +1073,7 @@ void Terminal::Caret::Set(int style_, bool blink)
 	}
 }
 
-void Terminal::Caret::Serialize(Stream& s)
+void TerminalCtrl::Caret::Serialize(Stream& s)
 {
 	int version = 1;
 	s / version;
@@ -1084,21 +1084,21 @@ void Terminal::Caret::Serialize(Stream& s)
 	}
 }
 
-void Terminal::Caret::Jsonize(JsonIO& jio)
+void TerminalCtrl::Caret::Jsonize(JsonIO& jio)
 {
 	jio ("Style", style)
 		("Locked", locked)
 		("Blinking", blinking);
 }
 
-void Terminal::Caret::Xmlize(XmlIO& xio)
+void TerminalCtrl::Caret::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }
 
 INITBLOCK
 {
-	Value::Register<Terminal::InlineImage>();
+	Value::Register<TerminalCtrl::InlineImage>();
 }
 
 }

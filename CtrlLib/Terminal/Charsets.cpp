@@ -6,7 +6,7 @@ namespace Upp {
 #define CUNDEF DEFAULTCHAR
 #endif
 
-#define LLOG(x)	// RLOG("Terminal: " << x)
+#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
 
 byte CHARSET_DEC_VT52 = 0;
 byte CHARSET_DEC_DCS  = 0;
@@ -99,7 +99,7 @@ INITIALIZER(DECGSets)
 	CHARSET_DEC_TCS  = AddCharSet("dec-tcs", CHRTAB_DEC_TECHNICAL);
 }
 
-int Terminal::DecodeCodepoint(int c, byte gset)
+int TerminalCtrl::DecodeCodepoint(int c, byte gset)
 {
 	byte cs = ResolveVTCharset(gset);
 	
@@ -118,7 +118,7 @@ int Terminal::DecodeCodepoint(int c, byte gset)
 	return c != DEFAULTCHAR ? c : 0xFFFD;
 }
 
-int Terminal::EncodeCodepoint(int c, byte gset)
+int TerminalCtrl::EncodeCodepoint(int c, byte gset)
 {
 	byte cs = ResolveVTCharset(gset);
 	
@@ -136,7 +136,7 @@ int Terminal::EncodeCodepoint(int c, byte gset)
 	return c;
 }
 
-WString Terminal::DecodeDataString(const String& s)
+WString TerminalCtrl::DecodeDataString(const String& s)
 {
 	if(IsUtf8Mode() && CheckUtf8(s))
 		return s.ToWString();
@@ -153,7 +153,7 @@ WString Terminal::DecodeDataString(const String& s)
 	return txt;
 }
 
-String Terminal::EncodeDataString(const WString& ws)
+String TerminalCtrl::EncodeDataString(const WString& ws)
 {
 	if(IsUtf8Mode())
 		return ToUtf8(ws);
@@ -171,7 +171,7 @@ String Terminal::EncodeDataString(const WString& ws)
 	return txt;
 }
 
-int Terminal::LookupChar(int c)
+int TerminalCtrl::LookupChar(int c)
 {
 	// Perform single or locking shifts for GL and GR...
 	// Single shifts are available on devices with level >= 1
@@ -191,12 +191,12 @@ int Terminal::LookupChar(int c)
 	return DecodeCodepoint(c, gsets.Get(c, IsLevel2()));
 }
 
-Terminal::GSets::GSets(byte defgset)
+TerminalCtrl::GSets::GSets(byte defgset)
 : GSets(CHARSET_TOASCII, CHARSET_TOASCII, defgset, defgset)
 {
 }
 
-Terminal::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
+TerminalCtrl::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
 {
 	d[0] = g0;
 	d[1] = g1;
@@ -205,7 +205,7 @@ Terminal::GSets::GSets(byte g0, byte g1, byte g2, byte g3)
 	Reset();
 }
 
-void Terminal::GSets::ConformtoANSILevel1()
+void TerminalCtrl::GSets::ConformtoANSILevel1()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -215,7 +215,7 @@ void Terminal::GSets::ConformtoANSILevel1()
 	
 }
 
-void Terminal::GSets::ConformtoANSILevel2()
+void TerminalCtrl::GSets::ConformtoANSILevel2()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
@@ -225,14 +225,14 @@ void Terminal::GSets::ConformtoANSILevel2()
 
 }
 
-void Terminal::GSets::ConformtoANSILevel3()
+void TerminalCtrl::GSets::ConformtoANSILevel3()
 {
 	ss = 0;
 	g[0] = CHARSET_TOASCII;
 	G0toGL();
 }
 
-void Terminal::GSets::Reset()
+void TerminalCtrl::GSets::Reset()
 {
 	ss = 0;
 	ResetG0();
@@ -243,7 +243,7 @@ void Terminal::GSets::Reset()
 	G2toGR();
 }
 
-void Terminal::GSets::Serialize(Stream& s)
+void TerminalCtrl::GSets::Serialize(Stream& s)
 {
 	int version = 1;
 	s / version;
@@ -282,7 +282,7 @@ void Terminal::GSets::Serialize(Stream& s)
 	}
 }
 
-void Terminal::GSets::Jsonize(JsonIO& jio)
+void TerminalCtrl::GSets::Jsonize(JsonIO& jio)
 {
 	VectorMap<String, String> vm = {
 		{ "Default_G0", CharsetName(d[0]) },
@@ -320,7 +320,7 @@ void Terminal::GSets::Jsonize(JsonIO& jio)
 	}
 }
 
-void Terminal::GSets::Xmlize(XmlIO& xio)
+void TerminalCtrl::GSets::Xmlize(XmlIO& xio)
 {
 	XmlizeByJsonize(xio, *this);
 }

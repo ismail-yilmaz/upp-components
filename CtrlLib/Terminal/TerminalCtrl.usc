@@ -1,4 +1,4 @@
-ctrl Terminal {
+ctrl TerminalCtrl {
 	group "Complex";
 
 	Frame   SetFrame        = FieldFrame() @1;

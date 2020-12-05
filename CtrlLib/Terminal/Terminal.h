@@ -1,5 +1,5 @@
-#ifndef _Terminal_Terminal_h
-#define _Terminal_Terminal_h
+#ifndef _Terminal_TerminalCtrl_h
+#define _Terminal_TerminalCtrl_h
 
 #include <CtrlLib/CtrlLib.h>
 #include <plugin/jpg/jpg.h>
@@ -11,7 +11,7 @@
 
 namespace Upp {
 
-class Terminal : public Ctrl {
+class TerminalCtrl : public Ctrl {
 public:
     const int ANSI_COLOR_COUNT = 16;    // Actually, ANSI + aixterm colors.
 
@@ -72,11 +72,11 @@ public:
         Size        cellsize;
         Size        fontsize;
         Rect        paintrect;
-        operator    Value() const                               { return RichValue<Terminal::InlineImage>(*this); }
+        operator    Value() const                               { return RichValue<TerminalCtrl::InlineImage>(*this); }
     };
 
-    Terminal();
-    virtual ~Terminal();
+    TerminalCtrl();
+    virtual ~TerminalCtrl();
 
     Event<>              WhenBell;
     Event<>              WhenResize;
@@ -98,262 +98,262 @@ public:
     // APC support.
     Event<const String&> WhenApplicationCommand;
 
-    void        Write(const void *data, int size, bool utf8 = true);
-    void        Write(const String& s, bool utf8 = true)        { Write(~s, s.GetLength(), utf8); }
-    void        WriteUtf8(const String& s)                      { Write(s, true);         }
+    void            Write(const void *data, int size, bool utf8 = true);
+    void            Write(const String& s, bool utf8 = true)        { Write(~s, s.GetLength(), utf8); }
+    void            WriteUtf8(const String& s)                      { Write(s, true);         }
 
-    Terminal&   SetLevel(int level)                             { SetEmulation(level); return *this; }
-    bool        IsLevel0() const                                { return !modes[DECANM]; }
-    bool        IsLevel1() const                                { return modes[DECANM] && clevel >= LEVEL_1; }
-    bool        IsLevel2() const                                { return modes[DECANM] && clevel >= LEVEL_2; }
-    bool        IsLevel3() const                                { return modes[DECANM] && clevel >= LEVEL_3; }
-    bool        IsLevel4() const                                { return modes[DECANM] && clevel >= LEVEL_4; }
+    TerminalCtrl&   SetLevel(int level)                             { SetEmulation(level); return *this; }
+    bool            IsLevel0() const                                { return !modes[DECANM]; }
+    bool            IsLevel1() const                                { return modes[DECANM] && clevel >= LEVEL_1; }
+    bool            IsLevel2() const                                { return modes[DECANM] && clevel >= LEVEL_2; }
+    bool            IsLevel3() const                                { return modes[DECANM] && clevel >= LEVEL_3; }
+    bool            IsLevel4() const                                { return modes[DECANM] && clevel >= LEVEL_4; }
 
-    Terminal&   Set8BitMode(bool b = true)                      { eightbit = b; return *this; }
-    Terminal&   No8BitMode()                                    { return Set8BitMode(false); }
-    bool        Is8BitMode() const                              { return IsLevel2() && eightbit; }
-    bool        Is7BitMode() const                              { return !Is8BitMode(); }
+    TerminalCtrl&   Set8BitMode(bool b = true)                      { eightbit = b; return *this; }
+    TerminalCtrl&   No8BitMode()                                    { return Set8BitMode(false); }
+    bool            Is8BitMode() const                              { return IsLevel2() && eightbit; }
+    bool            Is7BitMode() const                              { return !Is8BitMode(); }
 
-    bool        IsUtf8Mode() const                              { return charset == CHARSET_UNICODE && !legacycharsets; }
+    bool            IsUtf8Mode() const                              { return charset == CHARSET_UNICODE && !legacycharsets; }
 
-    void        HardReset()                                     { Reset(true);  }
-    void        SoftReset()                                     { Reset(false); }
+    void            HardReset()                                     { Reset(true);  }
+    void            SoftReset()                                     { Reset(false); }
 
-    Terminal&   History(bool b = true)                          { dpage.History(b); return *this; }
-    Terminal&   NoHistory()                                     { return History(false); }
-    Terminal&   ClearHistory()                                  { dpage.EraseHistory(); return *this; }
-    bool        HasHistory() const                              { return dpage.HasHistory(); }
+    TerminalCtrl&   History(bool b = true)                          { dpage.History(b); return *this; }
+    TerminalCtrl&   NoHistory()                                     { return History(false); }
+    TerminalCtrl&   ClearHistory()                                  { dpage.EraseHistory(); return *this; }
+    bool            HasHistory() const                              { return dpage.HasHistory(); }
 
-    Terminal&   SetHistorySize(int sz)                          { dpage.SetHistorySize(sz); return *this; }
-    int         GetHistorySize() const                          { return dpage.GetHistorySize(); }
+    TerminalCtrl&   SetHistorySize(int sz)                          { dpage.SetHistorySize(sz); return *this; }
+    int             GetHistorySize() const                          { return dpage.GetHistorySize(); }
 
-    Terminal&   SetFont(Font f)                                 { font = f; Layout(); return *this; }
-    Font        GetFont() const                                 { return font; }
+    TerminalCtrl&   SetFont(Font f)                                 { font = f; Layout(); return *this; }
+    Font            GetFont() const                                 { return font; }
 
-    void        SetCharset(byte cs)                             { charset = ResolveCharset(cs); }
-    byte        GetCharset() const                              { return charset;    }
+    void            SetCharset(byte cs)                             { charset = ResolveCharset(cs); }
+    byte            GetCharset() const                              { return charset;    }
 
-    Terminal&   Ink(Color c)                                    { SetRefreshColor(COLOR_INK, c); return *this; }
-    Terminal&   Paper(Color c)                                  { SetRefreshColor(COLOR_PAPER, c); return *this; }
-    Terminal&   SelectionInk(Color c)                           { SetRefreshColor(COLOR_INK_SELECTED, c); return *this; }
-    Terminal&   SelectionPaper(Color c)                         { SetRefreshColor(COLOR_PAPER_SELECTED, c); return *this; }
+    TerminalCtrl&   Ink(Color c)                                    { SetRefreshColor(COLOR_INK, c); return *this; }
+    TerminalCtrl&   Paper(Color c)                                  { SetRefreshColor(COLOR_PAPER, c); return *this; }
+    TerminalCtrl&   SelectionInk(Color c)                           { SetRefreshColor(COLOR_INK_SELECTED, c); return *this; }
+    TerminalCtrl&   SelectionPaper(Color c)                         { SetRefreshColor(COLOR_PAPER_SELECTED, c); return *this; }
 
-    Terminal&   SetColor(int i, Color c)                        { colortable[i] = c; return *this; }
-    void        SetRefreshColor(int i, Color c)                 { SetColor(i, c); Refresh(); }
-    Color       GetColor(int i) const                           { return colortable[i]; }
+    TerminalCtrl&   SetColor(int i, Color c)                        { colortable[i] = c; return *this; }
+    void            SetRefreshColor(int i, Color c)                 { SetColor(i, c); Refresh(); }
+    Color           GetColor(int i) const                           { return colortable[i]; }
 
-    Terminal&   DynamicColors(bool b = true)                    { dynamiccolors = b; return *this; }
-    Terminal&   NoDynamicColors()                               { return DynamicColors(false); }
-    bool        HasDynamicColors() const                        { return dynamiccolors; }
+    TerminalCtrl&   DynamicColors(bool b = true)                    { dynamiccolors = b; return *this; }
+    TerminalCtrl&   NoDynamicColors()                               { return DynamicColors(false); }
+    bool            HasDynamicColors() const                        { return dynamiccolors; }
 
-    Terminal&   LightColors(bool b = true)                      { lightcolors = b; Refresh(); return *this; }
-    Terminal&   NoLightColors()                                 { return LightColors(false); }
-    bool        HasLightColors() const                          { return lightcolors; }
+    TerminalCtrl&   LightColors(bool b = true)                      { lightcolors = b; Refresh(); return *this; }
+    TerminalCtrl&   NoLightColors()                                 { return LightColors(false); }
+    bool            HasLightColors() const                          { return lightcolors; }
 
-    Terminal&   AdjustColors(bool b = true)                     { adjustcolors = b; Refresh(); return *this; }
-    Terminal&   NoAdjustColors()                                { return AdjustColors(false); }
-    bool        HasAdjustedColors() const                       { return adjustcolors; }
+    TerminalCtrl&   AdjustColors(bool b = true)                     { adjustcolors = b; Refresh(); return *this; }
+    TerminalCtrl&   NoAdjustColors()                                { return AdjustColors(false); }
+    bool            HasAdjustedColors() const                       { return adjustcolors; }
 
-    Terminal&   ResetColors();
+    TerminalCtrl&   ResetColors();
 
-    Terminal&   IntensifyBoldText(bool b = true)                { intensify = b; Refresh(); return *this; }
-    Terminal&   NoIntensifyBoldText()                           { return IntensifyBoldText(false); }
-    bool        HasIntensifiedBoldText() const                  { return intensify; }
+    TerminalCtrl&   IntensifyBoldText(bool b = true)                { intensify = b; Refresh(); return *this; }
+    TerminalCtrl&   NoIntensifyBoldText()                           { return IntensifyBoldText(false); }
+    bool            HasIntensifiedBoldText() const                  { return intensify; }
 
-    Terminal&   BlinkingText(bool b = true)                     { blinkingtext = b; RefreshDisplay(); return *this; }
-    Terminal&   NoBlinkingText()                                { return BlinkingText(false); }
-    bool        HasBlinkingText() const                         { return blinkingtext; }
+    TerminalCtrl&   BlinkingText(bool b = true)                     { blinkingtext = b; RefreshDisplay(); return *this; }
+    TerminalCtrl&   NoBlinkingText()                                { return BlinkingText(false); }
+    bool            HasBlinkingText() const                         { return blinkingtext; }
 
-    Terminal&   BlinkInterval(int ms)                           { blinkinterval = clamp(ms, 100, 60000); return *this; }
+    TerminalCtrl&   BlinkInterval(int ms)                           { blinkinterval = clamp(ms, 100, 60000); return *this; }
 
-    Terminal&   SetCursorStyle(int style, bool blink = true)    { caret.Set(style, blink); return *this;}
-    int         GetCursorStyle() const                          { return caret.GetStyle(); }
-    Terminal&   BlockCursor(bool blink = true)                  { caret.Block(blink); return *this; }
-    Terminal&   BeamCursor(bool blink = true)                   { caret.Beam(blink);  return *this; }
-    Terminal&   UnderlineCursor(bool blink = true)              { caret.Underline(blink); return *this; }
-    Terminal&   BlinkingCursor(bool b = true)                   { caret.Blink(b); return *this; }
-    Terminal&   NoBlinkingCursor()                              { return BlinkingCursor(false); }
-    bool        IsCursorBlinking() const                        { return caret.IsBlinking();    }
-    Terminal&   LockCursor(bool b = true)                       { caret.Lock(b);  return *this; }
-    Terminal&   UnlockCursor()                                  { caret.Unlock(); return *this; }
-    bool        IsCursorLocked() const                          { return caret.IsLocked();      }
+    TerminalCtrl&   SetCursorStyle(int style, bool blink = true)    { caret.Set(style, blink); return *this;}
+    int             GetCursorStyle() const                          { return caret.GetStyle(); }
+    TerminalCtrl&   BlockCursor(bool blink = true)                  { caret.Block(blink); return *this; }
+    TerminalCtrl&   BeamCursor(bool blink = true)                   { caret.Beam(blink);  return *this; }
+    TerminalCtrl&   UnderlineCursor(bool blink = true)              { caret.Underline(blink); return *this; }
+    TerminalCtrl&   BlinkingCursor(bool b = true)                   { caret.Blink(b); return *this; }
+    TerminalCtrl&   NoBlinkingCursor()                              { return BlinkingCursor(false); }
+    bool            IsCursorBlinking() const                        { return caret.IsBlinking();    }
+    TerminalCtrl&   LockCursor(bool b = true)                       { caret.Lock(b);  return *this; }
+    TerminalCtrl&   UnlockCursor()                                  { caret.Unlock(); return *this; }
+    bool            IsCursorLocked() const                          { return caret.IsLocked();      }
 
-    Terminal&   NoBackground(bool b = true)                     { nobackground = b; Transparent(b); Refresh(); return *this; }
-    bool        HasBackground() const                           { return !nobackground; }
+    TerminalCtrl&   NoBackground(bool b = true)                     { nobackground = b; Transparent(b); Refresh(); return *this; }
+    bool            HasBackground() const                           { return !nobackground; }
 
-    Terminal&   ShowSizeHint(bool b = true)                     { sizehint = b; return *this; }
-    Terminal&   HideSizeHint()                                  { return ShowSizeHint(false); }
+    TerminalCtrl&   ShowSizeHint(bool b = true)                     { sizehint = b; return *this; }
+    TerminalCtrl&   HideSizeHint()                                  { return ShowSizeHint(false); }
 
-    Terminal&   ShowScrollBar(bool b = true);
-    Terminal&   HideScrollBar()                                 { return ShowScrollBar(false);  }
-    Terminal&   SetScrollBarStyle(const ScrollBar::Style& s)    { sb.SetStyle(s); return *this; }
+    TerminalCtrl&   ShowScrollBar(bool b = true);
+    TerminalCtrl&   HideScrollBar()                                 { return ShowScrollBar(false);  }
+    TerminalCtrl&   SetScrollBarStyle(const ScrollBar::Style& s)    { sb.SetStyle(s); return *this; }
 
-    Terminal&   AlternateScroll(bool b = true)                  { alternatescroll = b; return *this; }
-    Terminal&   NoAlternateScroll()                             { return AlternateScroll(false); }
-    bool        HasAlternateScroll() const                      { return alternatescroll; }
+    TerminalCtrl&   AlternateScroll(bool b = true)                  { alternatescroll = b; return *this; }
+    TerminalCtrl&   NoAlternateScroll()                             { return AlternateScroll(false); }
+    bool            HasAlternateScroll() const                      { return alternatescroll; }
 
-    Terminal&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
+    TerminalCtrl&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
 
-    Terminal&   AutoHideMouseCursor(bool b = true)              { hidemousecursor = b; return *this; }
-    Terminal&   NoAutoHideMouseCurosr()                         { return AutoHideMouseCursor(false); }
-    bool        IsMouseCursorAutoHidden() const                 { return hidemousecursor; }
+    TerminalCtrl&   AutoHideMouseCursor(bool b = true)              { hidemousecursor = b; return *this; }
+    TerminalCtrl&   NoAutoHideMouseCurosr()                         { return AutoHideMouseCursor(false); }
+    bool            IsMouseCursorAutoHidden() const                 { return hidemousecursor; }
 
-    Terminal&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
-    Terminal&   NoKeyNavigation()                               { return KeyNavigation(false); }
-    bool        HasKeyNavigation() const                        { return keynavigation; }
+    TerminalCtrl&   KeyNavigation(bool b = true)                    { keynavigation = b; return *this; }
+    TerminalCtrl&   NoKeyNavigation()                               { return KeyNavigation(false); }
+    bool            HasKeyNavigation() const                        { return keynavigation; }
 
-    Terminal&   InlineImages(bool b = true)                     { sixelimages = jexerimages = iterm2images = b; return *this; }
-    Terminal&   NoInlineImages()                                { return InlineImages(false);  }
-    bool        HasInlineImages() const                         { return sixelimages || jexerimages || iterm2images; }
+    TerminalCtrl&   InlineImages(bool b = true)                     { sixelimages = jexerimages = iterm2images = b; return *this; }
+    TerminalCtrl&   NoInlineImages()                                { return InlineImages(false);  }
+    bool            HasInlineImages() const                         { return sixelimages || jexerimages || iterm2images; }
 
-    Terminal&   SixelGraphics(bool b = true)                    { sixelimages = b; return *this; }
-    Terminal&   NoSixelGraphics()                               { return SixelGraphics(false); }
-    bool        HasSixelGraphics() const                        { return sixelimages; }
+    TerminalCtrl&   SixelGraphics(bool b = true)                    { sixelimages = b; return *this; }
+    TerminalCtrl&   NoSixelGraphics()                               { return SixelGraphics(false); }
+    bool            HasSixelGraphics() const                        { return sixelimages; }
 
-    Terminal&   JexerGraphics(bool b = true)                    { jexerimages = b; return *this; }
-    Terminal&   NoJexerGraphics()                               { return JexerGraphics(false); }
-    bool        HasJexerGraphics() const                        { return jexerimages; }
+    TerminalCtrl&   JexerGraphics(bool b = true)                    { jexerimages = b; return *this; }
+    TerminalCtrl&   NoJexerGraphics()                               { return JexerGraphics(false); }
+    bool            HasJexerGraphics() const                        { return jexerimages; }
 
-    Terminal&   iTerm2Graphics(bool b = true)                   { iterm2images = b; return *this; }
-    Terminal&   NoiTerm2Graphics(bool b = true)                 { return iTerm2Graphics(false); }
-    bool        HasiTerm2Graphics() const                       { return iterm2images; }
+    TerminalCtrl&   iTerm2Graphics(bool b = true)                   { iterm2images = b; return *this; }
+    TerminalCtrl&   NoiTerm2Graphics(bool b = true)                 { return iTerm2Graphics(false); }
+    bool            HasiTerm2Graphics() const                       { return iterm2images; }
 
-    Terminal&   Hyperlinks(bool b = true)                       { hyperlinks = b; return *this; }
-    Terminal&   NoHyperlinks()                                  { return Hyperlinks(false);     }
-    bool        HasHyperlinks() const                           { return hyperlinks; }
+    TerminalCtrl&   Hyperlinks(bool b = true)                       { hyperlinks = b; return *this; }
+    TerminalCtrl&   NoHyperlinks()                                  { return Hyperlinks(false);     }
+    bool            HasHyperlinks() const                           { return hyperlinks; }
 
-    Terminal&   ReverseWrap(bool b = true)                      { XTrewrapm((reversewrap = b)); return *this; }
-    Terminal&   NoReverseWrap()                                 { return ReverseWrap(false); }
-    bool        HasReverseWrap() const                          { return reversewrap; }
+    TerminalCtrl&   ReverseWrap(bool b = true)                      { XTrewrapm((reversewrap = b)); return *this; }
+    TerminalCtrl&   NoReverseWrap()                                 { return ReverseWrap(false); }
+    bool            HasReverseWrap() const                          { return reversewrap; }
 
-    Terminal&   DelayedRefresh(bool b = true)                   { delayedrefresh = b; return *this; }
-    Terminal&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
-    bool        IsDelayingRefresh() const                       { return delayedrefresh; }
+    TerminalCtrl&   DelayedRefresh(bool b = true)                   { delayedrefresh = b; return *this; }
+    TerminalCtrl&   NoDelayedRefresh()                              { return DelayedRefresh(false); }
+    bool            IsDelayingRefresh() const                       { return delayedrefresh; }
 
-    Terminal&   LazyResize(bool b = true)                       { lazyresize = b; return *this; }
-    Terminal&   NoLazyResize()                                  { return LazyResize(false);     }
-    bool        IsLazyResizing() const                          { return lazyresize; }
+    TerminalCtrl&   LazyResize(bool b = true)                       { lazyresize = b; return *this; }
+    TerminalCtrl&   NoLazyResize()                                  { return LazyResize(false);     }
+    bool            IsLazyResizing() const                          { return lazyresize; }
 
-    Terminal&   WindowOps(bool b = true)                        { windowactions = windowreports = b; return *this; }
-    Terminal&   NoWindowOps()                                   { return WindowOps(false);      }
-    bool        HasWindowOps() const                            { return windowactions || windowreports; }
+    TerminalCtrl&   WindowOps(bool b = true)                        { windowactions = windowreports = b; return *this; }
+    TerminalCtrl&   NoWindowOps()                                   { return WindowOps(false);      }
+    bool            HasWindowOps() const                            { return windowactions || windowreports; }
 
-    Terminal&   WindowReports(bool b = true)                    { windowreports = b; return *this; }
-    Terminal&   NoWindowReports()                               { return WindowReports(false);  }
-    bool        HasWindowReports() const                        { return windowreports; }
+    TerminalCtrl&   WindowReports(bool b = true)                    { windowreports = b; return *this; }
+    TerminalCtrl&   NoWindowReports()                               { return WindowReports(false);  }
+    bool            HasWindowReports() const                        { return windowreports; }
 
-    Terminal&   WindowActions(bool b = true)                    { windowactions = b; return *this; }
-    Terminal&   NoWindowActions()                               { return WindowActions(false);  }
-    bool        HasWindowActions() const                        { return windowactions; }
+    TerminalCtrl&   WindowActions(bool b = true)                    { windowactions = b; return *this; }
+    TerminalCtrl&   NoWindowActions()                               { return WindowActions(false);  }
+    bool            HasWindowActions() const                        { return windowactions; }
 
-    Terminal&   PermitClipboardAccess(bool b = true)            { return PermitClipboardRead(b).PermitClipboardWrite(b); }
-    Terminal&   ForbidClipboardAccess()                         { clipaccess = CLIP_NONE;  return *this; }
-    bool        IsClipboardAccessPermitted() const              { return clipaccess != CLIP_NONE; }
+    TerminalCtrl&   PermitClipboardAccess(bool b = true)            { return PermitClipboardRead(b).PermitClipboardWrite(b); }
+    TerminalCtrl&   ForbidClipboardAccess()                         { clipaccess = CLIP_NONE;  return *this; }
+    bool            IsClipboardAccessPermitted() const              { return clipaccess != CLIP_NONE; }
 
-    Terminal&   PermitClipboardRead(bool b = true)              { if(b) clipaccess |= CLIP_READ; else clipaccess &= ~CLIP_READ; return *this; }
-    Terminal&   ForbidClipboardRead()                           { return PermitClipboardRead(false); }
-    bool        IsClipboardReadPermitted() const                { return clipaccess & CLIP_READ; }
+    TerminalCtrl&   PermitClipboardRead(bool b = true)              { if(b) clipaccess |= CLIP_READ; else clipaccess &= ~CLIP_READ; return *this; }
+    TerminalCtrl&   ForbidClipboardRead()                           { return PermitClipboardRead(false); }
+    bool            IsClipboardReadPermitted() const                { return clipaccess & CLIP_READ; }
 
-    Terminal&   PermitClipboardWrite(bool b = true)             { if(b) clipaccess |= CLIP_WRITE; else clipaccess &= ~CLIP_WRITE; return *this; }
-    Terminal&   ForbidClipboardWrite()                          { return PermitClipboardWrite(false); }
-    bool        IsClipboardWritePermitted() const               { return clipaccess & CLIP_WRITE; }
+    TerminalCtrl&   PermitClipboardWrite(bool b = true)             { if(b) clipaccess |= CLIP_WRITE; else clipaccess &= ~CLIP_WRITE; return *this; }
+    TerminalCtrl&   ForbidClipboardWrite()                          { return PermitClipboardWrite(false); }
+    bool            IsClipboardWritePermitted() const               { return clipaccess & CLIP_WRITE; }
  
-    Terminal&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
-    const Display& GetImageDisplay() const                      { return *imgdisplay; }
+    TerminalCtrl&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
+    const Display&  GetImageDisplay() const                         { return *imgdisplay; }
 
-    Terminal&   UDK(bool b = true)                              { userdefinedkeys = b; return *this;  }
-    Terminal&   NoUDK()                                         { return UDK(false);     }
-    bool        HasUDK() const                                  { return userdefinedkeys; }
-    Terminal&   LockUDK(bool b = true)                          { userdefinedkeyslocked = b;  return *this; }
-    Terminal&   UnlockUDK()                                     { return LockUDK(false); }
-    bool        IsUDKLocked() const                             { return userdefinedkeyslocked; }
+    TerminalCtrl&   UDK(bool b = true)                              { userdefinedkeys = b; return *this;  }
+    TerminalCtrl&   NoUDK()                                         { return UDK(false);     }
+    bool            HasUDK() const                                  { return userdefinedkeys; }
+    TerminalCtrl&   LockUDK(bool b = true)                          { userdefinedkeyslocked = b;  return *this; }
+    TerminalCtrl&   UnlockUDK()                                     { return LockUDK(false); }
+    bool            IsUDKLocked() const                             { return userdefinedkeyslocked; }
 
-    Size        GetFontSize() const;
-    Size        GetPageSize() const;
+    Size            GetFontSize() const;
+    Size            GetPageSize() const;
 
-    Size        PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetFontSize()); }
-    Size        PageSizeToClient(int col, int row) const        { return PageSizeToClient(Size(col, row)); }
+    Size            PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetFontSize()); }
+    Size            PageSizeToClient(int col, int row) const        { return PageSizeToClient(Size(col, row)); }
 
-    Size        GetMinSize() const override                     { return PageSizeToClient(Size(2, 2)); }
-    Size        GetStdSize() const override                     { return PageSizeToClient(Size(80, 24)); }
-    Size        GetMaxSize() const override                     { return PageSizeToClient(Size(132, 24)); }
+    Size            GetMinSize() const override                     { return PageSizeToClient(Size(2, 2)); }
+    Size            GetStdSize() const override                     { return PageSizeToClient(Size(80, 24)); }
+    Size            GetMaxSize() const override                     { return PageSizeToClient(Size(132, 24)); }
 
-    void        Copy()                                          { Copy(GetSelectedText()); }
-    void        Copy(const WString& s);
-    void        Paste()                                         { DragAndDrop(Null, Clipboard()); }
-    void        Paste(const WString& s, bool filter = false);
-    void        SelectAll(bool history = false);
-    bool        IsSelection() const                             { return !IsNull(anchor) && anchor != selpos && seltype != SEL_NONE; }
+    void            Copy()                                          { Copy(GetSelectedText()); }
+    void            Copy(const WString& s);
+    void            Paste()                                         { DragAndDrop(Null, Clipboard()); }
+    void            Paste(const WString& s, bool filter = false);
+    void            SelectAll(bool history = false);
+    bool            IsSelection() const                             { return !IsNull(anchor) && anchor != selpos && seltype != SEL_NONE; }
 
-    String      GetSelectionData(const String& fmt) const override;
+    String          GetSelectionData(const String& fmt) const override;
     
-    void        StdBar(Bar& menu);
-    void        EditBar(Bar& menu);
-    void        LinksBar(Bar& menu);
-    void        ImagesBar(Bar& menu);
-    void        OptionsBar(Bar& menu);
+    void            StdBar(Bar& menu);
+    void            EditBar(Bar& menu);
+    void            LinksBar(Bar& menu);
+    void            ImagesBar(Bar& menu);
+    void            OptionsBar(Bar& menu);
 
-    void        Layout() override                               { SyncSize(true); SyncSb(); }
+    void            Layout() override                               { SyncSize(true); SyncSb(); }
 
-    void        Paint(Draw& w)  override                        { Paint0(w); }
-    void        PaintPage(Draw& w)                              { Paint0(w, true); }
+    void            Paint(Draw& w)  override                        { Paint0(w); }
+    void            PaintPage(Draw& w)                              { Paint0(w, true); }
 
-    bool         Key(dword key, int count) override;
-    virtual bool VTKey(dword key, int count);
-    virtual bool UDKey(dword key, int count);
-    virtual bool NavKey(dword key, int count);
+    bool            Key(dword key, int count) override;
+    virtual bool    VTKey(dword key, int count);
+    virtual bool    UDKey(dword key, int count);
+    virtual bool    NavKey(dword key, int count);
 
-    Terminal&   MetaEscapesKeys(bool b = true)                  { if(b) metakeyflags |= MKEY_ESCAPE; else metakeyflags &= ~MKEY_ESCAPE; return *this; }
-    Terminal&   MetaShiftsKeys(bool b = true)                   { if(b) metakeyflags |= MKEY_SHIFT;  else metakeyflags &= ~MKEY_SHIFT;  return *this; }
-    Terminal&   MetaKeyDoesNothing()                            { modes.Set(XTALTESCM, false); metakeyflags = MKEY_NONE; return *this; }
+    TerminalCtrl&   MetaEscapesKeys(bool b = true)                  { if(b) metakeyflags |= MKEY_ESCAPE; else metakeyflags &= ~MKEY_ESCAPE; return *this; }
+    TerminalCtrl&   MetaShiftsKeys(bool b = true)                   { if(b) metakeyflags |= MKEY_SHIFT;  else metakeyflags &= ~MKEY_SHIFT;  return *this; }
+    TerminalCtrl&   MetaKeyDoesNothing()                            { modes.Set(XTALTESCM, false); metakeyflags = MKEY_NONE; return *this; }
 
-    void        LeftDown(Point pt, dword keyflags) override;
-    void        LeftUp(Point pt, dword keyflags) override;
-    void        LeftDrag(Point pt, dword keyflags) override;
-    void        LeftDouble(Point pt, dword keyflags) override;
-    void        LeftTriple(Point pt, dword keyflags) override;
-    void        MiddleDown(Point pt, dword keyflags) override;
-    void        MiddleUp(Point pt, dword keyflags) override;
-    void        RightDown(Point pt, dword keyflags) override;
-    void        RightUp(Point pt, dword keyflags) override;
-    void        MouseMove(Point pt, dword keyflags) override;
-    void        MouseWheel(Point pt, int zdelta, dword keyflags) override;
-    Image       MouseEvent(int event, Point pt, int zdelta, dword keyflags) override;
-    void        VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta = 0);
+    void            LeftDown(Point pt, dword keyflags) override;
+    void            LeftUp(Point pt, dword keyflags) override;
+    void            LeftDrag(Point pt, dword keyflags) override;
+    void            LeftDouble(Point pt, dword keyflags) override;
+    void            LeftTriple(Point pt, dword keyflags) override;
+    void            MiddleDown(Point pt, dword keyflags) override;
+    void            MiddleUp(Point pt, dword keyflags) override;
+    void            RightDown(Point pt, dword keyflags) override;
+    void            RightUp(Point pt, dword keyflags) override;
+    void            MouseMove(Point pt, dword keyflags) override;
+    void            MouseWheel(Point pt, int zdelta, dword keyflags) override;
+    Image           MouseEvent(int event, Point pt, int zdelta, dword keyflags) override;
+    void            VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta = 0);
 
-    bool        IsMouseOverImage() const                        { Point pt = GetMouseViewPos(); return IsMouseOverImage(ClientToPagePos(pt)); }
-    bool        IsMouseOverHyperlink() const                    { Point pt = GetMouseViewPos(); return IsMouseOverHyperlink(ClientToPagePos(pt)); }
+    bool            IsMouseOverImage() const                        { Point pt = GetMouseViewPos(); return IsMouseOverImage(ClientToPagePos(pt)); }
+    bool            IsMouseOverHyperlink() const                    { Point pt = GetMouseViewPos(); return IsMouseOverHyperlink(ClientToPagePos(pt)); }
 
-    bool        IsTracking() const;
+    bool            IsTracking() const;
 
-    const VTCell& GetCellAtMousePos() const                     { Point pt = GetMouseViewPos(); return page->FetchCell(ClientToPagePos(pt));; }
-    const VTCell& GetCellAtCursorPos() const                    { return page->GetCell(); };
+    const VTCell&   GetCellAtMousePos() const                       { Point pt = GetMouseViewPos(); return page->FetchCell(ClientToPagePos(pt));; }
+    const VTCell&   GetCellAtCursorPos() const                      { return page->GetCell(); };
 
-    String      GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
-    Image       GetInlineImage()                                { return GetInlineImage(mousepos, true);  }
+    String          GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
+    Image           GetInlineImage()                                { return GetInlineImage(mousepos, true);  }
 
-    void        DragAndDrop(Point pt, PasteClip& d) override;
+    void            DragAndDrop(Point pt, PasteClip& d) override;
 
-    void        GotFocus() override                             { if(modes[XTFOCUSM]) PutCSI('I'); Refresh(); }
-    void        LostFocus() override                            { if(modes[XTFOCUSM]) PutCSI('O'); Refresh(); }
+    void            GotFocus() override                             { if(modes[XTFOCUSM]) PutCSI('I'); Refresh(); }
+    void            LostFocus() override                            { if(modes[XTFOCUSM]) PutCSI('O'); Refresh(); }
 
-    void        RefreshDisplay();
+    void            RefreshDisplay();
 
-    Image       CursorImage(Point p, dword keyflags) override;
+    Image           CursorImage(Point p, dword keyflags) override;
 
-    void        AnswerBackMessage(const String& s)              { answerback = s; }
+    void            AnswerBackMessage(const String& s)              { answerback = s; }
 
-    void        State(int reason) override;
+    void            State(int reason) override;
 
-    void        Serialize(Stream& s) override;
-    void        Jsonize(JsonIO& jio) override;
-    void        Xmlize(XmlIO& xio) override;
+    void            Serialize(Stream& s) override;
+    void            Jsonize(JsonIO& jio) override;
+    void            Xmlize(XmlIO& xio) override;
 
-    static void ClearImageCache();
-    static void SetImageCacheMaxSize(int maxsize, int maxcount);
+    static void     ClearImageCache();
+    static void     SetImageCacheMaxSize(int maxsize, int maxcount);
 
-    static void ClearHyperlinkCache();
-    static void SetHyperlinkCacheMaxSize(int maxcount);
+    static void     ClearHyperlinkCache();
+    static void     SetHyperlinkCacheMaxSize(int maxcount);
 
 private:
     void        InitParser(VTInStream& vts);
@@ -650,26 +650,26 @@ private:
     VTPage&     GetAlternatePage()                              { return apage; }
     bool        IsAlternatePage() const                         { return page == &apage; }
 
-    Terminal&   Echo(const String& s);
-    Terminal&   Put0(const String& s, int cnt = 1);
-    Terminal&   Put0(int c, int cnt = 1);
-    Terminal&   Put(const WString& s, int cnt = 1);
-    Terminal&   Put(int c, int cnt = 1);
-    Terminal&   PutRaw(const String& s, int cnt = 1);
-    Terminal&   PutESC(const String& s, int cnt = 1);
-    Terminal&   PutESC(int c, int cnt = 1);
-    Terminal&   PutCSI(const String& s, int cnt = 1);
-    Terminal&   PutCSI(int c, int cnt = 1);
-    Terminal&   PutOSC(const String& s, int cnt = 1);
-    Terminal&   PutOSC(int c, int cnt = 1);
-    Terminal&   PutDCS(const String& s, int cnt = 1);
-    Terminal&   PutDCS(int c, int cnt = 1);
-    Terminal&   PutSS2(const String& s, int cnt = 1);
-    Terminal&   PutSS2(int c, int cnt = 1);
-    Terminal&   PutSS3(const String& s, int cnt = 1);
-    Terminal&   PutSS3(int c, int cnt = 1);
-    Terminal&   PutEncoded(const WString& s, bool noctl = false);
-    Terminal&   PutEol();
+    TerminalCtrl&   Echo(const String& s);
+    TerminalCtrl&   Put0(const String& s, int cnt = 1);
+    TerminalCtrl&   Put0(int c, int cnt = 1);
+    TerminalCtrl&   Put(const WString& s, int cnt = 1);
+    TerminalCtrl&   Put(int c, int cnt = 1);
+    TerminalCtrl&   PutRaw(const String& s, int cnt = 1);
+    TerminalCtrl&   PutESC(const String& s, int cnt = 1);
+    TerminalCtrl&   PutESC(int c, int cnt = 1);
+    TerminalCtrl&   PutCSI(const String& s, int cnt = 1);
+    TerminalCtrl&   PutCSI(int c, int cnt = 1);
+    TerminalCtrl&   PutOSC(const String& s, int cnt = 1);
+    TerminalCtrl&   PutOSC(int c, int cnt = 1);
+    TerminalCtrl&   PutDCS(const String& s, int cnt = 1);
+    TerminalCtrl&   PutDCS(int c, int cnt = 1);
+    TerminalCtrl&   PutSS2(const String& s, int cnt = 1);
+    TerminalCtrl&   PutSS2(int c, int cnt = 1);
+    TerminalCtrl&   PutSS3(const String& s, int cnt = 1);
+    TerminalCtrl&   PutSS3(int c, int cnt = 1);
+    TerminalCtrl&   PutEncoded(const WString& s, bool noctl = false);
+    TerminalCtrl&   PutEol();
 
     void        Flush();
     void        CancelOut()                                     { out.Clear(); }
@@ -817,8 +817,8 @@ public:
 
     void            SetLegacyCharsets(GSets newgsets)           { gsets = newgsets;  }
     const GSets&    GetLegacyCharsets() const                   { return gsets;      }
-    Terminal&       LegacyCharsets(bool b = true)               { legacycharsets = b; return *this; }
-    Terminal&       NoLegacyCharsets()                          { return LegacyCharsets(false); }
+    TerminalCtrl&   LegacyCharsets(bool b = true)               { legacycharsets = b; return *this; }
+    TerminalCtrl&   NoLegacyCharsets()                          { return LegacyCharsets(false); }
 
 private:
     byte            ResolveVTCharset(byte cs)                   { return ResolveCharset(legacycharsets ? cs : charset); }
@@ -1102,6 +1102,10 @@ extern byte CHARSET_DEC_VT52;   // DEC VT52 graphics character set.
 extern byte CHARSET_DEC_DCS;    // DEC VT100+ line drawing character set.
 extern byte CHARSET_DEC_MCS;    // DEC VT200+ multinational character set.
 extern byte CHARSET_DEC_TCS;    // DEC VT300+ technical character set.
+
+// DEPRECATED classname
+[[deprecated("\'Terminal\' alias will be removed with the 2021.1 (v0.5) release, plesae use \'TerminalCtrl\' instead.")]]
+typedef TerminalCtrl Terminal;
 
 INITIALIZE(DECGSets);
 }

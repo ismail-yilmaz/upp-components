@@ -1,6 +1,6 @@
 #include "Terminal.h"
 
-#define LLOG(x)	   // RLOG("Terminal: " << x)
+#define LLOG(x)	   // RLOG("TerminalCtrl: " << x)
 #define LTIMING(x) // RTIMING(x)
 
 namespace Upp {
@@ -162,7 +162,7 @@ public:
 	}
 };
 
-void Terminal::Paint0(Draw& w, bool print)
+void TerminalCtrl::Paint0(Draw& w, bool print)
 {
 	GuiLock __;
 
@@ -179,7 +179,7 @@ void Terminal::Paint0(Draw& w, bool print)
 	sVTCellRenderer tr(w, fnt, blinking);
 	sVTRectRenderer rr(w, bc, nobackground);
 
-	LTIMING("Terminal::Paint");
+	LTIMING("TerminalCtrl::Paint");
 
 	if(!nobackground)
 		w.DrawRect(wsz, bc);
@@ -248,7 +248,7 @@ void Terminal::Paint0(Draw& w, bool print)
 }
 
 
-void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
+void TerminalCtrl::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size fsz)
 {
 	// TODO: Move this to cell renderer.
 
@@ -267,9 +267,9 @@ void Terminal::AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell,
 	parts.Add(MakeTuple(id, coords, ir));
 }
 
-void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
+void TerminalCtrl::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 {
-	LTIMING("Terminal::PaintImages");
+	LTIMING("TerminalCtrl::PaintImages");
 
 	Color ink, paper;
 	SetInkAndPaperColor(GetAttrs(), ink, paper);
@@ -292,7 +292,7 @@ void Terminal::PaintImages(Draw& w, ImageParts& parts, const Size& fsz)
 	parts.Clear();
 }
 
-void Terminal::RenderImage(const ImageString& imgs, bool scroll)
+void TerminalCtrl::RenderImage(const ImageString& imgs, bool scroll)
 {
 	bool encoded = imgs.encoded; // Sixel images are not base64 encoded.
 
@@ -301,7 +301,7 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 		return;
 	}
 
-	LTIMING("Terminal::RenderImage");
+	LTIMING("TerminalCtrl::RenderImage");
 
 	Size fsz = GetFontSize();
 	dword id = FoldHash(CombineHash(imgs, fsz));
@@ -315,20 +315,20 @@ void Terminal::RenderImage(const ImageString& imgs, bool scroll)
 // Shared image data cache support.
 
 static StaticMutex sImageCacheLock;
-static LRUCache<Terminal::InlineImage> sInlineImagesCache;
+static LRUCache<TerminalCtrl::InlineImage> sInlineImagesCache;
 static int sCachedImageMaxSize =  1024 * 1024 * 4 * 128;
 static int sCachedImageMaxCount =  256000;
 
-String Terminal::InlineImageMaker::Key() const
+String TerminalCtrl::InlineImageMaker::Key() const
 {
 	StringBuffer h;
 	RawCat(h, id);
 	return String(h); // Make MSVC happy...
 }
 
-int Terminal::InlineImageMaker::Make(InlineImage& imagedata) const
+int TerminalCtrl::InlineImageMaker::Make(InlineImage& imagedata) const
 {
-	LTIMING("Terminal::ImageDataMaker::Make");
+	LTIMING("TerminalCtrl::ImageDataMaker::Make");
 
 	auto ToCellSize = [=](Sizef sz) -> Size
 	{
@@ -370,31 +370,31 @@ int Terminal::InlineImageMaker::Make(InlineImage& imagedata) const
 	return imagedata.image.GetLength() * 4;
 }
 
-const Terminal::InlineImage& Terminal::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
+const TerminalCtrl::InlineImage& TerminalCtrl::GetCachedImageData(dword id, const ImageString& imgs, const Size& fsz)
 {
 	Mutex::Lock __(sImageCacheLock);
 
-	LTIMING("Terminal::GetCachedImageData");
+	LTIMING("TerminalCtrl::GetCachedImageData");
 
 	InlineImageMaker im(id, imgs, fsz);
 	sInlineImagesCache.Shrink(sCachedImageMaxSize, sCachedImageMaxCount);
 	return sInlineImagesCache.Get(im);
 }
 
-void Terminal::ClearImageCache()
+void TerminalCtrl::ClearImageCache()
 {
 	Mutex::Lock __(sImageCacheLock);
 	sInlineImagesCache.Clear();
 }
 
-void Terminal::SetImageCacheMaxSize(int maxsize, int maxcount)
+void TerminalCtrl::SetImageCacheMaxSize(int maxsize, int maxcount)
 {
 	Mutex::Lock __(sImageCacheLock);
 	sCachedImageMaxSize  = max(1, maxsize);
 	sCachedImageMaxCount = max(1, maxcount);
 }
 
-void Terminal::RenderHyperlink(const Value& uri)
+void TerminalCtrl::RenderHyperlink(const Value& uri)
 {
 	GetCachedHyperlink(FoldHash(GetHashValue(uri)), uri);
 }
@@ -406,39 +406,39 @@ static LRUCache<String> sLinkCache;
 static int sCachedLinkMaxSize = 2084 * 100000;
 static int sCachedLinkMaxCount = 100000;
 
-String Terminal::HyperlinkMaker::Key() const
+String TerminalCtrl::HyperlinkMaker::Key() const
 {
 	StringBuffer h;
 	RawCat(h, id);
 	return String(h); // Make MSVC happy...
 }
 
-int Terminal::HyperlinkMaker::Make(String& link) const
+int TerminalCtrl::HyperlinkMaker::Make(String& link) const
 {
-	LTIMING("Terminal::HyperlinkMaker::Make");
+	LTIMING("TerminalCtrl::HyperlinkMaker::Make");
 
 	link = url;
 	return link.GetLength();
 }
 
-String Terminal::GetCachedHyperlink(dword id, const Value& data)
+String TerminalCtrl::GetCachedHyperlink(dword id, const Value& data)
 {
 	Mutex::Lock __(sLinkCacheLock);
 
-	LTIMING("Terminal::GetCachedHyperlink");
+	LTIMING("TerminalCtrl::GetCachedHyperlink");
 
 	HyperlinkMaker hm(id, data.ToString());
 	sLinkCache.Shrink(sCachedLinkMaxSize, sCachedLinkMaxCount);
 	return sLinkCache.Get(hm);
 }
 
-void Terminal::ClearHyperlinkCache()
+void TerminalCtrl::ClearHyperlinkCache()
 {
 	Mutex::Lock __(sLinkCacheLock);
 	sLinkCache.Clear();
 }
 
-void Terminal::SetHyperlinkCacheMaxSize(int maxcount)
+void TerminalCtrl::SetHyperlinkCacheMaxSize(int maxcount)
 {
 	Mutex::Lock __(sLinkCacheLock);
 	sCachedLinkMaxSize  = max(2084, maxcount * 2084);
@@ -451,13 +451,13 @@ class NormalImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		const auto& im = q.To<Terminal::InlineImage>();
+		const auto& im = q.To<TerminalCtrl::InlineImage>();
 		if(!IsNull(im.image))
 			w.DrawImage(r.left, r.top, im.image, im.paintrect);
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		const auto& im = q.To<Terminal::InlineImage>();
+		const auto& im = q.To<TerminalCtrl::InlineImage>();
 		return im.image.GetSize();
 	}
 };
@@ -468,7 +468,7 @@ class ScaledImageCellDisplayCls : public Display {
 public:
 	virtual void Paint(Draw& w, const Rect& r, const Value& q, Color ink, Color paper, dword style) const
 	{
-		const auto& im = q.To<Terminal::InlineImage>();
+		const auto& im = q.To<TerminalCtrl::InlineImage>();
 		if(!IsNull(im.image)) {
 			Size csz = im.cellsize;
 			Size fsz = im.fontsize;
@@ -477,7 +477,7 @@ public:
 	}
 	virtual Size GetStdSize(const Value& q) const
 	{
-		const auto& im = q.To<Terminal::InlineImage>();
+		const auto& im = q.To<TerminalCtrl::InlineImage>();
 		return im.image.GetSize();
 	}
 };

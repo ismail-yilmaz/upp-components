@@ -1,4 +1,4 @@
-topic "Terminal";
+topic "TerminalCtrl";
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
@@ -11,10 +11,10 @@ topic "Terminal";
 [b42;a42;2 $$10,10#45413000475342174754091244180557:text]
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
-[ {{10000@(113.42.0) [s0; [*@7;4 Terminal]]}}&]
+[ {{10000@(113.42.0) [s0; [*@7;4 TerminalCtrl]]}}&]
 [s0;%- &]
-[s1;:Upp`:`:Terminal`:`:class:%- [@(0.0.255)3 class][3 _][*3 Terminal][3 _:_][@(0.0.255)3 public
-][3 _][*@3;3 Ctrl]&]
+[s1;:Upp`:`:TerminalCtrl`:`:class:%- [@(0.0.255)3 class][3 _][*3 TerminalCtrl][3 _:_][@(0.0.255)3 p
+ublic][3 _][*@3;3 Ctrl]&]
 [s0;%- &]
 [s2; 
 @@rawimage:2000&1545
@@ -30,28 +30,28 @@ window events.&]
 [s3; &]
 [s0;%- enum_[* ConformanceLevels]&]
 [s2;b17;a17; Constants used in device emulation level settings.&]
-[s7;i1120;a17;:Terminal`:`:LEVEL`_0:~~~.1408~576; [%-*C@3 LEVEL`_0]-|VT52 
+[s7;i1120;a17;:TerminalCtrl`:`:LEVEL`_0:~~~.1408~576; [%-*C@3 LEVEL`_0]-|VT52 
 mode..&]
-[s7;i1120;a17;:Terminal`:`:LEVEL`_1: [%-*C@3 LEVEL`_1]-|VT1xx mode.&]
-[s7;i1120;a17;:Terminal`:`:LEVEL`_2: [%-*C@3 LEVEL`_2]-|VT2xx mode.&]
-[s7;i1120;a17;:Terminal`:`:LEVEL`_3: [%-*C@3 LEVEL`_3]-|VT3xx mode.&]
-[s7;i1120;a17;:Terminal`:`:LEVEL`_4: [%-*C@3 LEVEL`_4]-|VT4xx mode. 
+[s7;i1120;a17;:TerminalCtrl`:`:LEVEL`_1: [%-*C@3 LEVEL`_1]-|VT1xx mode.&]
+[s7;i1120;a17;:TerminalCtrl`:`:LEVEL`_2: [%-*C@3 LEVEL`_2]-|VT2xx mode.&]
+[s7;i1120;a17;:TerminalCtrl`:`:LEVEL`_3: [%-*C@3 LEVEL`_3]-|VT3xx mode.&]
+[s7;i1120;a17;:TerminalCtrl`:`:LEVEL`_4: [%-*C@3 LEVEL`_4]-|VT4xx mode. 
 (Default)&]
-[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetLevel`(int`)^ S
+[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:SetLevel`(int`)^ S
 etLevel()] method.&]
 [s3; &]
 [s4; &]
 [s0;%- enum_[* LEDs]&]
 [s2;b17;a17; Constans used in DEC VT100 keyboard led emulation.&]
-[s7;i1120;a17;:Terminal`:`:LED`_NUMLOCK: [%-*C@3 LED`_NUMLOCK]-|Numlock 
+[s7;i1120;a17;:TerminalCtrl`:`:LED`_NUMLOCK: [%-*C@3 LED`_NUMLOCK]-|Numlock 
  toggled.&]
-[s7;i1120;a17;:Terminal`:`:LED`_CAPSLOCK: [%-*C@3 LED`_CAPSLOCK]-|Capslock 
+[s7;i1120;a17;:TerminalCtrl`:`:LED`_CAPSLOCK: [%-*C@3 LED`_CAPSLOCK]-|Capslock 
 toggled.&]
-[s7;i1120;a17;:Terminal`:`:LED`_SCRLOCK: [%-*C@3 LED`_SCRLOCK]-|ScrLock 
+[s7;i1120;a17;:TerminalCtrl`:`:LED`_SCRLOCK: [%-*C@3 LED`_SCRLOCK]-|ScrLock 
 toggled.&]
-[s7;i1120;a17;:Terminal`:`:LED`_ALL: [%-*C@3 LED`_ALL]-|All locks are 
-toggled.&]
-[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenLED^ W
+[s7;i1120;a17;:TerminalCtrl`:`:LED`_ALL: [%-*C@3 LED`_ALL]-|All locks 
+are toggled.&]
+[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenLED^ W
 henLED] event.&]
 [s3; &]
 [s4; &]
@@ -63,113 +63,114 @@ constant. Therefore they are not auto`-adjusted to OS theme.
 It is up to client code to change this behavior, if required. 
 Note that this rule does not apply to the Terminal ctrl`'s default 
 ink, paper, and selection colors.&]
-[s0;l288;i1120;b17;a17;O9;:Terminal`:`:COLOR`_BLACK:~~~.1408;%- [*C@3 COLOR`_BLACK]-|Bla
-ck&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_RED:%- [*C@3 COLOR`_RED]-|Red&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_GREEN:%- [*C@3 COLOR`_GREEN]-|Green&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_YELLOW:%- [*C@3 COLOR`_YELLOW]-|Yellow&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_BLUE:%- [*C@3 COLOR`_BLUE]-|Blue&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_MAGENTA:%- [*C@3 COLOR`_MAGENTA]-|Magenta&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_CYAN:%- [*C@3 COLOR`_CYAN]-|Cyan&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_WHITE:%- [*C@3 COLOR`_WHITE]-|White&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTBLACK:%- [*C@3 COLOR`_LTBLACK]-|Black&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTRED:%- [*C@3 COLOR`_LTRED]-|LtRed&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTGREEN:%- [*C@3 COLOR`_LTGREEN]-|LtGreen&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTYELLOW:%- [*C@3 COLOR`_LTYELLOW]-|LtYellow&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTBLUE:%- [*C@3 COLOR`_LTBLUE]-|LtBlue&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTMAGENTA:%- [*C@3 COLOR`_LTMAGENTA]-|LtMagenta&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTCYAN:%- [*C@3 COLOR`_LTCYAN]-|LtCyan&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_LTWHITE:%- [*C@3 COLOR`_LTWHITE]-|White&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_INK:%- [*C@3 COLOR`_INK]-|SColorText.&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_INK`_SELECTED:%- [*C@3 COLOR`_INK`_SELECTED]-|SColorHi
-ghlightText.&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_PAPER:%- [*C@3 COLOR`_PAPER]-|SColorPaper.&]
-[s7;i1120;a17;:Terminal`:`:COLOR`_PAPER`_SELECTED:%- [*C@3 COLOR`_PAPER`_SELECTED]-|SCol
-orHighlight.&]
-[s7;i1120;a17;:Terminal`:`:MAX`_COLOR`_COUNT:%- [*C@3 MAX`_COLOR`_COUNT]-|Maximum 
+[s0;l288;i1120;b17;a17;O9;:TerminalCtrl`:`:COLOR`_BLACK:~~~.1408;%- [*C@3 COLOR`_BLACK]-|
+Black&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_RED:%- [*C@3 COLOR`_RED]-|Red&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_GREEN:%- [*C@3 COLOR`_GREEN]-|Green&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_YELLOW:%- [*C@3 COLOR`_YELLOW]-|Yellow&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_BLUE:%- [*C@3 COLOR`_BLUE]-|Blue&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_MAGENTA:%- [*C@3 COLOR`_MAGENTA]-|Magenta&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_CYAN:%- [*C@3 COLOR`_CYAN]-|Cyan&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_WHITE:%- [*C@3 COLOR`_WHITE]-|White&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTBLACK:%- [*C@3 COLOR`_LTBLACK]-|Black&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTRED:%- [*C@3 COLOR`_LTRED]-|LtRed&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTGREEN:%- [*C@3 COLOR`_LTGREEN]-|LtGreen&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTYELLOW:%- [*C@3 COLOR`_LTYELLOW]-|LtYellow&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTBLUE:%- [*C@3 COLOR`_LTBLUE]-|LtBlue&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTMAGENTA:%- [*C@3 COLOR`_LTMAGENTA]-|LtMagenta&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTCYAN:%- [*C@3 COLOR`_LTCYAN]-|LtCyan&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_LTWHITE:%- [*C@3 COLOR`_LTWHITE]-|White&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_INK:%- [*C@3 COLOR`_INK]-|SColorText.&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_INK`_SELECTED:%- [*C@3 COLOR`_INK`_SELECTED]-|SCol
+orHighlightText.&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_PAPER:%- [*C@3 COLOR`_PAPER]-|SColorPaper.&]
+[s7;i1120;a17;:TerminalCtrl`:`:COLOR`_PAPER`_SELECTED:%- [*C@3 COLOR`_PAPER`_SELECTED]-|
+SColorHighlight.&]
+[s7;i1120;a17;:TerminalCtrl`:`:MAX`_COLOR`_COUNT:%- [*C@3 MAX`_COLOR`_COUNT]-|Maximum 
 number of colors in the color stack.&]
-[s2;%- See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetColor`(int`,Upp`:`:Color`)^ S
-etColor()], [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetRefreshColor`(int`,Upp`:`:Color`)^ S
+[s2;%- See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:SetColor`(int`,Upp`:`:Color`)^ S
+etColor()], [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:SetRefreshColor`(int`,Upp`:`:Color`)^ S
 etRefreshColor()].&]
 [s3;%- &]
 [s4; &]
 [s0;%- enum_[* CaretStyles]&]
 [s2;b17;a17; Constants used for manipulating the text cursor`'s visual 
 appearance.&]
-[s7;i1120;a17;:Terminal`:`:Caret`:`:BLOCK: [%-*C@3 Caret`::BLOCK]-|Block 
+[s7;i1120;a17;:TerminalCtrl`:`:Caret`:`:BLOCK: [%-*C@3 Caret`::BLOCK]-|Block 
 cursor style.&]
-[s7;i1120;a17;:Terminal`:`:Caret`:`:BEAM: [%-*C@3 Caret`::BEAM]-|Beam 
+[s7;i1120;a17;:TerminalCtrl`:`:Caret`:`:BEAM: [%-*C@3 Caret`::BEAM]-|Beam 
 cursor style.&]
-[s7;i1120;a17;:Terminal`:`:Caret`:`:UNDERLINE: [%-*C@3 Caret`::UNDERLINE]-|Underline 
+[s7;i1120;a17;:TerminalCtrl`:`:Caret`:`:UNDERLINE: [%-*C@3 Caret`::UNDERLINE]-|Underline 
 cursor style.&]
-[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:SetCursorStyle`(int`,bool`)^ S
-etCursorStyle()],[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:GetCursorStyle`(`)const^  
+[s2; See [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:SetCursorStyle`(int`,bool`)^ S
+etCursorStyle()],[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:GetCursorStyle`(`)const^  
 GetCursorStyle()].&]
 [s3; &]
 [s4; &]
-[s5;:Upp`:`:Terminal`:`:WhenResize:%- [_^Upp`:`:Event^ Event]<>_[* WhenResize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenResize:%- [_^Upp`:`:Event^ Event]<>_[* WhenResize]&]
 [s2; This event is dispatched when the terminal is resized.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenSetSize:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:Size^ Size]>_[* Wh
-enSetSize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenSetSize:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:Size^ Size]>
+_[* WhenSetSize]&]
 [s2; This event is dispatched when the host attempts to resize the 
 terminal. It passes the desired window size to client in a pre`-calculated 
-form (in pixels), taking into account the Terminal ctrl`'s current 
+form (in pixels), taking into account the TerminalCtrl`'s current 
 cell size, and child frames, if any. This size information can 
 be directly used with, e.g., SetRect() method. The difference 
-between this event and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenWindowGeometryChange^ W
+between this event and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenWindowGeometryChange^ W
 henWindowGeometryChange] event is that the latter is a part of 
 xterm`'s window ops extensions and may not be supported by some 
 applications, while this event has been around since DEC VT100.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenBell:%- [_^Upp`:`:Event^ Event]<>_[* WhenBell]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenBell:%- [_^Upp`:`:Event^ Event]<>_[* WhenBell]&]
 [s2; This event is dispatched when the host attempts to notify the 
 user of any action, by playing a sound or flashing the screen, 
 etc.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenTitle:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:String^ String]>_[* W
-henTitle]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenTitle:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:String^ String
+]>_[* WhenTitle]&]
 [s2; This event is dispatched when the host attempts to set or change 
 the window title.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenOutput:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:String^ String]>_
-[* WhenOutput]&]
-[s2; This event is the preferred output method of Terminal ctrl. 
-User input (or terminal output) is passed onto a pty or any other 
+[s5;:Upp`:`:TerminalCtrl`:`:WhenOutput:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:String^ Strin
+g]>_[* WhenOutput]&]
+[s2; This event is the preferred output method of TerminalCtrl. User 
+input (or terminal output) is passed onto a pty or any other 
 process, using this event.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenLED:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) int], 
+[s5;:Upp`:`:TerminalCtrl`:`:WhenLED:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) int], 
 [@(0.0.255) bool]>_[* WhenLED]&]
 [s2; This event is dispatched when the host attempts to toggle key 
 locks and their LEDs. This is a DEC VT100 specific event and 
-not widely supported. First argument is the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:LED`_NUMLOCK^ c
+not widely supported. First argument is the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:LED`_NUMLOCK^ c
 onstant identifying the LED(s)]. Second argument is the toggle. 
 True when a LED is switched on.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenBar:%- [_^Upp`:`:Event^ Event]<Bar[@(0.0.255) `&]>_[* WhenBar]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenBar:%- [_^Upp`:`:Event^ Event]<Bar[@(0.0.255) `&]>_[* WhenB
+ar]&]
 [s2; This event is dispatched when user clicks the terminal widget 
-with the right mouse button.  It is assigned with the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:StdBar`(Upp`:`:Bar`&`)^ S
+with the right mouse button.  It is assigned with the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:StdBar`(Upp`:`:Bar`&`)^ S
 tdBar] method on construction. But client code can use this event 
 to set, change or completely disable the context menu by setting 
 it to Null. Note that when the mouse tracking mode is activated 
 the context menu is not available.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenClip:%- [_^Upp`:`:Gate^ Gate]<PasteClip[@(0.0.255) `&]>_[* When
-Clip]&]
-[s2; This event is dispatched right [/ after ]the ctrl accepts a clip 
-for paste or drop operation. In this way, client code can examine 
-the content of the clip and reject it if it is not suitable for 
-the pending operation. There are some important points to note 
-here:&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenClip:%- [_^Upp`:`:Gate^ Gate]<PasteClip[@(0.0.255) `&]>_[* W
+henClip]&]
+[s2; This event is dispatched right [/ after ]TerminalCtrl accepts 
+a clip for paste or drop operation. In this way, client code 
+can examine the content of the clip and reject it if it is not 
+suitable for the pending operation. There are some important 
+points to note here:&]
 [s2; &]
-[s2;i150;O9; 1) Terminal ctrl accepts only plain text and OS file 
+[s2;i150;O9; 1) TerminalCtrl accepts only plain text and OS file 
 URIs as valid source clips. It automatically encodes them into 
 either the overriding target charset or the relevant g`-set, 
 if the legacy charset support is enabled. However, WhenClip event 
@@ -184,38 +185,38 @@ whitespace characters, from the clip`'s content. &]
 function. (This is the default behavior.).&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenLink:%- [_^Upp`:`:Event^ Event]<_String>_[* WhenLink]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenLink:%- [_^Upp`:`:Event^ Event]<_String>_[* WhenLink]&]
 [s2; Returns the URI of the selected hyperlink.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenImage:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_String[@(0.0.255) `&
-]>_[* WhenImage]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenImage:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) const]_Strin
+g[@(0.0.255) `&]>_[* WhenImage]&]
 [s2; This event is dispatched when the host sends an image `-with 
-a recognized inline image format`- to the terminal. Defining 
+a recognized inline image format`- to TerminalCtrl. Defining 
 this event will switch the terminal to external image rendering 
 mode. This allows the client code to handle the incoming image 
 in a format agnostic way, using the registered U`+`+ image decoders 
 (e.g. the StreamRaster interface.). &]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenWindowMinimize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) bool]>_
-[* WhenWindowMinimize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenWindowMinimize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) boo
+l]>_[* WhenWindowMinimize]&]
 [s6;%- This event is a part of xterm`'s window ops extension.&]
 [s2; This event is dispatched when the host attempts to minimize 
 or unminimize the terminal`'s main window. True means minimize, 
 false means unminimize.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenWindowMaximize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) bool]>_
-[* WhenWindowMaximize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenWindowMaximize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) boo
+l]>_[* WhenWindowMaximize]&]
 [s6; This event is a part of xterm`'s window ops extension.&]
 [s2; This event is dispatched when the host attempts to maximize 
 or unmaximize the terminal`'s window. True means maximize, false 
 means unmaximize.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenWindowFullScreen:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) int]>
-_[* WhenWindowFullScreen]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenWindowFullScreen:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) i
+nt]>_[* WhenWindowFullScreen]&]
 [s6;%- This event is a part of xterm`'s window ops extension.&]
 [s2; This event is dispatched when the host attempts to put the terminal 
 into full screen or overlapping (normal) mode. This event passes 
@@ -224,16 +225,16 @@ for full screen, [*@3 0] for toggle screen, and [*@3 `-1] for no
 full screen.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenWindowGeometryChange:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:Rect^ R
+[s5;:Upp`:`:TerminalCtrl`:`:WhenWindowGeometryChange:%- [_^Upp`:`:Event^ Event]<[_^Upp`:`:Rect^ R
 ect]>_[* WhenWindowGeometryChange]&]
 [s6;%- This event is a part of xterm`'s window ops extension.&]
 [s2; This event is dispatched when the host requests a change in 
-Terminal ctrl`'s window geometry, such as a move or resize operation. 
+TerminalCtrl`'s window geometry, such as a move or resize operation. 
 It passes the desired window dimensions to client in a pre`-calculated 
-form (as a rectangle of pixels), taking into account the Terminal 
-ctrl`'s current cell size, and child frames, if any. This rectangle 
-can be directly used with, e.g., SetRect() method. The difference 
-between this event and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenSetSize^ W
+form (as a rectangle of pixels), taking into account the TerminalCtrl`'s 
+current cell size, and child frames, if any. This rectangle can 
+be directly used with, e.g., SetRect() method. The difference 
+between this event and [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenSetSize^ W
 henSetSize] event is that the former is a part of xterm`'s window 
 ops extensions and may not be supported by some applications, 
 while the latter has been around since VT100. Note that the calculated 
@@ -242,77 +243,78 @@ enough`", due to different behavior of the underlying window
 managers.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WhenApplicationCommand:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) con
-st]_String[@(0.0.255) `&]>_[* WhenApplicationCommand]&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenApplicationCommand:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) c
+onst]_String[@(0.0.255) `&]>_[* WhenApplicationCommand]&]
 [s2; This event is dispatched when an application programming command 
-(APC) sequence is received. Terminal ctrl will hand the raw command 
+(APC) sequence is received. TerminalCtrl will hand the raw command 
 string to client. Useful for application scripting support.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetLevel`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* S
-etLevel]([@(0.0.255) int]_[*@3 level])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetLevel`(int`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetLevel]([@(0.0.255) int]_[*@3 level])&]
 [s2; Sets the device conformance [%-*@3 level]. The default emulation 
 level is 4, representing a DEC VT420 `+ various extensions. Returns 
-`*this for method chaining. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:LEVEL`_0^ c
+`*this for method chaining. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:LEVEL`_0^ c
 onformance level constants] for valid values. Note that not all 
 features of these conformance levels are supported.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLevel0`(`)const:%- [@(0.0.255) bool]_[* IsLevel0]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsLevel0`(`)const:%- [@(0.0.255) bool]_[* IsLevel0]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is in VT52 mode.&]
+[s2; Returns true if TerminalCtrl is in VT52 mode.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLevel1`(`)const:%- [@(0.0.255) bool]_[* IsLevel1]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsLevel1`(`)const:%- [@(0.0.255) bool]_[* IsLevel1]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is emulating [/ at least] a Level 
+[s2; Returns true if TerminalCtrl is emulating [/ at least] a Level 
 1 device.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLevel2`(`)const:%- [@(0.0.255) bool]_[* IsLevel2]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsLevel2`(`)const:%- [@(0.0.255) bool]_[* IsLevel2]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is emulating [/ at least] a Level 
+[s2; Returns true if TerminalCtrl is emulating [/ at least] a Level 
 2 device.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLevel3`(`)const:%- [@(0.0.255) bool]_[* IsLevel3]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsLevel3`(`)const:%- [@(0.0.255) bool]_[* IsLevel3]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is emulating [/ at least] a Level 
+[s2; Returns true if TerminalCtrl  is emulating [/ at least] a Level 
 3 device.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLevel4`(`)const:%- [@(0.0.255) bool]_[* IsLevel4]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsLevel4`(`)const:%- [@(0.0.255) bool]_[* IsLevel4]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is emulating [/ at least] a Level 
+[s2; Returns true if TerminalCtrl  is emulating [/ at least] a Level 
 4 device. (Default)&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Set8BitMode`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* Set8BitMode]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Set8BitMode`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* Set8BitMode]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Enables or disables 8`-bit output mode. Returns `*this for method 
 chaining. Default is 7`-bit output mode. Note that the 8`-bit 
 output mode can cause problems in UTF`-8 environments.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:No8BitMode`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* N
-o8BitMode]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:No8BitMode`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* No8BitMode]()&]
 [s2; Disables the 8`-bit output mode. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Is8BitMode`(`)const:%- [@(0.0.255) bool]_[* Is8BitMode]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:Is8BitMode`(`)const:%- [@(0.0.255) bool]_[* Is8BitMode]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is in 8`-bit output mode.&]
+[s2; Returns true if TerminalCtrl  is in 8`-bit output mode.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Is7BitMode`(`)const:%- [@(0.0.255) bool]_[* Is7BitMode]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:Is7BitMode`(`)const:%- [@(0.0.255) bool]_[* Is7BitMode]()_[@(0.0.255) c
 onst]&]
-[s2; Returns true if Terminal ctrl is in 7`-bit output mode. (Default)&]
+[s2; Returns true if TerminalCtrl  is in 7`-bit output mode. (Default)&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsUtf8Mode`(`)const:%- [@(0.0.255) bool]_[* IsUtf8Mode]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsUtf8Mode`(`)const:%- [@(0.0.255) bool]_[* IsUtf8Mode]()_[@(0.0.255) c
 onst]&]
-[s2;# Returns true if Terminal ctrl is in UTF`-8 (unicode) input 
+[s2;# Returns true if TerminalCtrl  is in UTF`-8 (unicode) input 
 mode. UTF`-8 input mode is enabled by default. If the terminal`'s 
 input locale is not CHARSET`_UNICODE or the legacy charsets (g`-sets) 
 feature is enabled, then the keyboard and clipboard inputs will 
@@ -321,346 +323,360 @@ that case, g`-sets  will have precedence over the current locale
 settings.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HardReset`(`):%- [@(0.0.255) void]_[* HardReset]()&]
-[s2; This method will return Terminal ctrl into its initial state. 
+[s5;:Upp`:`:TerminalCtrl`:`:HardReset`(`):%- [@(0.0.255) void]_[* HardReset]()&]
+[s2; This method will return TerminalCtrl into its initial state. 
 This method is meant to be used as a last resort.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SoftReset`(`):%- [@(0.0.255) void]_[* SoftReset]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:SoftReset`(`):%- [@(0.0.255) void]_[* SoftReset]()&]
 [s2; Performs a `"soft`" reset by defaulting the terminal modes to 
 their to sane values, resetting the page margins, origin mode, 
 UDKs, SGR attributes, legacy charsets. Does not clear the history 
 buffer or alternate screen.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Write`(const void`*`,int`,bool`):%- [@(0.0.255) void]_[* Write]([@(0.0.255) c
-onst]_[@(0.0.255) void]_`*[*@3 data], [@(0.0.255) int]_[*@3 size], [@(0.0.255) bool]_[*@3 utf
-8])&]
-[s5;:Upp`:`:Terminal`:`:Write`(const Upp`:`:String`&`,bool`):%- [@(0.0.255) void]_[* Writ
-e]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
+[s5;:Upp`:`:TerminalCtrl`:`:Write`(const void`*`,int`,bool`):%- [@(0.0.255) void]_[* Writ
+e]([@(0.0.255) const]_[@(0.0.255) void]_`*[*@3 data], [@(0.0.255) int]_[*@3 size], 
+[@(0.0.255) bool]_[*@3 utf8])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Write`(const Upp`:`:String`&`,bool`):%- [@(0.0.255) void]_[* W
+rite]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s], 
 [@(0.0.255) bool]_[*@3 utf8]_`=_[@(0.0.255) true])&]
-[s5;:Upp`:`:Terminal`:`:WriteUtf8`(const Upp`:`:String`&`):%- [@(0.0.255) void]_[* WriteU
-tf8]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s])&]
+[s5;:Upp`:`:TerminalCtrl`:`:WriteUtf8`(const Upp`:`:String`&`):%- [@(0.0.255) void]_[* Wr
+iteUtf8]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&]_[*@3 s])&]
 [s2; Writes a block of raw [%-*@3 data], or a String containing raw 
 data, to the terminal. [%-*@3 utf8] flag can be used to enable 
 or disable the UTF`-8 byte processing mode of the parser. UTF`-8 
 mode is the default and recommended byte processing mode.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:History`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* H
-istory]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:History`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* History]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables the history (scrollback) buffer. Returns 
 `*this for method chaining. Disabling the history buffer also 
 clears it.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoHistory`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* No
-History]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoHistory`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoHistory]()&]
 [s2; Disables the history buffer. Same as History(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasHistory`(`)const:%- [@(0.0.255) bool]_[* HasHistory]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:HasHistory`(`)const:%- [@(0.0.255) bool]_[* HasHistory]()_[@(0.0.255) c
 onst]&]
 [s2; Returns true if the history buffer is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ClearHistory`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* ClearHistory]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:ClearHistory`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ClearHistory]()&]
 [s2; Clears the history buffer. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetHistorySize`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SetHistorySize]([@(0.0.255) int]_[*@3 sz])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetHistorySize`(int`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetHistorySize]([@(0.0.255) int]_[*@3 sz])&]
 [s2; Sets the allowed maximum number of lines stored in the history 
 buffer to [%-*@3 sz]. Default is 1024 lines. Returns `*this for 
 method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetHistorySize`(`)const:%- [@(0.0.255) int]_[* GetHistorySize]()_
-[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetHistorySize`(`)const:%- [@(0.0.255) int]_[* GetHistorySize
+]()_[@(0.0.255) const]&]
 [s2; Returns the allowed maximum number of lines stored in the history 
 buffer. Default is 1024 lines&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetFont`(Upp`:`:Font`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SetFont]([_^Upp`:`:Font^ Font]_[*@3 f])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetFont`(Upp`:`:Font`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetFont]([_^Upp`:`:Font^ Font]_[*@3 f])&]
 [s2; Sets the font to [%-*@3 f]. This method also refreshes the ctrl`'s 
 layout. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetFont`(`)const:%- [_^Upp`:`:Font^ Font]_[* GetFont]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:GetFont`(`)const:%- [_^Upp`:`:Font^ Font]_[* GetFont]()_[@(0.0.255) c
 onst]&]
 [s2; Returns current font.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Ink`(Upp`:`:Color`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* Ink]([_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Ink`(Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* Ink]([_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color of text to [%-*@3 c]. Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorText`(`)^ S
 ColorText]. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Paper`(Upp`:`:Color`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* Paper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Paper`(Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* Paper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color of background to [%-*@3 c] . Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorPaper`(`)^ S
 ColorPaper]. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SelectionInk`(Upp`:`:Color`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SelectionInk]([_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SelectionInk`(Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SelectionInk]([_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color of selected text to [%-*@3 c]. Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorHighlightText`(`)^ S
 ColorHighlightText]. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SelectionPaper`(Upp`:`:Color`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SelectionPaper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SelectionPaper`(Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SelectionPaper]([_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color of selected background to [%-*@3 c] . Default is 
 [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorHighlight`(`)^ SColorHighlight]. 
 Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetColor`(int`,Upp`:`:Color`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SetColor]([@(0.0.255) int]_[*@3 i], [_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetColor`(int`,Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetColor]([@(0.0.255) int]_[*@3 i], [_^Upp`:`:Color^ Color]_
+[*@3 c])&]
 [s2; Sets the color at index [%-*@3 i] to [%-*@3 c.] Returns `*this for 
 method chaining. This method does not refresh the display. See 
-the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:COLOR`_BLACK^ co
-lor constants] for the valid range of index [%-*@3 i].&]
+the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:COLOR`_BLACK^ c
+olor constants] for the valid range of index [%-*@3 i].&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetRefreshColor`(int`,Upp`:`:Color`):%- [@(0.0.255) void]_[* SetR
-efreshColor]([@(0.0.255) int]_[*@3 i], [_^Upp`:`:Color^ Color]_[*@3 c])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetRefreshColor`(int`,Upp`:`:Color`):%- [@(0.0.255) void]_[* S
+etRefreshColor]([@(0.0.255) int]_[*@3 i], [_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color at index [%-*@3 i] to [%-*@3 c] This method refreshes 
-the display after setting the new color. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:COLOR`_BLACK^ c
+the display after setting the new color. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:COLOR`_BLACK^ c
 olor constants] for the valid range of index [%-*@3 i].&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetColor`(int`)const:%- [_^Upp`:`:Color^ Color]_[* GetColor]([@(0.0.255) i
-nt]_[*@3 i])_[@(0.0.255) const]&]
-[s2; Returns the color at index [%-*@3 i]. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:COLOR`_BLACK^ c
+[s5;:Upp`:`:TerminalCtrl`:`:GetColor`(int`)const:%- [_^Upp`:`:Color^ Color]_[* GetColor](
+[@(0.0.255) int]_[*@3 i])_[@(0.0.255) const]&]
+[s2; Returns the color at index [%-*@3 i]. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:COLOR`_BLACK^ c
 olor constants] for the valid range of index [%-*@3 i].&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:DynamicColors`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* DynamicColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:DynamicColors`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* DynamicColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Enables or disables xterm`'s dynamic colors feature. Returns 
 `*this for method chaining. This feature allows applications 
 to override the terminal`'s basic colors (ink, paper, selection, 
 and ANSI color table). Disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoDynamicColors`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoDynamicColors]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoDynamicColors`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoDynamicColors]()&]
 [s2; Disables the dynamic colors feature. Same as DynamicColors(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasDynamicColors`(`)const:%- [@(0.0.255) bool]_[* HasDynamicColor
-s]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasDynamicColors`(`)const:%- [@(0.0.255) bool]_[* HasDynamicC
+olors]()_[@(0.0.255) const]&]
 [s2; Returns true if xterm`'s dynamic colors feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:LightColors`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* LightColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2; Forces the terminal to substitute the normal colors (0`-7) with 
+[s5;:Upp`:`:TerminalCtrl`:`:LightColors`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* LightColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
+[s2; Forces TerminalCtrl to substitute the normal colors (0`-7) with 
 their light variants (8`-15). Returns `*this for method chaining. 
 This behavior is affected by the client`'s color settings.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoLightColors`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* NoLightColors]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoLightColors`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoLightColors]()&]
 [s2; Disables color substitution. Same as LightColors(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasLightColors`(`)const:%- [@(0.0.255) bool]_[* HasLightColors]()
-_[@(0.0.255) const]&]
-[s2; Returns true if the terminal is forced to substitute the normal 
+[s5;:Upp`:`:TerminalCtrl`:`:HasLightColors`(`)const:%- [@(0.0.255) bool]_[* HasLightColor
+s]()_[@(0.0.255) const]&]
+[s2; Returns true if TerminalCtrl is forced to substitute the normal 
 colors with their light variants.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:AdjustColors`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* AdjustColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2; This switch allows the terminal to adjust the current pen and/or 
+[s5;:Upp`:`:TerminalCtrl`:`:AdjustColors`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* AdjustColors]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
+[s2; This switch allows TerminalCtrl to adjust the current pen and/or 
 paper color to dark themes. It affects only the ANSI color table 
 (16 colors). Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoAdjustColors`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoAdjustColors]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoAdjustColors`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoAdjustColors]()&]
 [s2; Disables color adjusting. Same as AdjustColors(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasAdjustedColors`(`)const:%- [@(0.0.255) bool]_[* HasAdjustedCol
-ors]()_[@(0.0.255) const]&]
-[s2; Returns true if Terminal ctrl is set to automatically adjust 
+[s5;:Upp`:`:TerminalCtrl`:`:HasAdjustedColors`(`)const:%- [@(0.0.255) bool]_[* HasAdjuste
+dColors]()_[@(0.0.255) const]&]
+[s2; Returns true if TerminalCtrl is set to automatically adjust 
 its basic color table to dark themes.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ResetColors`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* R
-esetColors]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:ResetColors`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ResetColors]()&]
 [s2; Resets the ANSI color table (16 colors palette, and ink/cursor/selection 
 colors) to default values. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IntensifyBoldText`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* IntensifyBoldText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2; Forces the terminal to use light colors (8 `-15) for bold text. 
+[s5;:Upp`:`:TerminalCtrl`:`:IntensifyBoldText`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* IntensifyBoldText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
+[s2; Forces TerminalCtrl to use light colors (8 `-15) for bold text. 
 Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoIntensifyBoldText`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoIntensifyBoldText]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoIntensifyBoldText`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoIntensifyBoldText]()&]
 [s2; Disables intensifying of the bold text. Same as IntensifyBoldText(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasIntensifiedBoldText`(`)const:%- [@(0.0.255) bool]_[* HasIntens
-ifiedBoldText]()_[@(0.0.255) const]&]
-[s2; Returns true when Terminal ctrl is set to use light colors (8`-15) 
+[s5;:Upp`:`:TerminalCtrl`:`:HasIntensifiedBoldText`(`)const:%- [@(0.0.255) bool]_[* HasIn
+tensifiedBoldText]()_[@(0.0.255) const]&]
+[s2; Returns true when TerminalCtrl is set to use light colors (8`-15) 
 for bold text.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:BlinkingText`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* BlinkingText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:BlinkingText`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* BlinkingText]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
 [s2; Enables or disables blinking text. Blinking text is enabled 
 by default. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoBlinkingText`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoBlinkingText]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoBlinkingText`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoBlinkingText]()&]
 [s2; Disables blinking text. Same as BlinkingText(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasBlinkingText`(`)const:%- [@(0.0.255) bool]_[* HasBlinkingText](
-)_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasBlinkingText`(`)const:%- [@(0.0.255) bool]_[* HasBlinkingT
+ext]()_[@(0.0.255) const]&]
 [s2; Returns true if the blinking text feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:BlinkInterval`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* BlinkInterval]([@(0.0.255) int]_[*@3 ms])&]
+[s5;:Upp`:`:TerminalCtrl`:`:BlinkInterval`(int`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* BlinkInterval]([@(0.0.255) int]_[*@3 ms])&]
 [s2; Sets the text blink interval to [%-*@3 ms] . Default is 500 ms. 
 It can be any value between 100 ms and 60000 ms. Returns `*this 
 for method chaining.&]
 [s3; &]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetCursorStyle`(int`,bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SetCursorStyle]([@(0.0.255) int]_[*@3 style], [@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) t
-rue])&]
-[s2; Sets the visual [%-*@3 style] of the text cursor. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:Caret`:`:BLOCK^ c
+[s5;:Upp`:`:TerminalCtrl`:`:SetCursorStyle`(int`,bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetCursorStyle]([@(0.0.255) int]_[*@3 style], 
+[@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) true])&]
+[s2; Sets the visual [%-*@3 style] of the text cursor. See the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:Caret`:`:BLOCK^ c
 aret style constants] for valid values. Cursor will blink if 
 the [%-*@3 blink] argument is true. Returns `*this for method chaining. 
 &]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetCursorStyle`(`)const:%- [@(0.0.255) int]_[* GetCursorStyle]()_
-[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetCursorStyle`(`)const:%- [@(0.0.255) int]_[* GetCursorStyle
+]()_[@(0.0.255) const]&]
 [s2; Returns the current visual style of the text cursor. See the 
-[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Terminal`:`:Caret`:`:BLOCK^ care
-t style constants] for valid values.&]
+[^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#TerminalCtrl`:`:Caret`:`:BLOCK^ c
+aret style constants] for valid values.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:BlockCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* BlockCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:BlockCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* BlockCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) tr
+ue])&]
 [s2; Sets a blinking or steady rectangular cursor. Returns `*this 
 for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:BeamCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* BeamCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:BeamCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* BeamCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) tru
+e])&]
 [s2; Sets a blinking or steady beam cursor. Returns `*this for method 
 chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:UnderlineCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* UnderlineCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:UnderlineCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* UnderlineCursor]([@(0.0.255) bool]_[*@3 blink]_`=_[@(0.0.255) t
+rue])&]
 [s2; Sets a blinking or steady underscore cursor. Returns `*this 
 for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:BlinkingCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* BlinkingCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:BlinkingCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* BlinkingCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tru
+e])&]
 [s2; Enables or disables blinking cursor. Returns `*this for method 
 chaining. &]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoBlinkingCursor`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoBlinkingCursor]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoBlinkingCursor`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoBlinkingCursor]()&]
 [s2; Disables blinking cursor. Same as BlinkingCursor(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsCursorBlinking`(`)const:%- [@(0.0.255) bool]_[* IsCursorBlinkin
-g]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsCursorBlinking`(`)const:%- [@(0.0.255) bool]_[* IsCursorBli
+nking]()_[@(0.0.255) const]&]
 [s2; Returns true if the cursor is blinking.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:LockCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* LockCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:LockCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* LockCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Locks or unlocks the current cursor style, preventing or allowing 
 any application to change the cursor attributes. Returns `*this 
 for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:UnlockCursor`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* UnlockCursor]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:UnlockCursor`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* UnlockCursor]()&]
 [s2; Unlocks the cursor style. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsCursorLocked`(`)const:%- [@(0.0.255) bool]_[* IsCursorLocked]()
-_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsCursorLocked`(`)const:%- [@(0.0.255) bool]_[* IsCursorLocke
+d]()_[@(0.0.255) const]&]
 [s2; Return true if the current visual style of the text cursor is 
 locked.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoBackground`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoBackground]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoBackground`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoBackground]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
 [s2; Enables or disables transparent mode. When enabled, the background 
 is not painted and transparency flag is set, allowing client 
 code to provide any background it needs. Returns `*this for method 
 chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasBackground`(`)const:%- [@(0.0.255) bool]_[* HasBackground]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasBackground`(`)const:%- [@(0.0.255) bool]_[* HasBackground](
+)_[@(0.0.255) const]&]
 [s2; Returns true if the background transparency is disabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ShowSizeHint`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ShowSizeHint]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:ShowSizeHint`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ShowSizeHint]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
 [s2; Shows or hides the size hint. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HideSizeHint`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* HideSizeHint]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:HideSizeHint`(`):~~~224;%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* HideSizeHint]()&]
 [s2; Hides the size hint. Same as ShowSizeHint(false). Returns `*this 
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ShowScrollBar`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ShowScrollBar]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:ShowScrollBar`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ShowScrollBar]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Shows or hides the scrollbar. Returns `*this for method chaining. 
 Note that the scrollbar will be disabled when there is no content 
 to scroll or the terminal is in alternate screen mode.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HideScrollBar`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* HideScrollBar]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:HideScrollBar`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* HideScrollBar]()&]
 [s2; Hides the scrollbar. Same as ShowScrollBar(false). Returns `*this 
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetScrollBarStyle`(const Upp`:`:ScrollBar`:`:Style`&`):%- [_^Upp`:`:Terminal^ T
-erminal][@(0.0.255) `&]_[* SetScrollBarStyle]([@(0.0.255) const]_[_^Upp`:`:ScrollBar`:`:Style^ S
+[s5;:Upp`:`:TerminalCtrl`:`:SetScrollBarStyle`(const Upp`:`:ScrollBar`:`:Style`&`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetScrollBarStyle]([@(0.0.255) const]_[_^Upp`:`:ScrollBar`:`:Style^ S
 crollBar`::Style][@(0.0.255) `&]_[*@3 s])&]
 [s2; Sets the scrollbar`'s visual style to [%-*@3 s]. Returns `*this 
 for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:AlternateScroll`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* AlternateScroll]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:AlternateScroll`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* AlternateScroll]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tr
+ue])&]
 [s2; Enables or disables xterm`'s alternate scroll feature. Returns 
 `*this for method chaining. Alternate scroll mode allows scrolling 
 on alternate screen buffer using the mouse wheel. In this mode 
@@ -668,43 +684,45 @@ the mouse wheel sends cursor up/down button events instead of
 mouse wheel events.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoAlternateScroll`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoAlternateScroll]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoAlternateScroll`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoAlternateScroll]()&]
 [s2; Disables xterm`'s alternate scroll feature. Same as AlternateScroll(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasAlternateScroll`(`)const:%- [@(0.0.255) bool]_[* HasAlternateS
-croll]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasAlternateScroll`(`)const:%- [@(0.0.255) bool]_[* HasAltern
+ateScroll]()_[@(0.0.255) const]&]
 [s2; Returns true if xterm`'s alternate scroll feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:MouseWheelStep`(int`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* MouseWheelStep]([@(0.0.255) int]_[*@3 lines])&]
+[s5;:Upp`:`:TerminalCtrl`:`:MouseWheelStep`(int`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* MouseWheelStep]([@(0.0.255) int]_[*@3 lines])&]
 [s2; Sets the mouse wheel steps to [%-*@3 lines]. Default value is 
 determined by the OS. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:AutoHideMouseCursor`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* AutoHideMouseCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:AutoHideMouseCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* AutoHideMouseCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
 [s2; Enables or disables the mouse cursor auto hide feature. When 
 enabled the mouse cursor will be automatically hidden while typing 
 text. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoAutoHideMouseCurosr`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoAutoHideMouseCurosr]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoAutoHideMouseCurosr`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoAutoHideMouseCurosr]()&]
 [s2; Disables the mouse cursor auto hide feature. Same as AutoHideMouseCursor(false).
  Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsMouseCursorAutoHidden`(`)const:%- [@(0.0.255) bool]_[* IsMouseC
-ursorAutoHidden]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsMouseCursorAutoHidden`(`)const:%- [@(0.0.255) bool]_[* IsMo
+useCursorAutoHidden]()_[@(0.0.255) const]&]
 [s2; Returns true if the mouse cursor auto hide feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:KeyNavigation`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* KeyNavigation]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:KeyNavigation`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* KeyNavigation]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Enables or disables the cursor key navigation mode. Returns 
 `*this for method chaining. In this mode the cursor keys (CTRL 
 `+ SHIFT `+ `[Up/Down, Left/Right, Page Up/Down, Home/End`]) 
@@ -712,198 +730,206 @@ can be used to navigate through the history buffer. This mode
 requires the history buffer to be enabled.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoKeyNavigation`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoKeyNavigation]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoKeyNavigation`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoKeyNavigation]()&]
 [s2; Disables cursor key navigation. Same as KeyNavigation(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasKeyNavigation`(`)const:%- [@(0.0.255) bool]_[* HasKeyNavigatio
-n]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasKeyNavigation`(`)const:%- [@(0.0.255) bool]_[* HasKeyNavig
+ation]()_[@(0.0.255) const]&]
 [s2; Returns true if cursor key navigation mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImages`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* InlineImages]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
-[s2; Enables or disables the inline images support of Terminal ctrl 
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImages`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* InlineImages]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
+[s2; Enables or disables the inline images support of TerminalCtrl 
 as a whole. Returns `*this for method chaining. When enabled, 
 terminal will attempt to display every inline image it recognizes. 
 Currently [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel], 
 JPG, PNG, and TIFF formatted images are recognized. This feature 
 is disabled by default.  Inline images can be handled both internally, 
 as embedded images, or externally, by handing the image data 
-to client code for rendering and viewing. See also [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenImage^ W
+to client code for rendering and viewing. See also [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenImage^ W
 henImage] event. &]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoInlineImages`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoInlineImages]()&]
-[s2; Disables the inline images support of Terminal ctrl. Returns 
+[s5;:Upp`:`:TerminalCtrl`:`:NoInlineImages`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoInlineImages]()&]
+[s2; Disables the inline images support of TerminalCtrl. Returns 
 `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasInlineImages`(`)const:%- [@(0.0.255) bool]_[* HasInlineImages](
-)_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasInlineImages`(`)const:%- [@(0.0.255) bool]_[* HasInlineIma
+ges]()_[@(0.0.255) const]&]
 [s2; Returns true if [/ at least one] of the inline image protocols 
 is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SixelGraphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SixelGraphics`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SixelGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Individually enables or disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ s
 ixel graphics]. Returns `*this for method chaining. This feature 
 is disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoSixelGraphics`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoSixelGraphics]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoSixelGraphics`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoSixelGraphics]()&]
 [s2; Disables [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ sixel 
 graphics]. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasSixelGraphics`(`)const:%- [@(0.0.255) bool]_[* HasSixelGraphic
-s]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasSixelGraphics`(`)const:%- [@(0.0.255) bool]_[* HasSixelGra
+phics]()_[@(0.0.255) const]&]
 [s2; Returns true if [^https`:`/`/en`.wikipedia`.org`/wiki`/Sixel`?oldformat`=true^ six
 el graphics] is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:JexerGraphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* JexerGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:JexerGraphics`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* JexerGraphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Individually enables or disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
-exer inline images protocol]. This protocol allows Terminal ctrl 
+exer inline images protocol]. This protocol allows TerminalCtrl 
 to display any raster image format that is supported by Ultimate`+`+, 
 including, but not limited to, JPG, PNG, TIFF. Returns `*this 
 for method chaining. This feature is disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoJexerGraphics`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoJexerGraphics]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoJexerGraphics`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoJexerGraphics]()&]
 [s2; Disables [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
 exer inline images protocol]. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasJexerGraphics`(`)const:%- [@(0.0.255) bool]_[* HasJexerGraphic
-s]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasJexerGraphics`(`)const:%- [@(0.0.255) bool]_[* HasJexerGra
+phics]()_[@(0.0.255) const]&]
 [s2; Returns true if [^https`:`/`/gitlab`.com`/klamonte`/jexer`/`-`/wiki`_pages`/jexer`-images^ j
 exer inline images protocol] is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:iTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* iTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:iTerm2Graphics`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* iTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tru
+e])&]
 [s2; Individually enables or disables [^https`:`/`/iterm2`.com`/documentation`-images`.html^ i
-Term2`'s inline images protocol]. This protocol allows Terminal 
-ctrl to display any raster image format that is supported by 
-Ultimate`+`+, including, but not limited to, JPG, PNG, TIFF. 
-Returns `*this for method chaining. This feature is disabled 
-by default.&]
+Term2`'s inline images protocol]. This protocol allows TerminalCtrl 
+to display any raster image format that is supported by Ultimate`+`+, 
+including, but not limited to, JPG, PNG, TIFF. Returns `*this 
+for method chaining. This feature is disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoiTerm2Graphics`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoiTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoiTerm2Graphics`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoiTerm2Graphics]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
 [s2;%- [%%  ][@N Disables ][^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2`'
 s inline images protocol][@N . Returns `*this for method chaining.]&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasiTerm2Graphics`(`)const:%- [@(0.0.255) bool]_[* HasiTerm2Graph
-ics]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasiTerm2Graphics`(`)const:%- [@(0.0.255) bool]_[* HasiTerm2G
+raphics]()_[@(0.0.255) const]&]
 [s2; Return true if [%-^https`:`/`/iterm2`.com`/documentation`-images`.html^@N iTerm2`'
 s inline images protocol] is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Hyperlinks`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* Hyperlinks]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Hyperlinks`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* Hyperlinks]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables hyperlinks. Returns `*this for method chaining. 
-At the moment, terminal ctrl only allows text`-based hyperlinks. 
+At the moment, TerminalCtrl only allows text`-based hyperlinks. 
 And for security reasons, only the [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ e
 xplicit hyperlinks] protocol (OSC 8) is supported. This feature 
 is disabled by default. &]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoHyperlinks`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* NoHyperlinks]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoHyperlinks`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoHyperlinks]()&]
 [s2; Disables hyperlinks. Same as Hyperlinks(false). Returns `*this 
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasHyperlinks`(`)const:%- [@(0.0.255) bool]_[* HasHyperlinks]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasHyperlinks`(`)const:%- [@(0.0.255) bool]_[* HasHyperlinks](
+)_[@(0.0.255) const]&]
 [s2; Returns true if the [^https`:`/`/gist`.github`.com`/egmontkob`/eb114294efbcd5adb1944c9f3cb5feda^ e
 xplicit hyperlinks] protocol is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ReverseWrap`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ReverseWrap]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:ReverseWrap`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ReverseWrap]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
+&]
 [s2; Enables or disables reverse wrap mode. Disabled by default. 
 Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoReverseWrap`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* NoReverseWrap]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoReverseWrap`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoReverseWrap]()&]
 [s2; Disables reverse wrap mode. Same as ReverseWrap(false). Returns 
 `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasReverseWrap`(`)const:%- [@(0.0.255) bool]_[* HasReverseWrap]()
-_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasReverseWrap`(`)const:%- [@(0.0.255) bool]_[* HasReverseWra
+p]()_[@(0.0.255) const]&]
 [s2; Returns true if reverse wrap mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WindowReports`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* WindowReports]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:WindowReports`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* WindowReports]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Enables or disables terminal window reports. This extensions 
 is a part of xterm`'s window ops feature. Returns `*this for 
 method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoWindowReports`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoWindowReports]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoWindowReports`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoWindowReports]()&]
 [s2; Disables the terminal window reports. Same as WindowReports(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasWindowReports`(`)const:%- [@(0.0.255) bool]_[* HasWindowReport
-s]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasWindowReports`(`)const:%- [@(0.0.255) bool]_[* HasWindowRe
+ports]()_[@(0.0.255) const]&]
 [s2; Returns true if xterm`'s window reports feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WindowActions`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* WindowActions]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:WindowActions`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* WindowActions]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
+])&]
 [s2; Enables or disables terminal window actions. This extensions 
 is a part of xterm`'s window ops feature. Returns `*this for 
 method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoWindowActions`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoWindowActions]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoWindowActions`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoWindowActions]()&]
 [s2; Disables the terminal window actions. Same as WindowActions(false). 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasWindowActions`(`)const:%- [@(0.0.255) bool]_[* HasWindowAction
-s]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasWindowActions`(`)const:%- [@(0.0.255) bool]_[* HasWindowAc
+tions]()_[@(0.0.255) const]&]
 [s2; Returns true if xterm`'s window actions feature is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:WindowOps`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* WindowOps]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:WindowOps`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* WindowOps]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables xterm`'s window ops feature as a whole. 
 Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoWindowOps`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* N
-oWindowOps]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoWindowOps`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoWindowOps]()&]
 [s2; Disables xterm`'s window ops feature as a whole. Returns `*this 
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasWindowOps`(`)const:%- [@(0.0.255) bool]_[* HasWindowOps]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasWindowOps`(`)const:%- [@(0.0.255) bool]_[* HasWindowOps]()
+_[@(0.0.255) const]&]
 [s2; Returns true if xterm`'s window actions [/ or] reports feature 
 is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:PermitClipboardRead`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* PermitClipboardRead]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:PermitClipboardRead`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* PermitClipboardRead]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
 [s2;# Enables or disables the clipboard read access for the terminal 
 applications that support the clipboard access and manipulation 
 protocol. (OSC 52) Returns `*this for method chaining. Note that 
@@ -911,23 +937,24 @@ this feature must be handled with care by the client code, as
 it may pose a security threat.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ForbidClipboardRead`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ForbidClipboardRead]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:ForbidClipboardRead`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ForbidClipboardRead]()&]
 [s2; Disables clipboard read access for the terminal applications 
 that support the clipboard access and manipulation protocol. 
 (OSC 52). This is the default setting. Returns `*this for method 
 chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsClipboardReadPermitted`(`)const:%- [@(0.0.255) bool]_[* IsClipb
-oardReadPermitted]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsClipboardReadPermitted`(`)const:%- [@(0.0.255) bool]_[* IsC
+lipboardReadPermitted]()_[@(0.0.255) const]&]
 [s2;# Returns true if the clipboard read access is granted to the 
 applications that support the clipboard access and manipulation 
 protocol.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:PermitClipboardWrite`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* PermitClipboardWrite]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:PermitClipboardWrite`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* PermitClipboardWrite]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
 [s2;# Enables or disables the clipboard write access for the terminal 
 applications that support the clipboard access and manipulation 
 protocol. (OSC 52) Returns `*this for method chaining. Note that 
@@ -935,23 +962,24 @@ this feature must be handled with care by the client code, as
 it may pose a security threat.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ForbidClipboardWrite`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ForbidClipboardWrite]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:ForbidClipboardWrite`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ForbidClipboardWrite]()&]
 [s2; Disables clipboard write access for the terminal applications 
 that support the clipboard access and manipulation protocol. 
 (OSC 52). This is the default setting. Returns `*this for method 
 chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsClipboardWritePermitted`(`)const:%- [@(0.0.255) bool]_[* IsClip
-boardWritePermitted]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsClipboardWritePermitted`(`)const:%- [@(0.0.255) bool]_[* Is
+ClipboardWritePermitted]()_[@(0.0.255) const]&]
 [s2;# Returns true if the clipboard write access is granted to the 
 applications that support the clipboard access and manipulation 
 protocol.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:PermitClipboardAccess`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* PermitClipboardAccess]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:PermitClipboardAccess`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* PermitClipboardAccess]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
 [s2;# Enables or disables the clipboard access and manipulation protocol 
 (OSC 52) as a whole. Returns `*this for method chaining. This 
 protocol grants clipboard read and write access to the terminal 
@@ -960,167 +988,169 @@ must be handled with care by the client code, as it may pose
 a security threat.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ForbidClipboardAccess`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* ForbidClipboardAccess]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:ForbidClipboardAccess`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* ForbidClipboardAccess]()&]
 [s2; Disables the clipboard access and manipualtion protocol (OSC 
 52) as a whole. Same ae PermitClipboardAccess(false). This is 
 the default setting. Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsClipboardAccessPermitted`(`)const:%- [@(0.0.255) bool]_[* IsCli
-pboardAccessPermitted]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsClipboardAccessPermitted`(`)const:%- [@(0.0.255) bool]_[* I
+sClipboardAccessPermitted]()_[@(0.0.255) const]&]
 [s2; Returns true if the clipboard access and manipulation protocol 
 is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:UDK`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* UDK](
-[@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:UDK`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* UDK]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Enables or disables DEC`'s user defined function keys feature. 
 Returns `*this for method chaining. UDK is disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoUDK`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* NoUDK](
-)&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoUDK`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoUDK]()&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Disables the DEC`'s user defined function keys feature. Same 
 as UDK(false). Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:HasUDK`(`)const:%- [@(0.0.255) bool]_[* HasUDK]()_[@(0.0.255) const
-]&]
+[s5;:Upp`:`:TerminalCtrl`:`:HasUDK`(`)const:%- [@(0.0.255) bool]_[* HasUDK]()_[@(0.0.255) c
+onst]&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Returns true if UDK is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:LockUDK`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* L
-ockUDK]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:LockUDK`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* LockUDK]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Locks or unlocks the current user defined function keys. Returns 
 `*this for method chaining. UDK is locked by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:UnlockUDK`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_[* Un
-lockUDK]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:UnlockUDK`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* UnlockUDK]()&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Unlocks the user defined function keys so that they can be programmed 
 by the applications. Same as LockUDK(false). Returns `*this for 
 method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsUDKLocked`(`)const:%- [@(0.0.255) bool]_[* IsUDKLocked]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsUDKLocked`(`)const:%- [@(0.0.255) bool]_[* IsUDKLocked]()_[@(0.0.255) c
 onst]&]
 [s6;%- Requires at least a level 2 device emulation.&]
 [s2; Returns true if UDK is locked.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:DelayedRefresh`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* DelayedRefresh]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:DelayedRefresh`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* DelayedRefresh]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tru
+e])&]
 [s2; Enables or disables buffered display refresh. Returns `*this 
-for method chaining. This mode allows the terminal widget to 
-delay the next display refresh for 16 miliseconds after it receives 
-any data, thus allowing the display updates to accummulate. When 
+for method chaining. This mode allows TerminalCtrl to delay the 
+next display refresh for 16 miliseconds after it receives any 
+data, thus allowing the display updates to accummulate. When 
 this mode is disabled, each refresh will take place immediately 
 after any incoming data is parsed and processed. Delayed refresh 
 is enabled by default.&]
 [s2; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoDelayedRefresh`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* NoDelayedRefresh]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoDelayedRefresh`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoDelayedRefresh]()&]
 [s2; Disables delayed refresh and sets immediate refresh mode. Same 
 as DelayedRefresh(false). Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsDelayingRefresh`(`)const:%- [@(0.0.255) bool]_[* IsDelayingRefr
-esh]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsDelayingRefresh`(`)const:%- [@(0.0.255) bool]_[* IsDelaying
+Refresh]()_[@(0.0.255) const]&]
 [s2; Returns true if delayed display refresh mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:LazyResize`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* LazyResize]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:LazyResize`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* LazyResize]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables lazy resize. Returns `*this for method chaining. 
 This mode is especially useful for reducing the flicker that 
 results from widget/window resizes in environments where the 
 I/O latency is relatively high (such as networks). When this 
-mode is enabled, the resize request will be sent from terminal 
+mode is enabled, the resize request will be sent from TerminalCtrl 
 to host 100 miliseconds after the actual page resize occurs. 
 This mode is disabled by default.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:NoLazyResize`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&]_
-[* NoLazyResize]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:NoLazyResize`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* NoLazyResize]()&]
 [s2; Disables lazy resize. Same as LazyResize(false). Returns `*this 
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsLazyResizing`(`)const:%- [@(0.0.255) bool]_[* IsLazyResizing]()
-_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsLazyResizing`(`)const:%- [@(0.0.255) bool]_[* IsLazyResizin
+g]()_[@(0.0.255) const]&]
 [s2; Returns true is lazy resize mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetImageDisplay`(const Upp`:`:Display`&`):%- [_^Upp`:`:Terminal^ T
-erminal][@(0.0.255) `&]_[* SetImageDisplay]([@(0.0.255) const]_[_^Upp`:`:Display^ Display
-][@(0.0.255) `&]_[*@3 d])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SetImageDisplay`(const Upp`:`:Display`&`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* SetImageDisplay]([@(0.0.255) const]_[_^Upp`:`:Display^ Dis
+play][@(0.0.255) `&]_[*@3 d])&]
 [s2; Sets the display to be used with embedded images to [%-*@3 d]. 
 Returns `*this for method chaining. Note that the ownership of 
 the [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ Display] 
-object is not transferred by this method. Terminal merely stores 
-a pointer to the Display; it is up to client code to keep the 
-object alive as long as necessary. See Terminal Displays section 
-for more information.&]
+object is not transferred by this method. TerminalCtrl merely 
+stores a pointer to the Display; it is up to client code to keep 
+the object alive as long as necessary. See Terminal Displays 
+section for more information.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetImageDisplay`(`)const:%- [@(0.0.255) const]_[_^Upp`:`:Display^ D
+[s5;:Upp`:`:TerminalCtrl`:`:GetImageDisplay`(`)const:%- [@(0.0.255) const]_[_^Upp`:`:Display^ D
 isplay][@(0.0.255) `&]_[* GetImageDisplay]()_[@(0.0.255) const]&]
 [s2; Returns a reference to the current [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
 isplay] used to display embedded images (e.g. sixels). See Terminal 
 Displays section for more information.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetFontSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetFontSize]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetFontSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetFontSize](
+)_[@(0.0.255) const]&]
 [s2; Returns the current font`'s size in pixels.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetPageSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPageSize]()_[@(0.0.255) c
-onst]&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetPageSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPageSize](
+)_[@(0.0.255) const]&]
 [s2; Returns the current size of terminal display in cells.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:PageSizeToClient`(Upp`:`:Size`)const:%- [_^Upp`:`:Size^ Size]_[* P
-ageSizeToClient]([_^Upp`:`:Size^ Size]_[*@3 sz])_[@(0.0.255) const]&]
-[s5;:Upp`:`:Terminal`:`:PageSizeToClient`(int`,int`)const:%- [_^Upp`:`:Size^ Size]_[* Pag
-eSizeToClient]([@(0.0.255) int]_[*@3 col], [@(0.0.255) int]_[*@3 row])_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:PageSizeToClient`(Upp`:`:Size`)const:%- [_^Upp`:`:Size^ Siz
+e]_[* PageSizeToClient]([_^Upp`:`:Size^ Size]_[*@3 sz])_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:PageSizeToClient`(int`,int`)const:%- [_^Upp`:`:Size^ Size]_
+[* PageSizeToClient]([@(0.0.255) int]_[*@3 col], [@(0.0.255) int]_[*@3 row])_[@(0.0.255) cons
+t]&]
 [s2; Returns the requested terminal page size in pixels, by multiplying 
 the given page size with the size of the current font, and then 
-adding the total size of Terminal ctrl`'s child frames (e.g. 
-scrollbar, if visible) to the result.&]
+adding the total size of TerminalCtrl`'s child frames (e.g. scrollbar, 
+if visible) to the result.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetMinSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetMinSi
-ze]()_[@(0.0.255) const]_override&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetMinSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetM
+inSize]()_[@(0.0.255) const]_override&]
 [s2; Returns the minimum size of terminal in pixels. Same as PageSizeToClient(2, 
 2).&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetStdSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetStdSi
-ze]()_[@(0.0.255) const]_override&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetStdSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetS
+tdSize]()_[@(0.0.255) const]_override&]
 [s2; Returns the standard size of terminal in pixels. Same as PageSizeToClient(80, 
 24).&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:GetMaxSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetMaxSi
-ze]()_[@(0.0.255) const]_override&]
+[s5;:Upp`:`:TerminalCtrl`:`:GetMaxSize`(`)const override:%- [_^Upp`:`:Size^ Size]_[* GetM
+axSize]()_[@(0.0.255) const]_override&]
 [s2; Returns the maximum size of terminal in pixels. Same as PageSizeToClient(132, 
-24). Note that this is just a convenience method. Terminal ctrl 
+24). Note that this is just a convenience method. TerminalCtrl 
 doesn`'t have a predefined upper size limit.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Copy`(`):%- [@(0.0.255) void]_[* Copy]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:Copy`(`):%- [@(0.0.255) void]_[* Copy]()&]
 [s2; Copies the selection to clipboard.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Paste`(`):%- [@(0.0.255) void]_[* Paste]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:Paste`(`):%- [@(0.0.255) void]_[* Paste]()&]
 [s2; Pastes the clipboard to terminal. The content to be pasted is 
 automatically encoded into the target character set. Also it 
 can be examined, modified, or rejected by client code, using 
@@ -1128,37 +1158,37 @@ the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenCl
 henClip] event.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SelectAll`(bool`):%- [@(0.0.255) void]_[* SelectAll]([@(0.0.255) bo
-ol]_[*@3 history ]`=_[@(0.0.255) false])&]
+[s5;:Upp`:`:TerminalCtrl`:`:SelectAll`(bool`):%- [@(0.0.255) void]_[* SelectAll]([@(0.0.255) b
+ool]_[*@3 history ]`=_[@(0.0.255) false])&]
 [s2; Selects the content of the terminal view. If [%-*@3 history] is 
 true then the text content of the history buffer will be selected 
 as well.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsSelection`(`)const:%- [@(0.0.255) bool]_[* IsSelection]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsSelection`(`)const:%- [@(0.0.255) bool]_[* IsSelection]()_[@(0.0.255) c
 onst]&]
 [s2; Returns true if there is a selection.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsMouseOverImage`(`)const:%- [@(0.0.255) bool]_[* IsMouseOverImag
-e]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsMouseOverImage`(`)const:%- [@(0.0.255) bool]_[* IsMouseOver
+Image]()_[@(0.0.255) const]&]
 [s2; Returns true if the mouse pointer is hovering over an inline 
 image cell.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsMouseOverHyperlink`(`)const:%- [@(0.0.255) bool]_[* IsMouseOver
-Hyperlink]()_[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:IsMouseOverHyperlink`(`)const:%- [@(0.0.255) bool]_[* IsMouse
+OverHyperlink]()_[@(0.0.255) const]&]
 [s2; Returns true if the mouse pointer is hovering over an hyperlink 
 cell.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:IsTracking`(`)const:%- [@(0.0.255) bool]_[* IsTracking]()_[@(0.0.255) c
+[s5;:Upp`:`:TerminalCtrl`:`:IsTracking`(`)const:%- [@(0.0.255) bool]_[* IsTracking]()_[@(0.0.255) c
 onst]&]
 [s2; Returns true if mouse tracking mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:StdBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* StdBar]([_^Upp`:`:Bar^ B
-ar][@(0.0.255) `&]_[*@3 menu])&]
+[s5;:Upp`:`:TerminalCtrl`:`:StdBar`(Upp`:`:Bar`&`):~~~384;%- [@(0.0.255) void]_[* StdBar](
+[_^Upp`:`:Bar^ Bar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; The standard terminal menu. Standard terminal menu consists 
 of the standard clipboard actions for text, hyperlinks, and terminal 
 specific actions. This menu is completely optional. It can be 
@@ -1167,88 +1197,90 @@ the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:Terminal`:`:WhenBa
 henBar ]callback.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:EditBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* EditBar]([_^Upp`:`:Bar^ B
+[s5;:Upp`:`:TerminalCtrl`:`:EditBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* EditBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; Edit menu consists of standard clipboard actions for text (select/copy/paste), 
 and is a part of standard menu. It can also be used separately.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:LinksBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* LinksBar]([_^Upp`:`:Bar^ B
+[s5;:Upp`:`:TerminalCtrl`:`:LinksBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* LinksBar]([_^Upp`:`:Bar^ B
 ar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; Links menu consists of standard clipboard actions for hyperlinks 
 (copy/open), and is a part of standard menu. It can also be used 
 separately.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ImagesBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* ImagesBar]([_^Upp`:`:Bar^ B
-ar][@(0.0.255) `&]_[*@3 menu])&]
+[s5;:Upp`:`:TerminalCtrl`:`:ImagesBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* ImagesBar](
+[_^Upp`:`:Bar^ Bar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; Images menu consists of standard clipboard actions for inline 
 images (copy/open), and is a part of standard menu. It can also 
 be used separately.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:OptionsBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* OptionsBar]([_^Upp`:`:Bar^ B
-ar][@(0.0.255) `&]_[*@3 menu])&]
+[s5;:Upp`:`:TerminalCtrl`:`:OptionsBar`(Upp`:`:Bar`&`):%- [@(0.0.255) void]_[* OptionsBar
+]([_^Upp`:`:Bar^ Bar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; Options menu consists of terminal specific actions (read`-only/read`-write 
 mode, show/hide scrollbar, etc.), and is a part of standard menu. 
 It can also be used separately.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:PaintPage`(Upp`:`:Draw`&`):%- [@(0.0.255) void]_[* PaintPage]([_^Upp`:`:Draw^ D
-raw][@(0.0.255) `&]_[*@3 w])&]
+[s5;:Upp`:`:TerminalCtrl`:`:PaintPage`(Upp`:`:Draw`&`):%- [@(0.0.255) void]_[* PaintPage](
+[_^Upp`:`:Draw^ Draw][@(0.0.255) `&]_[*@3 w])&]
 [s2; Dumps the terminal screen to target [%-*@3 w]. Useful for taking 
 screenshots. Note that this method works on WYSIWYG`-basis.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:MetaEscapesKeys`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* MetaEscapesKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:MetaEscapesKeys`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* MetaEscapesKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tr
+ue])&]
 [s2; Prefixes the `"Alt`-key`" modified keys with ESC. Returns `*this 
 for method chaining. This is the default behaviour.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:MetaShiftsKeys`(bool`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* MetaShiftsKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
+[s5;:Upp`:`:TerminalCtrl`:`:MetaShiftsKeys`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* MetaShiftsKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) tru
+e])&]
 [s2; Shifts the codes of `"Alt`-key`" modified keys from 0`-127 to 
 128`-255 by adding 128 to them. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:MetaKeyDoesNothing`(`):%- [_^Upp`:`:Terminal^ Terminal][@(0.0.255) `&
-]_[* MetaKeyDoesNothing]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:MetaKeyDoesNothing`(`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
+erminalCtrl][@(0.0.255) `&]_[* MetaKeyDoesNothing]()&]
 [s2; Disables shifting and prefixing of the `"Alt`" modified keys. 
 Returns `*this for method chaining.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:RefreshDisplay`(`):%- [@(0.0.255) void]_[* RefreshDisplay]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:RefreshDisplay`(`):%- [@(0.0.255) void]_[* RefreshDisplay]()&]
 [s2; Refreshes the terminal display. This is the prefered refresh 
 method. It refreshes only the damaged lines, and does some extra 
 stuff.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Serialize`(Upp`:`:Stream`&`)override:%- [@(0.0.255) void]_[* Seri
-alize]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 s])_override&]
-[s2; Serializes the current configuration of Terminal ctrl to [%-*@3 s].&]
+[s5;:Upp`:`:TerminalCtrl`:`:Serialize`(Upp`:`:Stream`&`)override:%- [@(0.0.255) void]_[* S
+erialize]([_^Upp`:`:Stream^ Stream][@(0.0.255) `&]_[*@3 s])_override&]
+[s2; Serializes the current configuration of TerminalCtrl to [%-*@3 s].&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Jsonize`(Upp`:`:JsonIO`&`)override:%- [@(0.0.255) void]_[* Jsoniz
-e]([_^Upp`:`:JsonIO^ JsonIO][@(0.0.255) `&]_[*@3 jio])_override&]
-[s2; Jsonizes the current configuration of Terminal ctrl to [%-*@3 jio].&]
+[s5;:Upp`:`:TerminalCtrl`:`:Jsonize`(Upp`:`:JsonIO`&`)override:%- [@(0.0.255) void]_[* Js
+onize]([_^Upp`:`:JsonIO^ JsonIO][@(0.0.255) `&]_[*@3 jio])_override&]
+[s2; Jsonizes the current configuration of TerminalCtrl to [%-*@3 jio].&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:Xmlize`(Upp`:`:XmlIO`&`)override:%- [@(0.0.255) void]_[* Xmlize](
-[_^Upp`:`:XmlIO^ XmlIO][@(0.0.255) `&]_[*@3 xio])_override&]
-[s2; Xmlizes the current configuration of Terminal ctrl to [%-*@3 xio] 
+[s5;:Upp`:`:TerminalCtrl`:`:Xmlize`(Upp`:`:XmlIO`&`)override:%- [@(0.0.255) void]_[* Xmli
+ze]([_^Upp`:`:XmlIO^ XmlIO][@(0.0.255) `&]_[*@3 xio])_override&]
+[s2; Xmlizes the current configuration of TerminalCtrl to [%-*@3 xio] 
 .&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ClearImageCache`(`):%- [@(0.0.255) static] 
+[s5;:Upp`:`:TerminalCtrl`:`:ClearImageCache`(`):%- [@(0.0.255) static] 
 [@(0.0.255) void]_[* ClearImageCache]()&]
 [s2; Clears the shared image data cache.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetImageCacheMaxSize`(int`,int`):%- [@(0.0.255) static] 
+[s5;:Upp`:`:TerminalCtrl`:`:SetImageCacheMaxSize`(int`,int`):%- [@(0.0.255) static] 
 [@(0.0.255) void]_[* SetImageCacheMaxSize]([@(0.0.255) int]_[*@3 maxsize], 
 [@(0.0.255) int]_[*@3 maxcount])&]
-[s2; Terminal ctrl uses a [/ shared ]data cache to store its inline 
+[s2; TerminalCtrl uses a [/ shared ]data cache to store its inline 
 images. This method sets the maximum size of image data to be 
 stored in the shared cache to [%-*@3 maxsize, ]and the maximum 
 number of items to [%-*@3 maxcount]. The maximum cache size has 
@@ -1257,14 +1289,14 @@ x 1024 x 4`] x 128] pixels (512 MB), and the default [%-*@3 maxcount]
 is 256.000 entries.&]
 [s3; &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:ClearHyperlinkCache`(`):%- [@(0.0.255) static] 
+[s5;:Upp`:`:TerminalCtrl`:`:ClearHyperlinkCache`(`):%- [@(0.0.255) static] 
 [@(0.0.255) void]_[* ClearHyperlinkCache]()&]
 [s2; Clears the shared hyperlink cache.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:SetHyperlinkCacheMaxSize`(int`):%- [@(0.0.255) void]_[* SetHyperl
-inkCacheMaxSize]([@(0.0.255) int]_[*@3 maxcount])&]
-[s2; Terminal ctrl uses a [/ shared ]hyperlink cache to store its URIs. 
+[s5;:Upp`:`:TerminalCtrl`:`:SetHyperlinkCacheMaxSize`(int`):%- [@(0.0.255) void]_[* SetHy
+perlinkCacheMaxSize]([@(0.0.255) int]_[*@3 maxcount])&]
+[s2; TerminalCtrl uses a [/ shared ]hyperlink cache to store its URIs. 
 This method sets the maximum number of URIs to be stored in the 
 hyperlink cache to [%-*@3 maxcount]. The default [%-*@3 maxcount 
 ]is 100.000 entries. The maximum length of a single entry can 
@@ -1273,47 +1305,48 @@ be at most 2084 bytes.&]
 [s3;%- &]
 [ {{10000F(128)G(128)@1 [s0; [* Constructor detail]]}}&]
 [s3;%- &]
-[s5;:Upp`:`:Terminal`:`:Terminal`(`):%- [* Terminal]()&]
+[s5;:Upp`:`:TerminalCtrl`:`:TerminalCtrl`(`):%- [* TerminalCtrl]()&]
 [s2; Default constructor.&]
 [s3; &]
 [s0; &]
-[ {{10000@(113.42.0) [s0; [*@7;4 Terminal`::InlineImage]]}}&]
+[ {{10000@(113.42.0) [s0; [*@7;4 TerminalCtrl`::InlineImage]]}}&]
 [s0; &]
-[s1;:Upp`:`:Terminal`:`:InlineImage`:`:struct:%- [@(0.0.255)3 struct][3 _][*3 InlineImage][3 _
-:_][@(0.0.255)3 public][3 _][*@3;3 ValueType][3 <][*3 InlineImage][3 , ][@3;3 999][3 , 
-][_^Upp`:`:Moveable^3 Moveable][3 <][*3 InlineImage][3 >_>_]&]
+[s1;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:struct:%- [@(0.0.255)3 struct][3 _][*3 InlineIma
+ge][3 _:_][@(0.0.255)3 public][3 _][*@3;3 ValueType][3 <][*3 InlineImage][3 , 
+][@3;3 999][3 , ][_^Upp`:`:Moveable^3 Moveable][3 <][*3 InlineImage][3 >_>_]&]
 [s2;# This simple structure represents a single inline image and 
-and it is passed on to Terminal ctrl`'s [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:NormalImageCellDisplay`(`)^ i
+and it is passed on to TerminalCtrl`'s [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:NormalImageCellDisplay`(`)^ i
 mage display].&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImage`:`:image:%- [_^Upp`:`:Image^ Image]_[* image]&]
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:image:%- [_^Upp`:`:Image^ Image]_[* image]&]
 [s2; The actual image. Terminal ctrl always passes the full image 
 on to its image display. For performance reasons, however, it 
 does not paint the image as a whole.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImage`:`:cellsize:%- [_^Upp`:`:Size^ Size]_[* cellsize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:cellsize:%- [_^Upp`:`:Size^ Size]_[* cellsize]&]
 [s2; The size of the full image in cells.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImage`:`:fontsize:%- [_^Upp`:`:Size^ Size]_[* fontsize]&]
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:fontsize:%- [_^Upp`:`:Size^ Size]_[* fontsize]&]
 [s2; Current font size in pixels.&]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImage`:`:paintrect:%- [_^Upp`:`:Rect^ Rect]_[* paintrect]&]
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:paintrect:%- [_^Upp`:`:Rect^ Rect]_[* paintrec
+t]&]
 [s2;# This rectangle represents the portion of the full image to 
 be painted (in pixels).&]
 [s3;%- 1&]
 [s4;%- &]
-[s5;:Upp`:`:Terminal`:`:InlineImage`:`:operator Value`(`)const:%- [* operator_Value]()_
-[@(0.0.255) const]&]
+[s5;:Upp`:`:TerminalCtrl`:`:InlineImage`:`:operator Value`(`)const:%- [* operator_Value
+]()_[@(0.0.255) const]&]
 [s2; Converts the InlineImage structure into a Value.&]
 [s3;%- &]
 [s0; &]
 [ {{10000@(113.42.0) [s0; [*@7;4 Terminal displays]]}}&]
 [s0;%- &]
-[s2;#%- Terminal ctrl supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
+[s2;#%- TerminalCtrl supports [^topic`:`/`/Draw`/src`/Display`_en`-us`#Display`:`:class^ D
 isplay] and its possible custom derivatives for displaying specific 
 objects. [%% Terminal ctrl merely stores a pointer to the provided 
 Display; it is up to client code to keep the display object alive 
