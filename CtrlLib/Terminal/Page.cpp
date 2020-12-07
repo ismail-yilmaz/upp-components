@@ -1281,22 +1281,27 @@ String VTPage::Cursor::ToString() const
 
 WString AsWString(const VTPage& page, const Rect& r, bool rectsel, bool tspaces)
 {
-	WString txt;
+	Vector<WString> v;
+	bool wrapped = false;
 
 	auto RangeToWString = [&](const VTLine& line, VTLine::ConstRange& range) -> bool
 	{
 		WString s = AsWString(range, tspaces);
-		txt.Cat(s);
-		if(rectsel || !line.IsWrapped() || IsNull(s)) {
-		#ifdef PLATFORM_WIN32
-			txt.Cat("\r");
-		#endif
-			txt.Cat("\n");
-		}
+		if(!rectsel && (v.GetCount() && wrapped))
+			v.Top() << s;
+		else
+			v.Add() << s;
+		wrapped = line.IsWrapped();
 		return false;
 	};
 
+	#ifdef PLATFORM_WIN32
+	constexpr const char *VT_EOL = "\r\n";
+	#else
+	constexpr const char *VT_EOL = "\n";
+	#endif
+
 	page.FetchRange(r, RangeToWString, rectsel);
-	return pick(txt);
+	return pick(Join(v, VT_EOL));
 }
 }

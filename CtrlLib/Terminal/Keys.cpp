@@ -234,15 +234,13 @@ bool TerminalCtrl::Key(dword key, int count)
 		if(ctrlkey) {
 			key = ToAscii(key) & 0x1F;
 		}
-		if(altkey && metakeyflags != MKEY_NONE) {
+		if(key < 128 && altkey && metakeyflags != MKEY_NONE) {
 			if(metakeyflags & MKEY_SHIFT)
 				key |= 0x80;
-			if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM]) {
-				if(IsUtf8Mode())
-					PutESC(key, count);
-				else
-					Put(key, count);
-			}
+			if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM])
+				PutESC(key, count);
+			else
+				Put(key, count);
 		}
 		else
 			Put(key, count);
@@ -339,7 +337,7 @@ bool TerminalCtrl::Key(dword key, int count)
 				if(ctrlkey || altkey) {
 					key &= ~(K_CTRL|K_ALT|K_SHIFT);
 					if(key >= K_A && key <= K_Z) {
-						key = 'A' + (key - K_A);
+						key = 'a' + (key - K_A);
 					}
 					else
 					if(key == K_2) {
