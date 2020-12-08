@@ -70,6 +70,9 @@ void TerminalCtrl::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case XTBRPM:
 			XTbrpm(enable);
 			break;
+		case XTPCFKEYM:
+			XTpcfkeym(enable);
+			break;
 		case XTREWRAPM:
 			XTrewrapm(enable);
 			break;
@@ -405,6 +408,12 @@ void TerminalCtrl::XTanymm(bool b)
 {
 	modes.Set(XTANYMM, b);
 	LDUMP(XTANYMM);
+}
+
+void TerminalCtrl::XTpcfkeym(bool b)
+{
+	modes.Set(XTPCFKEYM, b);
+	LDUMP(XTPCFKEYM);
 }
 
 }

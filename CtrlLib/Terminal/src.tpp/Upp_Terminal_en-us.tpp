@@ -1001,6 +1001,24 @@ sClipboardAccessPermitted]()_[@(0.0.255) const]&]
 is enabled.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:PCStyleFunctionKeys`(bool`):%- [_^Upp`:`:TerminalCtrl^ Term
+inalCtrl][@(0.0.255) `&]_[* PCStyleFunctionKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
+rue])&]
+[s2; Enables or disables the PC`-style function keys feature. Disabled 
+by default. Returns `*this for method chaining.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:NoPCStyleFunctionKeys`(`):%- [_^Upp`:`:TerminalCtrl^ Termin
+alCtrl][@(0.0.255) `&]_[* NoPCStyleFunctionKeys]()&]
+[s2; Disables the PC`-style function keys feature. Same as PCStyleFunctionKeys(false)
+. Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:HasPCStyleFunctionKeys`(`)const:%- [@(0.0.255) bool]_[* HasPC
+StyleFunctionKeys]()_[@(0.0.255) const]&]
+[s2; Returns true if the PC`-style function keys feature is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:UDK`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* UDK]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s6;%- Requires at least a level 2 device emulation.&]

@@ -30,6 +30,7 @@ TerminalCtrl::TerminalCtrl()
 , keynavigation(true)
 , userdefinedkeys(false)
 , userdefinedkeyslocked(true)
+, pcstylefunctionkeys(false)
 , streamfill(false)
 {
 	Unicode();
@@ -979,6 +980,10 @@ void TerminalCtrl::OptionsBar(Bar& menu)
 		[=] { KeyNavigation(!keynavigation); })
 		.Key(K_SHIFT_CTRL_K)
 		.Check(keynavigation);
+	menu.Add(t_("PC-style function keys"),
+		[=] { PCStyleFunctionKeys(!pcstylefunctionkeys); })
+		.Key(K_SHIFT_CTRL_P)
+		.Check(pcstylefunctionkeys);
 	menu.Add(t_("Dynamic colors"),
 		[=] { DynamicColors(!dynamiccolors); })
 		.Key(K_SHIFT_CTRL_D)

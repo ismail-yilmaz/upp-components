@@ -258,6 +258,10 @@ public:
     TerminalCtrl&   ForbidClipboardWrite()                          { return PermitClipboardWrite(false); }
     bool            IsClipboardWritePermitted() const               { return clipaccess & CLIP_WRITE; }
  
+    TerminalCtrl&   PCStyleFunctionKeys(bool b = true)              { pcstylefunctionkeys = b; return *this; }
+    TerminalCtrl&   NoPCStyleFunctionKeys()                         { return PCStyleFunctionKeys(false); }
+    bool            HasPCStyleFunctionKeys() const                  { return pcstylefunctionkeys; }
+    
     TerminalCtrl&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
     const Display&  GetImageDisplay() const                         { return *imgdisplay; }
 
@@ -507,6 +511,7 @@ private:
     bool        keynavigation;
     bool        legacycharsets;
     bool        alternatescroll;
+    bool        pcstylefunctionkeys;
     bool        userdefinedkeys;
     bool        userdefinedkeyslocked;
     bool        windowactions;
@@ -717,6 +722,7 @@ private:
     void        XTdragm(bool b);
     void        XTfocusm(bool b);
     void        XTaltkeym(bool b);
+    void        XTpcfkeym(bool b);
     void        XTrewrapm(bool b);
     void        XTsgrmm(bool b);
     void        XTsrcm(bool b);
@@ -726,6 +732,28 @@ private:
 
     void        SetMode(const VTInStream::Sequence& seq, bool enable);
     static int  FindModeId(word modenum, byte modetype, byte level);
+
+private:
+    // Key manipulation and VT and PC-style function keys support.
+    struct FunctionKey : Moveable<FunctionKey> {
+        enum Type : dword { Cursor, EditPad, NumPad, Programmable, Function };
+        dword       type;
+        dword       level;
+        const char* code;
+        const char* altcode;
+
+        FunctionKey(dword type, dword level, const char *code, const char *altcode = nullptr)
+        : type(type)
+        , level(level)
+        , code(code)
+        , altcode(altcode)
+        {
+        }
+    };
+
+    bool ProcessKey(dword key, bool ctrlkey, bool altkey, int count);
+    bool ProcessVTStyleFunctionKey(const FunctionKey& k, dword modkeys, int count);
+    bool ProcessPCStyleFunctionKey(const FunctionKey& k, dword modkeys, int count);
 
 public:
     // DEC and xterm style caret (cursor) support.
@@ -874,6 +902,7 @@ private:
         XTANYMM,
         XTFOCUSM,
         XTALTESCM,
+        XTPCFKEYM,
         XTREWRAPM,
         XTSPREG,
         XTSRCM,

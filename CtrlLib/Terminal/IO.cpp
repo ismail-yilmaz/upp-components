@@ -369,6 +369,7 @@ void TerminalCtrl::Serialize(Stream& s)
 		s % hidemousecursor;
 		s % userdefinedkeys;
 		s % userdefinedkeyslocked;
+		s % pcstylefunctionkeys;
 		s % metakeyflags;
 		s % windowactions;
 		s % windowreports;
@@ -417,6 +418,7 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
         ("ReverseWrap",         reversewrap)
         ("KeyNavigation",       keynavigation)
         ("MetaKeyFlags",        metakeyflags)
+        ("PCStyleFunctionKeys", pcstylefunctionkeys)
         ("UDK",                 userdefinedkeys)
         ("LockUDK",             userdefinedkeyslocked)
         ("AlternateScroll",     alternatescroll)
