@@ -92,39 +92,13 @@ void TerminalCtrl::ReportControlFunctionSettings(const VTInStream::Sequence& seq
 	}
 	else
 	if(seq.payload.IsEqual("\"p")) {				// DECSCL
-		int level = 62;
-		switch(clevel) {
-		case LEVEL_0:
-		case LEVEL_1:
-			level = 61;
-			break;
-		case LEVEL_2:
-			level = 62;
-			break;
-		case LEVEL_3:
-			level = 63;
-			break;
-		case LEVEL_4:
-			level = 64;
-			break;
-		}
+		int level = decode(clevel, LEVEL_0, 61, LEVEL_1, 61, LEVEL_2, 62, LEVEL_3, 63, 64);
 		reply = Format("%d`$r%d;%d", 1, level, Is8BitMode() ? 0 : 1);
 	}
 	else
 	if(IsLevel4() && seq.payload.IsEqual(" q")) {	// DECSCUSR
-		int style = 0;
-		switch(caret.GetStyle()) {
-		case Caret::BLOCK:
-			style = caret.IsBlinking() ? 1 : 2;
-			break;
-		 case Caret::UNDERLINE:
-			style = caret.IsBlinking() ? 3 : 4;
-			break;
-		case Caret::BEAM:
-			style = caret.IsBlinking() ? 5 : 6;
-			break;
-		}
-		reply = Format("%d`$r%d", 1, style);
+		int style = decode(caret.GetStyle(), Caret::BEAM, 6, Caret::UNDERLINE, 4, 2);
+		reply = Format("%d`$r%d", 1, style - (int) caret.IsBlinking());
 	}
 	else
 	if(seq.payload.IsEqual("\"q")) {				// DECSCA
@@ -162,7 +136,7 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 {
 	int which = seq.GetInt(1, 0);
 	
-	if(which == 1) {	// DECCIR
+	if(which == 1) {	// DECRSPS/DECCIR
 		Vector<String> cr = Split(seq.payload, ';');
 
 		if(cr.IsEmpty())
@@ -170,13 +144,10 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 
 		auto GetInt = [&cr](int n) -> int
 		{
-			bool b = cr.GetCount() < max(1, n);
-			if(b) return 0;
-			String s = cr[--n];
-			if(64 <= s[0] && s[0] <= 65536)
-				return s[0] & 0xFFFF;
-			else
-				return Nvl(StrInt(s), 0);
+			String s = cr.Get(--n, Null);
+			return (s[0] >= 0x40 && s[0] <= 0xFF)
+					? (int) s[0]
+					: Nvl(StrInt(s), 0);
 		};
 
 		auto GetStr = [&cr](int n) -> String
@@ -188,11 +159,11 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 		auto GetChrset = [=](int i) -> byte
 		{
 			// TODO: This can be more precise...
-			if(i == '0') return CHARSET_DEC_DCS;
-			if(i == '>') return CHARSET_DEC_TCS;
-			if(i == '<') return CHARSET_DEC_MCS;
-			if(i == 'A') return CHARSET_ISO8859_1;
-			return CHARSET_TOASCII;
+			return decode(i,'0', CHARSET_DEC_DCS,
+							'>', CHARSET_DEC_TCS,
+							'<', CHARSET_DEC_MCS,
+							'A', CHARSET_ISO8859_1,
+							'G', CHARSET_UNICODE, CHARSET_TOASCII);
 		};
 		
 		Point pt;
@@ -206,18 +177,15 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 		int sz	  = GetInt(9);
 		String gs = GetStr(10);
 		
-		DECom(flags & 0x01);
-		DECawm(flags & 0x08);
-		
 		cellattrs.Bold(sgr & 0x01);
 		cellattrs.Blink(sgr & 0x04);
 		cellattrs.Invert(sgr & 0x08);
 		cellattrs.Underline(sgr & 0x02);
 		cellattrs.Protect(attrs & 0x01);
 
-		page->Attributes(cellattrs);
-
-		page->MoveTo(pt);
+		DECom(flags & 0x01);
+		
+		page->Attributes(cellattrs).MoveTo(pt).SetEol(flags & 0x8);
 		
 		if(flags & 0x02)
 			gsets.SS(0x8E);
@@ -273,7 +241,7 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 		}
 	}
 	else
-	if(which == 2) {	// DECTABSR
+	if(which == 2) {	// DECRSPS/DECTABSR
 		Vector<String> stab = Split(seq.payload, '/');
 
 		page->ClearTabs();
@@ -293,24 +261,7 @@ void TerminalCtrl::ParseSixelGraphics(const VTInStream::Sequence& seq)
 
 	int  nohole = seq.GetInt(2, 0);
 	int  grid   = seq.GetInt(3, 0); // Omitted.
-	int  ratio = 1;
-
-	switch(seq.GetInt(1, 1)) {
-	case 5:
-	case 6:
-		ratio = 2;
-		break;
-	case 3:
-	case 4:
-		ratio = 3;
-		break;
-	case 2:
-		ratio = 5;
-		break;
-	default:
-		ratio = 1;
-		break;
-	}
+	int  ratio  = decode(seq.GetInt(1, 1), 5, 2, 6, 2, 3, 3, 4, 3, 2, 5, 1);
 	
 	cellattrs.Hyperlink(false);
 

@@ -419,7 +419,7 @@ void TerminalCtrl::ReportPresentationState(const VTInStream::Sequence& seq)
 			flags |= 0x04;
 		if(modes[DECOM])
 			flags |= 0x01;
-		if(modes[DECAWM])
+		if(page->IsEol())
 			flags |= 0x08;
 
 		auto Is96Chars = [=] (byte gx) -> bool
@@ -430,11 +430,12 @@ void TerminalCtrl::ReportPresentationState(const VTInStream::Sequence& seq)
 		auto GetCharsetId = [=] (byte chrset) -> const char*
 		{
 			// TODO: This can be more precise...
-			if(chrset == CHARSET_DEC_DCS)   return "0";
-			if(chrset == CHARSET_DEC_TCS)   return ">";
-			if(chrset == CHARSET_DEC_MCS)   return "<";
-			if(chrset == CHARSET_ISO8859_1)	return "A";
-			return "B";		// ASCII
+			return decode(chrset,
+						CHARSET_DEC_DCS, "0",
+						CHARSET_DEC_TCS, ">",
+						CHARSET_DEC_MCS, "<",
+						CHARSET_UNICODE, "G",
+						CHARSET_ISO8859_1, "A", "B");
 		};
 
 		if(Is96Chars(gsets.GetG0()))
