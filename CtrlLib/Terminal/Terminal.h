@@ -682,10 +682,10 @@ private:
     void        DisplayAlignmentTest();
 
 private:
-    bool        GetUDKString(byte key, String& val);
+    bool        GetUDKString(dword key, String& val);
 
 private:
-    VectorMap<byte, String> udk;
+    VectorMap<dword, String> udk;
 
 private:
     Bits        modes;

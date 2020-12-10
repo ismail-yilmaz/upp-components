@@ -32,9 +32,9 @@ void TerminalCtrl::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 	if(!userdefinedkeys || userdefinedkeyslocked)
 		return;
 
-	bool clear = seq.GetInt(1) == 0;
-	bool lock  = seq.GetInt(2) == 0;
-	// int modifier = seq.GetInt(3, 0);
+	bool  clear = seq.GetInt(1) == 0;
+	bool  lock  = seq.GetInt(2) == 0;
+	dword modifiers = seq.GetInt(3, 0);
 
 	Vector<String> vudk = Split(seq.payload, ';', false);
 
@@ -43,14 +43,24 @@ void TerminalCtrl::SetUserDefinedKeys(const VTInStream::Sequence& seq)
 
 	String key, val;
 	for(const String& pair : vudk)
-		if(SplitTo(pair, '/', key, val))
-			udk.Put(StrInt(key), ScanHexString(val));
+		if(SplitTo(pair, '/', key, val)) {
+			dword k = StrInt(key);
+			if(findarg(modifiers, 3, 4) >= 0 && (!pcstylefunctionkeys || k > 34))
+				continue;
+			k |= decode(modifiers,
+					0, K_SHIFT,
+					2, K_SHIFT,
+					3, K_ALT,
+					4, K_SHIFT|K_ALT, 0);
+			LLOG("UDKey: " << key << ", modifiers: " << modifiers << ", value (in hex): " << val);
+			udk.Put(k, ScanHexString(val));
+		}
 
 	if(lock)
 		LockUDK();
 }
 
-bool TerminalCtrl::GetUDKString(byte key, String& val)
+bool TerminalCtrl::GetUDKString(dword key, String& val)
 {
 	if(!IsLevel2() || udk.IsEmpty())
 		return false;

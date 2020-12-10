@@ -12,7 +12,7 @@ bool TerminalCtrl::ProcessKey(dword key, bool ctrlkey, bool altkey, int count)
 	if(ctrlkey)
 		key = ToAscii(key) & 0x1F;
 
-	if(key < 128 && altkey && metakeyflags != MKEY_NONE) {
+	if(key < 0x80 && altkey && metakeyflags != MKEY_NONE) {
 		if(metakeyflags & MKEY_SHIFT)
 			key |= 0x80;
 		if((metakeyflags & MKEY_ESCAPE) || modes[XTALTESCM])
@@ -205,78 +205,52 @@ bool TerminalCtrl::UDKey(dword key, int count)
 	if(!HasUDK())
 		return false;
 
-	byte userkey  = 0;
-
 	// DEC user-defined keys (DECUDK) support
 	
-	enum UserDefinedKeys : byte
-	{
-		UDK_F1      = 11,
-		UDK_F2      = 12,
-		UDK_F3      = 13,
-		UDK_F4      = 14,
-		UDK_F5      = 15,
-		UDK_F6      = 17,
-		UDK_F7      = 18,
-		UDK_F8      = 19,
-		UDK_F9      = 20,
-		UDK_F10     = 21,
-		UDK_F11     = 23,
-		UDK_F12     = 24,
-		UDK_ALT     = 64,
-		UDK_SHIFT   = 128
+	const static Tuple<dword, dword> sUDKMap[] = {
+        { K_F1,      11 },  { K_F2,      12 },
+        { K_F3,      13 },  { K_F4,      14 },
+        { K_F5,      15 },  { K_F6,      17 },
+        { K_F7,      18 },  { K_F8,      19 },
+        { K_F9,      20 },  { K_F10,     21 },
+        { K_F11,     23 },  { K_F12,     24 },
+        { K_CTRL_F1, 25 },  { K_CTRL_F2, 26 },
+        { K_CTRL_F3, 28 },  { K_CTRL_F4, 29 },
+        { K_CTRL_F5, 31 },  { K_CTRL_F6, 32 },
+        { K_CTRL_F7, 33 },  { K_CTRL_F8, 34 },
+        { K_CTRL_F9, 35 },  { K_CTRL_F10,36 },
 	};
-		
-//	if(key & K_ALT)
-//		userkey |= UDK_ALT;
-//	if(key & K_SHIFT)
-//		userkey |= UDK_SHIFT;
 
-	switch(key) {
-	case K_SHIFT_F1:
-		userkey |= UDK_F1;
-		break;
-	case K_SHIFT_F2:
-		userkey |= UDK_F2;
-		break;
-	case K_SHIFT_F3:
-		userkey |= UDK_F3;
-		break;
-	case K_SHIFT_F4:
-		userkey |= UDK_F4;
-		break;
-	case K_SHIFT_F5:
-		userkey |= UDK_F5;
-		break;
-	case K_SHIFT_F6:
-		userkey |= UDK_F6;
-		break;
-	case K_SHIFT_F7:
-		userkey |= UDK_F7;
-		break;
-	case K_SHIFT_F8:
-		userkey |= UDK_F8;
-		break;
-	case K_SHIFT_F9:
-		userkey |= UDK_F9;
-		break;
-	case K_SHIFT_F10:
-		userkey |= UDK_F10;
-		break;
-	case K_SHIFT_F11:
-		userkey |= UDK_F11;
-		break;
-	case K_SHIFT_F12:
-		userkey |= UDK_F12;
-		break;
-	default:
+	auto *k = FindTuple(sUDKMap, __countof(sUDKMap), key & ~(K_SHIFT|K_ALT));
+	if(!k)
 		return false;
-	}
+
+	dword userkey  = 0;
 	
-	String s;
-	if(GetUDKString(userkey, s)) {
-		Put(s.ToWString(), count);
-		return true;
+	if(pcstylefunctionkeys) {
+		if(key & K_SHIFT) {
+			userkey = K_SHIFT|k->b;
+		}
+		else
+		if(key & K_ALT) {
+			userkey = k->b < 25 ? (K_ALT|k->b) : 0;
+		}
+		else
+		if(key & (K_SHIFT|K_ALT)) {
+			userkey = k->b < 25 ? (K_SHIFT|K_ALT|k->b) : 0;
+		}
+	}
+	else
+	if((key & K_SHIFT) && k->b < 35) {
+		userkey = K_SHIFT|k->b;
+	}
+
+	if(userkey) {
+		String s;
+		if(GetUDKString(userkey, s)) {
+			Put(s.ToWString(), count);
+			return true;
+		}
 	}
 
 	return false;
@@ -301,7 +275,7 @@ bool TerminalCtrl::NavKey(dword key, int count)
 		sb.NextPage();
 		break;
 	case K_SHIFT_CTRL_HOME:
-		sb.ScrollInto(0);
+		sb.Begin();
 		break;
 	case K_SHIFT_CTRL_END:
 		sb.End();
@@ -354,9 +328,6 @@ bool TerminalCtrl::Key(dword key, int count)
 		else {
 			// Handle control key (including information separators).
 			switch(key & ~(K_ALT|K_SHIFT)) {
-			case K_BREAK:
-				key = 0x03;
-				break;
 			case K_BACKSPACE:
 				key = modes[DECBKM] ? 0x08 : 0x7F;
 				break;
@@ -366,9 +337,9 @@ bool TerminalCtrl::Key(dword key, int count)
 			case K_TAB:
 				key = 0x09;
 				break;
-//			case K_DELETE:
-//				key = 0x7F;
-//				break;
+			case K_CTRL_BREAK:
+				key = 0x03;
+				break;
 			case K_CTRL_LBRACKET:
 				key = '[';
 				break;
