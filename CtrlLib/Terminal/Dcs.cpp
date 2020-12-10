@@ -92,7 +92,7 @@ void TerminalCtrl::ReportControlFunctionSettings(const VTInStream::Sequence& seq
 	}
 	else
 	if(seq.payload.IsEqual("\"p")) {				// DECSCL
-		int level = decode(clevel, LEVEL_0, 61, LEVEL_1, 61, LEVEL_2, 62, LEVEL_3, 63, 64);
+		int level = decode(clevel, LEVEL_4, 64, LEVEL_3, 63, LEVEL_2, 62, 61);
 		reply = Format("%d`$r%d;%d", 1, level, Is8BitMode() ? 0 : 1);
 	}
 	else
@@ -159,11 +159,12 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 		auto GetChrset = [=](int i) -> byte
 		{
 			// TODO: This can be more precise...
-			return decode(i,'0', CHARSET_DEC_DCS,
-							'>', CHARSET_DEC_TCS,
-							'<', CHARSET_DEC_MCS,
-							'A', CHARSET_ISO8859_1,
-							'G', CHARSET_UNICODE, CHARSET_TOASCII);
+			return decode(i,
+					'0', CHARSET_DEC_DCS,
+					'>', CHARSET_DEC_TCS,
+					'<', CHARSET_DEC_MCS,
+					'A', CHARSET_ISO8859_1,
+					'G', CHARSET_UNICODE, CHARSET_TOASCII);
 		};
 		
 		Point pt;
