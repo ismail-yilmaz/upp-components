@@ -1,6 +1,6 @@
 #include "Page.h"
 
-#define LLOG(x)		// RLOG("VTPage: " << x)
+#define LLOG(x)		// RLOG("VTPage [#" << this << "]: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
@@ -410,7 +410,9 @@ VTPage& VTPage::MoveHorz(int pos, dword flags)
 	pos = GetNextColPos(pos, offset, flags & Cursor::Relative);
 	
 	if(reversewrap && flags & Cursor::ReWrapper && pos < left) {
-		return MoveEnd().MoveUp();
+		return margins.top == cursor.y
+			? MoveBottomRight()
+			: MoveEnd().MoveUp();
 	}
 	
 	cursor.x = clamp(pos, left, right);
@@ -454,7 +456,7 @@ VTPage& VTPage::MoveVert(int pos, dword flags)
 			}
 			else
 			if(cursor.y > margins.bottom) {
-				top = margins.top;
+				top    = margins.top;
 				bottom = view.bottom;
 				offset = view.top;
 			}
@@ -514,7 +516,7 @@ VTPage& VTPage::MoveToColumn(int n, bool relative)
 
 VTPage& VTPage::MoveUp(int n)
 {
-	LLOG("MoveUp" << n << ")");
+	LLOG("MoveUp(" << n << ")");
 
 	return MoveVert(-n,
 		Cursor::Marginal
@@ -657,7 +659,7 @@ int VTPage::LineInsert(int pos, int n, const VTCell& attrs)
 
 	if(n > 0)
 	{
-		LLOG("LineRemove(" << pos << ") -> scrolling " << n << " lines up");
+		LLOG("LineInsert(" << pos << ") -> scrolling " << n << " lines up");
 
 		if(HorzMarginsExist())
 		{

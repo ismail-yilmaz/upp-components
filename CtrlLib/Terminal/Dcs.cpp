@@ -152,8 +152,7 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 
 		auto GetStr = [&cr](int n) -> String
 		{
-			bool b = cr.GetCount() < max(1, n);
-			return b ? Null : cr[--n];
+			return cr.Get(--n, Null);
 		};
 
 		auto GetChrset = [=](int i) -> byte
