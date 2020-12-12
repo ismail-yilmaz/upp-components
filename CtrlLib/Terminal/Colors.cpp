@@ -124,84 +124,97 @@ void TerminalCtrl::ReportDynamicColor(int opcode, const Color& c)
 	PutOSC(reply);
 }
 
-void TerminalCtrl::ChangeColors(int opcode, const String& oscs, bool reset)
+void TerminalCtrl::SetProgrammableColors(const VTInStream::Sequence& seq, int opcode)
 {
-	if(!dynamiccolors)
+	if(!dynamiccolors || seq.parameters.GetCount() <= 1)
 		return;
 	
-	Vector<String> params = Split(oscs, ';', false);
-	VectorMap<int, String> colormap;
-
-	bool ansicolors = opcode == 4 || opcode == 104;
-	int pos = (ansicolors && !reset) ? 1 : 0;
-	
-	for(int i = pos; i < params.GetCount() - pos; i += 2)
-		if(i + 1 < params.GetCount())
-			colormap.Add(StrInt(params[i]), params[i + 1]);
-
-	if(colormap.IsEmpty())
-		return;
+	auto args = SubRange(seq.parameters, 1, seq.parameters.GetCount());
 	
 	int changed_colors = 0;
-	
-	for(int i = 0; i < colormap.GetCount(); i++) {
-		int index = colormap.GetKey(i);
-		String colorspec = colormap[i];
-		if(SetColorTable(opcode, index, colorspec, ansicolors, reset))
-			changed_colors++;
+
+	for(int i = 0; (i + 1) < args.GetCount(); i += 2) {
+		int j = StrInt(args[i]);
+		const String& s = args[i + 1];
+		if(opcode == 4) { // ANSI + dtterm colors
+			if(j >= 0 && j < ANSI_COLOR_COUNT) {
+				if(s.IsEqual("?")) {
+					ReportANSIColor(opcode, j, colortable[j]);
+				}
+				else
+				if(!IsNull(s)) {
+					if(SetSaveColor(j, ConvertColor().Scan(s)))
+						changed_colors++;
+				}
+			}
+		}
+		else { // xterm dynamic colors
+			j = decode(opcode,
+					10, COLOR_INK,
+					11, COLOR_PAPER,
+					17, COLOR_INK_SELECTED,
+					19, COLOR_PAPER_SELECTED, 0);
+			if(j) {
+				if(s.IsEqual("?")) {
+					ReportDynamicColor(opcode, colortable[j]);
+				}
+				else
+				if(!IsNull(s)) {
+					if(SetSaveColor(j, ConvertColor().Scan(s)))
+						changed_colors++;
+				}
+			}
+		}
 	}
 
 	if(changed_colors > 0)
 		Ctrl::Refresh();
 }
 
-bool TerminalCtrl::SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset)
+void TerminalCtrl::ResetProgrammableColors(const VTInStream::Sequence& seq, int opcode)
 {
-	if(ansicolor && index >= ANSI_COLOR_COUNT)
-		return false;
-	else
-	if(!ansicolor) {
-		switch(opcode) {
-		case 10:
-		case 110:
-			index = COLOR_INK;
-			break;
-		case 11:
-		case 111:
-			index = COLOR_PAPER;
-			break;
-		case 17:
-		case 117:
-			index = COLOR_INK_SELECTED;
-			break;
-		case 19:
-		case 119:
-			index = COLOR_PAPER_SELECTED;
-			break;
-		default:
-			LLOG("Unhandled dynamic color opcode: " << opcode);
-			return false;
+	if(!dynamiccolors || seq.parameters.GetCount() <= 1)
+		return;
+	
+	auto args = SubRange(seq.parameters, 1, seq.parameters.GetCount());
+	
+	if(args[0].IsEmpty()) {
+		savedcolors.Clear();
+		ResetColors();
+		Ctrl::Refresh();
+		return;
+	}
+	
+	int changed_colors = 0;
+	
+	if(opcode == 104) { // ANSI + dtterm colors
+		for(const String& s : args) {
+			int i = StrInt(s);
+			if(i >= 0 && i < ANSI_COLOR_COUNT) {
+				if(ResetLoadColor(i))
+					changed_colors++;
+			}
 		}
 	}
-	Color c;
-	if(colorspec.IsEqual("?")) { // Report color value
-		c = colortable[index];
-		if(ansicolor)
-			ReportANSIColor(opcode, index, c);
-		else
-			ReportDynamicColor(opcode, c);
-		return false;
+	else { // xterm dynamic colors
+		int i = decode(opcode,
+				10, COLOR_INK,
+				11, COLOR_PAPER,
+				17, COLOR_INK_SELECTED,
+				19, COLOR_PAPER_SELECTED, 0);
+		if(i && ResetLoadColor(i))
+			changed_colors++;
 	}
-
-	return reset
-			? ResetLoadColor(index)
-			: SetSaveColor(index, ConvertColor().Scan(colorspec));
+	
+	if(changed_colors > 0)
+		Ctrl::Refresh();
 }
 
 bool TerminalCtrl::SetSaveColor(int index, const Color& c)
 {
-	if(IsNull(c))
-		return false;
+	LLOG("SetSaveColor(" << index << ")");
+
+	if(IsNull(c)) return false;
 	if(savedcolors.Find(index) < 0)
 		savedcolors.Add(index, colortable[index]);
 	colortable[index] = c;
@@ -210,9 +223,10 @@ bool TerminalCtrl::SetSaveColor(int index, const Color& c)
 
 bool TerminalCtrl::ResetLoadColor(int index)
 {
+	LLOG("ResetLoadColor(" << index << ")");
+	
 	int i = savedcolors.Find(index);
-	if(i < 0)
-		return false;
+	if(i < 0) return false;
 	colortable[index] = savedcolors[i];
 	savedcolors.Remove(i);
 	return true;

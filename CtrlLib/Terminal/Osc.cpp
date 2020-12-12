@@ -20,12 +20,14 @@ void TerminalCtrl::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	case 11:	// Set dynamic color (paper)
 	case 17:	// Set dynamic color (selection ink)
 	case 19:	// Set dynamic color (selection paper)
+		SetProgrammableColors(seq, opcode);
+		break;
 	case 104:	// Reset ANSI colors
 	case 110:	// Reset dynamic color (ink)
 	case 111:	// Reset dynamic color (paper)
 	case 117:	// Reset dynamic color (selection ink)
 	case 119:	// Reset dynamic color (selection paper)
-		ChangeColors(opcode, seq.payload, opcode > 100);
+		ResetProgrammableColors(seq, opcode);
 		break;
 	case 8:		// Explicit hyperlinks protocol.
 		ParseHyperlinks(seq);

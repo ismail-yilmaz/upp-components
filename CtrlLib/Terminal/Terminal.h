@@ -541,8 +541,8 @@ private:
     void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
     void        ReportANSIColor(int opcode, int index, const Color& c);
     void        ReportDynamicColor(int opcode, const Color& c);
-    void        ChangeColors(int opcode, const String& oscs, bool reset);
-    bool        SetColorTable(int opcode, int index, String colorspec, bool ansicolor, bool reset);
+    void		SetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
+    void		ResetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
     bool        SetSaveColor(int index, const Color& c);
     bool        ResetLoadColor(int index);
     void        ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index);
