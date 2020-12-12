@@ -138,7 +138,6 @@ public:
     VTPage&         MoveDown(int n = 1);
     VTPage&         MoveRight(int n = 1);
     VTPage&         MoveLeft(int n = 1);
-    VTPage&         MoveBack();
     VTPage&         MoveHome();
     VTPage&         MoveEnd();
     VTPage&         MoveTopLeft();
@@ -236,6 +235,7 @@ private:
     int             GetNextColPos(int n, int offset, bool rel = false) const        { return rel ? n + cursor.x : offset + n - 1; }
     int             GetAbsCol(int col) const                                        { return cursor.displaced ? col - margins.left + 1 : col; }
     int             GetAbsRow(int row) const                                        { return cursor.displaced ? row - margins.top + 1 : row;  }
+    VTPage&         RewrapCursor(int n);
     int             LineInsert(int pos, int n, const VTCell& attrs);
     int             LineRemove(int pos, int n, const VTCell& attrs);
     int             CellAdd(const VTCell& cell, int width = 1);

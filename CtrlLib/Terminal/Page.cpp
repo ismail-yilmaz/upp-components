@@ -366,6 +366,17 @@ VTPage& VTPage::RepeatCell(int n)
 	return *this;
 }
 
+VTPage& VTPage::RewrapCursor(int n)
+{
+	LLOG("RewrapCursor(" << n << ")");
+
+	int maxrewrap = margins.Width() * margins.Height() * 4;
+
+	return margins.top == cursor.y
+		? MoveBottomRight().MoveLeft(min(n - 1, maxrewrap))
+		: MoveEnd().MoveUp().MoveLeft(min(n - 1, maxrewrap));
+}
+
 VTPage& VTPage::MoveHorz(int pos, dword flags)
 {
 	Rect view = GetView();
@@ -409,10 +420,8 @@ VTPage& VTPage::MoveHorz(int pos, dword flags)
 
 	pos = GetNextColPos(pos, offset, flags & Cursor::Relative);
 	
-	if(reversewrap && flags & Cursor::ReWrapper && pos < left) {
-		return margins.top == cursor.y
-			? MoveBottomRight()
-			: MoveEnd().MoveUp();
+	if(reversewrap && (flags & Cursor::ReWrapper) && pos < left) {
+		return RewrapCursor(left - pos);
 	}
 	
 	cursor.x = clamp(pos, left, right);
@@ -549,16 +558,6 @@ VTPage& VTPage::MoveLeft(int n)
 	LLOG("MoveLeft(" << n << ")");
 
 	return MoveHorz(-n,
-		Cursor::Marginal
-		| Cursor::Relative
-		| Cursor::Displaceable);
-}
-
-VTPage& VTPage::MoveBack()
-{
-	LLOG("MoveBack()");
-	
-	return MoveHorz(-1,
 		Cursor::Marginal
 		| Cursor::Relative
 		| Cursor::ReWrapper

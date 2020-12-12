@@ -23,7 +23,7 @@ void TerminalCtrl::ParseControlChars(byte c)
 		WhenBell();
 		break;
 	case ControlId::BS:
-		page->MoveBack();
+		page->MoveLeft();
 		break;
 	case ControlId::HT:
 		page->NextTab();
