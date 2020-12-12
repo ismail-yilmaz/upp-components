@@ -102,8 +102,6 @@
 
 #### Notes
 
-- DECID is considered to be NOOP.
-
 
 ## [Supported Terminal Modes](#modes)
 

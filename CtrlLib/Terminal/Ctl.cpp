@@ -75,7 +75,7 @@ void TerminalCtrl::ParseControlChars(byte c)
 		ProtectAttributes(false);
 		break;
 	case ControlId::DECID:
-		// Noop
+		ReportDeviceAttributes(VTInStream::Sequence());
 		break;
 	case ControlId::ST:
 		break;
