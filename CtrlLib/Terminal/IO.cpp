@@ -57,7 +57,7 @@ void TerminalCtrl::Reset(bool full)
 
 	gsets.Reset();
 
-	cellattrs.Reset();
+	cellattrs.Clear();
 
 	udk.Clear();
 	
