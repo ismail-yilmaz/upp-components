@@ -927,15 +927,15 @@ VTPage& VTPage::NextTab(int n)
 			MoveEnd();
 		}
 	}
+
 	return *this;
 }
 
 VTPage& VTPage::PrevTab(int n)
 {
-	// FIXME: CBT should  not  take the  horizontal margins
-	//        into account when the cursor is not displaced.
+	int left = cursor.displaced ? margins.left : GetView().left;
 
-	for(int count = 0, i = cursor.x - 1; i >= margins.left && count < n; i--)
+	for(int count = 0, i = cursor.x - 1; i >= left && count < n; i--)
 	{
 		if(IsTabStop(i))
 		{
@@ -943,11 +943,12 @@ VTPage& VTPage::PrevTab(int n)
 			count++;
 		}
 		else
-		if(i == margins.left)
+		if(i == left)
 		{
 			MoveHome();
 		}
 	}
+
 	return *this;
 }
 
