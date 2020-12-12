@@ -307,8 +307,9 @@ void TerminalCtrl::ReportDeviceStatus(const VTInStream::Sequence& seq)
 			PutCSI("?27;1;0;0n"); // US-ASCII
 			break;
 		case 53:
+		case 55:
 			// DEC locator support
-			PutCSI("?53n");		// No locator (yet)
+			PutCSI("?50n");		// No locator
 			break;
 		case 62:
 			// User-defined macros status report
