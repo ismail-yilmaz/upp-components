@@ -343,21 +343,22 @@ void TerminalCtrl::XTsrcm(bool b)
 void TerminalCtrl::XTasbm(int mode, bool b)
 {
 	modes.Set(XTASBM, b);
-	if(mode == 47) {
+
+	switch(mode) {
+	case 47:
 		AlternateScreenBuffer(b);
-	}
-	else
-	if(mode == 1047) {
-		if(!b) page->ErasePage();
+		break;
+	case 1047:
 		AlternateScreenBuffer(b);
-	}
-	else
-	if(mode == 1049) {
+		if(!b) apage.Reset();
+		break;
+	case 1049:
 		if(b) Backup();
 		AlternateScreenBuffer(b);
-		if(b) page->ErasePage();
-		else Restore();
+		if(b) apage.Reset();
+		else  Restore();
 	}
+
 	SwapPage();
 	LDUMP(XTASBM);
 }
