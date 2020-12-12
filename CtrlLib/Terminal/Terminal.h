@@ -541,8 +541,8 @@ private:
     void        SetInkAndPaperColor(const VTCell& cell, Color& ink, Color& paper);
     void        ReportANSIColor(int opcode, int index, const Color& c);
     void        ReportDynamicColor(int opcode, const Color& c);
-    void		SetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
-    void		ResetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
+    void        SetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
+    void        ResetProgrammableColors(const VTInStream::Sequence& seq, int opcode);
     bool        SetSaveColor(int index, const Color& c);
     bool        ResetLoadColor(int index);
     void        ParseExtendedColors(VTCell& attrs, const Vector<String>& opcodes, int& index);
@@ -622,8 +622,8 @@ private:
     void        SetColumns(int cols)                                { WhenSetSize(PageSizeToClient(Size(cols, page->GetSize().cy))); }
     void        SetRows(int rows)                                   { WhenSetSize(PageSizeToClient(Size(page->GetSize().cx, rows))); }
 
-	void		SetDECStyleCellProtection(bool b)                    { cellattrs.ProtectDEC(b); page->Attributes(cellattrs); }
-	dword       GetDECStyleFillerFlags() const;
+    void        SetDECStyleCellProtection(bool b)                    { cellattrs.ProtectDEC(b); page->Attributes(cellattrs); }
+    dword       GetDECStyleFillerFlags() const;
     void        SetISOStyleCellProtection(bool b)                    { cellattrs.ProtectISO(b); page->Attributes(cellattrs); }
     dword       GetISOStyleFillerFlags() const;
     
