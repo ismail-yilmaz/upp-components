@@ -213,10 +213,11 @@ void VTCell::Fill(const VTCell& filler, dword flags)
 		*this = filler;
 		return;
 	}
-	else
-	if(flags & FILL_SELECTIVE)
-		if(IsProtected())
-			return;
+	if(((flags & FILL_DEC_SELECTIVE) && (attrs & ATTR_PROTECTION_DEC))
+	|| ((flags & FILL_ISO_SELECTIVE) && (attrs & ATTR_PROTECTION_ISO))) {
+		return;
+	}
+	
 	if(flags & FILL_CHAR)
 		chr = filler.chr;
 	if(flags & FILL_ATTRS)

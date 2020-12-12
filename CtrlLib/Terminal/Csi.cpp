@@ -48,12 +48,16 @@ void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 		page->NextTab(seq.GetInt(1));
 		break;
 	case SequenceId::ED:
+		ClearPage(seq, GetISOStyleFillerFlags());
+		break;
 	case SequenceId::DECSED:
-		ClearPage(seq);
+		ClearPage(seq, GetDECStyleFillerFlags());
 		break;
 	case SequenceId::EL:
+		ClearLine(seq, GetISOStyleFillerFlags());
+		break;
 	case SequenceId::DECSEL:
-		ClearLine(seq);
+		ClearLine(seq, GetDECStyleFillerFlags());
 		break;
 	case SequenceId::IL:
 		page->InsertLines(seq.GetInt(1));
@@ -71,7 +75,7 @@ void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 		page->ScrollUp(seq.GetInt(1));
 		break;
 	case SequenceId::ECH:
-		page->EraseCells(seq.GetInt(1), GetFillerFlags(seq));
+		page->EraseCells(seq.GetInt(1), GetISOStyleFillerFlags());
 		break;
 	case SequenceId::CBT:
 		page->PrevTab(seq.GetInt(1));
@@ -129,7 +133,7 @@ void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 		SetProgrammableLEDs(seq);
 		break;
 	case SequenceId::DECSCA:
-		ProtectAttributes(seq.GetInt(1, 0) == 1);
+		SetDECStyleCellProtection(seq.GetInt(1, 0) == 1);
 		break;
 	case SequenceId::DECSCUSR:
 		SetCaretStyle(seq);
@@ -209,16 +213,8 @@ void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 	}
 }
 
-void TerminalCtrl::ProtectAttributes(bool protect)
+void TerminalCtrl::ClearPage(const VTInStream::Sequence& seq, dword flags)
 {
-	cellattrs.Protect(protect);
-	page->Attributes(cellattrs);
-}
-
-void TerminalCtrl::ClearPage(const VTInStream::Sequence& seq)
-{
-	dword flags = GetFillerFlags(seq);
-
 	switch(seq.GetInt(1, 0)) {
 	case 0:
 		page->EraseAfter(flags);
@@ -230,16 +226,13 @@ void TerminalCtrl::ClearPage(const VTInStream::Sequence& seq)
 		page->ErasePage(flags);
 		break;
 	case 3:
-		//page->ErasePage(flags);
 		page->EraseHistory();
 		break;
 	}
 }
 
-void TerminalCtrl::ClearLine(const VTInStream::Sequence& seq)
+void TerminalCtrl::ClearLine(const VTInStream::Sequence& seq, dword flags)
 {
-	dword flags = GetFillerFlags(seq);
-
 	switch(seq.GetInt(1, 0)) {
 	case 0:
 		page->EraseRight(flags);
@@ -412,7 +405,7 @@ void TerminalCtrl::ReportPresentationState(const VTInStream::Sequence& seq)
 			sgr |= 0x04;
 		if(cellattrs.IsInverted())
 			sgr |= 0x08;
-		if(cellattrs.IsProtected())
+		if(cellattrs.HasDECProtection())
 			attrs |= 0x01;
 		if(gsets.GetSS() == 0x8E)
 			flags |= 0x02;
@@ -815,7 +808,7 @@ void TerminalCtrl::ClearRectArea(const VTInStream::Sequence& seq, bool selective
 	r.right  = seq.GetInt(4, view.right);
 
 	dword flags = selective
-		? VTCell::FILL_SELECTIVE | VTCell::FILL_CHAR
+		? VTCell::FILL_DEC_SELECTIVE | VTCell::FILL_CHAR
 		: VTCell::FILL_NORMAL;
 
 	page->EraseRect(r, flags);
@@ -915,16 +908,29 @@ void TerminalCtrl::AlternateScreenBuffer(bool b)
 	LLOG("Alternate screen buffer: " << (b ? "on" : "off"));
 }
 
-dword TerminalCtrl::GetFillerFlags(const VTInStream::Sequence& seq) const
+dword TerminalCtrl::GetDECStyleFillerFlags() const
 {
-	dword flags = VTCell::FILL_NORMAL;
-	if(!modes[ERM] || (IsLevel2() && seq.mode == '?'))
-		flags = VTCell::FILL_SELECTIVE
-			  | VTCell::FILL_CHAR
-		      | VTCell::FILL_ATTRS
-		      | VTCell::FILL_INK
-		      | VTCell::FILL_PAPER
-		      | VTCell::FILL_SGR;
-	return flags;
+	return VTCell::FILL_DEC_SELECTIVE
+			| VTCell::FILL_CHAR
+			| VTCell::FILL_ATTRS
+			| VTCell::FILL_INK
+			| VTCell::FILL_PAPER
+			| VTCell::FILL_SGR
+			| VTCell::FILL_DATA;
 }
+
+dword TerminalCtrl::GetISOStyleFillerFlags() const
+{
+	if(modes[ERM])
+		return VTCell::FILL_NORMAL;
+
+	return VTCell::FILL_ISO_SELECTIVE
+			| VTCell::FILL_CHAR
+			| VTCell::FILL_ATTRS
+			| VTCell::FILL_INK
+			| VTCell::FILL_PAPER
+			| VTCell::FILL_SGR
+			| VTCell::FILL_DATA;
+}
+
 }

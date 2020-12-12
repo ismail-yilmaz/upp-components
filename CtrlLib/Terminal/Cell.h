@@ -13,8 +13,10 @@ struct VTCell : Moveable<VTCell> {
     Color   ink;
     Color   paper;
 
-    enum Attrs : word {
-        ATTR_PROTECTED  = 0x0001,
+    enum Attrs : word { // It is possible to have both DEC and ISO selective erases...
+        ATTR_PROTECTION_DEC = 0x0001,
+        ATTR_PROTECTION_ISO = 0x0002,
+        ATTR_PROTECTION_ALL = ATTR_PROTECTION_DEC | ATTR_PROTECTION_ISO
     };
     
     enum Sgr : word {
@@ -33,15 +35,16 @@ struct VTCell : Moveable<VTCell> {
     };
 
     enum FillerFlags : dword {
-        FILL_NORMAL     = 0x0000,
-        FILL_SELECTIVE  = 0x0001,
-        FILL_CHAR       = 0x0002,
-        FILL_ATTRS      = 0x0004,
-        FILL_SGR        = 0x0008,
-        FILL_INK        = 0x0010,
-        FILL_PAPER      = 0x0020,
-        FILL_DATA       = 0x0040,
-        XOR_SGR         = 0x0080
+        FILL_NORMAL        = 0x0000,
+        FILL_DEC_SELECTIVE = 0x0001,
+        FILL_ISO_SELECTIVE = 0x0002,
+        FILL_CHAR          = 0x0004,
+        FILL_ATTRS         = 0x0008,
+        FILL_SGR           = 0x0010,
+        FILL_INK           = 0x0020,
+        FILL_PAPER         = 0x0040,
+        FILL_DATA          = 0x0080,
+        XOR_SGR            = 0x0100,
     };
     
     VTCell& Normal()                         { sgr = SGR_NORMAL; return *this; }
@@ -56,7 +59,10 @@ struct VTCell : Moveable<VTCell> {
     VTCell& Conceal(bool b = true)           { sgr = (sgr & ~SGR_HIDDEN)    | (-word(b) & SGR_HIDDEN); return *this;    }
     VTCell& Image(bool b = true)             { sgr = (sgr & ~SGR_IMAGE)     | (-word(b) & SGR_IMAGE); return *this;     }
     VTCell& Hyperlink(bool b = true)         { sgr = (sgr & ~SGR_HYPERLINK) | (-word(b) & SGR_HYPERLINK); return *this; }
-    VTCell& Protect(bool b = true)           { attrs = (attrs & ~ATTR_PROTECTED) | (-word(b) & ATTR_PROTECTED); return *this; }
+
+    VTCell& ProtectDEC(bool b = true)        { attrs = (attrs & ~ATTR_PROTECTION_DEC) | (-word(b) & ATTR_PROTECTION_DEC); return *this; }
+    VTCell& ProtectISO(bool b = true)        { attrs = (attrs & ~ATTR_PROTECTION_ISO) | (-word(b) & ATTR_PROTECTION_ISO); return *this; }
+    VTCell& Protect(bool b = true)           { attrs = (attrs & ~ATTR_PROTECTION_ALL) | (-word(b) & ATTR_PROTECTION_ALL); return *this; }
 
     static const VTCell& Void();
     
@@ -78,7 +84,9 @@ struct VTCell : Moveable<VTCell> {
     bool IsConcealed() const                 { return sgr & SGR_HIDDEN;      }
     bool IsImage() const                     { return sgr & SGR_IMAGE;       }
     bool IsHyperlink() const                 { return sgr & SGR_HYPERLINK;   }
-    bool IsProtected() const                 { return attrs & ATTR_PROTECTED;}
+    bool IsProtected() const                 { return attrs & ATTR_PROTECTION_ALL; }
+    bool HasDECProtection() const            { return attrs & ATTR_PROTECTION_DEC; }
+    bool HasISOProtection() const            { return attrs & ATTR_PROTECTION_ISO; }
     bool IsNullInstance() const;
 
     void    Fill(const VTCell& filler, dword flags);

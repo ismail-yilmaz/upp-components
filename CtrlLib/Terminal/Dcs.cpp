@@ -102,7 +102,7 @@ void TerminalCtrl::ReportControlFunctionSettings(const VTInStream::Sequence& seq
 	}
 	else
 	if(seq.payload.IsEqual("\"q")) {				// DECSCA
-		reply = Format("%d`$r%d", 1, (int) cellattrs.IsProtected());
+		reply = Format("%d`$r%d", 1, (int) cellattrs.HasDECProtection());
 	}
 	else
 	if(IsLevel4() && seq.payload.IsEqual("*x")) {	// DECSACE
@@ -181,7 +181,7 @@ void TerminalCtrl::RestorePresentationState(const VTInStream::Sequence& seq)
 		cellattrs.Blink(sgr & 0x04);
 		cellattrs.Invert(sgr & 0x08);
 		cellattrs.Underline(sgr & 0x02);
-		cellattrs.Protect(attrs & 0x01);
+		cellattrs.ProtectDEC(attrs & 0x01);
 
 		DECom(flags & 0x01);
 		

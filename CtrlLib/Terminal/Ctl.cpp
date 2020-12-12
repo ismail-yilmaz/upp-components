@@ -69,10 +69,10 @@ void TerminalCtrl::ParseControlChars(byte c)
 		gsets.SS(c);
 		break;
 	case ControlId::SPA:
-		ProtectAttributes(true);
+		SetISOStyleCellProtection(true);
 		break;
 	case ControlId::EPA:
-		ProtectAttributes(false);
+		SetISOStyleCellProtection(false);
 		break;
 	case ControlId::DECID:
 		ReportDeviceAttributes(VTInStream::Sequence());

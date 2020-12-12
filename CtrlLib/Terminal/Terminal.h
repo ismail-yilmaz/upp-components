@@ -571,8 +571,8 @@ private:
 
     bool        Convert7BitC1To8BitC1(const VTInStream::Sequence& seq);
 
-    void        ClearPage(const VTInStream::Sequence& seq);
-    void        ClearLine(const VTInStream::Sequence& seq);
+    void        ClearPage(const VTInStream::Sequence& seq, dword flags);
+    void        ClearLine(const VTInStream::Sequence& seq, dword flags);
     void        ClearTabs(const VTInStream::Sequence& seq);
 
     void        ReportMode(const VTInStream::Sequence& seq);
@@ -598,8 +598,6 @@ private:
 
     void        ParseClipboardRequests(const VTInStream::Sequence& seq);
     
-    void        ProtectAttributes(bool protect);
-
     void        SetCaretStyle(const VTInStream::Sequence& seq);
 
     void        SetProgrammableLEDs(const VTInStream::Sequence& seq);
@@ -624,8 +622,11 @@ private:
     void        SetColumns(int cols)                                { WhenSetSize(PageSizeToClient(Size(cols, page->GetSize().cy))); }
     void        SetRows(int rows)                                   { WhenSetSize(PageSizeToClient(Size(page->GetSize().cx, rows))); }
 
-    dword       GetFillerFlags(const VTInStream::Sequence& seq) const;
-
+	void		SetDECStyleCellProtection(bool b)                    { cellattrs.ProtectDEC(b); page->Attributes(cellattrs); }
+	dword       GetDECStyleFillerFlags() const;
+    void        SetISOStyleCellProtection(bool b)                    { cellattrs.ProtectISO(b); page->Attributes(cellattrs); }
+    dword       GetISOStyleFillerFlags() const;
+    
     void        Backup(bool tpage = true, bool csets = true, bool attrs = true);
     void        Restore(bool tpage = true, bool csets = true, bool attrs = true);
 
