@@ -95,10 +95,12 @@ public:
     VTPage&         Attributes(const VTCell& attrs)         { cellattrs = attrs; return *this; }
     const VTCell&   GetAttributes() const                   { return cellattrs; }
 
-    VTPage&         Backup();
-    VTPage&         Restore();
     VTPage&         Reset();
-
+    
+    VTPage&         Backup();
+    VTPage&         Discard();
+    VTPage&         Restore();
+    
     VTPage&         SetSize(Size sz);
     VTPage&         SetSize(int cx, int cy)                 { return SetSize(Size(cx, cy)); }
     Size            GetSize() const                         { return size; }

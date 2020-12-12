@@ -50,6 +50,10 @@ void TerminalCtrl::Reset(bool full)
 		cellattrs_backup = Null;
 		dpage.WhenUpdate();
 	}
+	else {
+		apage.Discard();
+		dpage.Discard();
+	}
 
 	gsets.Reset();
 

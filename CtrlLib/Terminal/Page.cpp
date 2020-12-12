@@ -120,6 +120,14 @@ VTPage& VTPage::Backup()
 	return *this;
 }
 
+VTPage& VTPage::Discard()
+{
+	LLOG("Discard() -> " << backup);
+
+	backup = Null;
+	return *this;
+}
+
 VTPage& VTPage::Restore()
 {
 	cursor = backup;
