@@ -181,7 +181,7 @@ TerminalCtrl::SequenceId TerminalCtrl::FindSequenceId(const VTInStream::Sequence
         VT_CSI(SGR,             'm', 0x00, 0x00, LEVEL_1, LEVEL_4),   // Select graphics rendition (ANSI)
         VT_CSI(SGR,             'm', '?',  0x00, LEVEL_1, LEVEL_4),   // Select graphics rendition (DEC)
         VT_CSI(DSR,             'n', 0x00, 0x00, LEVEL_1, LEVEL_4),   // Send device status report (ANSI format)
-        VT_CSI(DECXCPR,         'n', '?',  0x00, LEVEL_1, LEVEL_4),   // Send device status (cursor position) report (DEC format)
+        VT_CSI(DECDSR,          'n', '?',  0x00, LEVEL_1, LEVEL_4),   // Send device status (cursor position) report (DEC format)
         VT_CSI(DECSCL,          'p', 0x00, '\"', LEVEL_1, LEVEL_4),   // Select device conformance level
         VT_CSI(DECSTR,          'p', 0x00, '!',  LEVEL_2, LEVEL_4),   // Soft reset
         VT_CSI(DECRQM,          'p', 0x00, '$',  LEVEL_2, LEVEL_4),   // Request ANSI mode

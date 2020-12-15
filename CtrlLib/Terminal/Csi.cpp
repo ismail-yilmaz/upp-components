@@ -120,7 +120,7 @@ void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 		SelectGraphicsRendition(seq);
 		break;
 	case SequenceId::DSR:
-	case SequenceId::DECXCPR:
+	case SequenceId::DECDSR:
 		ReportDeviceStatus(seq);
 		break;
 	case SequenceId::DECSCL:
