@@ -304,6 +304,10 @@ void TerminalCtrl::ReportDeviceStatus(const VTInStream::Sequence& seq)
 			// DEC locator support
 			PutCSI("?50n");		// No locator
 			break;
+		case 56:
+			// DEC locator type
+			PutCSI("?57;0n");  // Cannot identify
+			break;
 		case 62:
 			// User-defined macros status report
 			// TODO:

@@ -622,9 +622,9 @@ private:
     void        SetColumns(int cols)                                { WhenSetSize(PageSizeToClient(Size(cols, page->GetSize().cy))); }
     void        SetRows(int rows)                                   { WhenSetSize(PageSizeToClient(Size(page->GetSize().cx, rows))); }
 
-    void        SetDECStyleCellProtection(bool b)                    { cellattrs.ProtectDEC(b); page->Attributes(cellattrs); }
+    void        SetDECStyleCellProtection(bool b)                   { page->Attributes(cellattrs.ProtectDEC(b)); }
     dword       GetDECStyleFillerFlags() const;
-    void        SetISOStyleCellProtection(bool b)                    { cellattrs.ProtectISO(b); page->Attributes(cellattrs); }
+    void        SetISOStyleCellProtection(bool b)                   { page->Attributes(cellattrs.ProtectISO(b)); }
     dword       GetISOStyleFillerFlags() const;
     
     void        Backup(bool tpage = true, bool csets = true, bool attrs = true);
