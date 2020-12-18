@@ -126,7 +126,7 @@ Thanks to Ultimate++ team, it is possible to run U++ GUI applications from withi
 - Supports transparency, i.e. allows background images, even animations. It's up to client code.
 - Supports VT4xx rectangular area operations: copy, invert, fill. erase.
 - Supports VT4xx rectangular area checksum calculation and reporting.
-- Supports both DEC and ANSI style selective erases.
+- Supports both DEC and ISO style selective erases.
 - Supports reverse wrap.
 - Supports SGR overline attribute.
 - Supports alternate screen buffer.
