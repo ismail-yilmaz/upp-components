@@ -26,20 +26,20 @@ At the moment there are two ways to install `upp-components`
 These components are meant to supplement `uppsrc/Core`
 
 |**Package**  | **Description** |
-|--           |--               |
-| Ftp         | File transfer protocol encapsulation with advanced capabilities.                |
-| Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.                |
-| NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.            |
-| OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol.             |
-| PtyProcess  | A cross-platform pseudo-terminal process implementation.                |
-| SSH         |  A flexible, easy-to-use yet powerful libssh2 wrapper.               |
+|:---         |:---             |
+| Ftp         | File transfer protocol encapsulation with advanced capabilities.                            |
+| Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.             |
+| NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
+| OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol. |
+| PtyProcess  | A cross-platform pseudo-terminal process implementation.                                    |
+| SSH         |  A flexible, easy-to-use yet powerful libssh2 wrapper.                                      |
 
 ### CtrlLib
 These components are meant to supplement `uppsrc/CtrlLib`
 
 |**Package**  | **Description** |
-|--           |--               |
-| MessageCtrl |  A passive message widget and manager implementation.               |
+|:---         |:---             |
+| MessageCtrl |  A passive message widget and manager implementation.                                                  |
 | Terminal    |  A cross-platform, high-end terminal emulator widget and library with very good xterm compatibility.   |
 
 ## Examples
