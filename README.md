@@ -11,14 +11,14 @@ This repository contains supplementary general-purpose packages for [Ultimate++]
 
 At the moment there are two ways to install `upp-components`
 
-1. Downlad the repository and move the package folders to your local `uppsrc/` directories.
+1. Downlad the repository and move the package folders to your local `uppsrc` directories.
 
-2. Clone or download the repository and set it up as an U++ *assembly* or *nest*. This is the recommended method. You can find more information on Ultimate++ packages, assemblies and nests, [here](https://www.ultimatepp.org/app$ide$GettingStarted_en-us.html#2).
+2. Clone or download the repository and set it up as an U++ *assembly* or *nest*. This is the recommended method. You can find more information on Ultimate++ packages, assemblies and nests, [here](https://www.ultimatepp.org/app$ide$PackagesAssembliesAndNests$en-us.html).
 
 
 ## Components
 
-`upp-components` repository is organized into directories, retaining and reflecting the crucial sections of `uppsrc` directory structure.
+`upp-components` repository is organized into directories, retaining and reflecting the crucial sections of the `uppsrc` directory structure.
 
 
 ### Core
@@ -31,8 +31,8 @@ These components are meant to supplement `uppsrc/Core`
 | Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.             |
 | NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
 | OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol. |
-| PtyProcess  | A cross-platform pseudo-terminal process implementation.                                    |
-| SSH         |  A flexible, easy-to-use yet powerful libssh2 wrapper.                                      |
+| PtyProcess  | A cross-platform (POSIX/WIN10) pseudo-terminal process implementation.                      |
+| SSH         | A flexible, easy-to-use yet powerful libssh2 wrapper.                                       |
 
 ### CtrlLib
 These components are meant to supplement `uppsrc/CtrlLib`
@@ -48,9 +48,7 @@ You can find reference examples demonstrating the usage of the above listed pack
 
 ## Version
 
-`upp-components` loosely follows the release cycles of Ultimate++. However, it does not have releases but only tags. It is tagged twice a year, marking a milestone. 
-
-Currently it is tagged as `2020.2`
+`upp-components` loosely follows the release cycles of Ultimate++. Releases are tagged twice a year.  Currently it is tagged as `2020.2`
 
 ## License
 
