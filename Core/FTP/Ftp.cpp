@@ -555,6 +555,8 @@ void Ftp::StartRestart(const OpCode& code, int64 pos)
 		case OpCode::STOR:
 			StartCommand(OpCode::REST, pos);
 			restart = false;
+		default:
+			break;
 		}
 	}
 }
@@ -572,6 +574,8 @@ void Ftp::StartTransfer(const OpCode& code, const Value& req, bool ascii)
 	case OpCode::STOR:
 	case OpCode::APPE:
 		StartCommand(OpCode::SIZE, req);
+		break;
+	default:
 		break;
 	}
 
