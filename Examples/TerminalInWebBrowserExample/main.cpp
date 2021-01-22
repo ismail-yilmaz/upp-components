@@ -34,10 +34,10 @@ struct TerminalExample : TopWindow {
 		SetRect(term.GetStdSize());	// 80 x 24 cells (scaled)
 		Sizeable().Zoomable().CenterScreen().Add(term.SizePos());
 
-		term.WhenBell   = [=]()			{ BeepExclamation(); };
-		term.WhenTitle  = [=](String s)	{ Title(s);	};
-		term.WhenResize = [=]()			{ pty.SetSize(term.GetPageSize()); };
-		term.WhenOutput = [=](String s)	{ PutGet(s); };
+		term.WhenBell   = [=]()         { BeepExclamation(); };
+		term.WhenTitle  = [=](String s) { Title(s);	};
+		term.WhenResize = [=]()         { pty.SetSize(term.GetPageSize()); };
+		term.WhenOutput = [=](String s) { PutGet(s); };
 		term.InlineImages().Hyperlinks().WindowOps();
 		
 		SetTimeCallback(-1, [=] { PutGet(); });
