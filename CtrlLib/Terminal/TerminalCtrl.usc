@@ -66,14 +66,14 @@ ctrl TerminalCtrl {
 		txt = IntStr(hsz.cx) + " x " + IntStr(hsz.cy);
 		tsz = GetTextSize(txt, StdFont());
 		PaintCenterRect(w, x, y, tsz);
-		PaintCenterText(w, x, y, txt, StdFont(), :White);
+		PaintCenterText(w, x, y, txt, StdFont(), :SWhite);
 	}
 	
 	PaintLine(w, x, y, text) {
 		fsz = FontSize();
 		tsz = GetTextSize(text, .SetFont);
 		w.DrawText(x, y + 2, text, .SetFont, .Ink);
-		w.DrawRect(x + tsz.cx + 4, y + 2, fsz.cx, fsz.cy, .LockCursor ? :LtGray : :Black);
+		w.DrawRect(x + tsz.cx + 4, y + 2, fsz.cx, fsz.cy, .LockCursor ? :SLtGray : :SBlack);
 	}
 	
 	Paint(w) {
