@@ -17,8 +17,11 @@ const char *tshell = "cmd.exe";  // Alternatively, you can use powershell...
 TerminalExample::TerminalExample()
 {
 	CtrlLayout(*this, "Terminal Layout Example");
+#ifdef PLATFORM_COCOA	// MacOS menubar fix.
+	SetMainMenu([=](Bar& bar) { MainMenu(bar); });
+#else
 	AddFrame(mainmenu);
-	AddFrame(statusbar);
+#endif
 	mainmenu.Set([=](Bar& bar) { MainMenu(bar); });
 	Sizeable().Zoomable().SetRect(AddFrameSize(term.GetStdSize()));
 	term.WhenBell                 = [=]()                { BeepExclamation(); };

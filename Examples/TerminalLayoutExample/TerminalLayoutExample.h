@@ -41,7 +41,6 @@ private:
 private:
 	PtyProcess pty;
 	MenuBar mainmenu;
-	StatusBar statusbar;
 };
 
 #endif
