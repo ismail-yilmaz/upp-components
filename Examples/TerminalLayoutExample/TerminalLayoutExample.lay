@@ -1,0 +1,4 @@
+LAYOUT(TerminalExampleLayout, 464, 268)
+	ITEM(Upp::TerminalCtrl, term, AdjustColors(false).InlineImages(true).Hyperlinks(true).WindowActions(true).WindowReports(true).SetFrame(NullFrame()).HSizePosZ(0, 0).VSizePosZ(0, 0))
+END_LAYOUT
+
