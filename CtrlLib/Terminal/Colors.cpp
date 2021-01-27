@@ -232,52 +232,48 @@ bool TerminalCtrl::ResetLoadColor(int index)
 	return true;
 }
 
-static int sParseExtendedColorFormat(Color& c, int& which, int& palette, const String& s, int format)
+static int sParseExtendedColorFormat(Color& color, int& which, int& palette, const String& s, int format)
 {
 	// TODO: This function can be more streamlined.
 
-	auto SgrDelimiters = [](int c) -> int
-	{
-		return c == ':' || c == ';';	// Alloe both colon and semicolon.
-	};
+	Vector<String> h = Split(s, [](int c) { return findarg(c, ':', ';') >= 0 ? 1 : 0; });
 
-	Vector<String> h = Split(s, SgrDelimiters, false);
 	int count = h.GetCount();
 	if(3 <= count && count < 8 && (h[0].IsEqual("38") || h[0].IsEqual("48"))) {
 		which = StrInt(h[0]);
 		palette  = StrInt(h[1]);
 		int index = 2;
-		if(palette == 2 && (4 < count && count < 8)) {		// True color (RGB)
+		if(palette == 2 && count > 4) {						// True color (RGB)
 			index += int(count > 5 && format != 3);
 			int r =	clamp(StrInt(h[index++]), 0, 255);
 			int g =	clamp(StrInt(h[index++]), 0, 255);
 			int b =	clamp(StrInt(h[index]),   0, 255);
-			c = Color(r, g, b);
+			color = Color(r, g, b);
 			return index;
 		}
 		else
-		if(palette == 3 && (4 < count && count < 8)) {		// True color (CMY)
+		if(palette == 3 && count > 4) {						// True color (CMY)
 			index += int(count > 5 && format != 3);
-			double c = StrInt(h[index++]) / 100.0;
-			double m = StrInt(h[index++]) / 100.0;
-			double y = StrInt(h[index])   / 100.0;
-			c = CmykColorf(c, m, y, 0.0);
+			double c = StrInt(h[index++]) * 0.01;
+			double m = StrInt(h[index++]) * 0.01;
+			double y = StrInt(h[index])   * 0.01;
+			color = CmykColorf(c, m, y, 0.0);
 			return index;
 		}
 		else
 		if(palette == 4 && (6 == count || count == 7)) {	// True color (CMYK)
 			index += int(count > 6 && format != 3);
-			double c = StrInt(h[index++]) / 100.0;
-			double m = StrInt(h[index++]) / 100.0;
-			double y = StrInt(h[index++]) / 100.0;
-			double k = StrInt(h[index])   / 100.0;
-			c = CmykColorf(c, m, y, k);
+			double c = StrInt(h[index++]) * 0.01;
+			double m = StrInt(h[index++]) * 0.01;
+			double y = StrInt(h[index++]) * 0.01;
+			double k = StrInt(h[index])   * 0.01;
+			color = CmykColorf(c, m, y, k);
 			return index;
 		}
 		else
-		if(palette == 5 && count >= 3) {					// Indexed (256-color, 6x6x6 cube)
+		if(palette == 5) {									// Indexed (256-color, 6x6x6 cube)
 			int ix = clamp(StrInt(h[index]), 0, 255);
-			c = Color::Special(ix);
+			color = Color::Special(ix);
 			return index;
 		}
 	}
@@ -447,11 +443,8 @@ Value ConvertHashColorSpec::Format(const Value& q) const
 
 int ConvertRgbColorSpec::Filter(int chr) const
 {
-	return IsXDigit(chr)	// 'B' and 'b' are also hex digits...
-		|| chr == 'r' || chr == 'R'
-		|| chr == 'g' || chr == 'G'
-		|| chr == ':' || chr == '/'	|| chr == ','
-			? chr : 0;
+	// 'B' and 'b' are also hex digits...
+	return IsXDigit(chr) || findarg(chr, 'r', 'g', 'R', 'G',  ':', '/', ',') >= 0 ? chr : 0;
 }
 
 Value ConvertRgbColorSpec::Scan(const Value& text) const
@@ -501,11 +494,8 @@ Value ConvertRgbColorSpec::Format(const Value& q) const
 
 int ConvertCmykColorSpec::Filter(int chr) const
 {
-	return IsXDigit(chr)	// 'C' and 'c' are also hex digits...
-		|| chr == 'm' || chr == 'y' || chr == 'k'
-		|| chr == 'M' || chr == 'Y' || chr == 'K'
-		|| chr == ':' || chr == '/' || chr == ',' || chr == '.'
-			?  chr : 0;
+	// 'C' and 'c' are also hex digits...
+	return IsXDigit(chr) || findarg(chr, 'm', 'y', 'k', 'M', 'Y', 'K', ':', '/', ',', '.') >= 0 ? chr : 0;
 }
 
 Value ConvertCmykColorSpec::Scan(const Value& text) const
