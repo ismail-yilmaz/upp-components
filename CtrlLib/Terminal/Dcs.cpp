@@ -259,9 +259,9 @@ void TerminalCtrl::ParseSixelGraphics(const VTInStream::Sequence& seq)
 	if(!sixelimages)
 		return;
 
-	int  nohole = seq.GetInt(2, 0);
-	int  grid   = seq.GetInt(3, 0); // Omitted.
 	int  ratio  = decode(seq.GetInt(1, 1), 5, 2, 6, 2, 3, 3, 4, 3, 2, 5, 1);
+	int  nohole = seq.GetInt(2, 0);
+//	int  grid   = seq.GetInt(3, 0); // Omitted.
 	
 	cellattrs.Hyperlink(false);
 

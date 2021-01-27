@@ -636,7 +636,6 @@ void TerminalCtrl::WindowResizeRequest(TopWindow *w, int cx, int cy)
 {
 	Rect r = w->GetRect();
 	Rect wr = GetWorkArea();
-	Size fsz = GetFontSize();
 
 	Size sz;
 	sz.cx = IsNull(cx) ? r.Width() : !cx ? wr.Width() : cx;
