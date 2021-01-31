@@ -656,7 +656,7 @@ Terminal package is currently at v0.4. (It is considered a beta until v1.0)
 - ncurses, its demos and tests are also used in developing the Terminal package.
 - [esctest](https://gitlab.com/gnachman/iterm2/-/tree/61660349070fd4c75d1dbf333db0aabf2456c938/tests/esctest) test suite, automatic unit tests for terminal emulation, is heavily used in testing of TerminalCtrl. (Thanks [George Nachman](https://github.com/gnachman)!)
 
-- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and [xterm Window Manager](https://gitlab.com/klamonte/xtermwm) for terminal emulators, are heavily used as a test-bed for polishing the inline images support for TerminalCtrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [Kevin Lamonte](https://gitlab.com/klamonte)!)
+- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and [xterm Window Manager](https://gitlab.com/klamonte/xtermwm) for terminal emulators, are heavily used as a test-bed for polishing the inline images support for TerminalCtrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [Autumn Lamonte](https://gitlab.com/klamonte)!)
 
 - img2sixel of [libsixel](https://github.com/saitoha/libsixel/) is used heavily for testing the sixel images support of TerminalCtrl.
  
