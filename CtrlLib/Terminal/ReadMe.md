@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 # Terminal Package for Ultimate++
 
 *Copyright © 2019-2021, [İsmail  Yılmaz](mailto:iylmz.iylmz@gmail.com)*
@@ -110,7 +102,8 @@ Thanks to Ultimate++ team, it is possible to run U++ GUI applications from withi
 - Supports scalable fonts. (The changes in font size and/or face immediately take place.)
 - Supports various terminal state, device, and mode reports.
 - Supports DEC VT52 graphics charset, VT1xx line-drawing charset, VT2xx multinational charset, and VT3xx technical charset.
-- Supports VT52/VT1xx/VT2xx and PC-style keyboard emulation with function keys.
+- Supports VT52/VT1xx/VT2xx and PC-style keyboard emulation with function keys (i.e. DECFNK).
+- Supports both pre-coded accelarator keys and run-time configurable accelarator keys.
 - Supports UDK (DEC’s user-defined function keys feature).
 - Supports user configurable blinking text and blink interval.
 - Supports Display objects.

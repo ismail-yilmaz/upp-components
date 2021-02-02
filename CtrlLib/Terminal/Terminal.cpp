@@ -509,6 +509,9 @@ void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 	if(IsTracking()) {
 		if((modes[XTDRAGM] && captured) || modes[XTANYMM])
 			VTMouseEvent(pt, sGetMouseMotionEvent(captured), keyflags);
+		else
+		if(modes[XTX11MM] && captured)
+			VTMouseEvent(pt, MOUSEMOVE, keyflags);
 	}
 	else
 	if(captured) {
@@ -624,10 +627,11 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 			WString s;
 			s.Cat(pt.x);
 			s.Cat(pt.y);
-			PutCSI(Format("M%c%s", mouseevent, ToUtf8(s)));
+			PutRaw(Format("\033[M%c%s", mouseevent, ToUtf8(s))).Flush();
 		}
-		else
-			PutCSI(Format("M%c%c%c", mouseevent, pt.x, pt.y));
+		else {
+			PutRaw(Format("\033[M%c%c%c", mouseevent, min(pt.x, 255), min(pt.y, 255))).Flush();
+		}
 	}
 }
 
