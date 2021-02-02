@@ -623,7 +623,7 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 			mouseevent = 0x03;
 		mouseevent += 0x20;
 		pt += 0x20;
-		// Note: We can't use PutCSI method to send X11 and UTF mouse coordiantes here as
+		// Note: We can't use PutCSI method to send X11 and UTF mouse coordinates here as
 		// it won't pass values >= 128 unmodified, unless the terminal is in  8-bit mode.
 		if(modes[XTUTF8MM]) {
 			WString s;
