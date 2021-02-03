@@ -1,25 +1,33 @@
+enum_property CaretStyle {
+	"TerminalCtrl::Caret::BLOCK",
+	"TerminalCtrl::Caret::BEAM",
+	"TerminalCtrl::Caret::UNDERLINE"
+};
+
 ctrl TerminalCtrl {
 	group "Complex";
 
-	Frame   SetFrame        = FieldFrame() @1;
-	Font    SetFont         = Monospace();
-	Color   Ink             = :SBlack;
-	Color   Paper           = :SWhite;
-	bool    NoBackground    = false;
-	bool    AdjustColors    = true;
-	bool    ShowSizeHint    = true;
-	bool    History         = true;
-	int     SetHistorySize  = 65536;
-	bool    ShowScrollBar   = false;
-	bool    BlinkingText    = true;
-	int     BlinkInterval   = 500;
-	bool    LockCursor      = false;
-	bool    InlineImages    = false;
-	bool    Hyperlinks      = false;
-	bool    WindowActions   = false;
-	bool    WindowReports   = false;
-	bool    DelayedRefresh  = true;
-	bool    LazyResize      = false;
+
+	Frame      SetFrame        = FieldFrame() @1;
+	Font       SetFont         = Monospace();
+	Color      Ink             = :SBlack;
+	Color      Paper           = :SWhite;
+	bool       NoBackground    = false;
+	bool       AdjustColors    = true;
+	bool       ShowSizeHint    = true;
+	bool       History         = true;
+	int        SetHistorySize  = 65536;
+	bool       ShowScrollBar   = false;
+	bool       BlinkingText    = true;
+	int        BlinkInterval   = 500;
+	CaretStyle SetCursorStyle  = TerminalCtrl::Caret::BLOCK @1;
+	bool       LockCursor      = false;
+	bool       InlineImages    = false;
+	bool       Hyperlinks      = false;
+	bool       WindowActions   = false;
+	bool       WindowReports   = false;
+	bool       DelayedRefresh  = true;
+	bool       LazyResize      = false;
 
 	FontSize() {
 		return GetTextSize("X", .SetFont);
@@ -69,11 +77,20 @@ ctrl TerminalCtrl {
 		PaintCenterText(w, x, y, txt, StdFont(), :SWhite);
 	}
 	
+	PaintCaret(w, x, y, sz) {
+		switch(.SetCursorStyle) {
+		case "TerminalCtrl::Caret::BLOCK": /* NOP */ break;
+		case "TerminalCtrl::Caret::BEAM": sz.cx = 1; break;
+		case "TerminalCtrl::Caret::UNDERLINE": y = sz.cy - 1; sz.cy = 1; break;
+		}
+		w.DrawRect(x, y, sz.cx, sz.cy, .LockCursor ? :SLtGray : :SBlack);
+	}
+	
 	PaintLine(w, x, y, text) {
 		fsz = FontSize();
 		tsz = GetTextSize(text, .SetFont);
 		w.DrawText(x, y + 2, text, .SetFont, .Ink);
-		w.DrawRect(x + tsz.cx + 4, y + 2, fsz.cx, fsz.cy, .LockCursor ? :SLtGray : :SBlack);
+		PaintCaret(w, x + tsz.cx + 4, y + 2, fsz);
 	}
 	
 	Paint(w) {
@@ -94,5 +111,4 @@ ctrl TerminalCtrl {
 		if(.ShowSizeHint)
 			PaintSizeHint(w, (r.left + r.right) / 2, (r.top + r.bottom) / 2);
 	}
-
-;
+}
