@@ -266,18 +266,18 @@ void TerminalCtrl::RefreshDisplay()
 			if(hyperlinks && cell.IsHyperlink()
 				&& (cell.data == activelink || cell.data == prevlink)) {
 					if(!line.IsInvalid())
-						Refresh(RectC(x, y, fsz.cx, fsz.cy));
+						Refresh(RectC(x, y, fsz.cx, fsz.cy).Inflated(4));
 			}
 			else
 			if(blinkingtext && cell.IsBlinking()) {
 				if(!line.IsInvalid())
-					Refresh(RectC(x, y, fsz.cx, fsz.cy));
+					Refresh(RectC(x, y, fsz.cx, fsz.cy).Inflated(4));
 				blinking_cells++;
 			}
 		}
 		if(line.IsInvalid()) {
 			line.Validate();
-			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy));
+			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy).Inflated(4));
 		}
 	}
 
@@ -509,9 +509,6 @@ void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 	if(IsTracking()) {
 		if((modes[XTDRAGM] && captured) || modes[XTANYMM])
 			VTMouseEvent(pt, sGetMouseMotionEvent(captured), keyflags);
-		else
-		if(modes[XTX11MM] && captured)
-			VTMouseEvent(pt, MOUSEMOVE, keyflags);
 	}
 	else
 	if(captured) {
@@ -627,12 +624,14 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 		// it won't pass values >= 128 unmodified, unless the terminal is in  8-bit mode.
 		if(modes[XTUTF8MM]) {
 			WString s;
-			s.Cat(pt.x);
-			s.Cat(pt.y);
+			s.Cat(clamp(pt.x, 32, 2047));
+			s.Cat(clamp(pt.y, 32, 2047));
 			PutRaw(Format("\033[M%c%s", mouseevent, ToUtf8(s))).Flush();
 		}
 		else {
-			PutRaw(Format("\033[M%c%c%c", mouseevent, min(pt.x, 255), min(pt.y, 255))).Flush();
+			pt.x = clamp(pt.x, 32, 255);
+			pt.y = clamp(pt.y, 32, 255);
+			PutRaw(Format("\033[M%c%c%c", mouseevent, pt.x, pt.y)).Flush();
 		}
 	}
 }
