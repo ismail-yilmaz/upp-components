@@ -8,7 +8,7 @@ file
 	NetProxy.h,
 	NetProxy.cpp,
 	Info readonly separator,
-	ReadMe,
+	ReadMe.md,
 	Copying,
 	Docs readonly separator,
 	src.tpp;

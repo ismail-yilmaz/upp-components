@@ -4,7 +4,6 @@
 using namespace Upp;
 
 // This example demonstraes the basic usage of NetProxy class with socks5 tunnels.
-// Default proxy server: Turk Telekom, a well-known ISP in Turkey. No auth required...
 // Target server: test.rebex.net -> A well-known FTP/SFTP test server.
 
 CONSOLE_APP_MAIN
@@ -12,7 +11,7 @@ CONSOLE_APP_MAIN
 	StdLogSetup(LOG_COUT|LOG_FILE);
 	NetProxy::Trace();
 	
-	const char *proxy_server = "88.249.26.113";
+	const char *proxy_server = "0.0.0.0"; // Socks server address should go here.
 	const int   proxy_port   = 1080;
 
 	TcpSocket sock;
