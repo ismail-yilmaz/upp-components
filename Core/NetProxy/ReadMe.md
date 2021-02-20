@@ -1,6 +1,6 @@
 # NetProxy package for Ultimate++
 
-This package implements a network proxy class, encapsulating two widely used network proxy protocols: HTTP tunneling and SOCKS
+This package implements a client-side network proxy class, encapsulating two widely used network proxy protocols: HTTP tunneling and SOCKS
 
 ## Features and Highlights
 
@@ -20,4 +20,4 @@ Two examples are provided with the package.
 |**Name**            | **Description**                                                             |
 |:---                |:---                                                                         |
 | SocksProxyExample  | Demonstrates a simple, blocking `SOCKS5` connection to a target machine.    |
-| SocksProxtExamplNB | Demonstrates a simple, non-blocking `SOCKS5` connection to a target machine |
+| SocksProxtExampleNB | Demonstrates a simple, non-blocking `SOCKS5` connection to a target machine |
