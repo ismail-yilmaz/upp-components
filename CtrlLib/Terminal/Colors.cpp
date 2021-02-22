@@ -413,10 +413,9 @@ int ConvertHashColorSpec::Filter(int chr) const
 Value ConvertHashColorSpec::Scan(const Value& text) const
 {
 	String s = Upp::Filter((const String&) text, sCharFilterHashHex);
-	if(!s.IsEmpty()) {
-		int i = 0 + (int) s[0] == '#';
-		int64 x = ScanInt64(~s + i, nullptr, 16);
-		switch(s.GetCount() - i) {
+	if(!s.IsEmpty() && s[0] == '#') {
+		int64 x = ScanInt64(~s + 1, nullptr, 16);
+		switch(s.GetCount() - 1) {
 		case 3:		// Hash3
 			return Color(byte(x >> 4) & 0xF0, byte(x) & 0xF0, byte(x << 4));
 		case 6:		// Hash6
@@ -458,8 +457,8 @@ Value ConvertRgbColorSpec::Scan(const Value& text) const
 	int count = h.GetCount();
 
 	if(count == 3
-    || (count == 4 && h[0].IsEqual("rgb"))                  // rgb : %04x / %04x / %04x
-    || (count == 5 && h[0].IsEqual("rgba"))) {              // rgb : %02z / %02x / %02x
+    ||(count == 4 && h[0].IsEqual("rgb"))                   // rgb : %04x / %04x / %04x
+    ||(count == 5 && h[0].IsEqual("rgba"))) {               // rgb : %02z / %02x / %02x
         int index = 0;                                      // rgba : %04x / %04x / %04x / %04x
         int radix = 10;                                     // rgba : %02x / %02x / %02x / %02x
         if(count > 3) { index = 1; radix = 16; }            // %u , %u, %u
