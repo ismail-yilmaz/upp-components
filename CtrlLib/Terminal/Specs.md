@@ -147,6 +147,7 @@
 |XTUTF8MM   |1005    | Enable/disable UTF8 mouse tracking coordinates.             |xterm private | Level 1      |  
 |XTSGRMM    |1006    | Enable/disable SGR mouse tracking coordinates.              |xterm private | Level 1      |         
 |XTASCM     |1007    | Alternate scroll mode                                       |xterm private | Level 1      |                    
+|XTSGRPXMM  |1016    | Enable/disable SGR pixel-level mouse tracking coordinates.  |xterm private | Level 1      | 
 |XTALTESCM  |1039    | Prefix the key with ESC when modified with Alt-key.         |xterm private | Level 1      |         
 |XTASBM     |1047    | Alternate screen buffer mode. (Ver. 2)                      |xterm private | Level 1      |                                                                                                                              
 |XTSRCM     |1048    | Save/restore cursor.                                        |xterm private | Level 1      |                             
