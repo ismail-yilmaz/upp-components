@@ -726,6 +726,7 @@ private:
     void        XTpcfkeym(bool b);
     void        XTrewrapm(bool b);
     void        XTsgrmm(bool b);
+    void        XTsgrpxmm(bool b);
     void        XTsrcm(bool b);
     void        XTutf8mm(bool b);
     void        XTx10mm(bool b);
@@ -908,6 +909,7 @@ private:
         XTSPREG,
         XTSRCM,
         XTSGRMM,
+        XTSGRPXMM,
         XTUTF8MM,
         XTX10MM,
         XTX11MM,

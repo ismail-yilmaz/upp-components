@@ -85,6 +85,9 @@ void TerminalCtrl::SetMode(const VTInStream::Sequence& seq, bool enable)
 		case XTSGRMM:
 			XTsgrmm(enable);
 			break;
+		case XTSGRPXMM:
+			XTsgrpxmm(enable);
+			break;
 		case XTUTF8MM:
 			XTutf8mm(enable);
 			break;
@@ -378,6 +381,12 @@ void TerminalCtrl::XTx11mm(bool b)
 void TerminalCtrl::XTsgrmm(bool b)
 {
 	modes.Set(XTSGRMM, b);
+	LDUMP(XTSGRMM);
+}
+
+void TerminalCtrl::XTsgrpxmm(bool b)
+{
+	modes.Set(XTSGRPXMM, b);
 	LDUMP(XTSGRMM);
 }
 

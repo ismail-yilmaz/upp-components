@@ -551,7 +551,8 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 {
 	int  mouseevent = 0;
 
-	pt = ClientToPagePos(pt) + 1;
+	if(!modes[XTSGRPXMM])
+		pt = ClientToPagePos(pt) + 1;
 
 	switch(event) {
 	case LEFTUP:
@@ -613,8 +614,9 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 				SetCapture();
 	}
 
-	if(modes[XTSGRMM])
+	if(modes[XTSGRMM] || modes[XTSGRPXMM]) {
 		PutCSI(Format("<%d;%d;%d%[1:M;m]s", mouseevent, pt.x, pt.y, buttondown));
+	}
 	else {
 		if(!buttondown)
 			mouseevent = 0x03;

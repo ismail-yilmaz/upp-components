@@ -281,6 +281,7 @@ int TerminalCtrl::FindModeId(word modenum, byte modetype, byte level)
         VT_MODE(XTUTF8MM,   1005,   '?',    LEVEL_1, LEVEL_4),    // Enable/disable UTF8 mouse tracking coordinates
         VT_MODE(XTSGRMM,    1006,   '?',    LEVEL_1, LEVEL_4),    // Enable/disable SGR mouse tracking coordinates
         VT_MODE(XTASCM,     1007,   '?',    LEVEL_1, LEVEL_4),    // Alternate scroll mode
+        VT_MODE(XTSGRPXMM,  1016,   '?',    LEVEL_1, LEVEL_4),    // Enable/disable SGR pixel-level mouse tracking coordinates
         VT_MODE(XTPCFKEYM,  1035,   '?',    LEVEL_1, LEVEL_4),    // Enable/disable PC-style function keys.
         VT_MODE(XTALTESCM,  1039,   '?',    LEVEL_1, LEVEL_4),    // Prefix the key with ESC when modified with Alt-key
         VT_MODE(XTASBM,     1047,   '?',    LEVEL_1, LEVEL_4),    // Alternate screen buffer mode (ver. 2)
