@@ -903,7 +903,7 @@ void TerminalCtrl::ReportRectAreaChecksum(const VTInStream::Sequence& seq)
 void TerminalCtrl::AlternateScreenBuffer(bool b)
 {
 	page = b ? &apage : &dpage;
-	LLOG("Alternate screen buffer (#" &apage << "): " << (b ? "on" : "off"));
+	LLOG("Alternate screen buffer (#" << &apage << "): " << (b ? "on" : "off"));
 }
 
 dword TerminalCtrl::GetDECStyleFillerFlags() const

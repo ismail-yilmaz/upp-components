@@ -2,12 +2,14 @@ description "Demonstrates a simple virtual terminal emulator example, using Term
 
 uses
 	CtrlLib,
-	Terminal;
+	Terminal,
+	PtyProcess;
 
 file
 	main.cpp;
 
 mainconfig
 	"" = "GUI",
-	"" = "GUI WIN10";
+	"" = "GUI WIN10",
+	"" = "GUI .WINPTY";
 

@@ -23,8 +23,8 @@ topic "Specifications";
 [H8;b73;*+150 $$22,5#07864147445237544204111237153677:subtitle]
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
-[s2;= Terminal Package for Ultimate`+`+&]
-[s0;= [*1 Copyright © 2019`-2020, ][*^https`:`/`/github`.com`/ismail`-yilmaz^1 İsmail 
+[s2;= Terminal Package for U`+`+&]
+[s0;= [*1 Copyright © 2019`-2021, ][*^https`:`/`/github`.com`/ismail`-yilmaz^1 İsmail 
 Yılmaz]&]
 [s2; &]
 [s2;= Technical Specifications&]

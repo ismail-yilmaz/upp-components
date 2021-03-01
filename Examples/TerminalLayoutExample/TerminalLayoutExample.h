@@ -1,16 +1,16 @@
 #ifndef _TerminalLayoutExample_TerminalLayoutExample_h
 #define _TerminalLayoutExample_TerminalLayoutExample_h
 
-#include <CtrlLib/CtrlLib.h>
 #include <Terminal/Terminal.h>
+#include <PtyProcess/PtyProcess.h>
 
 // This example demonstrates a simple, cross-platform (POSIX/Windows)
 // terminal example.
 
-// On Windows, the PtyProcess class requires at least Windows 10 (tm)
-// for the new pseudoconsole API support. To enable this feature, you
-// need to set the WIN10 flag in TheIDE's main package configurations
-// dialog. (i.e. "GUI WIN10")
+// On Windows platform, PtyProcess class can use one of two backends:
+// WinPty or the Windows 10 (tm) pseudoconsole  API. These  mutually
+// exclusive backends can be enabled by setting WINPTY or WIN10 flag
+// via TheIDE's main package configuration dialog. (E.g: "GUI WIN10")
 
 using namespace Upp;
 

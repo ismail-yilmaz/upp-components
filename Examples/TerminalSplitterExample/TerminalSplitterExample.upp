@@ -2,12 +2,14 @@ description "Demonstrates a basic terminal splitter, using Terminal package.\377
 
 uses
 	CtrlLib,
-	Terminal;
+	Terminal,
+	PtyProcess;
 
 file
 	main.cpp;
 
 mainconfig
 	"" = "GUI",
-	"" = "GUI WIN10";
+	"" = "GUI WIN10",
+	"" = "GUI .WINPTY";
 

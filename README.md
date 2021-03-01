@@ -31,7 +31,7 @@ These components are meant to supplement `uppsrc/Core`
 | Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.             |
 | NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
 | OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol. |
-| PtyProcess  | A cross-platform (POSIX/WIN10) pseudo-terminal process implementation.                      |
+| PtyProcess  | A cross-platform (POSIX/WinPty/WIN10) pseudo-terminal process implementation.                      |
 | SSH         | A flexible, easy-to-use yet powerful libssh2 wrapper.                                       |
 
 ### CtrlLib

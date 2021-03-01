@@ -26,15 +26,12 @@ file
 	Page readonly separator,
 	Page.h,
 	Page.cpp,
-	Sixel readonly separator,
-	Sixel.h,
-	Sixel.cpp,
 	Parser readonly separator,
 	Parser.h,
 	Parser.cpp,
-	Pty readonly separator,
-	PtyProcess.h,
-	PtyProcess.cpp,
+	Sixel readonly separator,
+	Sixel.h,
+	Sixel.cpp,
 	Meta readonly separator,
 	TerminalCtrl.usc,
 	Docs readonly separator,
@@ -42,10 +39,6 @@ file
 	srcdoc.tpp,
 	Info readonly separator,
 	ReadMe.md,
-	Specs.md,
 	Copying,
 	Version;
-
-mainconfig
-	"" = "GUI";
 
