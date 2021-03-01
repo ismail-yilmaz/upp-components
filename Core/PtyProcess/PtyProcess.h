@@ -4,9 +4,17 @@
 #include <Core/Core.h>
 
 #ifdef PLATFORM_POSIX
-#include <sys/ioctl.h>
-#include <sys/wait.h>
-#include <termios.h>
+    #include <sys/ioctl.h>
+    #include <sys/wait.h>
+    #include <termios.h>
+#elif PLATFORM_WIN32
+    #ifdef flagWINPTY
+        #undef flagWIN10
+        #include <windows.h>
+        #include <winpty/winpty.h>
+    #elif flagWIN10
+        #undef flagWINPTY
+    #endif
 #endif
 
 namespace Upp {
@@ -63,9 +71,15 @@ private:
     String      exit_string;
     String      sname;
     pid_t       pid;
-#elif flagWIN10
-	// Windows 10 pseudoconsole API support. (Experimental)
+#elif PLATFORM_WIN32
+    #ifdef flagWINPTY
+    // WinPty support. (Experimental)
+    winpty_t*   hConsole;
+    #elif  flagWIN10
+    // Windows 10 pseudoconsole API support. (Experimental)
     HPCON       hConsole;
+    PPROC_THREAD_ATTRIBUTE_LIST hProcAttrList;
+    #endif
     HANDLE      hProcess;
     HANDLE      hOutputRead;
     HANDLE      hErrorRead;
@@ -73,7 +87,6 @@ private:
     DWORD       dwProcessId;
     Size        cSize;
     String      rbuffer;
-    PPROC_THREAD_ATTRIBUTE_LIST hProcAttrList;
 #endif
     String      wbuffer;
     int         exit_code;

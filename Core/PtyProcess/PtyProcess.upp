@@ -1,13 +1,20 @@
 description "A pseudo-terminal process implementation\377";
 
+acceptflags
+	WINPTY,
+	WIN10;
+
 uses
 	Core;
 
+library(WIN32 & WINPTY) winpty.lib;
+
 file
 	PtyProcess.h,
-	PtyProcess.cpp,
+	PtyProcessPosix.cpp,
+	PtyProcessWin32.cpp,
 	Info readonly separator,
-	ReadMe,
+	ReadMe.md,
 	Copying,
 	Docs readonly separator,
 	src.tpp;

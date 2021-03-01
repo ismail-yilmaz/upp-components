@@ -14,7 +14,8 @@ topic "class PtyProcess : public AProcess";
 [s0; &]
 [s1;:Upp`:`:PtyProcess`:`:class: [@(0.0.255)3 class][3 _][*3 PtyProcess][3 _:_][@(0.0.255)3 publ
 ic][3 _][*@3;3 AProcess]&]
-[s6;%% Requires POSIX or at least Windows 10.&]
+[s6;%% Requires POSIX or at least Windows 10 or [^https`:`/`/github`.com`/rprichard`/winpty^ W
+inPty].&]
 [s2;%% This class represents a pseudo`-terminal process on a local 
 machine.&]
 [s3; &]
