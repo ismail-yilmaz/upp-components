@@ -5,8 +5,6 @@ pseudoconsole API or [winpty](https://github.com/rprichard/winpty) on Windows XP
 
 ## Notes:
 
-- This package simply covers a standalone version of the Terminal/PtyProcess class.
-- Accordingly, it is synced with the Terminal/PtyProcess class.
-- See the terminal examples in the Examples section for PtyProcess reference examples.
+- See the terminal examples for PtyProcess reference examples.
 - WinPty backend only requires `winpty-agent` and the `winpty.dll` and its import library `winpty.lib`. (It does not require `Cygwin` or `MSYS2`)
 - WinPty is not provided with the package.

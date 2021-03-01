@@ -1,8 +1,7 @@
-description "A pseudo-terminal process implementation\377";
+description "A cross-platform pseudo-terminal process implementation for U++\377";
 
 acceptflags
-	WINPTY,
-	WIN10;
+	WINPTY;
 
 uses
 	Core;
@@ -11,14 +10,11 @@ library(WIN32 & WINPTY) winpty.lib;
 
 file
 	PtyProcess.h,
-	PtyProcessPosix.cpp,
-	PtyProcessWin32.cpp,
+	PosixPty.cpp,
+	Win32Pty.cpp,
 	Info readonly separator,
 	ReadMe.md,
 	Copying,
 	Docs readonly separator,
 	src.tpp;
-
-mainconfig
-	"" = "";
 
