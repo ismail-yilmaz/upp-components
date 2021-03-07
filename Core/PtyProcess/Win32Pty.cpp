@@ -2,7 +2,7 @@
 
 namespace Upp {
 
-#define LLOG(x)	 RLOG("PtyProcess [WIN32]: " << x);
+#define LLOG(x)	// RLOG("PtyProcess [WIN32]: " << x);
 	
 #ifdef PLATFORM_WIN32
 
