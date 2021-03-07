@@ -1,0 +1,15 @@
+// Imports the source files of winpty-agent executable, filters out the test code and other files.
+
+files
+     lib/include/*.h
+	 lib/include/*.cc
+     lib/shared/*.h
+     lib/shared/*.cc
+     lib/agent/*.h
+     lib/agent/*.cc
+;
+
+exclude
+    lib/shared/*Test*
+	lib/agent/*Test*
+;

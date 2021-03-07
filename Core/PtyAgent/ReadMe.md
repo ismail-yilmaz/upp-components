@@ -1,22 +1,18 @@
-# PtyProcess package for U++
+# PtyAgent package for U++
 
-A cross-platform pseudoconsole inplementation for U++.
+The U++ package for `winpty-agent` executable. This executable is required on runtime by the default backend of `PtyProcess` package and meant to be built on Windows (tm) platform.
 
-## Introduction
+## Usage
 
-This package provides a unified and simple interface for both POSIX-compliant systems and Windows platforms. On Windows, PtyProcess package can use two backends:
+You can build the package with either `TheIDE` or `umk` and move the resulting executable (`PtyAgent.exe`) into the directory of the main executable of your app.
 
-1.  Statically linked [winpty library and agent](https://github.com/rprichard/winpty). This library allows `PtyProcess` to run native console applications on Windows XP/Vista/7/8/10. You will also need to compile the `PtyAgent` package. This is the **default** backend. 
-
-2.  Native Windows 10 pseudoconsole API (ConEmu). This backend requires at least Windows 10 with pty support and it can be switched on via the `WIN10` build flag.
-
-## License
+## Licenses
 
 ~~~
-PtyProcess package for U++
---------------------------
+PtyAgent package for U++
+------------------------
 
-Copyright (c) 2018-2021, İsmail Yılmaz
+Copyright (c) 2021, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

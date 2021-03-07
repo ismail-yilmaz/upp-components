@@ -1,18 +1,23 @@
 description "A cross-platform pseudo-terminal process implementation for U++\377";
 
-acceptflags
-	WINPTY;
-
 uses
 	Core;
 
-library(WIN32 & WINPTY) winpty.lib;
+library(WIN32 & !WIN10) "advapi32 user32";
+
+options(WIN32 & !WIN10) -DAGENT_EXE=L\"PtyAgent.exe\";
+
+options(WIN32 & !WIN10 & CLANG) -Wno-ignored-attributes;
 
 file
 	PtyProcess.h,
 	PosixPty.cpp,
 	Win32Pty.cpp,
-	Info readonly separator,
+	Library readonly separator,
+	lib\libwinpty.h,
+	lib\libwinpty.cpp,
+	lib\LICENSE,
+	Meta readonly separator,
 	ReadMe.md,
 	Copying,
 	Docs readonly separator,

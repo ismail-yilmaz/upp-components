@@ -2,7 +2,7 @@
 
 namespace Upp {
 
-#define LLOG(x)	// RLOG("PtyProcess [WIN32]: " << x);
+#define LLOG(x)	 RLOG("PtyProcess [WIN32]: " << x);
 	
 #ifdef PLATFORM_WIN32
 
@@ -71,7 +71,30 @@ void sEnvToUnicode(Buffer<wchar>& env, const char *envptr)
 	}
 }
 
-#ifdef flagWINPTY
+#ifdef  flagWIN10
+bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& si, PROCESS_INFORMATION& pi, const char *cd)
+{
+	Buffer<wchar> cmd;
+	sCmdToUnicode(cmd, cmdptr);
+#if 0 // TODO: test this later...
+	Buffer<wchar> env;
+	sEnvToUnicode(env, envptr);
+#endif
+	return CreateProcessW(
+		nullptr,
+		cmd,
+		nullptr,
+		nullptr,
+		FALSE,
+		EXTENDED_STARTUPINFO_PRESENT,
+		(void *) envptr,
+		cd ? ~WString(cd) : nullptr,
+		(LPSTARTUPINFOW) &si.StartupInfo,
+		&pi);
+}
+
+#else
+
 HANDLE WinPtyCreateProcess(const char *cmdptr, const char *envptr, const char *cd, winpty_t* hConsole)
 {
 	Buffer<wchar> cmd, env;
@@ -110,50 +133,25 @@ HANDLE WinPtyCreateProcess(const char *cmdptr, const char *envptr, const char *c
 
 	return hProcess;
 }
-#elif  flagWIN10
-bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& si, PROCESS_INFORMATION& pi, const char *cd)
-{
-	Buffer<wchar> cmd;
-	sCmdToUnicode(cmd, cmdptr);
-#if 0 // TODO: test this later...
-	Buffer<wchar> env;
-	sEnvToUnicode(env, envptr);
-#endif
-	return CreateProcessW(
-		nullptr,
-		cmd,
-		nullptr,
-		nullptr,
-		FALSE,
-		EXTENDED_STARTUPINFO_PRESENT,
-		(void *) envptr,
-		cd ? ~WString(cd) : nullptr,
-		(LPSTARTUPINFOW) &si.StartupInfo,
-		&pi);
-}
 #endif
 
 void PtyProcess::Init()
 {
-
-#if defined(flagWIN10) || defined(flagWINPTY)
-	hProcess      = nullptr;
-	hConsole      = nullptr;
-	hOutputRead   = nullptr;
-	hErrorRead    = nullptr;
-	hInputWrite   = nullptr;
+	hProcess       = nullptr;
+	hConsole       = nullptr;
+	hOutputRead    = nullptr;
+	hErrorRead     = nullptr;
+	hInputWrite    = nullptr;
 #ifdef flagWIN10
-	hProcAttrList = nullptr;
+	hProcAttrList  = nullptr;
 #endif
-	cSize         = Null;
-#endif
+	cSize          = Null;
 	convertcharset = false;
-	exit_code = Null;
+	exit_code      = Null;
 }
 
 void PtyProcess::Free()
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	if(hProcess) {
 		CloseHandle(hProcess);
 		hProcess = nullptr;
@@ -173,7 +171,7 @@ void PtyProcess::Free()
 		CloseHandle(hInputWrite);
 		hInputWrite = nullptr;
 	}
-#ifdef flagWINPTY
+#ifndef flagWIN10
 	if(hConsole) {
 		winpty_free(hConsole);
 		hConsole = nullptr;
@@ -187,7 +185,6 @@ void PtyProcess::Free()
 		DeleteProcThreadAttributeList(hProcAttrList);
 		hProcAttrList = nullptr;
 	}
-#endif
 #endif
 }
 
@@ -205,7 +202,6 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 	Kill();
 	exit_code = Null;
 
-#ifdef flagWINPTY
 	String command = sParseArgs(cmd, args);
 	if(command.IsEmpty()) {
 		LLOG("Couldn't parse arguments.");
@@ -213,73 +209,7 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 		return false;
 	}
 
-	auto hAgentConfig = winpty_config_new(0, nullptr);
-	if(!hAgentConfig) {
-		LLOG("winpty_config_new() failed.");
-		Free();
-		return false;
-	}
-
-	winpty_config_set_initial_size(hAgentConfig, 80, 24);
-		
-	hConsole = winpty_open(hAgentConfig, nullptr);
-	if(!hConsole) {
-		LLOG("winpty_open() failed.");
-		Free();
-		return false;
-	}
-	
-	winpty_config_free(hAgentConfig);
-	
-	hInputWrite = CreateFileW(
-		winpty_conin_name(hConsole),
-		GENERIC_WRITE,
-		0,
-		nullptr,
-		OPEN_EXISTING,
-		0,
-		nullptr);
-
-	hOutputRead = CreateFileW(
-		winpty_conout_name(hConsole),
-		GENERIC_READ,
-		0,
-		nullptr,
-		OPEN_EXISTING,
-		0,
-		nullptr);
-	
-	hErrorRead = CreateFileW(
-		winpty_conerr_name(hConsole),
-		GENERIC_READ,
-		0,
-		nullptr,
-		OPEN_EXISTING,
-		0,
-		nullptr);
-
-	if(!hInputWrite || !hOutputRead || !hErrorRead) {
-		LLOG("Couldn't create file I/O handles.");
-		Free();
-		return false;
-	}
-	
-	hProcess = WinPtyCreateProcess(~command, env, cd, hConsole);
-	if(!hProcess) {
-		LLOG("WinPtyCreateProcess() failed.");
-		Free();
-		return false;
-	}
-	
-	return true;
-	
-#elif  flagWIN10
-	String command = sParseArgs(cmd, args);
-	if(command.IsEmpty()) {
-		LLOG("Couldn't parse arguments.");
-		Free();
-		return false;
-	}
+#ifdef flagWIN10
 
 	HANDLE hOutputReadTmp, hOutputWrite;
 	HANDLE hInputWriteTmp, hInputRead;
@@ -367,11 +297,68 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 		Free();
 		return false;
 	}
-	return true;
+
 #else
-	LLOG("PtyProcess requires at least Windows 10 or WinPty library.");
-	return false;
+
+	auto hAgentConfig = winpty_config_new(0, nullptr);
+	if(!hAgentConfig) {
+		LLOG("winpty_config_new() failed.");
+		Free();
+		return false;
+	}
+
+	winpty_config_set_initial_size(hAgentConfig, 80, 24);
+		
+	hConsole = winpty_open(hAgentConfig, nullptr);
+	winpty_config_free(hAgentConfig);
+	if(!hConsole) {
+		LLOG("winpty_open() failed.");
+		Free();
+		return false;
+	}
+	
+	hInputWrite = CreateFileW(
+		winpty_conin_name(hConsole),
+		GENERIC_WRITE,
+		0,
+		nullptr,
+		OPEN_EXISTING,
+		0,
+		nullptr);
+
+	hOutputRead = CreateFileW(
+		winpty_conout_name(hConsole),
+		GENERIC_READ,
+		0,
+		nullptr,
+		OPEN_EXISTING,
+		0,
+		nullptr);
+	
+	hErrorRead = CreateFileW(
+		winpty_conerr_name(hConsole),
+		GENERIC_READ,
+		0,
+		nullptr,
+		OPEN_EXISTING,
+		0,
+		nullptr);
+
+	if(!hInputWrite || !hOutputRead || !hErrorRead) {
+		LLOG("Couldn't create file I/O handles.");
+		Free();
+		return false;
+	}
+	
+	hProcess = WinPtyCreateProcess(~command, env, cd, hConsole);
+	if(!hProcess) {
+		LLOG("WinPtyCreateProcess() failed.");
+		Free();
+		return false;
+	}
+	
 #endif
+	return true;
 }
 
 bool PtyProcess::Read(String& s)
@@ -379,7 +366,6 @@ bool PtyProcess::Read(String& s)
 	String rread;
 	constexpr int BUFSIZE = 4096;
 
-#if defined(flagWIN10) || defined(flagWINPTY)
 	s = rbuffer;
 	rbuffer.Clear();
 	bool running = IsRunning();
@@ -403,15 +389,12 @@ bool PtyProcess::Read(String& s)
 	if(!IsNull(rread)) {
 		s << (convertcharset ? FromOEMCharset(rread) : rread);
 	}
+
 	return !IsNull(rread) && running;
-#else
-	return false;
-#endif
 }
 
 void PtyProcess::Write(String s)
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	if(IsNull(s) && IsNull(wbuffer))
 		return;
 	if(convertcharset)
@@ -433,41 +416,29 @@ void PtyProcess::Write(String s)
 		}
 	}
 	LLOG("Write() -> " << done << "/" << wbuffer.GetLength() << " bytes.");
-#endif
 }
 
 void PtyProcess::Kill()
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	if(hProcess && IsRunning()) {
 		TerminateProcess(hProcess, (DWORD)-1);
 		exit_code = 255;
 	}
-#endif
 	Free();
 }
 
 int PtyProcess::GetExitCode()
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	return IsRunning() ? (int) Null : exit_code;
-#else
-	return (int) Null;
-#endif
 }
 
 HANDLE PtyProcess::GetProcessHandle() const
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	return hProcess;
-#else
-	return nullptr;
-#endif
 }
 
 bool PtyProcess::IsRunning()
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	dword exitcode;
 	if(!hProcess)
 		return false;
@@ -478,47 +449,37 @@ bool PtyProcess::IsRunning()
 		return true;
 	exit_code = exitcode;
 	LLOG("IsRunning() -> no, just exited, exit code = " << exit_code);
-#endif
 	return false;
 }
 
 bool PtyProcess::SetSize(Size sz)
 {
-#ifdef flagWINPTY
 	if(hConsole) {
-		if(winpty_set_size(hConsole, max(2, sz.cx), max(2, sz.cy), nullptr)) {
-			LLOG("Pty size is set to: " << sz);
-			cSize = sz;
-			return true;
-		}
-	}
-	cSize = Null;
-#elif flagWIN10
-	if(hConsole) {
+#ifdef flagWIN10
 		COORD size;
 		size.X = (SHORT) max(2, sz.cx);
 		size.Y = (SHORT) max(2, sz.cy);
 		if(ResizePseudoConsole(hConsole, size) == S_OK) {
+#else
+		if(winpty_set_size(hConsole, max(2, sz.cx), max(2, sz.cy), nullptr)) {
+#endif
 			LLOG("Pty size is set to: " << sz);
 			cSize = sz;
 			return true;
 		}
 	}
 	cSize = Null;
-#endif
 	LLOG("Couldn't set pty size!");
 	return false;
 }
 
 Size PtyProcess::GetSize()
 {
-#if defined(flagWIN10) || defined(flagWINPTY)
 	if(hConsole && !IsNull(cSize)) {
 		LLOG("Fetched pty size: " << cSize);
 		return cSize;
 	}
 	LLOG("Couldn't fetch pty size!");
-#endif
 	return Null;
 }
 #endif

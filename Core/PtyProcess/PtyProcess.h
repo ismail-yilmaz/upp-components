@@ -8,13 +8,8 @@
     #include <sys/wait.h>
     #include <termios.h>
 #elif PLATFORM_WIN32
-    #ifdef flagWINPTY
-        #undef flagWIN10
-        #include <windows.h>
-        #include <winpty/winpty.h>
-    #elif flagWIN10
-        #undef flagWINPTY
-    #endif
+	#include <windows.h>
+	#include "lib/libwinpty.h"
 #endif
 
 namespace Upp {
@@ -72,13 +67,13 @@ private:
     String      sname;
     pid_t       pid;
 #elif PLATFORM_WIN32
-    #ifdef flagWINPTY
-    // WinPty support. (Experimental)
-    winpty_t*   hConsole;
-    #elif  flagWIN10
+	#ifdef flagWIN10
     // Windows 10 pseudoconsole API support. (Experimental)
     HPCON       hConsole;
     PPROC_THREAD_ATTRIBUTE_LIST hProcAttrList;
+    #else
+    // WinPty backend. (default)
+    winpty_t*   hConsole;
     #endif
     HANDLE      hProcess;
     HANDLE      hOutputRead;
