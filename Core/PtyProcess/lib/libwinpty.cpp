@@ -2,7 +2,7 @@
 
 // Upp-libwinpty source files.
 
-#if defined(PLATFORM_WIN32) && !defined(flagWIN10)
+#if (defined(flagWIN32) || defined(flagWIN64)) && !defined(flagWIN10)
 	#include "libwinpty/winpty.cc"
 	#include "libwinpty/AgentLocation.cc"
 	#include "shared/BackgroundDesktop.cc"

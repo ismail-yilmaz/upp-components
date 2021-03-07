@@ -3,7 +3,7 @@
 
 // Upp-libwinpty header files.
 
-#if defined(PLATFORM_WIN32) && !defined(flagWIN10)
+#if (defined(flagWIN32) || defined(flagWIN64)) && !defined(flagWIN10)
 	#define  UNICODE
 	#define  COMPILING_WINPTY_STATIC
 //  #define  AGENT_EXE L"PtyAgent.exe"

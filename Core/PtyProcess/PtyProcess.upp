@@ -7,8 +7,6 @@ library(WIN32 & !WIN10) "advapi32 user32";
 
 options(WIN32 & !WIN10) -DAGENT_EXE=L\"PtyAgent.exe\";
 
-options(WIN32 & !WIN10 & CLANG) -Wno-ignored-attributes;
-
 file
 	PtyProcess.h,
 	PosixPty.cpp,

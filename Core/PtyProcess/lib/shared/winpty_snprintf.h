@@ -31,8 +31,13 @@
 #define WINPTY_SNPRINTF_FORMAT(fmtarg, vararg) \
     __attribute__((format(printf, (fmtarg), ((vararg)))))
 #elif defined(__GNUC__)
-#define WINPTY_SNPRINTF_FORMAT(fmtarg, vararg) \
-    __attribute__((format(gnu_printf, (fmtarg), ((vararg)))))
+	#ifdef __clang__
+		#define WINPTY_SNPRINTF_FORMAT(fmtarg, vararg) \
+			__attribute__((format(__printf__, (fmtarg), ((vararg)))))
+	#else
+		#define WINPTY_SNPRINTF_FORMAT(fmtarg, vararg) \
+			__attribute__((format(gnu_printf, (fmtarg), ((vararg)))))
+	#endif
 #else
 #define WINPTY_SNPRINTF_FORMAT(fmtarg, vararg)
 #endif
