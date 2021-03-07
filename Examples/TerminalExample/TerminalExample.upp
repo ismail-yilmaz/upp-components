@@ -10,6 +10,5 @@ file
 
 mainconfig
 	"" = "GUI",
-	"" = "GUI WIN10",
-	"" = "GUI .WINPTY";
+	"" = "GUI WIN10";
 

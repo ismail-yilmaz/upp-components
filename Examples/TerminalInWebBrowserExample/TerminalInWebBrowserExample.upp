@@ -10,6 +10,5 @@ file
 
 mainconfig
 	"" = "WIN10",
-	"" = ".WINPTY",
 	"" = "";
 
