@@ -28,7 +28,7 @@ Terminal package is designed from the ground up with modularity and maintainabil
 
 ## [Installation](#installation)
 
-There are three ways to install the source code of Ultimate++ terminal widget:
+There are two ways to install the source code of Ultimate++ terminal widget:
 
 1. The package is immediately available via [UppHub](https://www.ultimatepp.org/app$ide$UppHub_en-us.html), the 3rd-party source package management system of U++. *This is the simplest and recommended method.* (Requires U++ ver. > 2020.2, or nighty builds.)
 2. Clone or download this repository and set it up as an U++ *assembly* or *nest*.  You can find more information on U++ packages, assemblies and nests, [here](https://www.ultimatepp.org/app$ide$PackagesAssembliesAndNests$en-us.html).
@@ -160,10 +160,11 @@ using namespace Upp;
 // This example demonstrates a simple, cross-platform (POSIX/Windows)
 // terminal example.
 
-// On Windows platform, PtyProcess class can utilize two backends:
-// WinPty or the Windows 10 (tm) pseudoconsole  API. These  mutually
-// exclusive backends can be enabled by setting WINPTY or WIN10 flag
-// via TheIDE's main package configuration dialog. (E.g: "GUI WIN10")
+// On Windows platform PtyProcess class uses statically linked *winpty*
+// library and the supplementary PtyAgent pacakges as its *default* pty
+// backend. However, it also supports the Windows 10 (tm) pseudoconsole
+// API via the WIN10 compiler flag. This flag can be enabled or disable
+// easily via TheIDE's main package configuration dialog. (E.g: "GUI WIN10")
 
 #ifdef PLATFORM_POSIX
 const char *tshell = "SHELL";

@@ -32,6 +32,7 @@ These components are meant to supplement `uppsrc/Core`
 | NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
 | OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol. |
 | PtyProcess  | A cross-platform (POSIX/WinPty/WIN10) pseudo-terminal process implementation.                      |
+| PtyAgent    | Agent executable for the default backend (winpty) of PtyProcess package.
 | SSH         | A flexible, easy-to-use yet powerful libssh2 wrapper.                                       |
 
 ### CtrlLib
