@@ -104,7 +104,7 @@ VTPage& VTPage::Reset()
 	tabsync = false;
 	SetTabs(tabsize);
 	SetSize(size);
-	AutoWrap(false);
+	AutoWrap(autowrap);
 	Displaced(false);
 	ErasePage();
 	EraseHistory();
