@@ -164,11 +164,11 @@ void TerminalCtrl::SetProgrammableColors(const VTInStream::Sequence& seq, int op
 			if(!j) continue;
 			String s = seq.GetStr(i + 1);
 			if(s.IsEqual("?")) {
-				ReportDynamicColor(opcode, colortable[GetColorIndex(opcode)]);
+				ReportDynamicColor(opcode, colortable[j]);
 			}
 			else
 			if(!IsNull(s)) {
-				if(SetSaveColor(GetColorIndex(opcode), ConvertColor().Scan(s)))
+				if(SetSaveColor(j, ConvertColor().Scan(s)))
 					changed_colors++;
 			}
 		}
