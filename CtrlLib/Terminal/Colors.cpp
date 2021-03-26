@@ -126,18 +126,19 @@ void TerminalCtrl::ReportDynamicColor(int opcode, const Color& c)
 
 void TerminalCtrl::SetProgrammableColors(const VTInStream::Sequence& seq, int opcode)
 {
-	if(!dynamiccolors || seq.parameters.GetCount() < 2)
+	if(!dynamiccolors || seq.parameters.GetCount() < decode(opcode, 4, 3, 2))
 		return;
 
 	int changed_colors = 0;
 
-	// OSC 4;color;spec or OSC [10|11|17|19];spec
+	// OSC 4;[color;spec|...] or OSC [10|11|17|19];[spec|...]
+	// Note: Both OSC can set multiple colors at once.
 
-	for(int i = opcode == 4 ? 1 : 0; i < seq.parameters.GetCount(); i += 2) {
-		int    j = seq.GetInt(i + 1);
-		String s = seq.GetStr(i + 2);
-		if(opcode == 4) { // ANSI + dtterm colors
+	if(opcode == 4) { // ANSI + aixterm colors.
+		for(int i = 1; i < seq.parameters.GetCount(); i += 2) {
+			int j = seq.GetInt(i + 1, 0);
 			if(j >= 0 && j < ANSI_COLOR_COUNT) {
+				String s = seq.GetStr(i + 2);
 				if(s.IsEqual("?")) {
 					ReportANSIColor(opcode, j, colortable[j]);
 				}
@@ -148,21 +149,27 @@ void TerminalCtrl::SetProgrammableColors(const VTInStream::Sequence& seq, int op
 				}
 			}
 		}
-		else { // xterm dynamic colors
-			j = decode(opcode,
-					10, COLOR_INK,
-					11, COLOR_PAPER,
-					17, COLOR_INK_SELECTED,
-					19, COLOR_PAPER_SELECTED, 0);
-			if(j) {
-				if(s.IsEqual("?")) {
-					ReportDynamicColor(opcode, colortable[j]);
-				}
-				else
-				if(!IsNull(s)) {
-					if(SetSaveColor(j, ConvertColor().Scan(s)))
-						changed_colors++;
-				}
+	}
+	else { // xterm dynamic colors.
+		auto GetColorIndex = [](int opcode)
+		{
+			return decode(opcode,
+				10, COLOR_INK,
+				11, COLOR_PAPER,
+				17, COLOR_INK_SELECTED,
+				19, COLOR_PAPER_SELECTED, 0);
+		};
+		for(int i = 1; i < seq.parameters.GetCount(); i++, opcode++) {
+			int j = GetColorIndex(opcode);
+			if(!j) continue;
+			String s = seq.GetStr(i + 1);
+			if(s.IsEqual("?")) {
+				ReportDynamicColor(opcode, colortable[GetColorIndex(opcode)]);
+			}
+			else
+			if(!IsNull(s)) {
+				if(SetSaveColor(GetColorIndex(opcode), ConvertColor().Scan(s)))
+					changed_colors++;
 			}
 		}
 	}
@@ -173,39 +180,40 @@ void TerminalCtrl::SetProgrammableColors(const VTInStream::Sequence& seq, int op
 
 void TerminalCtrl::ResetProgrammableColors(const VTInStream::Sequence& seq, int opcode)
 {
-	if(!dynamiccolors || seq.parameters.GetCount() < 2)
+	if(!dynamiccolors || seq.parameters.GetCount() < decode(opcode, 104, 2, 1))
 		return;
-	
-	auto args = SubRange(seq.parameters, 1, seq.parameters.GetCount());
-	
-	if(args[0].IsEmpty()) {
-		savedcolors.Clear();
-		ResetColors();
-		Ctrl::Refresh();
-		return;
-	}
-	
+
 	int changed_colors = 0;
 	
-	if(opcode == 104) { // ANSI + dtterm colors
-		for(const String& s : args) {
-			int i = StrInt(s);
-			if(i >= 0 && i < ANSI_COLOR_COUNT) {
-				if(ResetLoadColor(i))
+	// OSC 104;[color;...] or OSC [110|111|117|119]
+	// Note: Both OSC can reset multiple colors at once.
+	
+	if(opcode == 104 && seq.GetInt(2, -1) == -1) { // Reset all ANSI + aixterm colors.
+			savedcolors.Clear();
+			ResetColors();
+			Ctrl::Refresh();
+			return;
+	}
+	
+	for(int i = decode(opcode, 104, 1, 0); i < seq.parameters.GetCount(); i++) {
+		int  j = seq.GetInt(i + 1, 0);
+		if(opcode == 104) { // ANSI + aixterm colors.
+			if(j >= 0 && j < ANSI_COLOR_COUNT) {
+				if(ResetLoadColor(j))
 					changed_colors++;
 			}
 		}
+		else { // xterm dynamic colors.
+			int j = decode(j,
+					110, COLOR_INK,
+					111, COLOR_PAPER,
+					117, COLOR_INK_SELECTED,
+					119, COLOR_PAPER_SELECTED, 0);
+			if(i > 0 && ResetLoadColor(i))
+				changed_colors++;
+		}
 	}
-	else { // xterm dynamic colors
-		int i = decode(opcode,
-				10, COLOR_INK,
-				11, COLOR_PAPER,
-				17, COLOR_INK_SELECTED,
-				19, COLOR_PAPER_SELECTED, 0);
-		if(i && ResetLoadColor(i))
-			changed_colors++;
-	}
-	
+
 	if(changed_colors > 0)
 		Ctrl::Refresh();
 }
