@@ -57,18 +57,6 @@ TerminalCtrl::~TerminalCtrl()
 	KillTimeCallback(TIMEID_BLINK);
 }
 
-Size TerminalCtrl::GetFontSize() const
-{
-	return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy());
-}
-
-Size TerminalCtrl::GetPageSize() const
-{
-	Size wsz = GetSize();
-	Size fsz = GetFontSize();
-	return clamp(wsz / fsz, Size(1, 1), GetScreenSize() / fsz);
-}
-
 void TerminalCtrl::PlaceCaret(bool scroll)
 {
 	bool  b = modes[DECTCEM];
@@ -91,27 +79,27 @@ void TerminalCtrl::PlaceCaret(bool scroll)
 
 Rect TerminalCtrl::GetCaretRect()
 {
-	Size fsz = GetFontSize();
-	Point pt = GetCursorPos() * fsz;
+	Size csz = GetCellSize();
+	Point pt = GetCursorPos() * csz;
 	int   cw = page->GetCell().GetWidth();
 
-	pt.y -= (fsz.cy * GetSbPos());
+	pt.y -= (csz.cy * GetSbPos());
 
 	switch(caret.GetStyle()) {
 	case Caret::BEAM:
-		fsz.cx = 1;
+		csz.cx = 1;
 		break;
 	case Caret::UNDERLINE:
-		fsz.cx *= max(cw, 1); // Adjust the caret widt to cell size.
-		pt.y += fsz.cy - 1;
-		fsz.cy = 1;
+		csz.cx *= max(cw, 1); // Adjust the caret widt to cell size.
+		pt.y += csz.cy - 1;
+		csz.cy = 1;
 		break;
 	case Caret::BLOCK:
-		fsz.cx *= max(cw, 1); // Adjust the caret width to cell size.
+		csz.cx *= max(cw, 1); // Adjust the caret width to cell size.
 		break;
 	}
 
-	caretrect = Rect(pt, fsz);
+	caretrect = Rect(pt, csz);
 	return Rect(GetSize()).Contains(caretrect) ? caretrect : Null;
 }
 
@@ -236,7 +224,7 @@ void TerminalCtrl::Scroll()
 	if(hinting) // Prevents the size hint box from scrolling with the view.
 		RefreshSizeHint();
 	
-	scroller.Scroll(*this, GetSize(), sb * GetFontSize().cy);
+	scroller.Scroll(*this, GetSize(), sb * GetCellSize().cy);
 	PlaceCaret();
 }
 
@@ -251,7 +239,7 @@ void TerminalCtrl::RefreshDisplay()
 {
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
-	Size fsz = GetFontSize();
+	Size csz = GetCellSize();
 	int  pos = GetSbPos();
 	int blinking_cells = 0;
 	
@@ -259,25 +247,25 @@ void TerminalCtrl::RefreshDisplay()
 
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
 		const VTLine& line = page->FetchLine(i);
-		int y = i * fsz.cy - (fsz.cy * pos);
+		int y = i * csz.cy - (csz.cy * pos);
 		for(int j = 0; j < line.GetCount(); j++) {
-			int x = j * fsz.cx;
+			int x = j * csz.cx;
 			const VTCell& cell = line[j];
 			if(hyperlinks && cell.IsHyperlink()
 				&& (cell.data == activelink || cell.data == prevlink)) {
 					if(!line.IsInvalid())
-						Refresh(RectC(x, y, fsz.cx, fsz.cy).Inflated(4));
+						Refresh(RectC(x, y, csz.cx, csz.cy).Inflated(4));
 			}
 			else
 			if(blinkingtext && cell.IsBlinking()) {
 				if(!line.IsInvalid())
-					Refresh(RectC(x, y, fsz.cx, fsz.cy).Inflated(4));
+					Refresh(RectC(x, y, csz.cx, csz.cy).Inflated(4));
 				blinking_cells++;
 			}
 		}
 		if(line.IsInvalid()) {
 			line.Validate();
-			Refresh(RectC(0, i * fsz.cy - (fsz.cy * pos), wsz.cx, fsz.cy).Inflated(4));
+			Refresh(RectC(0, i * csz.cy - (csz.cy * pos), wsz.cx, csz.cy).Inflated(4));
 		}
 	}
 
@@ -659,9 +647,9 @@ Point TerminalCtrl::SelectionToPagePos(Point pt) const
 {
 	// Aligns the anchor or selection point to cell boundaries.
 
-	Size fsz = GetFontSize();
-	int mx = pt.x % fsz.cx;
-	pt.x += int(mx >= fsz.cx / 2) * fsz.cx - mx;
+	Size csz = GetCellSize();
+	int mx = pt.x % csz.cx;
+	pt.x += int(mx >= csz.cx / 2) * csz.cx - mx;
 	return ClientToPagePos(pt);
 }
 
@@ -835,7 +823,7 @@ Image TerminalCtrl::GetInlineImage(Point pt, bool modifier)
 	if(modifier) {
 		const VTCell& cell = page->FetchCell(pt);
 		if(cell.IsImage()) {
-			Image img = GetCachedImageData(cell.chr, Null, GetFontSize()).image;
+			Image img = GetCachedImageData(cell.chr, Null, GetCellSize()).image;
 			if(!IsNull(img))
 				return pick(img);
 			LLOG("Unable to retrieve image from cache. Link id: " << cell.chr);

@@ -585,7 +585,7 @@ void TerminalCtrl::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 			PutCSI(Format("3;%d;%d`t", r.left, r.top));
 			break;
 		case REPORT_PAGE_SIZE_IN_PIXELS:
-			sz = GetPageSize() * GetFontSize();
+			sz = GetPageSize() * GetCellSize();
 			PutCSI(Format("4;%d;%d`t", sz.cy, sz.cx));
 			break;
 		case REPORT_WINDOW_SIZE_IN_PIXELS:
@@ -601,11 +601,11 @@ void TerminalCtrl::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 			PutCSI(Format("8;%d;%d`t", sz.cy, sz.cx));
 			break;
 		case REPORT_CELL_SIZE:
-			sz = GetFontSize();
+			sz = GetCellSize();
 			PutCSI(Format("6;%d;%d`t", sz.cy, sz.cx));
 			break;
 		case REPORT_SCREEN_SIZE_IN_CELLS: {
-			sz = GetWorkArea().GetSize() / GetFontSize();
+			sz = GetWorkArea().GetSize() / GetCellSize();
 			PutCSI(Format("9;%d;%d`t", sz.cy, sz.cx));
 			break; }
 		case REPORT_WINDOW_STATE:
@@ -652,11 +652,11 @@ void TerminalCtrl::WindowPageResizeRequest(TopWindow *w, int cx, int cy)
 	
 	Rect r = w->GetRect();
 	Rect wr = GetWorkArea();
-	Size fsz = GetFontSize();
+	Size csz = GetCellSize();
 	
 	Size sz;
-	sz.cx = IsNull(cx) ? r.Width() : !cx ? wr.Width() : AddFrameSize(Size(cx, 1) * fsz).cx;
-	sz.cy = IsNull(cy) ? r.Height() : !cy ? wr.Height() : AddFrameSize(Size(1, cy) * fsz).cy;
+	sz.cx = IsNull(cx) ? r.Width() : !cx ? wr.Width() : AddFrameSize(Size(cx, 1) * csz).cx;
+	sz.cy = IsNull(cy) ? r.Height() : !cy ? wr.Height() : AddFrameSize(Size(1, cy) * csz).cy;
 	
 	WhenWindowGeometryChange(Rect(r.TopLeft(), sz));
 }

@@ -1126,12 +1126,18 @@ Displays section for more information.&]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:GetFontSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetFontSize](
 )_[@(0.0.255) const]&]
-[s2; Returns the current font`'s size in pixels.&]
+[s2; Returns the current font size of the terminal in pixels.&]
 [s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetCellSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetCellSize](
+)_[@(0.0.255) const]&]
+[s2; Returns the current cell size of the terminal in pixels. The 
+cell size [/ may ]include additional spaces (like padding, etc.).&]
+[s3; &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:GetPageSize`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPageSize](
 )_[@(0.0.255) const]&]
-[s2; Returns the current size of terminal display in cells.&]
+[s2; Returns the current size of the terminal display in cells.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:PageSizeToClient`(Upp`:`:Size`)const:%- [_^Upp`:`:Size^ Siz

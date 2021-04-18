@@ -271,10 +271,11 @@ public:
     TerminalCtrl&   UnlockUDK()                                     { return LockUDK(false); }
     bool            IsUDKLocked() const                             { return userdefinedkeyslocked; }
 
-    Size            GetFontSize() const;
-    Size            GetPageSize() const;
+    Size            GetFontSize() const                             { return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy()); }
+    Size            GetCellSize() const                             { return GetFontSize() /* + padding * 2 */; }
+    Size            GetPageSize() const                             { Size csz = GetCellSize(); return clamp(GetSize() / csz, Size(1, 1), GetScreenSize() / csz); }
 
-    Size            PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetFontSize()); }
+    Size            PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetCellSize()); }
     Size            PageSizeToClient(int col, int row) const        { return PageSizeToClient(Size(col, row)); }
 
     Size            GetMinSize() const override                     { return PageSizeToClient(Size(2, 2)); }
@@ -452,11 +453,10 @@ private:
     };
 
     void        Paint0(Draw& w, bool print = false);
-    void        AddImagePart(ImageParts& parts, int x, int y, const VTCell& cell, Size sz);
     void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
 
     void        RenderImage(const ImageString& simg, bool scroll);
-    const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& fsz);
+    const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& csz);
 
     void        RenderHyperlink(const Value& uri);
     String      GetCachedHyperlink(dword id, const Value& data = Null);

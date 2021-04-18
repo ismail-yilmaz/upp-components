@@ -119,10 +119,10 @@ void TerminalCtrl::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 				show = val == "1";
 			else
 			if(key.IsEqual("width"))
-				simg.size.cx = GetVal(val, GetPageSize().cx, GetFontSize().cx);
+				simg.size.cx = GetVal(val, GetPageSize().cx, GetCellSize().cx);
 			else
 			if(key.IsEqual("height"))
-				simg.size.cy = GetVal(val, GetPageSize().cy, GetFontSize().cy);
+				simg.size.cy = GetVal(val, GetPageSize().cy, GetCellSize().cy);
 			else
 			if(key.IsEqual("preserveaspectratio"))
 				simg.keepratio = val == "1";
