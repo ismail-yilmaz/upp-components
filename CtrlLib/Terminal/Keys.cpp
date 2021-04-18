@@ -228,16 +228,16 @@ bool TerminalCtrl::UDKey(dword key, int count)
 	dword userkey  = 0;
 	
 	if(pcstylefunctionkeys) {
-		if(key & K_SHIFT) {
-			userkey = K_SHIFT|k->b;
+		if(key & (K_SHIFT|K_ALT)) {
+			userkey = k->b < 25 ? (K_SHIFT|K_ALT|k->b) : 0;
 		}
 		else
 		if(key & K_ALT) {
 			userkey = k->b < 25 ? (K_ALT|k->b) : 0;
 		}
 		else
-		if(key & (K_SHIFT|K_ALT)) {
-			userkey = k->b < 25 ? (K_SHIFT|K_ALT|k->b) : 0;
+		if(key & K_SHIFT) {
+			userkey = K_SHIFT|k->b;
 		}
 	}
 	else
