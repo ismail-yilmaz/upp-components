@@ -392,6 +392,7 @@ void TerminalCtrl::Serialize(Stream& s)
 		s % dynamiccolors;
 		s % adjustcolors;
 		s % lightcolors;
+		s % padding;
 		s % gsets;
 		s % dpage;
 		s % cts;
@@ -418,6 +419,7 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
         ("GSets",               gsets)
         ("Page",                dpage)
         ("Font",                font)
+        ("CellPadding",         padding)
         ("Caret",               caret)
         ("ReverseWrap",         reversewrap)
         ("KeyNavigation",       keynavigation)

@@ -57,6 +57,15 @@ TerminalCtrl::~TerminalCtrl()
 	KillTimeCallback(TIMEID_BLINK);
 }
 
+TerminalCtrl& TerminalCtrl::SetFont(Font f)
+{
+	Size fsz = GetFontSize();
+	font = f;
+	padding = iscale(GetFontSize(), padding, max(Size(1, 1), fsz));
+	Layout();
+	return *this;
+}
+
 void TerminalCtrl::PlaceCaret(bool scroll)
 {
 	bool  b = modes[DECTCEM];
@@ -636,11 +645,8 @@ bool TerminalCtrl::IsTracking() const
 
 Point TerminalCtrl::ClientToPagePos(Point pt) const
 {
-	Size wsz = GetSize();
-	Size psz = GetPageSize();
-	pt.y = psz.cy * pt.y / (wsz.cy -= wsz.cy % psz.cy) + GetSbPos();
-	pt.x = psz.cx * pt.x / (wsz.cx -= wsz.cx % psz.cx);
-	return pt;
+	Sizef csz = GetCellSize();
+	return (Point) Pointf(pt.x / csz.cx, pt.y / csz.cy + GetSbPos());
 }
 
 Point TerminalCtrl::SelectionToPagePos(Point pt) const

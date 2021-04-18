@@ -126,8 +126,11 @@ public:
     TerminalCtrl&   SetHistorySize(int sz)                          { dpage.SetHistorySize(sz); return *this; }
     int             GetHistorySize() const                          { return dpage.GetHistorySize(); }
 
-    TerminalCtrl&   SetFont(Font f)                                 { font = f; Layout(); return *this; }
+    TerminalCtrl&   SetFont(Font f);
     Font            GetFont() const                                 { return font; }
+
+	TerminalCtrl&	SetPadding(Size sz)                             { padding = clamp(sz, Size(0, 0), GetFontSize() * 2); return *this; }
+	Size			GetPadding() const								{ return padding; }
 
     void            SetCharset(byte cs)                             { charset = ResolveCharset(cs); }
     byte            GetCharset() const                              { return charset;    }
@@ -272,7 +275,7 @@ public:
     bool            IsUDKLocked() const                             { return userdefinedkeyslocked; }
 
     Size            GetFontSize() const                             { return Size(max(font.GetWidth('M'), font.GetWidth('W')), font.GetCy()); }
-    Size            GetCellSize() const                             { return GetFontSize() /* + padding * 2 */; }
+    Size            GetCellSize() const                             { return GetFontSize() + padding * 2; }
     Size            GetPageSize() const                             { Size csz = GetCellSize(); return clamp(GetSize() / csz, Size(1, 1), GetScreenSize() / csz); }
 
     Size            PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetCellSize()); }
@@ -504,6 +507,7 @@ private:
     int         clipaccess      = CLIP_NONE;
     dword       activelink      = 0;
     dword       prevlink        = 0;
+	Size		padding         = { 0, 0 };
 
     bool        eightbit;
     bool        reversewrap;

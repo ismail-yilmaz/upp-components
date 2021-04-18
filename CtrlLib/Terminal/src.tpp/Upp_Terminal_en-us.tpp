@@ -396,6 +396,21 @@ onst]&]
 [s2; Returns current font.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:SetPadding`(Upp`:`:Size`):%- [_^Upp`:`:TerminalCtrl^ Termin
+alCtrl][@(0.0.255) `&]_[* SetPadding]([_^Upp`:`:Size^ Size]_[*@3 sz])&]
+[s2; Adjusts the horizontal and vertical space around the terminal 
+cells (in pixels). Returns `*this for method chaining. Minimum 
+and default padding size is [C `[0, 0`]]. Maximum padding values 
+can be [C font size `* 2]. Note that, on font changes, the current 
+padding values will be scaled according to the new font`'s metrics.&]
+[s3; &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetPadding`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPadding]()
+_[@(0.0.255) const]&]
+[s2; Returns the current horizontal and vertical cell padding values 
+in pixels.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:Ink`(Upp`:`:Color`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* Ink]([_^Upp`:`:Color^ Color]_[*@3 c])&]
 [s2; Sets the color of text to [%-*@3 c]. Default is [^topic`:`/`/Draw`/src`/Colors`_en`-us`#SColorText`(`)^ S
