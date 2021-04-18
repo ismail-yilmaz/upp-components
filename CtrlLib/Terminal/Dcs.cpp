@@ -265,9 +265,10 @@ void TerminalCtrl::ParseSixelGraphics(const VTInStream::Sequence& seq)
 	
 	cellattrs.Hyperlink(false);
 
-	ImageString data(pick(Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload)));
-	data.encoded = false;
+	ImageString imgs;
+	imgs.data = Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload);
+	imgs.encoded = false;
 	
-	RenderImage(data, modes[DECSDM]);
+	RenderImage(imgs, modes[DECSDM]);
 }
 }

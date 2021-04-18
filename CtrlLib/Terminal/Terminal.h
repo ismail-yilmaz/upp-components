@@ -459,7 +459,7 @@ private:
     };
 
     void        Paint0(Draw& w, bool print = false);
-    void        PaintImages(Draw& w, ImageParts& parts, const Size& fsz);
+    void        PaintImages(Draw& w, ImageParts& parts, const Size& csz);
 
     void        RenderImage(const ImageString& simg, bool scroll);
     const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& csz);

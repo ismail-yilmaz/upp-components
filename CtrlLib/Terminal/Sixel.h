@@ -4,8 +4,6 @@
 #include <Core/Core.h>
 #include <Draw/Draw.h>
 
-// TODO: Needs optimixation.
-
 namespace Upp{
 
 class SixelRenderer : NoCopy {
@@ -26,23 +24,21 @@ private:
     void            GetRepeatCount();
     void            SetOptions();
     void            Validate();
-    bool            InitBuffer(ImageBuffer& ib);
-    void            DrawSixel(ImageBuffer& ib, int c);
+    void            InitBuffer(ImageBuffer& ib);
+    void            PaintSixel(ImageBuffer& ib, int c);
     void            GetNumericParams(Vector<int>& v, int delim = Null);
 
 private:
     Stream&         sstream;
-    Vector<Color>   palette;
+    Vector<RGBA>    palette;
+    RGBA            ink;
     int64           datapos;
-    int             repeatcount;
+    int             repeat;
     int             aspectratio;
-    int             pass;
     Rect            rect;
     Size            size;
     Point           cursor;
     bool            nohole;
-    bool            init;
-    Color           ink;
 };
 
 class SixelRaster : public StreamRaster {
@@ -55,7 +51,7 @@ public:
     virtual Line    GetLine(int line);
     
 private:
-    One<ImageRaster> imgraster;
+    Image img;
 };
 
 INITIALIZE(SixelRaster);
