@@ -7,6 +7,10 @@
 // This parser is based on the UML state diagram provided by Paul-Flo Williams.
 // See: https://vt100.net/emu/dec_ansi_parser
 
+// Deviations from the DEC STD-070:
+// 1) ISO 8613-6: 0x3a ("colon") is considered as a legitimate delimiter.
+// 2) The OSC sequences allow UTF-8 payload if the UTF-8 mode is enabled.
+
 namespace Upp {
 
 class VTInStream : public MemReadStream {
@@ -53,6 +57,7 @@ public:
             Final,
             Control,
             Passthrough,
+            String,
             Ignore,
             Ground,
             DispatchEsc,
@@ -95,16 +100,26 @@ public:
 
 private:
     int             GetUtf8(String& iutf8);
+    void            Create(const void *data, int64 size);
     void            NextState(State::Id sid);
     const State*    GetState(const int& c) const;
     void            Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn);
     void            Reset0(const Vector<VTInStream::State>* st);
 
+    Function<int()> GetChr;
+    
+    // Collectors.
+    void            CollectChr(int c);
+    void            CollectIntermediate(int c);
+    void            CollectParameter(int c);
+    void            CollectPayload(int c);
+    void            CollectString(int c, bool utf8);
+    
 private:
     Sequence    sequence;
     bool        waschr;
-    String      buffer;
     String      collected;
+    String      buffer;
     const Vector<VTInStream::State>*  state;
 };
 }

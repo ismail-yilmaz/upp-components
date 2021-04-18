@@ -4,6 +4,10 @@
 // This parser is based on the UML state diagram provided by Paul-Flo Williams
 // See: https://vt100.net/emu/dec_ansi_parser
 
+// Deviations from the DEC STD-070:
+// 1) ISO 8613-6: 0x3a ("colon") is considered as a legitimate delimiter.
+// 2) The OSC sequences allow UTF-8 payload if the UTF-8 mode is enabled.
+
 #define LLOG(x)	   // RLOG("VTInStream: " << x);
 #define LTIMING(x) // RTIMING(x)
 
@@ -16,7 +20,7 @@ namespace Upp {
     }
 
 #define VT_STATE(begin, end, action, next)          \
-    {                               \
+    {                                               \
         begin,                                      \
         end,                                        \
         VTInStream::State::Action::action,          \
@@ -86,9 +90,7 @@ VT_BEGIN_STATE_MAP(CsiEntry)
     VT_STATE(0x1b, 0x1b, Ignore,        EscEntry),
     VT_STATE(0x1c, 0x1f, Control,       Repeat),
     VT_STATE(0x20, 0x2f, Collect,       CsiIntermediate),
-    VT_STATE(0x30, 0x39, Parameter,     CsiParameter),
-    VT_STATE(0x3a, 0x3a, Ignore,        CsiIgnore),
-    VT_STATE(0x3b, 0x3b, Parameter,     CsiParameter),
+    VT_STATE(0x30, 0x3b, Parameter,     CsiParameter),
     VT_STATE(0x3c, 0x3f, Mode,          CsiParameter),
     VT_STATE(0x40, 0x7e, DispatchCsi,   Ground),
     VT_STATE(0x7f, 0x7f, Control,       Repeat),
@@ -112,7 +114,7 @@ VT_BEGIN_STATE_MAP(CsiParameter)
     VT_STATE(0x1b, 0x1b, Ignore,        EscEntry),
     VT_STATE(0x1c, 0x1f, Control,       Repeat),
     VT_STATE(0x20, 0x2f, Collect,       CsiIntermediate),
-    VT_STATE(0x30, 0x3b, Parameter,     Repeat),	// ISO 8613-6: 0x3a ("colon") is a legitimate delimiter.
+    VT_STATE(0x30, 0x3b, Parameter,     Repeat),
     VT_STATE(0x3c, 0x3f, Ignore,        CsiIgnore),
     VT_STATE(0x40, 0x7e, DispatchCsi,   Ground),
     VT_STATE(0x7f, 0x7f, Control,       Repeat),
@@ -181,9 +183,7 @@ VT_BEGIN_STATE_MAP(DcsEntry)
     VT_STATE(0x1b, 0x1b, Ignore,        EscEntry),
     VT_STATE(0x1c, 0x1f, Ignore,        Repeat),
     VT_STATE(0x20, 0x2f, Collect,       DcsIntermediate),
-    VT_STATE(0x30, 0x39, Parameter,     DcsParameter),
-    VT_STATE(0x3a, 0x3a, Ignore,        DcsIgnore),
-    VT_STATE(0x3b, 0x3b, Parameter,     DcsParameter),
+    VT_STATE(0x30, 0x3b, Parameter,     DcsParameter),
     VT_STATE(0x3c, 0x3f, Mode,          DcsParameter),
     VT_STATE(0x40, 0x7e, Final,         DcsPassthrough),
     VT_STATE(0x7f, 0x7f, Control,       Repeat),
@@ -207,7 +207,7 @@ VT_BEGIN_STATE_MAP(DcsParameter)
     VT_STATE(0x1b, 0x1b, Ignore,        EscEntry),
     VT_STATE(0x1c, 0x1f, Ignore,        Repeat),
     VT_STATE(0x20, 0x2f, Collect,       DcsIntermediate),
-    VT_STATE(0x30, 0x3b, Parameter,     Repeat),	// ISO 8613-6: 0x3a ("colon") is a legitimate delimiter.
+    VT_STATE(0x30, 0x3b, Parameter,     Repeat),
     VT_STATE(0x3c, 0x3f, Ignore,        DcsIgnore),
     VT_STATE(0x40, 0x7e, Final,         DcsPassthrough),
     VT_STATE(0x7f, 0x7f, Control,       Repeat),
@@ -296,7 +296,7 @@ VT_BEGIN_STATE_MAP(OscString)
     VT_STATE(0x1a, 0x1a, Control,       Ground),
     VT_STATE(0x1b, 0x1b, DispatchOsc,   EscEntry),
     VT_STATE(0x1c, 0x1f, Ignore,        Repeat),
-    VT_STATE(0x20, 0x7f, Parameter,     Repeat),
+    VT_STATE(0x20, 0x7f, String,        Repeat),
     VT_STATE(0x80, 0x8f, Control,       Ground),
     VT_STATE(0x90, 0x90, Ignore,        DcsEntry),
     VT_STATE(0x91, 0x97, Control,       Ground),
@@ -306,7 +306,8 @@ VT_BEGIN_STATE_MAP(OscString)
     VT_STATE(0x9c, 0x9c, DispatchOsc,   Ground),
     VT_STATE(0x9d, 0x9d, Ignore,        Repeat),
     VT_STATE(0x9e, 0x9e, Ignore,        Ignore),
-    VT_STATE(0x9f, 0x9f, Ignore,        ApcString)
+    VT_STATE(0x9f, 0x9f, Ignore,        ApcString),
+    VT_STATE(0xa0, 0xff, String,        Repeat)
 VT_END_STATE_MAP;
 
 VT_BEGIN_STATE_MAP(ApcString)
@@ -318,7 +319,7 @@ VT_BEGIN_STATE_MAP(ApcString)
     VT_STATE(0x1a, 0x1a, Control,       Ground),
     VT_STATE(0x1b, 0x1b, DispatchApc,   EscEntry),
     VT_STATE(0x1c, 0x1f, Ignore,        Repeat),
-    VT_STATE(0x20, 0x7f, Parameter,     Repeat),
+    VT_STATE(0x20, 0x7f, String,        Repeat),
     VT_STATE(0x80, 0x8f, Control,       Ground),
     VT_STATE(0x90, 0x90, Ignore,        DcsEntry),
     VT_STATE(0x91, 0x97, Control,       Ground),
@@ -432,29 +433,29 @@ void VTInStream::NextState(State::Id  sid)
 
 void VTInStream::Parse(const void *data, int size, bool utf8)
 {
-	String iutf8;	// A buffer to hold incomplete UTF-8 bytes.
-
 	// TODO: Add pseudo-rentrancy.
 	
-	buffer.Cat((const char *) data, size);
-	Create(~buffer, buffer.GetLength());
-
+	String iutf8;
+	Create(data, size);
+	
 	LTIMING("VTInStream::Parse");
 
+	if(utf8) GetChr = [=, &iutf8] { return GetUtf8(iutf8); };
+	else     GetChr = [=]         { return Get();          };
+		
 	while(!IsEof()) {
-		int c = utf8 ? GetUtf8(iutf8) : Get();
-		const State* st;
-		if(!(st = GetState(c)))
-			continue;
+		int c = GetChr();
+		const State* st = GetState(c);
+		if(!st)	continue;
 		switch(st->action) {
 		case State::Action::Mode:
 			sequence.mode = byte(c);
 			break;
 		case State::Action::Parameter:
-			collected.Cat(c);
+			CollectParameter(c);
 			break;
 		case State::Action::Collect:
-			sequence.intermediate.Cat(c);
+			CollectIntermediate(c);
 			break;
 		case State::Action::Final:
 			sequence.opcode = byte(c);
@@ -463,11 +464,13 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 			WhenCtl(byte(c));
 			break;
 		case State::Action::Ground:
-			WhenChr(c);
-			waschr = true;
+			CollectChr(c);
 			break;
 		case State::Action::Passthrough:
-			sequence.payload.Cat(c);
+			CollectPayload(c);
+			break;
+		case State::Action::String:
+			CollectString(c, utf8);
 			break;
 		case State::Action::DispatchEsc:
 			sequence.opcode = byte(c);
@@ -495,11 +498,116 @@ void VTInStream::Parse(const void *data, int size, bool utf8)
 		}
 		NextState(st->next);
 	}
-	
+
 	buffer.Clear();
-	
+
 	if(!iutf8.IsEmpty())
 		buffer = iutf8;
+}
+
+force_inline
+void VTInStream::CollectChr(int c)
+{
+	int p = -1;
+	while((c >= 0x20 && c <= 0x7E) || c >= 0xA0) {
+		WhenChr(c);
+		p = GetPos();
+		c = GetChr();
+	}
+	Seek(p);
+	waschr = true;
+}
+
+force_inline
+void VTInStream::CollectIntermediate(int c)
+{
+	int p = -1;
+	while(c >= 0x20 && c <= 0x2F) {
+		sequence.intermediate.Cat(c);
+		p = GetPos();
+		c = GetChr();
+	}
+	Seek(p);
+}
+
+force_inline
+void VTInStream::CollectParameter(int c)
+{
+	int p = -1;
+	while(c >= 0x30 && c <= 0x3B) {
+		collected.Cat(c);
+		p = GetPos();
+		c = GetChr();
+	}
+	Seek(p);
+}
+
+force_inline
+void VTInStream::CollectPayload(int c)
+{
+	int p = -1;
+	while((c >= 0x00 && c <= 0x17) || (c >= 0x1C && c <= 0x7E) || c == 0x19) {
+		sequence.payload.Cat(c);
+		p = GetPos();
+		c = GetChr();
+	}
+	Seek(p);
+}
+
+force_inline
+void VTInStream::CollectString(int c, bool utf8)
+{
+	 // Let us allow utf-8 sequences in OSC strings.
+	 // This is illegal, according to the DEC STD-070.
+	 // However, even xterm allows this on utf-8 mode.
+
+	int p = -1;
+	while((c >= 0x20 && c <= 0x7F) || (utf8 && c >= 0xA0)) {
+		if(c <= 0xFF) collected.Cat(c);
+		else  collected.Cat(ToUtf8(c));
+		p = GetPos();
+		c = GetChr();
+	}
+	Seek(p);
+}
+
+const VTInStream::State* VTInStream::GetState(const int& c) const
+{
+	LTIMING("VTInStream::GetState");
+
+	if(c >= 0) {
+		int l = 0, r = state->GetCount() - 1;
+		while(l <= r) {
+			int mid = (l + r) >> 1;
+			const State& st = (*state)[mid];
+			if(c < st.begin)
+				r = mid - 1;
+			else
+			if(c > st.end && st.end != 0xff)	// Allow unicode code points in ground state...
+				l = mid + 1;
+			else
+				return &st;
+		}
+	}
+	return nullptr;
+}
+
+void VTInStream::Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn)
+{
+	sequence.type = type;
+	sequence.parameters = pick(Split(collected, ';', false));
+	fn(sequence);
+	waschr = false;
+}
+
+void VTInStream::Create(const void *data, int64 size)
+{
+	if(buffer.IsEmpty()) {
+		MemReadStream::Create(data, size);
+		return;
+	}
+	buffer.Cat((const char*) data, size);
+	MemReadStream::Create(~buffer, buffer.GetLength());
 }
 
 int VTInStream::GetUtf8(String& iutf8)
@@ -619,35 +727,6 @@ int VTInStream::GetUtf8(String& iutf8)
 	}
 }
 
-const VTInStream::State* VTInStream::GetState(const int& c) const
-{
-	LTIMING("VTInStream::GetState");
-
-	if(c >= 0) {
-		int l = 0, r = state->GetCount() - 1;
-		while(l <= r) {
-			int mid = (l + r) >> 1;
-			const State& st = (*state)[mid];
-			if(c < st.begin)
-				r = mid - 1;
-			else
-			if(c > st.end && st.end != 0xff)	// Allow unicode code points in ground state...
-				l = mid + 1;
-			else
-				return &st;
-		}
-	}
-	return nullptr;
-}
-
-void VTInStream::Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn)
-{
-	sequence.type = type;
-	sequence.parameters = pick(Split(collected, ';', false));
-	fn(sequence);
-	waschr = false;
-}
-
 void VTInStream::Reset()
 {
 	Reset0(&Ground);
@@ -668,16 +747,13 @@ VTInStream::VTInStream()
 
 int VTInStream::Sequence::GetInt(int n, int d) const
 {
-	if(parameters.GetCount() < max(1, n))
-		return d;
-	int rc = StrInt(parameters[--n]);
-	return min(IsNull(rc) || rc <= 0 ? d : rc, 65535);
+	int rc = StrInt(parameters.Get(n - 1, Null));
+	return min(IsNull(rc) || rc <= 0 ? d : rc, 65536);
 }
 
 String VTInStream::Sequence::GetStr(int n) const
 {
-	bool b = parameters.GetCount() < max(1, n);
-	return b ? String::GetVoid() : parameters[--n];
+	return parameters.Get(n - 1, String::GetVoid());
 }
 
 void VTInStream::Sequence::Clear()
