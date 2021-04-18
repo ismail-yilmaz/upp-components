@@ -220,6 +220,8 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 			rr.FlushRect();
 			la = lineattrs;
 			for(int j = 0; j < psz.cx; ++j, ++la) {
+				la->x += padding.cx;
+				la->y += padding.cy;
 				rr.DrawCell(*la, csz, la->highlighted || !blinking || print);
 			}
 			rr.FlushCell();

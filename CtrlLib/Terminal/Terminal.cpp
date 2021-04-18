@@ -1019,7 +1019,7 @@ void TerminalCtrl::OptionsBar(Bar& menu)
 		.Check(delayedrefresh);
 	menu.Add(t_("Lazy resize"),
 		[=] { LazyResize(!lazyresize); })
-		.Key(K_SHIFT_CTRL_Z)
+		.Key(K_SHIFT_CTRL_Y)
 		.Check(lazyresize);
 }
 

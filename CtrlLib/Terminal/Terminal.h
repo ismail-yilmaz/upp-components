@@ -129,8 +129,8 @@ public:
     TerminalCtrl&   SetFont(Font f);
     Font            GetFont() const                                 { return font; }
 
-	TerminalCtrl&	SetPadding(Size sz)                             { padding = clamp(sz, Size(0, 0), GetFontSize() * 2); return *this; }
-	Size			GetPadding() const								{ return padding; }
+    TerminalCtrl&   SetPadding(Size sz)                             { padding = clamp(sz, Size(0, 0), GetFontSize() * 2); return *this; }
+    Size            GetPadding() const                              { return padding; }
 
     void            SetCharset(byte cs)                             { charset = ResolveCharset(cs); }
     byte            GetCharset() const                              { return charset;    }
@@ -507,7 +507,7 @@ private:
     int         clipaccess      = CLIP_NONE;
     dword       activelink      = 0;
     dword       prevlink        = 0;
-	Size		padding         = { 0, 0 };
+    Size        padding         = { 0, 0 };
 
     bool        eightbit;
     bool        reversewrap;
