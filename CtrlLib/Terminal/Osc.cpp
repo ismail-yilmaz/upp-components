@@ -13,7 +13,7 @@ void TerminalCtrl::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 	switch(opcode) {
 	case 0:		// Set window titile
 	case 2:		// Set window title (and icon name)
-		WhenTitle(seq.GetStr(2));
+		WhenTitle(DecodeDataString(seq.GetStr(2)).ToString());
 		break;
 	case 4:		// Set ANSI colors
 	case 10:	// Set dynamic color (ink)

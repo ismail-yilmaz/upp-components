@@ -614,7 +614,7 @@ void TerminalCtrl::HandleWindowOpsRequests(const VTInStream::Sequence& seq)
 		case REPORT_WINDOW_ICOON_LABEL:
 			break;
 		case REPORT_WINDOW_TITLE:
-			PutOSC(Format("l%s", w->GetTitle()));
+			PutOSC(Format("l%s", EncodeDataString(w->GetTitle())));
 			break;
 		default:
 			LLOG("Unhandled window report request: " << opcode);

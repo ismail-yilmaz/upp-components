@@ -185,9 +185,11 @@ public:
 
     TerminalCtrl&   ShowSizeHint(bool b = true)                     { sizehint = b; return *this; }
     TerminalCtrl&   HideSizeHint()                                  { return ShowSizeHint(false); }
-
+    bool            HasSizeHint() const                             { return sizehint; }
+    
     TerminalCtrl&   ShowScrollBar(bool b = true);
     TerminalCtrl&   HideScrollBar()                                 { return ShowScrollBar(false);  }
+    bool            HasScrollBar() const                            { return sb.IsChild();          }
     TerminalCtrl&   SetScrollBarStyle(const ScrollBar::Style& s)    { sb.SetStyle(s); return *this; }
 
     TerminalCtrl&   AlternateScroll(bool b = true)                  { alternatescroll = b; return *this; }
@@ -195,6 +197,7 @@ public:
     bool            HasAlternateScroll() const                      { return alternatescroll; }
 
     TerminalCtrl&   MouseWheelStep(int lines)                       { wheelstep = max(1, lines); return *this; }
+    int             GetMouseWheelStep() const                       { return wheelstep; }
 
     TerminalCtrl&   AutoHideMouseCursor(bool b = true)              { hidemousecursor = b; return *this; }
     TerminalCtrl&   NoAutoHideMouseCurosr()                         { return AutoHideMouseCursor(false); }

@@ -668,6 +668,11 @@ erminalCtrl][@(0.0.255) `&]_[* HideSizeHint]()&]
 for method chaining.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:HasSizeHint`(`)const:%- [@(0.0.255) bool]_[* HasSizeHint]()_[@(0.0.255) c
+onst]&]
+[s2; Returns true if the size hint is enabled.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:ShowScrollBar`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* ShowScrollBar]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true
 ])&]
@@ -680,6 +685,11 @@ to scroll or the terminal is in alternate screen mode.&]
 erminalCtrl][@(0.0.255) `&]_[* HideScrollBar]()&]
 [s2; Hides the scrollbar. Same as ShowScrollBar(false). Returns `*this 
 for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:HasScrollBar`(`)const:%- [@(0.0.255) bool]_[* HasScrollBar]()
+_[@(0.0.255) const]&]
+[s2; Returns true if the scrollbar is visible.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:SetScrollBarStyle`(const Upp`:`:ScrollBar`:`:Style`&`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
@@ -715,6 +725,11 @@ erminalCtrl][@(0.0.255) `&]_[* MouseWheelStep]([@(0.0.255) int]_[*@3 lines])&]
 [s2; Sets the mouse wheel steps to [%-*@3 lines]. Default value is 
 determined by the OS. Returns `*this for method chaining.&]
 [s3; &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetMouseWheelStep`(`)const:%- [@(0.0.255) int]_[* GetMouseWhe
+elStep]()_[@(0.0.255) const]&]
+[s2; Returns the amount of mouse wheel step (in lines).&]
+[s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:AutoHideMouseCursor`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* AutoHideMouseCursor]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t

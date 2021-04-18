@@ -331,7 +331,14 @@ int TerminalCtrl::InlineImageMaker::Make(InlineImage& imagedata) const
 		return sr != sz ? sr : Null;
 	};
 
-	Image img = StreamRaster::LoadStringAny(imgs.encoded ? Base64Decode(imgs.data) : imgs.data);
+	Image img;
+	if(!imgs.encoded) {
+		MemReadStream ms(imgs.data, imgs.data.GetLength());
+		img = SixelRenderer(ms).Get();
+	}
+	else {
+		img = StreamRaster::LoadStringAny(Base64Decode(imgs.data));
+	}
 
 	if(IsNull(img))
 		return 0;
