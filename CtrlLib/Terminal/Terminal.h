@@ -1141,10 +1141,6 @@ extern byte CHARSET_DEC_DCS;    // DEC VT100+ line drawing character set.
 extern byte CHARSET_DEC_MCS;    // DEC VT200+ multinational character set.
 extern byte CHARSET_DEC_TCS;    // DEC VT300+ technical character set.
 
-// DEPRECATED classname
-[[deprecated("\'Terminal\' alias will be removed with the 2021.1 (v0.5) release, plesae use \'TerminalCtrl\' instead.")]]
-typedef TerminalCtrl Terminal;
-
 INITIALIZE(DECGSets);
 }
 #endif

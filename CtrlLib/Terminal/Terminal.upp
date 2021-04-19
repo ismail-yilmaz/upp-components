@@ -33,7 +33,7 @@ file
 	Sixel.h,
 	Sixel.cpp,
 	Meta readonly separator,
-	TerminalCtrl.usc,
+	Terminal.usc,
 	Docs readonly separator,
 	src.tpp,
 	srcdoc.tpp,
