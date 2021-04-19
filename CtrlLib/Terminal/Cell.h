@@ -6,8 +6,14 @@
 namespace Upp {
 
 struct VTCell : Moveable<VTCell> {
-    dword   chr;
-    dword   data;
+    dword   chr; // TODO: Grapheme support.
+    union {
+        dword data;
+        struct {
+            word col; // Max. 65536
+            word row; // Max. 65536
+        } object;
+    };
     word    attrs;
     word    sgr;
     Color   ink;

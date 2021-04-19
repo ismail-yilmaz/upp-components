@@ -150,8 +150,7 @@ public:
 	{
 		dword id = cell.chr;
 		Point coords = Point(a.x, a.y);
-		Point pt(HIWORD(cell.data), LOWORD(cell.data));
-		Rect  ir = RectC(pt.x * sz.cx, pt.y * sz.cy, sz.cx, sz.cy);
+		Rect  ir = RectC(cell.object.col * sz.cx, cell.object.row * sz.cy, sz.cx, sz.cy);
 		if(!imageparts.IsEmpty()) {
 			ImagePart& part = imageparts.Top();
 			if(id == part.a && part.b.y == coords.y && part.c.right == ir.left) {

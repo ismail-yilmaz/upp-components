@@ -1236,7 +1236,8 @@ VTPage& VTPage::AddImage(Size sz, dword imageid, bool scroll, bool relpos)
 			VTCell& cell = line[min(pt.x + j, size.cx - 1)];
 			cell.Image();
 			cell.chr = imageid;
-			cell.data = MAKELONG(i, j);
+			cell.object.col = j;
+			cell.object.row = i;
 		}
 		line.Invalidate();
 		if(scroll)
