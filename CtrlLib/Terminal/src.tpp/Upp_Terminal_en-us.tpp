@@ -387,8 +387,9 @@ buffer. Default is 1024 lines&]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:SetFont`(Upp`:`:Font`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* SetFont]([_^Upp`:`:Font^ Font]_[*@3 f])&]
-[s2; Sets the font to [%-*@3 f]. This method also refreshes the ctrl`'s 
-layout. Returns `*this for method chaining.&]
+[s2; Sets the font to [%-*@3 f]. This method also adjusts the cell 
+padding values and refreshes the ctrl`'s layout. Returns `*this 
+for method chaining.&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:GetFont`(`)const:%- [_^Upp`:`:Font^ Font]_[* GetFont]()_[@(0.0.255) c
@@ -399,10 +400,9 @@ onst]&]
 [s5;:Upp`:`:TerminalCtrl`:`:SetPadding`(Upp`:`:Size`):%- [_^Upp`:`:TerminalCtrl^ Termin
 alCtrl][@(0.0.255) `&]_[* SetPadding]([_^Upp`:`:Size^ Size]_[*@3 sz])&]
 [s2; Adjusts the horizontal and vertical space around the terminal 
-cells (in pixels). Returns `*this for method chaining. Minimum 
-and default padding size is [C `[0, 0`]]. Maximum padding values 
-can be [C font size `* 2]. Note that Layout() method [/ must be called] 
-to refresh the terminal`'s layout, after any padding change.&]
+cells (in pixels). Returns `*this for method chaining. Automatically 
+calls the Layout() method. Minimum and default padding size is 
+[C `[0, 0`]]. Maximum padding values can be [C font size `* 2].&]
 [s3; &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:GetPadding`(`)const:%- [_^Upp`:`:Size^ Size]_[* GetPadding]()

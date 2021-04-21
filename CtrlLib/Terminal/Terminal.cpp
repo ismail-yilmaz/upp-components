@@ -61,7 +61,13 @@ TerminalCtrl& TerminalCtrl::SetFont(Font f)
 {
 	Size fsz = GetFontSize();
 	font = f;
-	padding = iscale(GetFontSize(), padding, max(Size(1, 1), fsz));
+	return SetPadding(iscale(GetFontSize(), padding, max(Size(1, 1), fsz)));
+}
+
+TerminalCtrl& TerminalCtrl::SetPadding(Size sz)
+{
+	padding = clamp(sz, Size(0, 0), GetFontSize() * 2);
+	page->Invalidate();
 	Layout();
 	return *this;
 }

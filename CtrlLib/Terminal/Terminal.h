@@ -129,7 +129,7 @@ public:
     TerminalCtrl&   SetFont(Font f);
     Font            GetFont() const                                 { return font; }
 
-    TerminalCtrl&   SetPadding(Size sz)                             { padding = clamp(sz, Size(0, 0), GetFontSize() * 2); return *this; }
+    TerminalCtrl&   SetPadding(Size sz);
     Size            GetPadding() const                              { return padding; }
 
     void            SetCharset(byte cs)                             { charset = ResolveCharset(cs); }
