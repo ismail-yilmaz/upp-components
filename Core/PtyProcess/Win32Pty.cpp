@@ -409,10 +409,6 @@ void PtyProcess::Write(String s)
 			done += n;
 			if(n > 0)
 				wbuffer.Remove(0, n);
-			String hr = rbuffer;
-			rbuffer.Clear();
-			Read(rbuffer);
-			rbuffer = hr + rbuffer;
 		}
 	}
 	LLOG("Write() -> " << done << "/" << wbuffer.GetLength() << " bytes.");
