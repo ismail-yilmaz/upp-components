@@ -67,8 +67,9 @@ TerminalCtrl& TerminalCtrl::SetFont(Font f)
 TerminalCtrl& TerminalCtrl::SetPadding(Size sz)
 {
 	padding = clamp(sz, Size(0, 0), GetFontSize() * 2);
-	page->Invalidate();
 	Layout();
+	PlaceCaret();
+	Refresh();
 	return *this;
 }
 
