@@ -514,7 +514,8 @@ void VTInStream::CollectChr(int c)
 		p = GetPos();
 		c = GetChr();
 	}
-	Seek(p);
+	if(c != -1)
+		Seek(p);
 	waschr = true;
 }
 
@@ -527,7 +528,8 @@ void VTInStream::CollectIntermediate(int c)
 		p = GetPos();
 		c = GetChr();
 	}
-	Seek(p);
+	if(c != -1)
+		Seek(p);
 }
 
 force_inline
@@ -539,7 +541,8 @@ void VTInStream::CollectParameter(int c)
 		p = GetPos();
 		c = GetChr();
 	}
-	Seek(p);
+	if(c != -1)
+		Seek(p);
 }
 
 force_inline
@@ -551,7 +554,8 @@ void VTInStream::CollectPayload(int c)
 		p = GetPos();
 		c = GetChr();
 	}
-	Seek(p);
+	if(c != -1)
+		Seek(p);
 }
 
 force_inline
@@ -568,7 +572,8 @@ void VTInStream::CollectString(int c, bool utf8)
 		p = GetPos();
 		c = GetChr();
 	}
-	Seek(p);
+	if(c != -1)
+		Seek(p);
 }
 
 const VTInStream::State* VTInStream::GetState(const int& c) const
