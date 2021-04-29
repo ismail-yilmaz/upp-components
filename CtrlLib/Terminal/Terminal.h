@@ -368,8 +368,8 @@ public:
 private:
     void        InitParser(VTInStream& vts);
     
-    void        PreParse()                                      { ScheduleRefresh(); }
-    void        PostParse()                                     { if(delayedrefresh) return; SyncSb(); RefreshDisplay(); }
+    void        PreParse()                                      { /*ScheduleRefresh();*/ }
+    void        PostParse()                                     { ScheduleRefresh(); }
 
     void        SyncPage(bool notify = true);
     void        SwapPage();

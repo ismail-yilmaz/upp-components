@@ -1081,10 +1081,6 @@ bool VTPage::FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> 
 				b = 0;
 				e = min(length, r.right);
 			}
-			if(e < b) {
-				LLOG("Invalid range: Begin(" << b << ") > End(" << e << ")");
-				return false;
-			}
 			auto range  = SubRange(line, b, e);
 			if(consumer(line, range))
 				return false;

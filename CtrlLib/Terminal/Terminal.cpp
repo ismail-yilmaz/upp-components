@@ -44,7 +44,7 @@ TerminalCtrl::TerminalCtrl()
 	HideScrollBar();
 	WhenBar = [=](Bar& menu) { StdBar(menu); };
 	sb.WhenScroll = [=]() { Scroll(); };
-	caret.WhenAction = [=]() { PlaceCaret(); };
+	caret.WhenAction = [=]() { ScheduleRefresh(); };
 	dpage.WhenUpdate = [=]() { ScheduleRefresh(); };
 	apage.WhenUpdate = [=]() { ScheduleRefresh(); };
 }
@@ -68,8 +68,6 @@ TerminalCtrl& TerminalCtrl::SetPadding(Size sz)
 {
 	padding = clamp(sz, Size(0, 0), GetFontSize() * 2);
 	Layout();
-	PlaceCaret();
-	Refresh();
 	return *this;
 }
 
@@ -177,6 +175,7 @@ void TerminalCtrl::SyncSize(bool notify)
 	{
 		resizing = false;
 		WhenResize();
+		ScheduleRefresh();
 	};
 	
 	if(resizing && newsize.cx > 1 && 1 < newsize.cy) {
@@ -194,12 +193,20 @@ void TerminalCtrl::SyncSize(bool notify)
 		else
 			resizing = false;
 	}
+	else {
+		page->Invalidate();
+		RefreshDisplay();
+	}
 }
 
 void TerminalCtrl::ScheduleRefresh()
 {
-	if(delayedrefresh
-	&& (!lazyresize || !resizing)
+	if(!delayedrefresh) {
+		SyncSb();
+		RefreshDisplay();
+	}
+	else
+	if((!lazyresize || !resizing)
 	&& !ExistsTimeCallback(TIMEID_REFRESH))  // Don't cancel a pending refresh.
 		SetTimeCallback(16, [=] { SyncSb(); RefreshDisplay(); }, TIMEID_REFRESH);
 }
@@ -237,10 +244,7 @@ void TerminalCtrl::Scroll()
 	if(IsAlternatePage())
 		return;
 
-	if(hinting) // Prevents the size hint box from scrolling with the view.
-		RefreshSizeHint();
-	
-	scroller.Scroll(*this, GetSize(), sb * GetCellSize().cy);
+	Refresh();
 	PlaceCaret();
 }
 
@@ -257,11 +261,12 @@ void TerminalCtrl::RefreshDisplay()
 	Size psz = GetPageSize();
 	Size csz = GetCellSize();
 	int  pos = GetSbPos();
+	int  cnt = min(pos + psz.cy, page->GetLineCount());
 	int blinking_cells = 0;
 	
 	LTIMING("TerminalCtrl::RefreshDisplay");
 
-	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); i++) {
+	for(int i = pos; i < cnt; i++) {
 		const VTLine& line = page->FetchLine(i);
 		int y = i * csz.cy - (csz.cy * pos);
 		for(int j = 0; j < line.GetCount(); j++) {
@@ -281,7 +286,9 @@ void TerminalCtrl::RefreshDisplay()
 		}
 		if(line.IsInvalid()) {
 			line.Validate();
-			Refresh(RectC(0, i * csz.cy - (csz.cy * pos), wsz.cx, csz.cy).Inflated(4));
+			Rect r = RectC(0, i * csz.cy - (csz.cy * pos), wsz.cx, csz.cy).Inflated(4);
+			if(i == cnt - 1) r.bottom = wsz.cx;
+			Refresh(r);
 		}
 	}
 
