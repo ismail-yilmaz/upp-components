@@ -754,7 +754,7 @@ bool TerminalCtrl::IsSelected(Point pt) const
 
 WString TerminalCtrl::GetSelectedText() const
 {
-	return AsWString((const VTPage&)*page, GetSelectionRect(), seltype & SEL_RECT);
+	return AsWString((const VTPage&)*page, GetSelectionRect(), seltype == SEL_RECT);
 }
 
 void TerminalCtrl::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
