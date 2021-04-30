@@ -296,7 +296,7 @@ bool TerminalCtrl::Key(dword key, int count)
 	bool shiftkey = key & K_SHIFT;
 	
 	if(UDKey(key, count))
-		goto KeyAccepted;
+		goto End;
 	else
 	if(NavKey(key, count))
 		goto End;
@@ -377,7 +377,7 @@ bool TerminalCtrl::Key(dword key, int count)
 				break;
 			default:
 				if(VTKey(key, count))
-					goto KeyAccepted;
+					goto End;
 				if(ctrlkey || altkey) {
 					key &= ~(K_CTRL|K_ALT|K_SHIFT);
 					if(key >= K_A && key <= K_Z) {
@@ -401,9 +401,6 @@ bool TerminalCtrl::Key(dword key, int count)
 				return false;
 		}
 	}
-
-KeyAccepted:
-	PlaceCaret(true);
 
 End:
 	if(hidemousecursor)

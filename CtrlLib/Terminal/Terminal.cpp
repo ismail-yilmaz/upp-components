@@ -287,7 +287,7 @@ void TerminalCtrl::RefreshDisplay()
 		if(line.IsInvalid()) {
 			line.Validate();
 			Rect r = RectC(0, i * csz.cy - (csz.cy * pos), wsz.cx, csz.cy).Inflated(4);
-			if(i == cnt - 1) r.bottom = wsz.cx;
+			if(i == cnt - 1) r.bottom = wsz.cy;
 			Refresh(r);
 		}
 	}
