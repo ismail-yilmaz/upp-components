@@ -345,7 +345,9 @@ TerminalCtrl& TerminalCtrl::Echo(const String& s)
 {
 	VTInStream echoparser;
 	InitParser(echoparser);
+	PreParse();
 	echoparser.Parse(out, IsUtf8Mode());
+	PostParse();
 	return *this;
 }
 
