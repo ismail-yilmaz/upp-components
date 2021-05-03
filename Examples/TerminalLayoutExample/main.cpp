@@ -131,6 +131,14 @@ void TerminalExample::ViewMenu(Bar& bar)
 	bar.Add("132 x 48",
 		[=]{ WindowAction(WindowOp::Resize, term.PageSizeToClient(132, 48)); })
 		.Key(K_SHIFT_CTRL_F4);
+
+	// Only keys...
+	bar.AddKey(K_SHIFT|K_CTRL|K_ADD,	  [=] { FontZoom(1);     });
+	bar.AddKey(K_SHIFT|K_CTRL|K_SUBTRACT, [=] { FontZoom(-1);    });
+	bar.AddKey(K_SHIFT|K_CTRL|K_MULTIPLY, [=] { FontZoom(0);     });
+	bar.AddKey(K_SHIFT|K_ALT|K_ADD,	      [=] { LineSpacing(1);  });
+	bar.AddKey(K_SHIFT|K_ALT|K_SUBTRACT,  [=] { LineSpacing(-1); });
+	bar.AddKey(K_SHIFT|K_ALT|K_MULTIPLY,  [=] { LineSpacing(0);  });
 }
 
 void TerminalExample::ContextMenu(Bar& bar)
@@ -140,6 +148,18 @@ void TerminalExample::ContextMenu(Bar& bar)
 	bar.Sub(t_("View"), [=](Bar& bar) { ViewMenu(bar); });
 	bar.Separator();
 	term.StdBar(bar);
+}
+
+void TerminalExample::FontZoom(int n)
+{
+	Font f = term.GetFont();
+	int  y = decode(n, 0, GetStdFont().GetHeight(), f.GetHeight());
+	term.SetFont(f.Height(clamp(y + n, 6, 128)));
+}
+
+void TerminalExample::LineSpacing(int n)
+{
+	term.SetPadding(Size(0,  decode(n, 0, 0, term.GetPadding().cy + n)));
 }
 
 GUI_APP_MAIN
