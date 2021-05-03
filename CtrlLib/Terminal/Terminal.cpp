@@ -145,9 +145,7 @@ void TerminalCtrl::SelectAll(bool history)
 	Size psz = GetPageSize();
 	bool h = IsDefaultPage() && history;
 	Rect r = RectC(0, h ? 0 : sb, psz.cx, (h ? sb + (sb.GetTotal() - sb) : psz.cy) - 1);
-	anchor = r.TopLeft();
-	selpos = r.BottomRight();
-	Refresh();
+	SetSelection(r.TopLeft(), r.BottomRight(), SEL_TEXT);
 }
 
 String TerminalCtrl::GetSelectionData(const String& fmt) const
