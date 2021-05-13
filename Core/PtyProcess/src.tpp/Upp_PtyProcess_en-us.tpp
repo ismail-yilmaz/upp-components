@@ -48,10 +48,18 @@ true on success.&]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:GetAttrs`(termios`&`): [@(0.0.255) bool]_[* GetAttrs]([_^termios^ t
 ermios][@(0.0.255) `&]_[*@3 t])&]
-[s6; [%%  ]POSIX specific.&]
+[s6; POSIX specific.&]
 [s2;%% Fetches the attributes of the active pty into [%-*@3 t]. Return 
 true on success.&]
 [s3;%% &]
+[s4; &]
+[s5;:Upp`:`:PtyProcess`:`:WhenAttrs: [_^Upp`:`:Gate^ Gate]<termios[@(0.0.255) `&]>_[* WhenA
+ttrs]&]
+[s6;%% POSIX specific&]
+[s2;%% This event can be used to set or change the [/ initial attributes] 
+of the pty. Returning true will set the attributes, and returning 
+false will cancel the operation.&]
+[s3; &]
 [s4; &]
 [s5;:Upp`:`:PtyProcess`:`:Start`(const char`*`,const char`*`,const char`*`): [@(0.0.255) b
 ool]_[* Start]([@(0.0.255) const]_[@(0.0.255) char]_`*[*@3 cmdline], 

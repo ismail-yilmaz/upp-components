@@ -32,6 +32,7 @@ public:
 #ifdef PLATFORM_POSIX
     bool        SetAttrs(const termios& t);
     bool        GetAttrs(termios& t);
+    Gate<termios&> WhenAttrs;
 #endif
 
     bool        Start(const char *cmdline, const char *env = nullptr, const char *cd = nullptr)                         { return DoStart(cmdline, nullptr, env, cd); }

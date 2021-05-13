@@ -167,6 +167,12 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 		return false;
 	}
 
+	struct termios tio; Zero(tio);
+	if(WhenAttrs && GetAttrs(tio) && WhenAttrs(tio)) {
+		LLOG("Setting user-defined termios flags for initial pty setup.");
+		SetAttrs(tio);
+	}
+	
 	pid = fork();
 	if(pid < 0) {
 		LLOG("fork() failed.");
