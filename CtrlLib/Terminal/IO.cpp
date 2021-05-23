@@ -79,6 +79,7 @@ void TerminalCtrl::Reset(bool full)
 	apage.ReverseWrap(false);
 	
 	caret = Caret();
+	caret.WhenAction = [=] { ScheduleRefresh(); };
 	
 	CancelOut();
 }
