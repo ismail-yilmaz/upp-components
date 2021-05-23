@@ -819,7 +819,8 @@ public:
         GSets&     G2(byte c)                                   { g[2] = c; return *this; }
         GSets&     G3(byte c)                                   { g[3] = c; return *this; }
         GSets&     SS(byte c)                                   { ss   = c; return *this; }
-
+        GSets&     Broadcast(byte c)                            { g[0] = g[1] = g[2] = g[3] = c; return *this; }
+        
         byte        Get(int c, bool allowgr = true) const       { return c < 0x80 || !allowgr ? g[l] : g[r]; }
 
         int         GetGLNum()                                  { return l; }
