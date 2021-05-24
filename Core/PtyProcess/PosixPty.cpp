@@ -19,7 +19,8 @@ bool sParseEnv(Vector<const char*>& out, const char* penv)
 			out.Add(p);
 			p += strlen(p) + 1;
 		}
-		if(String(penv).Find("TERM=") < 0)
+		int i = FindMatch(out, [](const char *p) { return String(p).Find("TERM=") >= 0; });
+		if(i < 0)
 			out.Add("TERM=xterm");
 		out.Add(nullptr);
 	}
