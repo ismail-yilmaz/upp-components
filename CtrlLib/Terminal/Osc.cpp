@@ -6,7 +6,7 @@ namespace Upp {
 
 void TerminalCtrl::ParseOperatingSystemCommands(const VTInStream::Sequence& seq)
 {
-	LLOG(Format("OSC [%s]", seq.payload));
+	LLOG(seq);
 
 	int opcode = seq.GetInt(1, 0);
 
