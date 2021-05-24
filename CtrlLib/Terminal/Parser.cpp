@@ -772,14 +772,25 @@ void VTInStream::Sequence::Clear()
 String VTInStream::Sequence::ToString() const
 {
 	// Diagnostics...
-	String s = Format("%c %s ", opcode, intermediate);
-	if(parameters.GetCount())
-		s.Cat(parameters.ToString());
+	String txt;
+	txt << decode(type,
+			PM,  "PM  ",
+			SOS, "SOS ",
+			APC, "APC ",
+			OSC, "OSC ",
+			DCS, "DCS ",
+			CSI, "CSI ", "ESC ");
+	if(intermediate.GetLength())
+		txt << intermediate << " ";
+	if(findarg(type, CSI, DCS) >= 0)
+		txt << parameters.ToString();
+	if(findarg(type, ESC, CSI, DCS, APC) >= 0)
+		txt << AsString(opcode)  << " ";
 	if(mode)
-		s.Cat(" [Private mode] ");
+		txt << "(private) ";
 	if(!IsNull(payload))
-		s.Cat("Payload: " + payload.ToString());
-	return s;
+		txt	<< "Payload: " << payload.ToString();
+	return txt;
 }
 
 }
