@@ -1,7 +1,7 @@
 #include "Terminal.h"
 
-#define LLOG(x)    // RLOG("TerminalCtrl [" << uintptr_t(&term) << "]: " << x)
-#define LTIMING(x) // RTIMING(x)
+#define LLOG(x)     // RLOG("TerminalCtrl (#" << this << "]: " << x)
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 

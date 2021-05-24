@@ -1,7 +1,8 @@
 #include "Terminal.h"
 
-#define LLOG(x)	 // RLOG("TerminalCtrl: " << x)
-#define LDUMP(x) // RLOG("TerminalCtrl: Mode: " << #x << " = " << modes[x])
+#define LLOG(x)     // RLOG("TerminalCtrl (#" << this << "]: " << x)
+#define LDUMP(x)    // RLOG("TerminalCtrl (#" << this << "]: Mode: " << #x << " = " << modes[x])
+#define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
 

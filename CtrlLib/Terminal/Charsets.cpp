@@ -6,7 +6,8 @@ namespace Upp {
 #define CUNDEF DEFAULTCHAR
 #endif
 
-#define LLOG(x)	// RLOG("TerminalCtrl: " << x)
+#define LLOG(x)     // RLOG("TerminalCtrl (#" << this << "]: " << x)
+#define LTIMING(x)	// RTIMING(x)
 
 byte CHARSET_DEC_VT52 = 0;
 byte CHARSET_DEC_DCS  = 0;

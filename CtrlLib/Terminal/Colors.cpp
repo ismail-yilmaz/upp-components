@@ -3,7 +3,7 @@
 // Basic ANSI, dynamic, and extended colors support.
 // See: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
 
-#define LLOG(x)		// RLOG("TerminalCtrl: " << x)
+#define LLOG(x)     // RLOG("TerminalCtrl (#" << this << "]: " << x)
 #define LTIMING(x)	// RTIMING(x)
 
 namespace Upp {
