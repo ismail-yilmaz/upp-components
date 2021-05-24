@@ -101,6 +101,8 @@ public:
     void            Write(const String& s, bool utf8 = true)        { Write(~s, s.GetLength(), utf8); }
     void            WriteUtf8(const String& s)                      { Write(s, true);         }
 
+    TerminalCtrl&   Echo(const String& s);
+    
     TerminalCtrl&   SetLevel(int level)                             { SetEmulation(level); return *this; }
     bool            IsLevel0() const                                { return !modes[DECANM]; }
     bool            IsLevel1() const                                { return modes[DECANM] && clevel >= LEVEL_1; }
@@ -568,7 +570,7 @@ private:
     void        PutChar(int c);
     int         LookupChar(int c);
 
-    void        ParseControlChars(byte c);
+    void        ParseControlChars(byte c)                                               { DispatchCtl(c); }
     void        ParseEscapeSequences(const VTInStream::Sequence& seq);
     void        ParseCommandSequences(const VTInStream::Sequence& seq);
     void        ParseDeviceControlStrings(const VTInStream::Sequence& seq);
@@ -625,6 +627,10 @@ private:
     void        WindowMaximizeHorzRequest(TopWindow *w);
     void        WindowMaximizeVertRequest(TopWindow *w);
 
+    void        SetHorizontalMargins(const VTInStream::Sequence& seq);
+    void        SetVerticalMargins(const VTInStream::Sequence& seq);
+    void        SetLinesPerPage(const VTInStream::Sequence& seq);
+
     void        SetColumns(int cols)                                { WhenSetSize(PageSizeToClient(Size(cols, page->GetSize().cy))); }
     void        SetRows(int rows)                                   { WhenSetSize(PageSizeToClient(Size(page->GetSize().cx, rows))); }
 
@@ -641,6 +647,8 @@ private:
     void        Reset(bool full);
 
     void        AlternateScreenBuffer(bool b);
+    
+    void        VT52MoveCursor();   // VT52 direct cursor addressing.
 
 private:
     VTInStream  parser;
@@ -662,7 +670,6 @@ private:
     VTPage&     GetAlternatePage()                              { return apage; }
     bool        IsAlternatePage() const                         { return page == &apage; }
 
-    TerminalCtrl&   Echo(const String& s);
     TerminalCtrl&   Put0(const String& s, int cnt = 1);
     TerminalCtrl&   Put0(int c, int cnt = 1);
     TerminalCtrl&   Put(const WString& s, int cnt = 1);
@@ -739,7 +746,14 @@ private:
     void        XTx11mm(bool b);
 
     void        SetMode(const VTInStream::Sequence& seq, bool enable);
-    static int  FindModeId(word modenum, byte modetype, byte level);
+
+    using CbControl  = Tuple<byte, byte, Event<TerminalCtrl&, byte> >;
+    using CbFunction = Tuple<byte, byte, Event<TerminalCtrl&, const VTInStream::Sequence&> >;
+    using CbMode     = Tuple<word, byte, byte, Event<TerminalCtrl&, int, bool> >;
+
+    const CbFunction* FindFunctionPtr(const VTInStream::Sequence& seq);
+    const CbMode*     FindModePtr(word modenum, byte modetype);
+    void              DispatchCtl(byte ctl);
 
 private:
     // Key manipulation and VT and PC-style function keys support.
@@ -923,179 +937,6 @@ private:
         XTSHOWSB,
         VTMODECOUNT
     };
-
-    private:
-
-    // Currently supported control bytes (C0, C1).
-
-    enum class ControlId : byte
-    {
-        // C0
-        NUL,
-        ENQ,
-        BEL,
-        BS,
-        HT,
-        LF,
-        VT,
-        FF,
-        CR,
-        LS0,
-        LS1,
-        XON,
-        XOFF,
-        DEL,
-        // C1
-        IND,
-        NEL,
-        HTS,
-        RI,
-        SS2,
-        SS3,
-        SPA,
-        EPA,
-        DECID,
-        ST,
-        UNHANDLED
-    };
-
-    // Currently supported ESC, CSI, and DCS sequences.
-
-    enum class SequenceId : word
-    {
-        ANSICL1,
-        ANSICL2,
-        ANSICL3,
-        CBT,
-        CHA,
-        CHT,
-        CNL,
-        CPL,
-        CUB,
-        CUD,
-        CUF,
-        CUP,
-        CUU,
-        DA1,
-        DA2,
-        DA3,
-        DCH,
-        DECALN,
-        DECBI,
-        DECCARA,
-        DECDC,
-        DECCRA,
-        DECDSR,
-        DECERA,
-        DECFI,
-        DECFRA,
-        DECIC,
-        DECKPAM,
-        DECKPNM,
-        DECLL,
-        DECRARA,
-        DECRC,
-        DECRQM,
-        DECRQSS,
-        DECREQTPARM,
-        DECRQCRA,
-        DECRQPSR,
-        DECRSPS,
-        DECSACE,
-        DECSC,
-        DECSCA,
-        DECSCL,
-        DECSCPP,
-        DECSCUSR,
-        DECSGR,
-        DECSED,
-        DECSEL,
-        DECSERA,
-        DECSIXEL,
-        DECSLPP,
-        DECSLRM,
-        DECSNLS,
-        DECST8C,
-        DECSTBM,
-        DECSTR,
-        DECTST,
-        DECUDK,
-        DL,
-        DSR,
-        ECH,
-        ED,
-        EL,
-        HOME,
-        HPA,
-        HPR,
-        HVP,
-        ICH,
-        IL,
-        LS1R,
-        LS2,
-        LS2R,
-        LS3,
-        LS3R,
-        REP,
-        RI,
-        RIS,
-        RM,
-        S7C1T,
-        S8C1T,
-        SCODFK,
-        SCORC,
-        SCOSC,
-        SCS_G0_DEC_DCS,
-        SCS_G1_DEC_DCS,
-        SCS_G2_DEC_DCS,
-        SCS_G3_DEC_DCS,
-        SCS_G0_DEC_ACS,
-        SCS_G1_DEC_ACS,
-        SCS_G0_ASCII,
-        SCS_G1_ASCII,
-        SCS_G2_ASCII,
-        SCS_G3_ASCII,
-        SCS_G1_LATIN1,
-        SCS_G2_LATIN1,
-        SCS_G3_LATIN1,
-        SCS_G0_DEC_MCS,
-        SCS_G1_DEC_MCS,
-        SCS_G2_DEC_MCS,
-        SCS_G3_DEC_MCS,
-        SCS_G0_DEC_TCS,
-        SCS_G1_DEC_TCS,
-        SCS_G2_DEC_TCS,
-        SCS_G3_DEC_TCS,
-        SCS_UTF8,
-        SCS_DEFAULT,
-        SD,
-        SGR,
-        SL,
-        SM,
-        SR,
-        SU,
-        TBC,
-        VPA,
-        VPR,
-        VT52_CUB,
-        VT52_CUD,
-        VT52_CUF,
-        VT52_CUP,
-        VT52_CUU,
-        VT52_DA,
-        VT52_DCS_ON,
-        VT52_DCS_OFF,
-        VT52_DECANM,
-        VT52_ED,
-        VT52_EL,
-        VT52_HOME,
-        VT52_RI,
-        IGNORED,
-        UNHANDLED
-    };
-
-    static ControlId  FindControlId(byte ctl, byte level);
-    static SequenceId FindSequenceId(const VTInStream::Sequence& seq, byte level);
 };
 
 // Custom displays.

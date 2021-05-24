@@ -6,211 +6,10 @@ namespace Upp {
 
 void TerminalCtrl::ParseCommandSequences(const VTInStream::Sequence& seq)
 {
-	LLOG("CSI " << seq);
+	LLOG(seq);
 
-	switch(FindSequenceId(seq, clevel)) {
-	case SequenceId::ICH:
-		page->InsertCells(seq.GetInt(1));
-		break;
-	case SequenceId::SL:
-		page->ScrollRight(seq.GetInt(1));
-		break;
-	case SequenceId::CUU:
-		page->MoveUp(seq.GetInt(1));
-		break;
-	case SequenceId::SR:
-		page->ScrollLeft(seq.GetInt(1));
-		break;
-	case SequenceId::CUD:
-		page->MoveDown(seq.GetInt(1));
-		break;
-	case SequenceId::CUF:
-		page->MoveRight(seq.GetInt(1));
-		break;
-	case SequenceId::CUB:
-		page->MoveLeft(seq.GetInt(1));
-		break;
-	case SequenceId::CNL:
-		page->MoveHome();
-		page->MoveDown(seq.GetInt(1));
-		break;
-	case SequenceId::CPL:
-		page->MoveUp(seq.GetInt(1));
-		page->MoveHome();
-		break;
-	case SequenceId::CHA:
-		page->MoveToColumn(seq.GetInt(1));
-		break;
-	case SequenceId::CUP:
-		page->MoveTo(seq.GetInt(2), seq.GetInt(1));
-		break;
-	case SequenceId::CHT:
-		page->NextTab(seq.GetInt(1));
-		break;
-	case SequenceId::ED:
-		ClearPage(seq, GetISOStyleFillerFlags());
-		break;
-	case SequenceId::DECSED:
-		ClearPage(seq, GetDECStyleFillerFlags());
-		break;
-	case SequenceId::EL:
-		ClearLine(seq, GetISOStyleFillerFlags());
-		break;
-	case SequenceId::DECSEL:
-		ClearLine(seq, GetDECStyleFillerFlags());
-		break;
-	case SequenceId::IL:
-		page->InsertLines(seq.GetInt(1));
-		break;
-	case SequenceId::DL:
-		page->RemoveLines(seq.GetInt(1));
-		break;
-	case SequenceId::DCH:
-		page->RemoveCells(seq.GetInt(1));
-		break;
-	case SequenceId::SU:
-		page->ScrollDown(seq.GetInt(1));
-		break;
-	case SequenceId::SD:
-		page->ScrollUp(seq.GetInt(1));
-		break;
-	case SequenceId::ECH:
-		page->EraseCells(seq.GetInt(1), GetISOStyleFillerFlags());
-		break;
-	case SequenceId::CBT:
-		page->PrevTab(seq.GetInt(1));
-		break;
-	case SequenceId::HPA:
-		page->MoveToColumn(seq.GetInt(1));
-		break;
-	case SequenceId::HPR:
-		page->MoveToColumn(seq.GetInt(1), true);
-		break;
-	case SequenceId::REP:
-		if(parser.WasChr())
-			page->RepeatCell(seq.GetInt(1));
-		break;
-	case SequenceId::DA1:
-	case SequenceId::DA2:
-	case SequenceId::DA3:
-		ReportDeviceAttributes(seq);
-		break;
-	case SequenceId::VPA:
-		page->MoveToLine(seq.GetInt(1));
-		break;
-	case SequenceId::VPR:
-		page->MoveToLine(seq.GetInt(1), true);
-		break;
-	case SequenceId::HVP:
-		page->MoveTo(seq.GetInt(2), seq.GetInt(1));
-		break;
-	case SequenceId::TBC:
-		ClearTabs(seq);
-		break;
-	case SequenceId::SM:
-		SetMode(seq, true);
-		break;
-	case SequenceId::RM:
-		SetMode(seq, false);
-		break;
-	case SequenceId::DECRQM:
-		ReportMode(seq);
-		break;
-	case SequenceId::SGR:
-		SelectGraphicsRendition(seq);
-		break;
-	case SequenceId::DSR:
-	case SequenceId::DECDSR:
-		ReportDeviceStatus(seq);
-		break;
-	case SequenceId::DECSCL:
-		SetDeviceConformanceLevel(seq);
-		break;
-	case SequenceId::DECSTR:
-		SoftReset();
-		break;
-	case SequenceId::DECLL:
-		SetProgrammableLEDs(seq);
-		break;
-	case SequenceId::DECSCA:
-		SetDECStyleCellProtection(seq.GetInt(1, 0) == 1);
-		break;
-	case SequenceId::DECSCUSR:
-		SetCaretStyle(seq);
-		break;
-	case SequenceId::DECSTBM:
-		page->SetVertMargins(seq.GetInt(1), seq.GetInt(2));
-		break;
-	case SequenceId::DECSLRM:
-		if(modes[DECLRMM])
-			page->SetHorzMargins(seq.GetInt(1), seq.GetInt(2));
-		else // SCOSC
-		if(IsNull(seq.GetStr(1)))
-			Backup();
-		break;
-	case SequenceId::SCORC:
-		Restore();
-		break;
-	case SequenceId::DECRQPSR:
-		ReportPresentationState(seq);
-		break;
-	case SequenceId::DECREQTPARM:
-		ReportDeviceParameters(seq);
-		break;
-	case SequenceId::DECTST:
-		// Device confidence tests.
-		break;
-	case SequenceId::DECIC:
-		page->PanRight(seq.GetInt(1));
-		break;
-	case SequenceId::DECDC:
-		page->PanLeft(seq.GetInt(1));
-		break;
-	case SequenceId::DECSACE:
-		SelectRectAreaAttrsChangeExtent(seq);
-		break;
-	case SequenceId::DECCARA:
-		ChangeRectAreaAttrs(seq, false);
-		break;
-	case SequenceId::DECRARA:
-		ChangeRectAreaAttrs(seq, true);
-		break;
-	case SequenceId::DECCRA:
-		CopyRectArea(seq);
-		break;
-	case SequenceId::DECFRA:
-		FillRectArea(seq);
-		break;
-	case SequenceId::DECERA:
-		ClearRectArea(seq);
-		break;
-	case SequenceId::DECSERA:
-		ClearRectArea(seq, true);
-		break;
-	case SequenceId::DECRQCRA:
-		ReportRectAreaChecksum(seq);
-		break;
-	case SequenceId::DECSCPP:
-		SetColumns(seq.GetInt(1) != 132 ? 80 : 132);
-		break;
-	case SequenceId::DECSLPP:
-		if(seq.GetInt(1) < 24)
-			HandleWindowOpsRequests(seq);
-		else SetRows(seq.GetInt(1));
-		break;
-	case SequenceId::DECSNLS:
-		SetRows(max(seq.GetInt(1), 1));
-		break;
-	case SequenceId::DECST8C:
-		if(seq.GetInt(1) == 5)
-			page->SetTabs(8);
-		break;
-	case SequenceId::IGNORED:
-		break;
-	default:
-		LLOG("Unhandled command sequence.");
-		break;
-	}
+	const CbFunction *p = FindFunctionPtr(seq);
+	if(p) p->c(*this, seq);
 }
 
 void TerminalCtrl::ClearPage(const VTInStream::Sequence& seq, dword flags)
@@ -754,6 +553,28 @@ void TerminalCtrl::SetCaretStyle(const VTInStream::Sequence& seq)
 		caret.Beam(blink);
 		break;
 	}
+}
+
+void TerminalCtrl::SetHorizontalMargins(const VTInStream::Sequence& seq)
+{
+	if(modes[DECLRMM])
+		page->SetHorzMargins(seq.GetInt(1), seq.GetInt(2));
+	else // SCOSC (uses the same CSI, but different mode.
+	if(IsNull(seq.GetStr(1)))
+		Backup();
+}
+
+void TerminalCtrl::SetVerticalMargins(const VTInStream::Sequence& seq)
+{
+	page->SetVertMargins(seq.GetInt(1), seq.GetInt(2));
+}
+
+void TerminalCtrl::SetLinesPerPage(const VTInStream::Sequence& seq)
+{
+	if(seq.GetInt(1) < 24)
+		HandleWindowOpsRequests(seq);
+	else
+		SetRows(seq.GetInt(1));
 }
 
 void TerminalCtrl::CopyRectArea(const VTInStream::Sequence& seq)

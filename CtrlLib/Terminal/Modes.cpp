@@ -9,132 +9,15 @@ void TerminalCtrl::SetMode(const VTInStream::Sequence& seq, bool enable)
 {
 	for(const String& s : seq.parameters) {		// Multiple terminal modes can be set/reset at once.
 		int modenum = StrInt(s);
-		switch(FindModeId(modenum, seq.mode, clevel)) {
-		case KAM:
-			ANSIkam(enable);
-			break;
-		case CRM:
-			ANSIcrm(enable);
-			break;
-		case IRM:
-			ANSIirm(enable);
-			break;
-		case ERM:
-			ANSIerm(enable);
-			break;
-		case SRM:
-			ANSIsrm(enable);
-			break;
-		case LNM:
-			ANSIlnm(enable);
-			break;
-		case DECCKM:
-			DECckm(enable);
-			break;
-		case DECANM:
-			DECanm(enable);
-			break;
-		case DECCOLM:
-			DECcolm(enable);
-			break;
-		case DECSCLM:
-			DECsclm(enable);
-			break;
-		case DECSCNM:
-			DECscnm(enable);
-			break;
-		case DECOM:
-			DECom(enable);
-			break;
-		case DECAWM:
-			DECawm(enable);
-			break;
-		case DECARM:
-			DECarm(enable);
-			break;
-		case DECTCEM:
-			DECtcem(enable);
-			break;
-		case DECLRMM:
-			DEClrmm(enable);
-			break;
-		case DECBKM:
-			DECbkm(enable);
-			break;
-		case DECSDM:
-			DECsdm(enable);
-			break;
-		case XTASCM:
-			XTascm(enable);
-			break;
-		case XTBRPM:
-			XTbrpm(enable);
-			break;
-		case XTPCFKEYM:
-			XTpcfkeym(enable);
-			break;
-		case XTREWRAPM:
-			XTrewrapm(enable);
-			break;
-		case XTX10MM:
-			XTx10mm(enable);
-			break;
-		case XTX11MM:
-			XTx11mm(enable);
-			break;
-		case XTSGRMM:
-			XTsgrmm(enable);
-			break;
-		case XTSGRPXMM:
-			XTsgrpxmm(enable);
-			break;
-		case XTUTF8MM:
-			XTutf8mm(enable);
-			break;
-		case XTSRCM:
-			XTsrcm(enable);
-			break;
-		case XTDRAGM:
-			XTdragm(enable);
-			break;
-		case XTANYMM:
-			XTanymm(enable);
-			break;
-		case XTFOCUSM:
-			XTfocusm(enable);
-			break;
-		case XTALTESCM:
-			XTaltkeym(enable);
-			break;
-		case XTASBM:
-			XTasbm(modenum, enable);
-			break;
-		case XTSPREG:
-		case GATM:
-		case SRTM:
-		case VEM:
-		case HEM:
-		case PUM:
-		case FEAM:
-		case FETM:
-		case MATM:
-		case TTM:
-		case SATM:
-		case TSM:
-		case EBM:
-			// Permanently set or reset.
-			break;
-		default:
-			LLOG(Format("Unhandled %[0:ANSI;private]s mode: %d", seq.mode, modenum));
-			break;
-		}
+		const CbMode *p = FindModePtr(modenum, seq.mode);
+		if(p) p->d(*this, modenum, enable);
 	}
 }
 
 void TerminalCtrl::ReportMode(const VTInStream::Sequence& seq)
 {
 	int modenum = seq.GetInt(1, 0);
-	int mid = FindModeId(modenum, seq.mode, clevel);  // Only one mode at a time can be reported
+	const CbMode *p = FindModePtr(modenum, seq.mode);
 
 	// Possible reply codes:
 	// ====================
@@ -144,8 +27,8 @@ void TerminalCtrl::ReportMode(const VTInStream::Sequence& seq)
 	// 3: Permanently set
 	// 4: Permanently reset
 
-	int reply = 0;
-
+	int reply = 0, mid = p ? p->a : - 1;
+	
 	if(mid >= 0)
 		switch(mid) {
 		case GATM:		// Currently we dont actively support these ANSI (ECMA-48) modes.
@@ -169,6 +52,7 @@ void TerminalCtrl::ReportMode(const VTInStream::Sequence& seq)
 			reply = modes[mid] ? 1 : 2;
 			break;
 		}
+		
 	PutCSI(Format("%[1:?;]s%d;%d`$y", seq.mode == '?', modenum, reply));
 }
 

@@ -6,25 +6,10 @@ namespace Upp {
 
 void TerminalCtrl::ParseDeviceControlStrings(const VTInStream::Sequence& seq)
 {
-	LLOG("DCS " << seq);
+	LLOG(seq);
 
-	switch(FindSequenceId(seq, clevel)) {
-	case SequenceId::DECRQSS:
-		ReportControlFunctionSettings(seq);
-		break;
-	case SequenceId::DECRSPS:
-		RestorePresentationState(seq);
-		break;
-	case SequenceId::DECSIXEL:
-		ParseSixelGraphics(seq);
-		break;
-	case SequenceId::DECUDK:
-		SetUserDefinedKeys(seq);
-		break;
-	default:
-		LLOG("Unhandled device control string.");
-		break;
-	}
+	const CbFunction *p = FindFunctionPtr(seq);
+	if(p) p->c(*this, seq);
 }
 
 void TerminalCtrl::SetUserDefinedKeys(const VTInStream::Sequence& seq)
