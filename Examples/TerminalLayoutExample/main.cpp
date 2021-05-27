@@ -1,10 +1,11 @@
 // This example demonstrates a simple, cross-platform (POSIX/Windows)
 // terminal example.
 
-// On Windows platform, PtyProcess class can use one of two backends:
-// WinPty or the Windows 10 (tm) pseudoconsole  API. These  mutually
-// exclusive backends can be enabled by setting WINPTY or WIN10 flag
-// via TheIDE's main package configuration dialog. (E.g: "GUI WIN10")
+// On Windows platform PtyProcess class uses statically linked *winpty*
+// library and the supplementary PtyAgent pacakges as its *default* pty
+// backend. However, it also supports the Windows 10 (tm) pseudoconsole
+// API via the WIN10 compiler flag. This flag can be enabled or disable
+// easily via TheIDE's main package configuration dialog. (E.g: "GUI WIN10")
 
 #include "TerminalLayoutExample.h"
 

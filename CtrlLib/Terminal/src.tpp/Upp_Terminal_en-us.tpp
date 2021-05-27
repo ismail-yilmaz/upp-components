@@ -642,6 +642,16 @@ d]()_[@(0.0.255) const]&]
 locked.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetCursorPoint`(`)const:%- [_^Upp`:`:Point^ Point]_[* GetCurs
+orPoint]()_[@(0.0.255) const]&]
+[s2; Returns the top`-left corner of the text cursor position in 
+pixels ([/ not] of the caret rectangle but of the cell in which 
+the visual caret resides). Note that this method calculates the 
+scoll position if the terminal has history buffer, so the returned 
+vertical value may be out of ctrl`'s vertical coordinates, depending 
+on the actual scoll position.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:NoBackground`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* NoBackground]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])
 &]

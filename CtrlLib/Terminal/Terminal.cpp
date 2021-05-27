@@ -117,6 +117,14 @@ Rect TerminalCtrl::GetCaretRect()
 	return Rect(GetSize()).Contains(caretrect) ? caretrect : Null;
 }
 
+Point TerminalCtrl::GetCursorPoint() const
+{
+	Size csz = GetCellSize();
+	Point pt = GetCursorPos() * csz;
+	pt.y -= (csz.cy * GetSbPos());
+	return pt;
+}
+
 void TerminalCtrl::Copy(const WString& s)
 {
 	if(!IsNull(s)) {
