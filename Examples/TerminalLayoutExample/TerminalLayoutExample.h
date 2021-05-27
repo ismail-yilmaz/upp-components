@@ -42,6 +42,7 @@ private:
     void    FontZoom(int n);
     void    LineSpacing(int n);
     void    EnterCodePoint();
+    void    About();
     
 private:
     PtyProcess pty;

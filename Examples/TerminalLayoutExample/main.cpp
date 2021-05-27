@@ -45,8 +45,21 @@ void TerminalExample::Serialize(Stream& s)
 	SerializePlacement(s);
 }
 
+void TerminalExample::About()
+{
+	String txt;
+	txt << "-----------------------------------\r\n"
+		<< "# A terminal gui building example #\r\n"
+		<< "# Using \033]8;;https:/www.ultimatepp.org\033\\"
+		<< "\033[1;36mUltimate++\033[m\033]8;;\033\\ technology!    #\r\n"
+		<< "-----------------------------------\r\n";
+	term.Echo(txt);
+}
+
 void TerminalExample::Run()
 {
+	// a simple splash/greeting screen
+	About();
 	// Custon (high performance) event loop.
 #if defined(PLATFORM_POSIX) && defined(IUTF8)
 	// Set or change the initial terminal io flags on POSIX.
@@ -208,7 +221,7 @@ void EditCodePoint::PopUp()
 		preview.SetData(txt.SetFont(f));
 	};
 	SetRect(RectC(pt.x + 2, pt.y - 4, sz.cx * 11, sz.cy + 8));
-	Ctrl::PopUp(&app, true, true, true, false);
+	Ctrl::PopUp(&app, true, true, false, false);
 	EventLoop(&app);
 }
 
