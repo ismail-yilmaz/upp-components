@@ -181,7 +181,7 @@ public:
     TerminalCtrl&   LockCursor(bool b = true)                       { caret.Lock(b);  return *this; }
     TerminalCtrl&   UnlockCursor()                                  { caret.Unlock(); return *this; }
     bool            IsCursorLocked() const                          { return caret.IsLocked();      }
-    Point			GetCursorPoint() const;
+    Point           GetCursorPoint() const;
 
     TerminalCtrl&   NoBackground(bool b = true)                     { nobackground = b; Transparent(b); Refresh(); return *this; }
     bool            HasBackground() const                           { return !nobackground; }

@@ -48,7 +48,10 @@ void TerminalExample::Serialize(Stream& s)
 void TerminalExample::Run()
 {
 	// Custon (high performance) event loop.
-
+#if defined(PLATFORM_POSIX) && defined(IUTF8)
+	// Set or change the initial terminal io flags on POSIX.
+	pty.WhenAttrs = [=](termios& t) { t.c_iflag |= IUTF8; return true; };
+#endif
 	pty.Start(GetEnv(tshell), Environment(), GetHomeDirectory());
 	OpenMain();
 	while(IsOpen() && pty.IsRunning()) {
@@ -149,6 +152,7 @@ void TerminalExample::ContextMenu(Bar& bar)
 	bar.Sub(t_("View"), [=](Bar& bar) { ViewMenu(bar); });
 	bar.Separator();
 	term.StdBar(bar);
+	bar.AddKey(K_SHIFT|K_ALT_U, [=]{ EnterCodePoint(); });
 }
 
 void TerminalExample::FontZoom(int n)
@@ -161,6 +165,66 @@ void TerminalExample::FontZoom(int n)
 void TerminalExample::LineSpacing(int n)
 {
 	term.SetPadding(Size(0,  decode(n, 0, 0, term.GetPadding().cy + n)));
+}
+
+void TerminalExample::EnterCodePoint()
+{
+	// Pop up the unicode codepoint input widget at cursor position.
+
+	EditCodePoint q(*this);
+	q.PopUp();
+	if(!IsNull(~q)) {
+		dword n = ScanInt(q.GetText(), nullptr, 16);
+		term.Key(n, 1);
+	}
+}
+
+void EditCodePoint::PopUp()
+{
+	if(!app.term.GetRect().Contains(app.term.GetCursorPoint()))
+		return;
+	Font f = app.term.GetFont();
+	Size sz = app.term.GetCellSize();
+	Point pt = app.term.GetScreenView().TopLeft() + app.term.GetCursorPoint();
+	FrameLeft<DisplayCtrl> label;
+	FrameRight<DisplayCtrl> preview;
+	label.SetDisplay(StdRightDisplay());
+	label.SetData(AttrText("U+").SetFont(f).Ink(SColorDisabled));
+	preview.SetDisplay(StdCenterDisplay());
+	AddFrame(label.Width(sz.cx * 2));
+	AddFrame(preview.Width(sz.cx * 3));
+	MaxChars(4).SetFont(f).SetFilter([](int c) { return IsXDigit(c) ? c : 0; });
+	WhenEnter = app.Breaker();
+	WhenAction = [=, &preview, &f] {
+		AttrText txt;
+		int n = ScanInt(GetText(), nullptr, 16);
+		if(n >= 0x00 && n <= 0x1F)
+			txt.Text("C0").Ink(SLtRed);
+		else
+		if(n >= 0x80 && n <= 0x9F)
+			txt.Text("C1").Ink(SLtRed);
+		else
+			txt = WString(n, 1);
+		preview.SetData(txt.SetFont(f));
+	};
+	SetRect(RectC(pt.x + 2, pt.y - 4, sz.cx * 11, sz.cy + 8));
+	Ctrl::PopUp(&app, true, true, true, false);
+	EventLoop(&app);
+}
+
+bool EditCodePoint::Key(dword key, int count)
+{
+	if(key == K_ESCAPE) {
+		SetData(Null);
+		app.Break();
+		return true;
+	}
+	return EditString::Key(key, count);
+}
+
+void EditCodePoint::LostFocus()
+{
+	Key(K_ESCAPE, 1);
 }
 
 GUI_APP_MAIN

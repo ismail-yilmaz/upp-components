@@ -20,31 +20,46 @@ using namespace Upp;
 
 class TerminalExample : public WithTerminalExampleLayout<TopWindow> {
 public:
-	TerminalExample();
-	void Serialize(Stream& s) override;
-	void Run();
-	
+    TerminalExample();
+    void Serialize(Stream& s) override;
+    void Run();
+    
 private:
-	enum class WindowOp : int {
-		FullScreen,
-		Maximize,
-		Minimize,
-		Resize,
-		Geometry
-	};
-	
-	void	WindowAction(WindowOp action, Value arg = Null);
-	void	MainMenu(Bar& bar);
-	void	FileMenu(Bar& bar);
-	void	ViewMenu(Bar& bar);
-	void	ContextMenu(Bar& bar);
+    enum class WindowOp : int {
+        FullScreen,
+        Maximize,
+        Minimize,
+        Resize,
+        Geometry
+    };
+    
+    void    WindowAction(WindowOp action, Value arg = Null);
+    void    MainMenu(Bar& bar);
+    void    FileMenu(Bar& bar);
+    void    ViewMenu(Bar& bar);
+    void    ContextMenu(Bar& bar);
 
     void    FontZoom(int n);
     void    LineSpacing(int n);
-	
+    void    EnterCodePoint();
+    
 private:
-	PtyProcess pty;
-	MenuBar mainmenu;
+    PtyProcess pty;
+    MenuBar mainmenu;
+};
+
+// Helper popup for unicode codepoint input.
+
+class EditCodePoint : public EditString {
+public:
+    EditCodePoint(TerminalExample& t) : app(t) {}
+
+    void    PopUp();
+    bool    Key(dword key, int count) override;
+    void    LostFocus() override;
+
+private:
+    TerminalExample& app;
 };
 
 #endif
