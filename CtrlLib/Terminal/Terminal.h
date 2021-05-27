@@ -467,8 +467,8 @@ private:
     void        RenderImage(const ImageString& simg, bool scroll);
     const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& csz);
 
-    void        RenderHyperlink(const Value& uri);
-    String      GetCachedHyperlink(dword id, const Value& data = Null);
+    void        RenderHyperlink(const String& uri);
+    String      GetCachedHyperlink(dword id, const String& data = Null);
 
 private:
     enum TextSelectionTypes : dword {

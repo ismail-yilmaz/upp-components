@@ -376,7 +376,7 @@ void TerminalCtrl::SetImageCacheMaxSize(int maxsize, int maxcount)
 	sCachedImageMaxCount = max(1, maxcount);
 }
 
-void TerminalCtrl::RenderHyperlink(const Value& uri)
+void TerminalCtrl::RenderHyperlink(const String& uri)
 {
 	GetCachedHyperlink(FoldHash(GetHashValue(uri)), uri);
 }
@@ -403,13 +403,13 @@ int TerminalCtrl::HyperlinkMaker::Make(String& link) const
 	return link.GetLength();
 }
 
-String TerminalCtrl::GetCachedHyperlink(dword id, const Value& data)
+String TerminalCtrl::GetCachedHyperlink(dword id, const String& data)
 {
 	Mutex::Lock __(sLinkCacheLock);
 
 	LTIMING("TerminalCtrl::GetCachedHyperlink");
 
-	HyperlinkMaker hm(id, data.ToString());
+	HyperlinkMaker hm(id, data);
 	sLinkCache.Shrink(sCachedLinkMaxSize, sCachedLinkMaxCount);
 	return sLinkCache.Get(hm);
 }
