@@ -15,7 +15,7 @@
 
 using namespace Upp;
 
-#define LAYOUTFILE <examples/TerminalLayoutExample/TerminalLayoutExample.lay>
+#define LAYOUTFILE <TerminalLayoutExample/TerminalLayoutExample.lay>
 #include <CtrlCore/lay.h>
 
 class TerminalExample : public WithTerminalExampleLayout<TopWindow> {
