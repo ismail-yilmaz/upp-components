@@ -165,7 +165,7 @@ void TerminalExample::ContextMenu(Bar& bar)
 	bar.Sub(t_("View"), [=](Bar& bar) { ViewMenu(bar); });
 	bar.Separator();
 	term.StdBar(bar);
-	bar.AddKey(K_SHIFT|K_ALT_U, [=]{ EnterCodePoint(); });
+	bar.AddKey(K_SHIFT_CTRL_INSERT, [=]{ InsertCodePoint(); });
 }
 
 void TerminalExample::FontZoom(int n)
@@ -180,7 +180,7 @@ void TerminalExample::LineSpacing(int n)
 	term.SetPadding(Size(0,  decode(n, 0, 0, term.GetPadding().cy + n)));
 }
 
-void TerminalExample::EnterCodePoint()
+void TerminalExample::InsertCodePoint()
 {
 	// Pop up the unicode codepoint input widget at cursor position.
 
@@ -220,7 +220,9 @@ void EditCodePoint::PopUp()
 			txt = WString(n, 1);
 		preview.SetData(txt.SetFont(f));
 	};
-	SetRect(RectC(pt.x + 2, pt.y - 4, sz.cx * 11, sz.cy + 8));
+	Rect wa = GetWorkArea();
+	Rect r  = RectC(pt.x + 2, pt.y - 4, sz.cx * 11, sz.cy + 8);
+	SetRect(r.right > wa.right ? r.OffsetedHorz(wa.right - r.right) : r);
 	Ctrl::PopUp(&app, true, true, false, false);
 	EventLoop(&app);
 }

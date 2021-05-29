@@ -8,13 +8,13 @@ namespace Upp {
 class Renderer {
 public:
 	struct Attrs {
-		const VTCell *cell = nullptr;
-		int		x	  = 0;
-		int		y     = 0;
-		Color	ink   = Null;
-		Color	paper = Null;
-		bool	is_link:1;
-		bool	highlighted:1;
+        const VTCell *cell = nullptr;
+        int     x     = 0;
+        int     y     = 0;
+        Color   ink   = Null;
+        Color   paper = Null;
+        bool    is_link:1;
+        bool    highlighted:1;
 	};
 	
 private:
