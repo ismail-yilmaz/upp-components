@@ -349,6 +349,19 @@ or disable the UTF`-8 byte processing mode of the parser. UTF`-8
 mode is the default and recommended byte processing mode.&]
 [s3; &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:Echo`(const Upp`:`:String`&`):%- [_^Upp`:`:TerminalCtrl^ Te
+rminalCtrl][@(0.0.255) `&]_[* Echo]([@(0.0.255) const]_[_^Upp`:`:String^ String][@(0.0.255) `&
+]_[*@3 s])&]
+[s2; A convenience method similar to the Write() methods. Writes 
+a string to the terminal, according to the current byte processing 
+mode. Returns `*this for method chaining. This method does not 
+use the main sequence parser of TerminalCtrl. It uses a completely 
+separate parser, so it will not disrupt the main parser state 
+in between multiple calls. However, it can change the state of 
+the terminal. Useful for changing the state or modes of the terminal,and 
+for printing stuff on display etc. (Similar to sidebanding)&]
+[s3; &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:History`(bool`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* History]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) true])&]
 [s2; Enables or disables the history (scrollback) buffer. Returns 
