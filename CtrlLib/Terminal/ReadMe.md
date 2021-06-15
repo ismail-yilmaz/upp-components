@@ -226,6 +226,13 @@ Jexer with sixel support, running on the terminal example compiled with the TURT
 Far Manager, running on the terminal example. (Windows 7, via winpty backend.)
 ![](https://i.imgur.com/RWqyQmI.jpg)
 
+Terminal layout example with unicode popup, hyperlinks (Windows 7)
+![](https://i.imgur.com/JjUa46b.gif)
+
+Terminal layout example with unicode popup, hyperlinks (Linux)
+![](https://i.imgur.com/e5h3vjz.gif)
+
+
 ## [Videos](#videos)
 
 The four short videos below show the basic capabilities of Terminal package in general, and TerminalCtrl in particular, on various platforms. See also *Highlights*, *Features*, and *Examples* sections for more details.
