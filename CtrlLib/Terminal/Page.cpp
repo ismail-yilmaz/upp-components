@@ -79,7 +79,7 @@ WString AsWString(VTLine::ConstRange& cellrange, bool tspaces)
 				j = 0;
 			}
 			if(cell.chr >= 32)
-				txt << ToUtf16(cell.chr);
+				txt.Cat((int) cell.chr, 1);
 		}
 	}
 	return pick(txt);
