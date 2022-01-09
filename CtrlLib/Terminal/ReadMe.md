@@ -76,6 +76,7 @@ Thanks to U++ team, it is possible to run U++ GUI applications from within a web
 - Supports user configurable device conformance levels (1, 2, 3, 4, and 0 as VT52 emulation).
 - Supports both 7-bit and 8-bit I/O.
 - Supports Unicode/UTF8.
+- Supports emojis
 - Supports user configurable, legacy “g-set” (G0/G1/G2/G3), and related shifting functions (LS0/LS1/LS1R/LS2/LS2R/LS3/LS3R/SS2/SS3).
 - Supports ANSI conformance levels.
 - Supports scalable fonts. (The changes in font size and/or face immediately take place.)
@@ -273,7 +274,7 @@ The four short videos below show the basic capabilities of Terminal package in g
 
 ##  [License](#license)
 ```
-Copyright (c) 2019-2021, İsmail Yılmaz
+Copyright (c) 2019-2022, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
