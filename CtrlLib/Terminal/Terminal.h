@@ -352,6 +352,8 @@ public:
 
     void            RefreshDisplay();
 
+    Rect            GetCaret() const override                       { return caret.IsBlinking() ? caretrect : Null; }
+
     Image           CursorImage(Point p, dword keyflags) override;
 
     void            AnswerBackMessage(const String& s)              { answerback = s; }

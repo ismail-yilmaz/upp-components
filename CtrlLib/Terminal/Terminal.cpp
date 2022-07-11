@@ -73,18 +73,18 @@ TerminalCtrl& TerminalCtrl::SetPadding(Size sz)
 
 void TerminalCtrl::PlaceCaret(bool scroll)
 {
-	bool  b = modes[DECTCEM];
+	Rect oldrect = caretrect;
 
-	if(!b || !caret.IsBlinking()) {
-		KillCaret();
-		if(!b) return;
+	if(!modes[DECTCEM]) {
+		caretrect = Null;
+		if(!caret.IsBlinking())
+			Refresh(oldrect);
+		return;
 	}
-	if(caret.IsBlinking()) {
-		SetCaret(GetCaretRect());
-	}
-	else {
+	caretrect = GetCaretRect();
+	if(!caret.IsBlinking()) {
+		Refresh(oldrect);
 		Refresh(caretrect);
-		Refresh(GetCaretRect());
 	}
 	if(scroll && IsDefaultPage()) {
 		sb.ScrollInto(GetCursorPos().y);
@@ -113,8 +113,8 @@ Rect TerminalCtrl::GetCaretRect()
 		break;
 	}
 
-	caretrect = Rect(pt, csz);
-	return Rect(GetSize()).Contains(caretrect) ? caretrect : Null;
+	Rect r(pt, csz);
+	return Rect(GetSize()).Contains(r) ? r : Null;
 }
 
 Point TerminalCtrl::GetCursorPoint() const
