@@ -1,0 +1,13 @@
+uses
+	Core,
+	Draw;
+
+file
+	SixelRaster.h,
+	SixelRaster.cpp,
+	Info readonly separator,
+	ReadMe.md,
+	Copying,
+	Docs readonly separator,
+	src.tpp;
+

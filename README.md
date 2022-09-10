@@ -43,6 +43,13 @@ These components are meant to supplement `uppsrc/CtrlLib`
 | MessageCtrl |  A passive message widget and manager implementation.                                                  |
 | Terminal    |  A cross-platform, high-end terminal emulator widget and library with very good xterm compatibility.   |
 
+### Draw
+These components are meant to supplement `uppsrc/Draw`
+
+|**Package**  | **Description** |
+|:---         |:---             |
+| SixelRaster | A high performance, standalone sixel decoder plugin for U++'s global image decoder factory (StreamRaster interface) |
+
 ## Examples
 
 You can find reference examples demonstrating the usage of the above listed packages in `upp-components/Examples` directory.

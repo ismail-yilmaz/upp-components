@@ -2,7 +2,7 @@ description "Demonstrates the standalone usage of Terminal package's sixel rende
 
 uses
 	CtrlLib,
-	Terminal;
+	SixelRaster;
 
 file
 	main.cpp;
