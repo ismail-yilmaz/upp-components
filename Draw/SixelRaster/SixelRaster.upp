@@ -1,3 +1,5 @@
+description "Sixel image decoder and StreamRaster interface for for U++\377";
+
 uses
 	Core,
 	Draw;
