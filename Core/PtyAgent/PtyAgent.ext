@@ -13,3 +13,5 @@ exclude
     lib/shared/*Test*
 	lib/agent/*Test*
 ;
+
+includes ;

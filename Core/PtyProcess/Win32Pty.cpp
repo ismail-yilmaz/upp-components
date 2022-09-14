@@ -50,45 +50,40 @@ String sParseArgs(const char *cmd, const Vector<String> *pargs)
 	return cmdh;
 }
 
-void sCmdToUnicode(Buffer<wchar>& cmd, const char *cmdptr)
+Vector<char16> sToWCHAR(const char *s)
 {
-	if(cmdptr) {
-		WString wcmd(cmdptr);
-		int len = wcmd.GetCount() + 1;
-		cmd.Alloc(len);
-		memcpy(cmd, ~wcmd, len * sizeof(wchar));
-	}
+	return s ? ToSystemCharsetW(s) : Vector<char16>{ 0 };
 }
 
-void sEnvToUnicode(Buffer<wchar>& env, const char *envptr)
+Vector<char16> sEnvtoWCHAR(const char *envptr)
 {
+	Vector<char16> env;
+	
 	if(envptr) {
 		int len = 0;
 		while(envptr[len] || envptr[len + 1]) len++;
-		WString wenv(envptr, len + 1);
-		env.Alloc(len + 2);
-		memcpy(env, ~wenv, (len + 2) * sizeof(wchar));
+		if(len) {
+			env = ToUtf16(envptr, len);
+			env.Add(0);
+		}
 	}
+	
+	env.Add(0);
+	return env;
 }
 
 #ifdef  flagWIN10
 bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& si, PROCESS_INFORMATION& pi, const char *cd)
 {
-	Buffer<wchar> cmd;
-	sCmdToUnicode(cmd, cmdptr);
-#if 0 // TODO: test this later...
-	Buffer<wchar> env;
-	sEnvToUnicode(env, envptr);
-#endif
 	return CreateProcessW(
 		nullptr,
-		cmd,
+		sToWCHAR(cmdptr);
 		nullptr,
 		nullptr,
 		FALSE,
 		EXTENDED_STARTUPINFO_PRESENT,
-		(void *) envptr,
-		cd ? ~WString(cd) : nullptr,
+		sEnvtoWCHAR(envptr),
+		sToWCHAR(cd),
 		(LPSTARTUPINFOW) &si.StartupInfo,
 		&pi);
 }
@@ -97,16 +92,12 @@ bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& s
 
 HANDLE WinPtyCreateProcess(const char *cmdptr, const char *envptr, const char *cd, winpty_t* hConsole)
 {
-	Buffer<wchar> cmd, env;
-	sCmdToUnicode(cmd, cmdptr);
-	sEnvToUnicode(env, envptr);
-
 	auto hSpawnConfig = winpty_spawn_config_new(
 		WINPTY_SPAWN_FLAG_AUTO_SHUTDOWN,
-		cmd,
+		sToWCHAR(cmdptr),
 		nullptr,
-		cd ? ~WString(cd) : nullptr,
-		env,
+		sToWCHAR(cd),
+		sEnvtoWCHAR(envptr),
 		nullptr);
 		
 	if(!hSpawnConfig) {
