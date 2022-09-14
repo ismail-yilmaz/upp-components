@@ -50,7 +50,7 @@ void TerminalExample::About()
 	String txt;
 	txt << "-----------------------------------\r\n"
 		<< "# A terminal gui building example #\r\n"
-		<< "# Using \033]8;;https:/www.ultimatepp.org\033\\"
+		<< "# Using \033]8;;https://www.ultimatepp.org\033\\"
 		<< "\033[1;36mUltimate++\033[m\033]8;;\033\\ technology!    #\r\n"
 		<< "-----------------------------------\r\n";
 	term.Echo(txt);
