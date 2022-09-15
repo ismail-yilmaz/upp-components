@@ -97,7 +97,7 @@ struct TabbedTerminal : TopWindow {
 				if(!tt.Do()) {
 					tabbar.RemoveCtrl(tt);
 					tabs.Remove(i);
-					i--;
+					break;
 				}
 			}
 			Sleep(10);
