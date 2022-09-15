@@ -77,7 +77,7 @@ bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& s
 {
 	return CreateProcessW(
 		nullptr,
-		sToWCHAR(cmdptr);
+		sToWCHAR(cmdptr),
 		nullptr,
 		nullptr,
 		FALSE,
