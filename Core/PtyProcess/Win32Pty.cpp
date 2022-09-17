@@ -50,14 +50,9 @@ String sParseArgs(const char *cmd, const Vector<String> *pargs)
 	return cmdh;
 }
 
-Vector<char16> sToWCHAR(const char *s)
+Vector<WCHAR> sEnvtoWCHAR(const char *envptr)
 {
-	return s ? ToSystemCharsetW(s) : Vector<char16>{ 0 };
-}
-
-Vector<char16> sEnvtoWCHAR(const char *envptr)
-{
-	Vector<char16> env;
+	Vector<WCHAR> env;
 	
 	if(envptr) {
 		int len = 0;
@@ -75,15 +70,18 @@ Vector<char16> sEnvtoWCHAR(const char *envptr)
 #ifdef  flagWIN10
 bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& si, PROCESS_INFORMATION& pi, const char *cd)
 {
+	Vector<WCHAR> cmd = ToSystemCharsetW(cmdptr);
+	cmd.Add(0);
+	
 	return CreateProcessW(
 		nullptr,
-		sToWCHAR(cmdptr),
+		cmd,
 		nullptr,
 		nullptr,
 		FALSE,
 		EXTENDED_STARTUPINFO_PRESENT,
-		sEnvtoWCHAR(envptr),
-		sToWCHAR(cd),
+		(void *) envptr,
+		cd ? ToSystemCharsetW(cd).begin() : nullptr,
 		(LPSTARTUPINFOW) &si.StartupInfo,
 		&pi);
 }
@@ -92,11 +90,14 @@ bool Win32CreateProcess(const char *cmdptr, const char *envptr, STARTUPINFOEX& s
 
 HANDLE WinPtyCreateProcess(const char *cmdptr, const char *envptr, const char *cd, winpty_t* hConsole)
 {
+	Vector<WCHAR> cmd = ToSystemCharsetW(cmdptr);
+	cmd.Add(0);
+
 	auto hSpawnConfig = winpty_spawn_config_new(
 		WINPTY_SPAWN_FLAG_AUTO_SHUTDOWN,
-		sToWCHAR(cmdptr),
+		cmd,
 		nullptr,
-		sToWCHAR(cd),
+		cd ? ToSystemCharsetW(cd).begin() : nullptr,
 		sEnvtoWCHAR(envptr),
 		nullptr);
 		
@@ -355,7 +356,7 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 bool PtyProcess::Read(String& s)
 {
 	String rread;
-	constexpr int BUFSIZE = 4096;
+	constexpr const int BUFSIZE = 4096;
 
 	s = rbuffer;
 	rbuffer.Clear();
