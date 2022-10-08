@@ -136,7 +136,7 @@ void TerminalCtrl::ParseiTerm2Graphics(const VTInStream::Sequence& seq)
 	if(simg.size.cx == 0 && simg.size.cy == 0)
 		simg.size.SetNull();
 
-	RenderImage(simg, modes[DECSDM]);	// Rely on sixel scrolling mode.
+	RenderImage(simg, !modes[DECSDM]);	// Rely on sixel scrolling mode.
 }
 
 void TerminalCtrl::ParseHyperlinks(const VTInStream::Sequence& seq)
