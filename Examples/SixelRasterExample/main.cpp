@@ -15,7 +15,7 @@ GUI_APP_MAIN
 	TopWindow win;
 	ImageCtrl ctl;
 	win.Add(ctl.SizePos());
-	
+
 	for(;;) {
 		SelectFileIn fi("*.sixel *.six");
 		if(!fi)	return;
