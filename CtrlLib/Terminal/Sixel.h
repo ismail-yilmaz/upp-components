@@ -40,20 +40,5 @@ private:
     Point           cursor;
     bool            nohole;
 };
-
-class SixelRaster : public StreamRaster {
-public:
-    SixelRaster()                       {}
-
-    virtual bool    Create();
-    virtual Size    GetSize();
-    virtual Info    GetInfo();
-    virtual Line    GetLine(int line);
-    
-private:
-    Image img;
-};
-
-INITIALIZE(SixelRaster);
 }
 #endif

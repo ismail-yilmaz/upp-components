@@ -268,42 +268,4 @@ Image SixelRenderer::Get()
 
 	return !sstream.IsError() ? Crop(buffer, size) : Image();
 }
-
-bool SixelRaster::Create()
-{
-//	RTIMING("SixelRaster::Create");
-
-	Stream& stream = GetStream();
-	if(!stream.IsOpen()) {
-		SetError();
-		return false;
-	}
-	ASSERT(stream.IsLoading());
-	img = SixelRenderer(stream).Get();
-	return !img.IsEmpty();
-}
-
-Raster::Info SixelRaster::GetInfo()
-{
-	Raster::Info f = Raster::GetInfo();
-	f.dots = img.GetDots();
-	f.hotspot = img.GetHotSpot();
-	f.kind = img.GetKind();
-	return f;
-}
-
-Size SixelRaster::GetSize()
-{
-	return img.GetSize();
-}
-
-Raster::Line SixelRaster::GetLine(int line)
-{
-	return Line(img[line], false);
-}
-
-INITIALIZER(SixelRaster)
-{
-	StreamRaster::Register<SixelRaster>();
-}
 }
