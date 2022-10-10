@@ -245,16 +245,16 @@ void TerminalCtrl::ParseSixelGraphics(const VTInStream::Sequence& seq)
 	if(!sixelimages)
 		return;
 
-	int  ratio  = decode(seq.GetInt(1, 1), 5, 2, 6, 2, 3, 3, 4, 3, 2, 5, 1);
-	int  nohole = seq.GetInt(2, 0);
+//	int  ratio  = decode(seq.GetInt(1, 1), 5, 2, 6, 2, 3, 3, 4, 3, 2, 5, 1);
 //	int  grid   = seq.GetInt(3, 0); // Omitted.
 	
 	cellattrs.Hyperlink(false);
 
 	ImageString imgs;
-	imgs.data = Format("\033P%d;%d;q%s`\033\x5C", ratio, nohole, seq.payload);
+	imgs.data = seq.payload;
 	imgs.encoded = false;
-	
+	imgs.transparent = seq.GetInt(2, 0) == 0;
+
 	RenderImage(imgs, !modes[DECSDM]);
 }
 }

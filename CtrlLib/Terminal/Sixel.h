@@ -6,14 +6,13 @@
 
 namespace Upp{
 
-class SixelRenderer : NoCopy {
+class SixelStream : MemReadStream {
 public:
-    SixelRenderer(Stream& sdata);
-
-    Image           Get();
-    operator        Image()                         { return Get(); }
-    Size            GetSize() const                 { return size;  }
-    int             GetRatio() const                { return aspectratio; }
+    SixelStream(const void *data, int64 size);
+    SixelStream(const String& data);
+    
+    SixelStream&    Background(bool b = true)       { background = b; return *this;  }
+    operator        Image();
     
 private:
     void            Clear();
@@ -22,23 +21,22 @@ private:
     void            SetPalette();
     void            GetRasterInfo();
     void            GetRepeatCount();
-    void            SetOptions();
-    void            Validate();
-    void            InitBuffer(ImageBuffer& ib);
-    void            PaintSixel(ImageBuffer& ib, int c);
-    void            GetNumericParams(Vector<int>& v, int delim = Null);
+    int             ReadParams();
+    void            CalcYOffests();
+    void            AdjustBufferSize();
+    void            PaintSixel(int c);
 
 private:
-    Stream&         sstream;
+    ImageBuffer     buffer;
     Vector<RGBA>    palette;
     RGBA            ink;
-    int64           datapos;
+    RGBA            paper;
     int             repeat;
-    int             aspectratio;
-    Rect            rect;
+    int             params[8];
+    int             coords[6];
     Size            size;
     Point           cursor;
-    bool            nohole;
+    bool            background;
 };
 }
 #endif

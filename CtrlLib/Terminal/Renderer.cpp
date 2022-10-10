@@ -332,8 +332,7 @@ int TerminalCtrl::InlineImageMaker::Make(InlineImage& imagedata) const
 
 	Image img;
 	if(!imgs.encoded) {
-		MemReadStream ms(imgs.data, imgs.data.GetLength());
-		img = SixelRenderer(ms).Get();
+		img = (Image) SixelStream(imgs.data).Background(!imgs.transparent);
 	}
 	else {
 		img = StreamRaster::LoadStringAny(Base64Decode(imgs.data));

@@ -424,11 +424,13 @@ private:
     using       ImagePart  = Tuple<dword, Point, Rect>;
     using       ImageParts = Vector<ImagePart>;
 
+	// TODO: Needs a rewrite to be more flexible.
     struct ImageString : Moveable<ImageString> {
         String  data;
         Size    size;
         bool    encoded:1;
         bool    keepratio:1;
+        bool    transparent:1;
         dword   GetHashValue() const                            { return FoldHash(CombineHash(data, size, encoded, keepratio)); }
         void    SetNull()                                       { data = Null; size = Null; encoded = keepratio = true; }
         bool    IsNullInstance() const                          { return Upp::IsNull(data); }
