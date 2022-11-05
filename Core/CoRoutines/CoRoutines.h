@@ -70,8 +70,7 @@ public:
         return !co.done();
     }
 
-	template<typename U = T>
-	typename std::enable_if<!std::is_void_v<U>, const U&>::type Next() const
+	T Next() const
 		requires (R == CoRoutineType::Generator)
 	{
 		ASSERT(co);
@@ -80,8 +79,7 @@ public:
 		return co.promise().value;
 	}
 
-	template<typename U = T>
-	typename std::enable_if<!std::is_void_v<U>, U&&>::type PickNext()
+	T PickNext()
 		requires (R == CoRoutineType::Generator)
 	{
 		ASSERT(co);
@@ -90,17 +88,17 @@ public:
 		return pick(co.promise().value);
 	}
 
-	template<typename U = T>
-	typename std::enable_if<!std::is_void_v<U>, const U&>::type Get() const
-        requires (R == CoRoutineType::Routine)
+	T Get() const
+        requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
     {
+        ASSERT(co);
         return co.promise().value;
     }
 
-	template<typename U = T>
-	typename std::enable_if<!std::is_void_v<U>, U&&>::type Pick()
-         requires (R == CoRoutineType::Routine)
-    {
+	T Pick()
+       requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
+     {
+        ASSERT(co);
         return pick(co.promise().value);
     }
 
