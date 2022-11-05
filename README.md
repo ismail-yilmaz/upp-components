@@ -27,6 +27,7 @@ These components are meant to supplement `uppsrc/Core`
 
 |**Package**  | **Description** |
 |:---         |:---             |
+| CoRoutines  | A lightweight coroutines implementation (c++20 coroutines)                                  |
 | Ftp         | File transfer protocol encapsulation with advanced capabilities.                            |
 | Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.             |
 | NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
