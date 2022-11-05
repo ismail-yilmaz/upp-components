@@ -1,0 +1,11 @@
+description "C++20 coroutines implementation for U++\377";
+
+uses
+	Core;
+
+file
+	CoRoutines.h,
+	Info readonly separator,
+	ReadMe.md,
+	Copying;
+

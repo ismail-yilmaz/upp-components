@@ -1,0 +1,12 @@
+description "Demonstrates the basic usage of U++ CoRoutines package.\377";
+
+uses
+	Core,
+	CoRoutines;
+
+file
+	CoRoutinesExample.cpp;
+
+mainconfig
+	"" = "";
+
