@@ -79,14 +79,16 @@ public:
         return co.promise().value;
     }
     
-    T Get() const
-        requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
+	template<typename U = T>
+	typename std::enable_if<!std::is_void_v<U>, U&>::type Get() const
+        requires (R == CoRoutineType::Routine)
     {
         return co.promise().value;
     }
     
-    T Pick()
-         requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
+	template<typename U = T>
+	typename std::enable_if<!std::is_void_v<U>, U&&>::type Pick()
+         requires (R == CoRoutineType::Routine)
     {
         return pick(co.promise().value);
     }
