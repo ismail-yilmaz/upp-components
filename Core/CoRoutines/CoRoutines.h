@@ -8,7 +8,7 @@
 #include <type_traits>
 
 namespace Upp {
-
+    
 using CoSuspend     = std::suspend_always;
 using CoDontSuspend = std::suspend_never;
 
@@ -27,12 +27,13 @@ class CoRoutineT {
         void unhandled_exception()                      { exc = std::current_exception(); }
         std::exception_ptr exc;
     };
-
+    
     template<typename U>
     struct ReturnValue : PromiseType<CoRoutineT, ReturnValue<U>>
     {
-        void return_value(U val) { value = std::forward<U>(val); }
-        void yield_value(U) = delete;
+        template<std::convertible_to<U> L>
+        void return_value(L&& val) { value = std::forward<L>(val); }
+        void yield_value(U&&) = delete;
         U value;
     };
 
@@ -41,13 +42,14 @@ class CoRoutineT {
     {
         void return_void() {}
     };
-
+    
     template<typename U>
     struct CurrentValue : PromiseType<CoRoutineT, CurrentValue<U>>
     {
-        std::suspend_always yield_value(U val) { value = std::forward<U>(val); return {}; }
-        std::suspend_never await_transform(U) = delete;
-        void return_value(U) = delete;
+        template<std::convertible_to<U> L>
+        std::suspend_always yield_value(L&& val) { value = std::forward<L>(val); return {}; }
+        std::suspend_never await_transform(U&&) = delete;
+        void return_value(U&&) = delete;
         U value;
     };
 
@@ -58,7 +60,7 @@ public:
                 VoidValue<T>, typename std::conditional<
                     R == CoRoutineType::Routine,
                         ReturnValue<T>, CurrentValue<T>>::type>::type;
-
+                        
     using Handle = typename std::coroutine_handle<promise_type>;
 
     bool Do()
@@ -69,45 +71,44 @@ public:
         Rethrow();
         return !co.done();
     }
+    
+    T Next() const
+        requires (R == CoRoutineType::Generator)
+    {
+        ASSERT(co);
+        co.resume();
+        Rethrow();
+        return co.promise().value;
+    }
 
-	T Next() const
-		requires (R == CoRoutineType::Generator)
-	{
-		ASSERT(co);
-		co.resume();
-		Rethrow();
-		return co.promise().value;
-	}
+    T PickNext()
+        requires (R == CoRoutineType::Generator)
+    {
+        ASSERT(co);
+        co.resume();
+        Rethrow();
+        return pick(co.promise().value);
+    }
 
-	T PickNext()
-		requires (R == CoRoutineType::Generator)
-	{
-		ASSERT(co);
-		co.resume();
-		Rethrow();
-		return pick(co.promise().value);
-	}
-
-	T Get() const
+    T Get() const
         requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
     {
         ASSERT(co);
         return co.promise().value;
     }
 
-	T Pick()
+    T Pick()
        requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
-     {
+    {
         ASSERT(co);
         return pick(co.promise().value);
     }
-
 
     CoRoutineT(Handle h)
     : co(h)
     {
     }
-
+    
     CoRoutineT& operator=(CoRoutineT& r) noexcept
     {
         if(this != &r) {
@@ -124,11 +125,11 @@ public:
         if(co)
             co.destroy();
     }
-
+    
     CoRoutineT(CoRoutineT&& r) noexcept = default;
     CoRoutineT(const CoRoutineT&) = delete;
     CoRoutineT& operator=(const CoRoutineT&) = delete;
-
+    
 private:
     void Rethrow() const
     {
