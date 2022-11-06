@@ -138,10 +138,10 @@ public:
         using value_type        = U;
         using difference_type   = std::ptrdiff_t;
         using iterator_category = std::input_iterator_tag;
-        value_type operator*()  const  { return value;  }
-        value_type operator->() const  { return value; }
-        IteratorT& operator++()        { value = cogen.Next(); return *this; }
-        IteratorT& operator++(int)     { value = cogen.Next(); return *this; }
+        value_type  operator*() const   { return cogen.co.promise().value;   }
+        value_type  operator->() const  { return cogen.co.promise().value;   }
+        IteratorT& operator++()         { cogen.Rethrow(); cogen.co.resume(); return *this; }
+        IteratorT& operator++(int)      { cogen.Rethrow(); cogen.co.resume(); return *this; }
         bool operator==(const IteratorT&) const { return false; }
     
         IteratorT() = delete;
@@ -150,7 +150,6 @@ public:
     
     private:
         C& cogen;
-        U  value;
     };
     
     using Iterator = class IteratorT<CoRoutineT<CoRoutineType::Generator, T>, T>;
