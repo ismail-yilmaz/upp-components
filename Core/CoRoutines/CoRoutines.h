@@ -104,7 +104,7 @@ public:
     }
 
     T operator~() const
-        requires (R == CoRoutineType::Routine)
+        requires (R == CoRoutineType::Routine && !std::is_void_v<T>)
     {
         return Get();
     }
