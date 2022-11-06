@@ -81,6 +81,12 @@ public:
         return co.promise().value;
     }
 
+    T operator~() const
+        requires (R == CoRoutineType::Generator)
+    {
+        return Next();
+    }
+
     T PickNext()
         requires (R == CoRoutineType::Generator)
     {
@@ -95,6 +101,12 @@ public:
     {
         ASSERT(co);
         return co.promise().value;
+    }
+
+    T operator~() const
+        requires (R == CoRoutineType::Routine)
+    {
+        return Get();
     }
 
     T Pick()
