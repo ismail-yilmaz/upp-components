@@ -34,7 +34,7 @@ class CoRoutineT {
         template<std::convertible_to<U> L>
         void return_value(L&& val) { value = std::forward<L>(val); }
         void yield_value(U&&) = delete;
-        U value;
+        U value {};
     };
 
     template<typename U>
@@ -129,7 +129,45 @@ public:
     CoRoutineT(CoRoutineT&& r) noexcept = default;
     CoRoutineT(const CoRoutineT&) = delete;
     CoRoutineT& operator=(const CoRoutineT&) = delete;
+
+
+    // Iterator support for generator type.
+    template<typename C, class U>
+    class IteratorT {
+    public: // C++20 iterator tags...
+        using value_type        = U;
+        using difference_type   = std::ptrdiff_t;
+        using iterator_category = std::input_iterator_tag;
+        value_type operator*()  const  { return value;  }
+        value_type operator->() const  { return value; }
+        IteratorT& operator++()        { value = cogen.Next(); return *this; }
+        IteratorT& operator++(int)     { value = cogen.Next(); return *this; }
+        bool operator==(const IteratorT&) const { return false; }
     
+        IteratorT() = delete;
+        IteratorT(C&&) = delete;
+        IteratorT(C& r) : cogen{r}     {}
+    
+    private:
+        C& cogen;
+        U  value;
+    };
+    
+    using Iterator = class IteratorT<CoRoutineT<CoRoutineType::Generator, T>, T>;
+    
+    Iterator begin()
+        requires (R == CoRoutineType::Generator)
+    {
+        return ++Iterator(*this);
+    }
+
+    
+    Iterator end()
+        requires (R == CoRoutineType::Generator)
+    {
+        return Iterator(*this);
+    }
+
 private:
     void Rethrow() const
     {

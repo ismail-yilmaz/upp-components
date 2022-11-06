@@ -46,7 +46,7 @@ CoGenerator<int> GenerateNumber()
 CoGenerator<int> GenerateException()
 {
 	for(int i = 0;; i++) {
-		if(i == 5)
+		if(i == 10)
 			throw Exc("GenerateException(): exception thrown at i: " << AsString(i));
 		co_yield i;
 	}
@@ -71,7 +71,8 @@ CONSOLE_APP_MAIN
 			RLOG("CoRoutine ReturnString(): Running...");
 		RLOG("CoRoutine ReturnString(): Done! Result: " << co1.Get());
 	
-		for(int n = 0; n < 10; n = co2.Next())
+		int n = 0;
+		while((n = co2.Next()) <= 10)
 			RLOG("CoRoutine GenerateNumber(), yielding: " << n);
 		
 		while(co3.Do())
@@ -79,7 +80,7 @@ CONSOLE_APP_MAIN
 		RLOG("CoRoutine ReturnPickVector(): v: " << co3.Pick());
 	
 
-		for(int n = 0; n < 10; n = co4.Next())
+		for(auto n : co4) // CoGenerator iterator support...
 			RLOG("CoRoutine GenerateException(), yielding: " << n);
 
 	}
