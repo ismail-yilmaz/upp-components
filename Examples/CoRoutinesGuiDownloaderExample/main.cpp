@@ -10,7 +10,6 @@ using namespace Upp;
 CoRoutine<void> HttpDownload(const String& url)
 {
 	Progress pi;
-	FileOut out;
 	String path = AppendFileName(Nvl(GetDownloadFolder(), GetHomeDirFile("downloads")), GetFileName(url));
 	HttpRequest http(url);
 	http.Timeout(0);
