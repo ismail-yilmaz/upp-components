@@ -1,0 +1,12 @@
+description "Ccoroutines version of Upp/GuiWebDownloader example\377";
+
+uses
+	CtrlLib,
+	CoRoutines;
+
+file
+	main.cpp;
+
+mainconfig
+	"" = "GUI";
+
