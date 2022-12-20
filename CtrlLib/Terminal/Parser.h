@@ -20,12 +20,13 @@ public:
         byte            type;
         byte            opcode;
         byte            mode;
+        byte            intermediate[4];
         Vector<String>  parameters;
-        String          intermediate;
         String          payload;
         int             GetInt(int n, int d = 1) const;
         String          GetStr(int n) const;
         String          ToString() const;
+        dword           GetHashValue() const;
         void            Clear();
         Sequence()                                          { Clear(); }
     };
@@ -72,6 +73,8 @@ public:
         Action  action;
         Id      next;
         
+        static const State& GetVoid();
+
         State(byte b, byte e, Action a, Id id)
         : begin(b)
         , end(e)
@@ -86,7 +89,7 @@ public:
     void    Parse(const String& data, bool utf8)            { Parse(~data, data.GetLength(), utf8); }
     void    Reset();
     bool    WasChr() const                                  { return waschr; }
-        
+    
     Event<int>  WhenChr;
     Event<byte> WhenCtl;
     Event<const VTInStream::Sequence&>  WhenEsc;
@@ -95,29 +98,32 @@ public:
     Event<const VTInStream::Sequence&>  WhenOsc;
     Event<const VTInStream::Sequence&>  WhenApc;
     
+    static constexpr dword Hash32(byte h)               { return 0 ^ h; }
+    template<typename... Args>
+    static constexpr dword Hash32(byte h, Args... args) { return (0xacf34ce7 * Hash32(args...)) ^ h; }
+
     VTInStream();
     virtual ~VTInStream() {}
-
+    
 private:
-    int             GetUtf8(String& iutf8);
-    void            Create(const void *data, int64 size);
+    int             GetChr();
+    void            CheckLoadData(const char *data, int size, String& err);
     void            NextState(State::Id sid);
     const State*    GetState(const int& c) const;
     void            Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn);
     void            Reset0(const Vector<VTInStream::State>* st);
-
-    Function<int()> GetChr;
     
     // Collectors.
     void            CollectChr(int c);
     void            CollectIntermediate(int c);
     void            CollectParameter(int c);
     void            CollectPayload(int c);
-    void            CollectString(int c, bool utf8);
+    void            CollectString(int c);
     
 private:
     Sequence    sequence;
     bool        waschr;
+    bool        utf8mode;
     String      collected;
     String      buffer;
     const Vector<VTInStream::State>*  state;

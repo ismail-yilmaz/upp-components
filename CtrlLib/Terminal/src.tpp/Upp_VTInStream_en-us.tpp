@@ -122,6 +122,13 @@ sequence. E.g. for private (DEC/xterm) functions or modes this
 is usually, but not always, a 0x3F (question mark).&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:VTInStream`:`:Sequence`:`:intermediate: [_^Upp`:`:byte^ byte]_[* intermediate
+][@(0.0.255) `[][@3 4][@(0.0.255) `]]&]
+[s2;%% Contains the collected intermediate bytes specific to the 
+given sequence. Allows up to 4 intermediary bytes. (Historically, 
+max 2 bytes are used.)&]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:parameters: [_^Upp`:`:Vector^ Vector]<[_^Upp`:`:String^ S
 tring]>_[* parameters]&]
 [s2;%% Contains the function parameters specific to CSI or DCS sequences, 
@@ -129,12 +136,6 @@ in a vectorized form. Note that this vector can contain empty
 strings that usually mean an implicit default value, depending 
 on the sequence`'s context.&]
 [s3;%% &]
-[s4; &]
-[s5;:Upp`:`:VTInStream`:`:Sequence`:`:intermediate: [_^Upp`:`:String^ String]_[* intermed
-iate]&]
-[s2;%% Contains the collected intermediate bytes specific to the 
-given sequence.&]
-[s3; &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:payload: [_^Upp`:`:String^ String]_[* payload]&]
 [s2;%% Contains any addtional data to be parsed by client code. For 
@@ -156,14 +157,19 @@ parameter can be provided with [%-*@3 d].&]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:GetStr`(int`)const: [_^Upp`:`:String^ String]_[* Ge
 tStr]([@(0.0.255) int]_[*@3 n])_[@(0.0.255) const]&]
 [s2;%% The same as above but for string parameters. [%-*@3 n ] is the 
-index of the sequence parameter. Returns a nullifed string for 
-erroneous, out`-of`-bounds, or empty (defaulted) sequence parameters.&]
+index of the sequence parameter. Returns a void string for erroneous, 
+out`-of`-bounds, or empty (defaulted) sequence parameters.&]
 [s3;%% &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:ToString`(`)const: [_^Upp`:`:String^ String]_[* ToS
 tring]()_[@(0.0.255) const]&]
 [s2;%% Returns the sequence as a String. Useful for diagnostics and 
 logging.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:VTInStream`:`:Sequence`:`:GetHashValue`(`)const: [_^Upp`:`:dword^ dword]_[* G
+etHashValue]()_[@(0.0.255) const]&]
+[s2;%% Returns a 32`-bit hash of the given sequence.&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:VTInStream`:`:Sequence`:`:Clear`(`): [@(0.0.255) void]_[* Clear]()&]

@@ -378,8 +378,96 @@ VT_END_STATE_MAP;
 #undef VT_BEGIN_STATE_MAP
 #undef VT_END_STATE_MAP
 
+force_inline
+bool sCheckRange(int c, int lo, int hi)
+{
+	return dword(c - lo) < (hi - lo + 1);
+}
+
+force_inline
+int sCheckSplit(const char *s, int len)
+{
+	for(int i = len - 1, n = 1; i >= 0; --i, ++n) {
+		if(n >= 1 && ((s[i] & 0x80) == 0x00)) return len - (i + 1);
+		if(n >= 2 && ((s[i] & 0xE0) == 0xC0)) return len - (i + 2);
+		if(n >= 3 && ((s[i] & 0xF0) == 0xE0)) return len - (i + 3);
+		if(n >= 4 && ((s[i] & 0xF8) == 0xF0)) return len - (i + 4);
+	}
+	return 0;
+}
+
+void VTInStream::Parse(const void *data, int size, bool utf8)
+{
+	String iutf8;
+	utf8mode = utf8;
+	
+	LTIMING("VTInStream::Parse");
+	
+	CheckLoadData((const char*) data, size, iutf8);
+		
+	while(!IsEof()) {
+		int c = GetChr();
+		const State* st = GetState(c);
+		switch(st->action) {
+		case State::Action::Mode:
+			sequence.mode = byte(c);
+			break;
+		case State::Action::Parameter:
+			CollectParameter(c);
+			break;
+		case State::Action::Collect:
+			CollectIntermediate(c);
+			break;
+		case State::Action::Final:
+			sequence.opcode = byte(c);
+			break;
+		case State::Action::Control:
+			WhenCtl(byte(c));
+			break;
+		case State::Action::Ground:
+			CollectChr(c);
+			break;
+		case State::Action::Passthrough:
+			CollectPayload(c);
+			break;
+		case State::Action::String:
+			CollectString(c);
+			break;
+		case State::Action::DispatchEsc:
+			sequence.opcode = byte(c);
+			Dispatch(Sequence::ESC, WhenEsc);
+			break;
+		case State::Action::DispatchCsi:
+			sequence.opcode = byte(c);
+			Dispatch(Sequence::CSI, WhenCsi);
+			break;
+		case State::Action::DispatchDcs:
+			Dispatch(Sequence::DCS, WhenDcs);
+			break;
+		case State::Action::DispatchOsc:
+			Dispatch(Sequence::OSC, WhenOsc);
+			break;
+		case State::Action::DispatchApc:
+			Dispatch(Sequence::APC, WhenApc);
+			break;
+		case State::Action::Ignore:
+			break;
+		default:
+			NEVER();
+		}
+		NextState(st->next);
+	}
+
+	buffer.Clear();
+	if(iutf8.GetCount())
+		buffer = iutf8;
+}
+
+
 void VTInStream::NextState(State::Id  sid)
 {
+	LTIMING("VTInStream::NextState");
+	
 	switch(sid) {
 	case State::Id::EscEntry:
 		Reset0(&EscEntry);
@@ -431,151 +519,7 @@ void VTInStream::NextState(State::Id  sid)
 	}
 }
 
-void VTInStream::Parse(const void *data, int size, bool utf8)
-{
-	// TODO: Add pseudo-rentrancy.
-	
-	String iutf8;
-	Create(data, size);
-	
-	LTIMING("VTInStream::Parse");
-
-	if(utf8) GetChr = [=, &iutf8] { return GetUtf8(iutf8); };
-	else     GetChr = [=]         { return Get();          };
-		
-	while(!IsEof()) {
-		int c = GetChr();
-		const State* st = GetState(c);
-		if(!st)	continue;
-		switch(st->action) {
-		case State::Action::Mode:
-			sequence.mode = byte(c);
-			break;
-		case State::Action::Parameter:
-			CollectParameter(c);
-			break;
-		case State::Action::Collect:
-			CollectIntermediate(c);
-			break;
-		case State::Action::Final:
-			sequence.opcode = byte(c);
-			break;
-		case State::Action::Control:
-			WhenCtl(byte(c));
-			break;
-		case State::Action::Ground:
-			CollectChr(c);
-			break;
-		case State::Action::Passthrough:
-			CollectPayload(c);
-			break;
-		case State::Action::String:
-			CollectString(c, utf8);
-			break;
-		case State::Action::DispatchEsc:
-			sequence.opcode = byte(c);
-			Dispatch(Sequence::ESC, WhenEsc);
-			break;
-		case State::Action::DispatchCsi:
-			sequence.opcode = byte(c);
-			Dispatch(Sequence::CSI, WhenCsi);
-			break;
-		case State::Action::DispatchDcs:
-			Dispatch(Sequence::DCS, WhenDcs);
-			break;
-		case State::Action::DispatchOsc:
-			sequence.payload = collected;
-			Dispatch(Sequence::OSC, WhenOsc);
-			break;
-		case State::Action::DispatchApc:
-			sequence.payload = collected;
-			Dispatch(Sequence::APC, WhenApc);
-			break;
-		case State::Action::Ignore:
-			break;
-		default:
-			NEVER();
-		}
-		NextState(st->next);
-	}
-
-	buffer.Clear();
-
-	if(!iutf8.IsEmpty())
-		buffer = iutf8;
-}
-
 force_inline
-void VTInStream::CollectChr(int c)
-{
-	int p = -1;
-	while((c >= 0x20 && c <= 0x7E) || c >= 0xA0) {
-		WhenChr(c);
-		p = GetPos();
-		c = GetChr();
-	}
-	if(c != -1)
-		Seek(p);
-	waschr = true;
-}
-
-force_inline
-void VTInStream::CollectIntermediate(int c)
-{
-	int p = -1;
-	while(c >= 0x20 && c <= 0x2F) {
-		sequence.intermediate.Cat(c);
-		p = GetPos();
-		c = GetChr();
-	}
-	if(c != -1)
-		Seek(p);
-}
-
-force_inline
-void VTInStream::CollectParameter(int c)
-{
-	int p = -1;
-	while(c >= 0x30 && c <= 0x3B) {
-		collected.Cat(c);
-		p = GetPos();
-		c = GetChr();
-	}
-	if(c != -1)
-		Seek(p);
-}
-
-force_inline
-void VTInStream::CollectPayload(int c)
-{
-	int p = -1;
-	while((c >= 0x00 && c <= 0x17) || (c >= 0x1C && c <= 0x7E) || c == 0x19) {
-		sequence.payload.Cat(c);
-		p = GetPos();
-		c = GetChr();
-	}
-	if(c != -1)
-		Seek(p);
-}
-
-force_inline
-void VTInStream::CollectString(int c, bool utf8)
-{
-	 // Let us allow utf-8 sequences in OSC strings.
-	 // This is illegal, according to the DEC STD-070.
-	 // However, even xterm allows this on utf-8 mode.
-
-	int p = -1;
-	while((c >= 0x20 && c <= 0x7F) || (utf8 && c >= 0xA0)) {
-		if(c <= 0xFF) collected.Cat(c);
-		else  collected.Cat(ToUtf8(c));
-		p = GetPos();
-		c = GetChr();
-	}
-	if(c != -1)
-		Seek(p);
-}
-
 const VTInStream::State* VTInStream::GetState(const int& c) const
 {
 	LTIMING("VTInStream::GetState");
@@ -594,148 +538,151 @@ const VTInStream::State* VTInStream::GetState(const int& c) const
 				return &st;
 		}
 	}
-	return nullptr;
+
+	return &State::GetVoid();
 }
 
+force_inline
+int VTInStream::GetChr()
+{
+	LTIMING("VtInStream::GetChr()");
+	
+	if(Term() < 0x80 || !utf8mode)
+		return Get();
+	int p = GetPos() + 1;
+	int c = GetUtf8();
+	if(c == -1 && !IsEof()) {
+		Seek(p);
+		return 0xFFFD;
+	}
+	return c;
+}
+
+force_inline
+void VTInStream::CollectChr(int c)
+{
+	LTIMING("VtInStream::CollectChr()");
+
+	int p = -1;
+	while(sCheckRange(c, 0x20, 0x7E) || c > 0x9F) {
+		WhenChr(c);
+		p = GetPos();
+		c = GetChr();
+	}
+	if(c != -1)
+		Seek(p);
+	waschr = true;
+}
+
+force_inline
+void VTInStream::CollectIntermediate(int c)
+{
+	LTIMING("VtInStream::CollectParameter()");
+	
+	const byte *b = ptr;
+	int   n = 0;
+
+	sequence.intermediate[0] = c;
+	while((b < rdlim) && sCheckRange(*b++, 0x20, 0x2F) && ++n < 4) {
+		sequence.intermediate[n] = *b;
+	}
+	
+	ptr += n;
+}
+
+force_inline
+void VTInStream::CollectParameter(int c)
+{
+	LTIMING("VtInStream::CollectParameter()");
+	
+	const byte  *b = ptr;
+	int  n = 0;
+	
+	while((b < rdlim) && sCheckRange(*b++, 0x30, 0x3B)) {
+		++n;
+	}
+
+	collected.Cat(ptr - 1, n + 1);
+	ptr += n;
+}
+
+force_inline
+void VTInStream::CollectPayload(int c)
+{
+	LTIMING("VtInStream::CollectPayload()");
+
+	const byte  *b = ptr;
+	int  n = 0;
+	
+	while((b < rdlim) && (sCheckRange(c = *b++, 0x20, 0x7E) || sCheckRange(c, 0x00, 0x17) || c == 0x19)) {
+		++n;
+	}
+	sequence.payload.Cat(ptr - 1, n + 1);
+	ptr += n;
+}
+
+force_inline
+void VTInStream::CollectString(int c)
+{
+	LTIMING("VtInStream::CollectString()");
+	
+	const byte  *b = ptr;
+	int  n = 0;
+
+	while((b < rdlim) && (sCheckRange(c = *b++, 0x20, 0x7F) || (utf8mode && c >= 0xA0))) {
+			++n;
+	}
+	sequence.payload.Cat(ptr - 1, n + 1);
+	ptr += n;
+}
+
+force_inline
 void VTInStream::Dispatch(byte type, const Event<const VTInStream::Sequence&>& fn)
 {
+	LTIMING("VtInStream::CollectString()");
+
+	switch(type) {
+	case Sequence::CSI:
+	case Sequence::DCS:
+		sequence.parameters = pick(Split(collected, ';', false));
+		break;
+	case Sequence::OSC:
+	case Sequence::APC:
+		sequence.parameters = pick(Split(sequence.payload, ';', false));
+		break;
+	}
 	sequence.type = type;
-	sequence.parameters = pick(Split(collected, ';', false));
 	fn(sequence);
 	waschr = false;
 }
 
-void VTInStream::Create(const void *data, int64 size)
+force_inline
+void VTInStream::CheckLoadData(const char *data, int size, String& err)
 {
-	if(buffer.IsEmpty()) {
-		MemReadStream::Create(data, size);
+	LTIMING("VtInStream::CheckLoadData()");
+	
+	if(!utf8mode) {
+		Create(data, size);
 		return;
 	}
-	buffer.Cat((const char*) data, size);
-	MemReadStream::Create(~buffer, buffer.GetLength());
-}
-
-int VTInStream::GetUtf8(String& iutf8)
-{
-	// This method is a slightly modified version of Stream::GetUtf8()
-
-	int cx = Get();
-	if(cx < 0) {
-		LoadError();
-		return -1;
+	// Check for a possibly split UTF-8 sequence at the end of the chunk.
+	int n = sCheckSplit(data, size);
+	if(n > 0) {
+		size -= n;
+		err.Cat(data + size, n);
 	}
-	else
-	if(cx < 0x80)
-		return cx;
-	else
-	if(cx < 0xC2)
-		return -1;
-	else
-	if(cx < 0xE0) {
-		if(IsEof()) {
-			iutf8.Cat(cx);
-			LoadError();
-			return -1;
-		}
-		return ((cx - 0xC0) << 6) + Get() - 0x80;
+	if(!buffer.IsEmpty()) {
+		buffer.Cat(data, size);
+		Create(~buffer, buffer.GetLength());
 	}
-	else
-	if(cx < 0xF0) {
-		int c0 = Get();
-		int c1 = Get();
-		if(c1 >= 0) {
-			return ((cx - 0xE0) << 12)
-				 + ((c0 - 0x80) << 6)
-				 + c1 - 0x80;
-		}
-		else
-		if(IsEof()) {
-			iutf8.Cat(cx);
-			if(c0 >= 0) iutf8.Cat(c0);
-			LoadError();
-		}
-		return -1;
-	}
-	else
-	if(cx < 0xF8) {
-		int c0 = Get();
-		int c1 = Get();
-		int c2 = Get();
-		if(c2 >= 0) {
-			return ((cx - 0xf0) << 18)
-				 + ((c0 - 0x80) << 12)
-				 + ((c1 - 0x80) << 6)
-				 + c2 - 0x80;
-		}
-		else
-		if(IsEof()) {
-			iutf8.Cat(cx);
-			if(c0 >= 0) iutf8.Cat(c0);
-			if(c1 >= 0) iutf8.Cat(c1);
-			LoadError();
-		}
-		return -1;
-	}
-	else
-	if(cx < 0xFC) {
-		int c0 = Get();
-		int c1 = Get();
-		int c2 = Get();
-		int c3 = Get();
-		if(c3 >= 0) {
-			return ((cx - 0xF8) << 24)
-				 + ((c0 - 0x80) << 18)
-				 + ((c1 - 0x80) << 12)
-				 + ((c2 - 0x80) << 6)
-				 + c3 - 0x80;
-		}
-		else
-		if(IsEof()) {
-			iutf8.Cat(cx);
-			if(c0 >= 0) iutf8.Cat(c0);
-			if(c1 >= 0) iutf8.Cat(c1);
-			if(c2 >= 0) iutf8.Cat(c2);
-			LoadError();
-		}
-		return -1;
-	}
-	else
-	if(cx < 0xFE) {
-		int c0 = Get();
-		int c1 = Get();
-		int c2 = Get();
-		int c3 = Get();
-		int c4 = Get();
-		if(c4 >= 0) {
-			return ((cx - 0xFC) << 30)
-				 + ((c0 - 0x80) << 24)
-				 + ((c1 - 0x80) << 18)
-				 + ((c2 - 0x80) << 12)
-				 + ((c3 - 0x80) << 6)
-				 + c4 - 0x80;
-		}
-		else
-		if(IsEof()) {
-			iutf8.Cat(cx);
-			if(c0 >= 0) iutf8.Cat(c0);
-			if(c1 >= 0) iutf8.Cat(c1);
-			if(c2 >= 0) iutf8.Cat(c2);
-			if(c3 >= 0) iutf8.Cat(c3);
-			LoadError();
-		}
-		return -1;
-	}
-	else {
-		if(IsEof())
-			LoadError();
-		return -1;
-	}
+	else Create(data, size);
 }
 
 void VTInStream::Reset()
 {
 	Reset0(&Ground);
 	waschr = false;
+	utf8mode = false;
 }
 
 void VTInStream::Reset0(const Vector<VTInStream::State>* st)
@@ -752,20 +699,32 @@ VTInStream::VTInStream()
 
 int VTInStream::Sequence::GetInt(int n, int d) const
 {
-	int rc = StrInt(parameters.Get(n - 1, Null));
-	return min(IsNull(rc) || rc <= 0 ? d : rc, 65536);
+	LTIMING("VtInStream::Dequence::GetInt()");
+	
+	int c = 0, i = 0;
+	const char *p = parameters.Get(n - 1, String::GetVoid());
+	while(*p && dword((c = *p++) - '0') < 10)
+		i = i * 10 + (c - '0');
+	return !i ? d : i;
 }
 
 String VTInStream::Sequence::GetStr(int n) const
 {
+	LTIMING("VtInStream::Dequence::GetStr()");
+	
 	return parameters.Get(n - 1, String::GetVoid());
+}
+
+dword VTInStream::Sequence::GetHashValue() const
+{
+	return Hash32(type, opcode, mode, intermediate[0], intermediate[1]);
 }
 
 void VTInStream::Sequence::Clear()
 {
 	type = opcode = mode = NUL;
+	Zero(intermediate);
 	parameters.Clear();
-	intermediate.Clear();
 	payload.Clear();
 }
 
@@ -780,8 +739,10 @@ String VTInStream::Sequence::ToString() const
 			OSC, "OSC ",
 			DCS, "DCS ",
 			CSI, "CSI ", "ESC ");
-	if(intermediate.GetLength())
-		txt << intermediate << " ";
+	if(intermediate[0] > 0)
+		txt << intermediate[0] << " ";
+	if(intermediate[1] > 0)
+		txt << intermediate[1] << " ";
 	if(findarg(type, CSI, DCS) >= 0)
 		txt << parameters.ToString();
 	if(findarg(type, ESC, CSI, DCS, APC) >= 0)
@@ -791,6 +752,12 @@ String VTInStream::Sequence::ToString() const
 	if(!IsNull(payload))
 		txt	<< "Payload: " << payload.ToString();
 	return txt;
+}
+
+const VTInStream::State& VTInStream::State::GetVoid()
+{
+	static State st(0, 0, Action::Ignore, Id::Repeat);
+	return st;
 }
 
 }

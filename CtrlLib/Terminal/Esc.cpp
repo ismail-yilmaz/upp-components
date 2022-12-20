@@ -18,7 +18,7 @@ void TerminalCtrl::ParseEscapeSequences(const VTInStream::Sequence& seq)
 
 bool TerminalCtrl::Convert7BitC1To8BitC1(const VTInStream::Sequence& seq)
 {
-	bool b = IsLevel1() && seq.intermediate.IsEmpty();
+	bool b = IsLevel1() && seq.intermediate[0] == 0;
 	if(b) {
 		byte c = seq.opcode + 64;	// Try to shift the final byte (opcode) into C1 region.
 		b = 0x80 <= c && c <= 0x9F;
