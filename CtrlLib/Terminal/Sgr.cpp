@@ -16,36 +16,35 @@ void TerminalCtrl::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opc
 	LTIMING("TerminalCtrl::SetGraphicsRendition");
 
 	for(int i = 0; i < opcodes.GetCount(); i++) {
-		int opcode = Nvl(StrInt(opcodes[i]), 0);
+		int opcode = ReadInt(opcodes[i], 0);
 		switch(opcode) {
 		case 0:
 			attrs.Reset();
 			break;
 		case 1:
-			attrs.sgr |= VTCell::SGR_BOLD;
-			attrs.sgr &= ~VTCell::SGR_FAINT;
+			attrs.Bold().Faint(false);
 			break;
 		case 2:
-			attrs.sgr |= VTCell::SGR_FAINT;
+			attrs.Faint();
 			break;
 		case 3:
-			attrs.sgr |= VTCell::SGR_ITALIC;
+			attrs.Italic();
 			break;
 		case 4:
-			attrs.sgr |= VTCell::SGR_UNDERLINE;
+			attrs.Underline();
 			break;
 		case 5:
 		case 6:
-			attrs.sgr |= VTCell::SGR_BLINK;
+			attrs.Blink();
 			break;
 		case 7:
-			attrs.sgr |= VTCell::SGR_INVERTED;
+			attrs.Invert();
 			break;
 		case 8:
-			attrs.sgr |= VTCell::SGR_HIDDEN;
+			attrs.Conceal();
 			break;
 		case 9:
-			attrs.sgr |= VTCell::SGR_STRIKEOUT;
+			attrs.Strikeout();
 			break;
 		case 14:
 			 //ACS on
@@ -54,27 +53,26 @@ void TerminalCtrl::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opc
 			 //ACS off
 			break;
 		case 22:
-			attrs.sgr &= ~VTCell::SGR_FAINT;
-			attrs.sgr &= ~VTCell::SGR_BOLD;
+			attrs.Faint(false).Bold(false);
 			break;
 		case 23:
-			attrs.sgr &= ~VTCell::SGR_ITALIC;
+			attrs.Italic(false);
 			break;
 		case 24:
-			attrs.sgr &= ~VTCell::SGR_UNDERLINE;
+			attrs.Underline(false);
 			break;
 		case 25:
 		case 26:
-			attrs.sgr &= ~VTCell::SGR_BLINK;
+			attrs.Blink(false);
 			break;
 		case 27:
-			attrs.sgr &= ~VTCell::SGR_INVERTED;
+			attrs.Invert(false);
 			break;
 		case 28:
-			attrs.sgr &= ~VTCell::SGR_HIDDEN;
+			attrs.Conceal(false);
 			break;
 		case 29:
-			attrs.sgr &= ~VTCell::SGR_STRIKEOUT;
+			attrs.Strikeout(false);
 			break;
 		case 38:
 			ParseExtendedColors(attrs, opcodes, i);
@@ -89,10 +87,10 @@ void TerminalCtrl::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opc
 			attrs.paper = Null;
 			break;
 		case 53:
-			attrs.sgr |= VTCell::SGR_OVERLINE;
+			attrs.Overline();
 			break;
 		case 55:
-			attrs.sgr &= ~VTCell::SGR_OVERLINE;
+			attrs.Overline(false);
 			break;
 		default:
 			if(opcode >= 30 && opcode <= 37)
@@ -116,7 +114,7 @@ void TerminalCtrl::SetGraphicsRendition(VTCell& attrs, const Vector<String>& opc
 void TerminalCtrl::InvertGraphicsRendition(VTCell& attrs, const Vector<String>& opcodes)
 {
 	for(const auto& opcode : opcodes) {
-		switch(Nvl(StrInt(opcode), 0)) {
+		switch(ReadInt(opcode, 0)) {
 		case 0:
 			attrs.Reset();
 			break;

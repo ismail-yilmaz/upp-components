@@ -1077,6 +1077,15 @@ void TerminalCtrl::State(int reason)
 		WhenResize();
 }
 
+int TerminalCtrl::ReadInt(const String& s, int def)
+{
+	const char *p = ~s;
+	int c = 0, n = 0;
+	while(*p && dword((c = *p++) - '0') < 10)
+		n = n * 10 + (c - '0');
+	return n < 1 ? def : n;
+}
+
 TerminalCtrl::Caret::Caret()
 : style(BLOCK)
 , blinking(true)

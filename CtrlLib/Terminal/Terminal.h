@@ -699,6 +699,7 @@ private:
     void        CancelOut()                                     { out.Clear(); }
 
     void        DisplayAlignmentTest();
+	int			ReadInt(const String& s, int def);
 
 private:
     bool        GetUDKString(dword key, String& val);
