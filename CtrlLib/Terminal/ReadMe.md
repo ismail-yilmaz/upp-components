@@ -227,6 +227,9 @@ Jexer with sixel support, running on the terminal example compiled with the TURT
 Far Manager, running on the terminal example. (Windows 7, via winpty backend.)
 ![](https://i.imgur.com/RWqyQmI.jpg)
 
+Terminal layout example giving the age old question an answer: *But, can it run DOOM?* Checkout [xtermdoom](https://gitlab.com/AutumnMeowMeow/xtermdoom)
+![](https://bit.ly/3GwUC2I)
+
 Terminal layout example with unicode popup, hyperlinks (Windows 7)
 ![](https://i.imgur.com/JjUa46b.gif)
 
@@ -267,7 +270,7 @@ The four short videos below show the basic capabilities of Terminal package in g
 - vttest, and other test scripts written for xterm are extensively used in testing of the TerminalCtrl. (Thanks [Thomas E. Dickey](https://invisible-island.net/home.html)!)  
 - ncurses, its demos and tests are also used in developing the Terminal package.  
 - [esctest](https://gitlab.com/gnachman/iterm2/-/tree/61660349070fd4c75d1dbf333db0aabf2456c938/tests/esctest) test suite, automatic unit tests for terminal emulation, is heavily used in testing of TerminalCtrl. (Thanks [George Nachman](https://github.com/gnachman)!)  
-- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and [xterm Window Manager](https://gitlab.com/klamonte/xtermwm) for terminal emulators, are heavily used as a test-bed for polishing the inline images support for TerminalCtrl. And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [Autumn Lamonte](https://gitlab.com/klamonte)!)  
+- [Jexer](https://jexer.sourceforge.io/), a modern text user interface (TUI) and [xterm Window Manager](https://gitlab.com/klamonte/xtermwm) for terminal emulators, are heavily used as a test-bed for polishing the inline images support for TerminalCtrl.And hopefully it will continue to be a test bed for future versions of the Terminal package. (Thanks [Autumn Lamonte](https://gitlab.com/klamonte)!)  
 - img2sixel of [libsixel](https://github.com/saitoha/libsixel/) is used heavily for testing the sixel images support of TerminalCtrl.  
 - [winpty](https://github.com/rprichard/winpty), a Windows software package providing an interface similar to a Unix pty-master for communicating with Windows console programs, is utilized as an alternative backend for PtyProcess class on Windows platform. (Thanks [Ryan Prichard!](https://github.com/rprichard))
     
