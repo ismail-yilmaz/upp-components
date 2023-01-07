@@ -277,7 +277,7 @@ The four short videos below show the basic capabilities of Terminal package in g
 
 ##  [License](#license)
 ```
-Copyright (c) 2019-2022, İsmail Yılmaz
+Copyright (c) 2019-2023, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

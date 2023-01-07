@@ -12,7 +12,7 @@ You can build the package with either `TheIDE` or `umk` and move the resulting e
 PtyAgent package for U++
 ------------------------
 
-Copyright (c) 2021-2022, İsmail Yılmaz
+Copyright (c) 2021-2023, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
