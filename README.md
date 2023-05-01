@@ -50,6 +50,7 @@ These components are meant to supplement `uppsrc/Draw`
 |**Package**  | **Description** |
 |:---         |:---             |
 | SixelRaster | A high performance, standalone sixel decoder plugin for U++'s global image decoder factory (StreamRaster interface) |
+| EscPainter  | A painter library for Upp's Esc scripting language. |
 
 ## Examples
 
