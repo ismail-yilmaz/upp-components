@@ -1,0 +1,12 @@
+uses
+	CtrlLib,
+	CodeEditor,
+	EscPainter;
+
+file
+	main.cpp,
+	script.usc;
+
+mainconfig
+	"" = "GUI";
+

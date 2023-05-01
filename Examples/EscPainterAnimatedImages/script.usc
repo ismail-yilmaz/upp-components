@@ -1,0 +1,32 @@
+DrawFourierCircles(w)
+{
+	w.Begin();
+	pt = Point(0, 0);
+	for(i = 0; i < 4; i++) {
+		n = i * 2 + 1;
+		r = 75 * (4 / (n * :M_PI));
+		w.Move(pt);
+		w.Circle(pt, r);
+		w.Stroke(2, :colors[i]);
+		w.Move(pt);
+		pt = Polar(pt, r, :time * n);
+		w.Line(pt);
+		w.Stroke(2, :Yellow);
+	}
+	w.End();
+
+}
+
+Paint(w)
+{
+	// Globals
+	:time = msecs() / 500;
+	:M_PI = 3.14159265358979323846;
+	:colors = [ :White, :LtRed, :LtYellow, :LtGreen ];
+	
+	w.Begin()
+	 .Background(:Black)
+     .Center();
+	 DrawFourierCircles(w);
+	w.End();
+}

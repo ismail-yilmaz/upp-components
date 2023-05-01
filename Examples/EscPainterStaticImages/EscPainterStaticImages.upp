@@ -1,0 +1,14 @@
+description "Demonstrates image generation using the EscPainter library.\377";
+
+uses
+	CtrlLib,
+	EscPainter,
+	CodeEditor;
+
+file
+	main.cpp,
+	script.usc;
+
+mainconfig
+	"" = "GUI";
+

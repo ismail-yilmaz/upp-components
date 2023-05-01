@@ -1,0 +1,40 @@
+DONE:
+
++ Core Painter funtionality.
+  Currently Implemented painter methods:
+    Begin()
+    End()
+    Background(color)
+    Stroke(w, c)
+    Fill(color)
+    Translate(...)
+    Rotate(r)
+    Scale(...)
+    Move(...)
+    TopLeft()
+    TopRight()
+    TopCenter()
+    BottomCenter()
+    BottomLeft()
+    BottomRight()
+    Center()
+    Line(...)
+    Circle(...)
+    Ellipse(...)
+    Arc(...)
+    Path(x)
+    Rectangle(...)
+    GetSize()
+    GetRect()
+    GetCenterPoint()
+    Text(...)
+
++ Example demonstrating a static image.
++ Example demonstrating a simple animation.
+
+TODO:
+
+- Vertex support
+- Polyline and polygon support.
+- API docs.
+- ReadMe details.   

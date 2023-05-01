@@ -1,0 +1,20 @@
+description "A painter library for Esc programming language.\377";
+
+uses
+	Core,
+	Painter,
+	Esc;
+
+file
+	EscPainter.h,
+	EscPainterLib.cpp,
+	Resources readonly separator,
+	Macros.brc,
+	Macros.i,
+	Info readonly separator,
+	ReadMe.md,
+	Copying,
+	ToDo.txt,
+	Docs readonly separator,
+	src.tpp;
+

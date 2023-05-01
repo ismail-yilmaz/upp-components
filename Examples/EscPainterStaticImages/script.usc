@@ -1,0 +1,25 @@
+Paint(w)
+{
+	w.Begin()
+	 .Background(:Black)
+	.End();
+	 
+	w.Begin()
+	 .Path("M300,200 h-150 a150,150 0 1,0 150,-150 z")
+	 .Fill(:Red)
+	 .Stroke(5, :Blue)
+	.End();
+	
+	w.Begin()
+	 .Path("M275,175 v-150 a150,150 0 0,0 -150,150 z")
+	 .Fill(:Yellow)
+	 .Stroke(5, :Blue)
+	.End();
+
+    w.Begin()
+	 .TopLeft()
+	 .Text("U++ rocks!", :Roman(32).Bold().Italic())
+	 .Stroke(2.0, :LtGreen)
+     .Fill(:LtRed)
+	.End();
+}
