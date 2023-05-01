@@ -114,6 +114,18 @@ Pointf ToPointf(EscValue v)
 		GetNumber(v, "y"));
 }
 
+void SIC_GetTextSize(EscEscape& e)
+{
+	if(e.GetCount() < 1 || e.GetCount() > 2)
+		e.ThrowError("wrong number of arguments in call to 'GetTextSize'");
+	e.CheckArray(0);
+	WString text = e[0];
+	Font font = StdFont();
+	if(e.GetCount() > 1)
+		font = ToFont(e[1]);
+	e = ToEsc(GetTextSize(text, font));
+}
+
 struct SIC_Font : public EscHandle {
 	Font font;
 
@@ -134,6 +146,21 @@ struct SIC_Font : public EscHandle {
 		e = ToEsc(ToFont(e.self).Underline(GetOptFlag(e)));
 	}
 
+	void GetWidth(EscEscape& e) const
+	{
+		e = ToFont(e.self).GetWidth(e[0].GetInt());
+	}
+	
+	void GetAscent(EscEscape& e) const
+	{
+		e = (double) ToFont(e.self).GetAscent();
+	}
+
+	void GetDescent(EscEscape& e) const
+	{
+		e = (double) ToFont(e.self).GetDescent();
+	}
+	
 	typedef SIC_Font CLASSNAME;
 
 	SIC_Font(EscValue& v)
@@ -142,6 +169,9 @@ struct SIC_Font : public EscHandle {
 		v.Escape("Bold(...)", this, THISBACK(Bold));
 		v.Escape("Italic(...)", this, THISBACK(Italic));
 		v.Escape("Underline(...)", this, THISBACK(Underline));
+		v.Escape("GetWidth(w)", this, THISBACK(GetWidth));
+		v.Escape("GetAscent()", this, THISBACK(GetAscent));
+		v.Escape("GetDescent()", this, THISBACK(GetDescent));
 	}
 };
 
@@ -217,11 +247,14 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 		v.Escape("Ellipse(...)", this, THISFN(Ellipse));
 		v.Escape("Arc(...)", this, THISFN(Arc));
 		v.Escape("Path(x)",	this, THISFN(Path));
+		v.Escape("BeginOnPath(q, b)", this, THISFN(BeginOnPath));
 		v.Escape("Rectangle(...)", this, THISFN(Rect));
+		v.Escape("RoundedRectangle(...)", this, THISFN(RoundRect));
 		v.Escape("GetSize()", this, THISFN(GetSize));
 		v.Escape("GetRect()", this, THISFN(GetRect));
 		v.Escape("GetCenterPoint()", this, THISFN(GetCenterPos));
 		v.Escape("Text(...)", this, THISFN(Text));
+		v.Escape("Character(...)", this, THISFN(Character));
 }
 
 Rectf ESC_Painter::GetBufferRect() const
@@ -404,6 +437,19 @@ void ESC_Painter::Path(EscEscape& e)
 	e = e.self;
 }
 
+void ESC_Painter::BeginOnPath(EscEscape& e)
+{
+	if(e.GetCount() == 2) {
+		w.BeginOnPath(
+			e[0].GetNumber(),
+			IsTrue(e[1]));
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'BeginOnPath'");
+	e = e.self;
+
+}
+
 void ESC_Painter::Stroke(EscEscape& e)
 {
 	w.Stroke(
@@ -446,6 +492,53 @@ void ESC_Painter::Rect(EscEscape& e)
 	else
 		e.ThrowError("wrong number of arguments in call to 'Rectangle'");
 	e = e.self;
+}
+
+void ESC_Painter::RoundRect(EscEscape& e)
+{
+	if(e.GetCount() == 2) {
+		Rectf r = ToRectf(e[0]);
+		w.RoundedRectangle(
+			r.left,
+			r.top,
+			r.Width(),
+			r.Height(),
+			e[1].GetNumber());
+	}
+	else
+	if(e.GetCount() == 3) {
+		Rectf r = ToRectf(e[0]);
+		w.RoundedRectangle(
+			r.left,
+			r.top,
+			r.Width(),
+			r.Height(),
+			e[1].GetNumber(),
+			e[2].GetNumber());
+	}
+	else
+	if(e.GetCount() == 5) {
+		w.RoundedRectangle(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			e[2].GetNumber(),
+			e[3].GetNumber(),
+			e[4].GetNumber());
+	}
+	else
+	if(e.GetCount() == 6) {
+		w.RoundedRectangle(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			e[2].GetNumber(),
+			e[3].GetNumber(),
+			e[4].GetNumber(),
+			e[5].GetNumber());
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'RoundedRectangle'");
+	e = e.self;
+
 }
 
 void ESC_Painter::Circle(EscEscape& e)
@@ -521,6 +614,27 @@ void ESC_Painter::Text(EscEscape& e)
 	e = e.self;
 }
 
+void ESC_Painter::Character(EscEscape& e)
+{
+	if(e.GetCount() == 3) {
+		w.Character(
+			ToPointf(e[0]),
+			e[1].GetInt(),
+			ToFont(e[2]));
+	}
+	else
+	if(e.GetCount() == 4) {
+		w.Character(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			e[2].GetInt(),
+			ToFont(e[3]));
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'Character'");
+	e = e.self;
+}
+
 void PainterLib(ArrayMap<String, EscValue>& global)
 {
 	global.Add("Black",		ToEsc(Black));
@@ -546,6 +660,7 @@ void PainterLib(ArrayMap<String, EscValue>& global)
 	Escape(global, "Arial(h)",      SIC_Arial);
 	Escape(global, "Roman(h)",      SIC_Roman);
 	Escape(global, "Courier(h)",    SIC_Courier);
+	Escape(global, "GetTextSize(...)", SIC_GetTextSize);
 
 	Scan(global, String(macros_plain, macros_plain_length));
 }

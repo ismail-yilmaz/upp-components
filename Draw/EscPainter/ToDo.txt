@@ -23,11 +23,15 @@ DONE:
     Ellipse(...)
     Arc(...)
     Path(x)
+	BeginOnPath(q, b)
     Rectangle(...)
+	RoundedRectangle(...)
     GetSize()
     GetRect()
     GetCenterPoint()
     Text(...)
+	Character(...)
+	GetTextSize(...)
 
 + Example demonstrating a static image.
 + Example demonstrating a simple animation.
