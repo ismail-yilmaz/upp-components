@@ -229,8 +229,8 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 		v.Escape("Begin()",	this, THISFN(Begin));
 		v.Escape("End()"  ,	this, THISFN(End));
 		v.Escape("Background(color)", this, THISFN(SetBackground));
-		v.Escape("Stroke(w, c)", this, THISFN(Stroke));
-		v.Escape("Fill(color)",	this, THISFN(Fill));
+		v.Escape("Stroke(...)", this, THISFN(Stroke));
+		v.Escape("Fill(...)", this, THISFN(Fill));
 		v.Escape("Translate(...)", this, THISFN(Translate));
 		v.Escape("Rotate(r)", this, THISFN(Rotate));
 		v.Escape("Scale(...)", this, THISFN(Scale));
@@ -452,16 +452,71 @@ void ESC_Painter::BeginOnPath(EscEscape& e)
 
 void ESC_Painter::Stroke(EscEscape& e)
 {
-	w.Stroke(
-		e[0].GetNumber(),
-		ToColor(e[1]));
+	int n =  e.GetCount();
+
+	if(n == 2) {
+		w.Stroke(
+			e[0].GetNumber(),
+			ToColor(e[1]));
+	}
+	else
+	if(n == 5 || n == 6) {
+		w.Stroke(
+			e[0].GetNumber(),
+			ToPointf(e[1]),
+			ToColor(e[2]),
+			ToPointf(e[3]),
+			ToColor(e[4]),
+			n == 6 ? e[5].GetInt() : GRADIENT_PAD);
+	}
+	else
+	if(n == 7 || n == 8) {
+		w.Stroke(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			e[2].GetNumber(),
+			ToColor(e[3]),
+			e[4].GetNumber(),
+			e[5].GetNumber(),
+			ToColor(e[6]),
+			n == 8 ? e[7].GetInt() : GRADIENT_PAD);
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'Stroke'");
+	
 	e = e.self;
 }
 
 void ESC_Painter::Fill(EscEscape& e)
 {
-	w.Fill(
-		ToColor(e[0]));
+	int n =  e.GetCount();
+
+	if(n == 1) {
+		w.Fill(
+			ToColor(e[0]));
+	}
+	else
+	if(n == 4 || n == 5) {
+		w.Fill(
+			ToPointf(e[0]),
+			ToColor(e[1]),
+			ToPointf(e[2]),
+			ToColor(e[3]),
+			n == 5 ? e[4].GetInt() : GRADIENT_PAD);
+	}
+	else
+	if(n == 6 || n == 7) {
+		w.Fill(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			ToColor(e[2]),
+			e[3].GetNumber(),
+			e[4].GetNumber(),
+			ToColor(e[5]),
+			n == 7 ? e[6].GetInt() : GRADIENT_PAD);
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'Fill'");
 	e = e.self;
 }
 
