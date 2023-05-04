@@ -40,9 +40,12 @@ public:
 	void Line(EscEscape& e);
 	void Arc(EscEscape& e);
 	void Path(EscEscape& e);
+	void Cubic(EscEscape& e);
+	void Quadratic(EscEscape& e);
 	void BeginOnPath(EscEscape& e);
 	void Stroke(EscEscape& e);
 	void Fill(EscEscape& e);
+	void Dash(EscEscape& e);
 	void SetBackground(EscEscape& e);
 	void Rect(EscEscape& e);
 	void RoundRect(EscEscape& e);

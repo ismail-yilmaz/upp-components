@@ -230,7 +230,8 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 		v.Escape("End()"  ,	this, THISFN(End));
 		v.Escape("Background(color)", this, THISFN(SetBackground));
 		v.Escape("Stroke(...)", this, THISFN(Stroke));
-		v.Escape("Fill(...)", this, THISFN(Fill));
+		v.Escape("Fill(...)",	this, THISFN(Fill));
+		v.Escape("Dash(...)", this, THISFN(Dash));
 		v.Escape("Translate(...)", this, THISFN(Translate));
 		v.Escape("Rotate(r)", this, THISFN(Rotate));
 		v.Escape("Scale(...)", this, THISFN(Scale));
@@ -247,6 +248,8 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 		v.Escape("Ellipse(...)", this, THISFN(Ellipse));
 		v.Escape("Arc(...)", this, THISFN(Arc));
 		v.Escape("Path(x)",	this, THISFN(Path));
+		v.Escape("Cubic(...)", this, THISFN(Cubic));
+		v.Escape("Quadratic(...)", this, THISFN(Quadratic));
 		v.Escape("BeginOnPath(q, b)", this, THISFN(BeginOnPath));
 		v.Escape("Rectangle(...)", this, THISFN(Rect));
 		v.Escape("RoundedRectangle(...)", this, THISFN(RoundRect));
@@ -437,6 +440,60 @@ void ESC_Painter::Path(EscEscape& e)
 	e = e.self;
 }
 
+void ESC_Painter::Cubic(EscEscape& e)
+{
+	int n = e.GetCount();
+	
+	if(n == 4 || n == 5) {
+		w.Cubic(
+			e[0].GetNumber(),
+		    e[1].GetNumber(),
+		    e[2].GetNumber(),
+		    e[3].GetNumber(),
+		    n == 5 ? IsTrue(e[4]) : false);
+	}
+	else
+	if(n == 6 || n == 7) {
+		w.Cubic(
+			e[0].GetNumber(),
+		    e[1].GetNumber(),
+		    e[2].GetNumber(),
+		    e[3].GetNumber(),
+		    e[4].GetNumber(),
+		    e[5].GetNumber(),
+		    n == 7 ? IsTrue(e[6]) : false);
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'Cubic'");
+	e = e.self;
+
+}
+
+void ESC_Painter::Quadratic(EscEscape& e)
+{
+	int n = e.GetCount();
+	
+	if(n == 2 || n == 3) {
+		w.Quadratic(
+			e[0].GetNumber(),
+		    e[1].GetNumber(),
+			n == 3 ? IsTrue(e[2]) : false);
+	}
+	else
+	if(n == 4 || n == 5) {
+		w.Quadratic(
+			e[0].GetNumber(),
+		    e[1].GetNumber(),
+		    e[2].GetNumber(),
+		    e[3].GetNumber(),
+		    n == 5 ? IsTrue(e[4]) : false);
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'Quadratic'");
+	e = e.self;
+
+}
+
 void ESC_Painter::BeginOnPath(EscEscape& e)
 {
 	if(e.GetCount() == 2) {
@@ -517,6 +574,19 @@ void ESC_Painter::Fill(EscEscape& e)
 	}
 	else
 		e.ThrowError("wrong number of arguments in call to 'Fill'");
+	e = e.self;
+}
+
+void ESC_Painter::Dash(EscEscape& e)
+{
+	int n = e.GetCount();
+	
+	if(n == 1 || n == 2)
+		w.Dash(
+			(const String&) e[0],
+			n == 2 ? e[1].GetInt() : 0);
+	else
+		e.ThrowError("wrong number of arguments in call to 'Dash'");
 	e = e.self;
 }
 
