@@ -436,6 +436,7 @@ void ESC_Painter::Arc(EscEscape& e)
 
 void ESC_Painter::Path(EscEscape& e)
 {
+	e.CheckArray(0);
 	w.Path((const String&) e[0]);
 	e = e.self;
 }
@@ -581,10 +582,12 @@ void ESC_Painter::Dash(EscEscape& e)
 {
 	int n = e.GetCount();
 	
-	if(n == 1 || n == 2)
+	if(n == 1 || n == 2) {
+		e.CheckArray(0);
 		w.Dash(
 			(const String&) e[0],
 			n == 2 ? e[1].GetInt() : 0);
+	}
 	else
 		e.ThrowError("wrong number of arguments in call to 'Dash'");
 	e = e.self;
@@ -711,6 +714,7 @@ void ESC_Painter::Ellipse(EscEscape& e)
 void ESC_Painter::Text(EscEscape& e)
 {
 	if(e.GetCount() == 2) {
+		e.CheckArray(0);
 		w.Text(
 			0, 0,
 			String(e[0]).ToWString(),
@@ -719,6 +723,7 @@ void ESC_Painter::Text(EscEscape& e)
 	}
 	else
 	if(e.GetCount() == 3) {
+		e.CheckArray(1);
 		w.Text(
 			ToPointf(e[0]),
 			String(e[1]).ToWString(),
@@ -727,6 +732,7 @@ void ESC_Painter::Text(EscEscape& e)
 	}
 	else
 	if(e.GetCount() == 4) {
+		e.CheckArray(2);
 		w.Text(
 			e[0].GetNumber(),
 			e[1].GetNumber(),
