@@ -26,6 +26,15 @@ public:
 	void GetCenterPos(EscEscape& e);
 	void Begin(EscEscape& e);
 	void End(EscEscape& e);
+	void Clip(EscEscape& e);
+	void ColorStop(EscEscape& e);
+	void ClearStops(EscEscape& e);
+    void Opacity(EscEscape& e);
+    void LineCap(EscEscape& e);
+    void LineJoin(EscEscape& e);
+    void MiterLimit(EscEscape& e);
+    void EvenOdd(EscEscape& e);
+    void Invert(EscEscape& e);
 	void Translate(EscEscape& e);
 	void Rotate(EscEscape& e);
 	void Scale(EscEscape& e);

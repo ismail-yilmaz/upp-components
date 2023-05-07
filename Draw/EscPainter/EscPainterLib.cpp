@@ -228,6 +228,15 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 {
 		v.Escape("Begin()",	this, THISFN(Begin));
 		v.Escape("End()"  ,	this, THISFN(End));
+		v.Escape("Clip()", this, THISFN(Clip));
+		v.Escape("ColorStop(pos, color)", this, THISFN(ColorStop));
+		v.Escape("ClearStops()", this, THISFN(ClearStops));
+		v.Escape("Opacity(o)", this, THISFN(Opacity));
+		v.Escape("LineCap(l)", this, THISFN(LineCap));
+		v.Escape("LineJoin(l)", this, THISFN(LineJoin));
+		v.Escape("MiterLimit(l)", this, THISFN(MiterLimit));
+		v.Escape("EvenOdd(b)", this, THISFN(LineJoin));
+		v.Escape("Invert(b)", this, THISFN(Invert));
 		v.Escape("Background(color)", this, THISFN(SetBackground));
 		v.Escape("Stroke(...)", this, THISFN(Stroke));
 		v.Escape("Fill(...)",	this, THISFN(Fill));
@@ -250,7 +259,7 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 		v.Escape("Path(x)",	this, THISFN(Path));
 		v.Escape("Cubic(...)", this, THISFN(Cubic));
 		v.Escape("Quadratic(...)", this, THISFN(Quadratic));
-		v.Escape("BeginOnPath(q, b)", this, THISFN(BeginOnPath));
+		v.Escape("BeginOnPath(...)", this, THISFN(BeginOnPath));
 		v.Escape("Rectangle(...)", this, THISFN(Rect));
 		v.Escape("RoundedRectangle(...)", this, THISFN(RoundRect));
 		v.Escape("GetSize()", this, THISFN(GetSize));
@@ -289,6 +298,60 @@ void ESC_Painter::Begin(EscEscape& e)
 void ESC_Painter::End(EscEscape& e)
 {
 	w.End();
+	e = e.self;
+}
+
+void ESC_Painter::Clip(EscEscape& e)
+{
+	w.Clip();
+	e = e.self;
+}
+
+void ESC_Painter::ColorStop(EscEscape& e)
+{
+	w.ColorStop(e[0].GetNumber(), ToColor(e[1]));
+	e = e.self;
+}
+
+void ESC_Painter::ClearStops(EscEscape& e)
+{
+	w.ClearStops();
+	e = e.self;
+}
+
+void ESC_Painter::Opacity(EscEscape& e)
+{
+	w.Opacity(e[0].GetNumber());
+	e = e.self;
+}
+
+void ESC_Painter::LineCap(EscEscape& e)
+{
+	w.LineCap(e[0].GetInt());
+	e = e.self;
+}
+
+void ESC_Painter::LineJoin(EscEscape& e)
+{
+	w.LineJoin(e[0].GetInt());
+	e = e.self;
+}
+
+void ESC_Painter::MiterLimit(EscEscape& e)
+{
+	w.MiterLimit(e[0].GetNumber());
+	e = e.self;
+}
+
+void ESC_Painter::EvenOdd(EscEscape& e)
+{
+	w.EvenOdd(IsTrue(e[0]));
+	e = e.self;
+}
+
+void ESC_Painter::Invert(EscEscape& e)
+{
+	w.Invert(IsTrue(e[0]));
 	e = e.self;
 }
 
@@ -497,10 +560,11 @@ void ESC_Painter::Quadratic(EscEscape& e)
 
 void ESC_Painter::BeginOnPath(EscEscape& e)
 {
-	if(e.GetCount() == 2) {
+	int n = e.GetCount();
+	if(n == 1 || n == 2) {
 		w.BeginOnPath(
 			e[0].GetNumber(),
-			IsTrue(e[1]));
+			n == 2 ? IsTrue(e[1]) : false);
 	}
 	else
 		e.ThrowError("wrong number of arguments in call to 'BeginOnPath'");
@@ -666,7 +730,6 @@ void ESC_Painter::RoundRect(EscEscape& e)
 	else
 		e.ThrowError("wrong number of arguments in call to 'RoundedRectangle'");
 	e = e.self;
-
 }
 
 void ESC_Painter::Circle(EscEscape& e)
@@ -691,15 +754,6 @@ void ESC_Painter::Circle(EscEscape& e)
 
 void ESC_Painter::Ellipse(EscEscape& e)
 {
-	if(e.GetCount() == 2) {
-		Pointf pt = ToPointf(e[0]);
-		w.Ellipse(
-			pt.x,
-			pt.y,
-			e[1].GetNumber(),
-			e[2].GetNumber());
-	}
-	else
 	if(e.GetCount() == 4)
 		w.Ellipse(
 			e[0].GetNumber(),
@@ -707,7 +761,7 @@ void ESC_Painter::Ellipse(EscEscape& e)
 			e[2].GetNumber(),
 			e[3].GetNumber());
 	else
-		e.ThrowError("wrong number of arguments in call to 'Circle'");
+		e.ThrowError("wrong number of arguments in call to 'Ellipse'");
 	e = e.self;
 }
 
