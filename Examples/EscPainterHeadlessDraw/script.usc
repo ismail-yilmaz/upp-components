@@ -1,0 +1,26 @@
+Paint(w) // Text on path example.
+{
+	M_PI = 3.14159265358979323846;
+	fnt  = :Roman(100);
+	text = "Hello world, this is a text on path!";
+	l    =	GetTextSize(text, fnt).cx;
+	r    = l / (2 * M_PI);
+	pos  = 0;
+
+	w.Begin()
+	 .Background(:White)
+	 .Center()
+	 .Circle(0, 0, r)
+	 .Stroke(1, :LtRed);
+	for(i = 0; i < count(text); i++) {
+		c = text[i];
+		x = fnt.GetWidth(c);
+		w.BeginOnPath(pos + x / 2,  1)
+		 .Character(-x / 2, -fnt.GetAscent(), c, fnt)
+		 .Fill(0, -fnt.GetAscent(), :Yellow, 0, fnt.GetDescent(), :Green)
+		 .Stroke(1, :Red)
+		.End();
+		pos += x;
+	}
+	w.End();
+}

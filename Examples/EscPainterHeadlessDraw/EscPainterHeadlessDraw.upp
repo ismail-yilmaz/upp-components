@@ -1,0 +1,14 @@
+description "Demonstrates a console (\"headless\") painter, uısing EscPainter package.\377";
+
+uses
+	Core,
+	EscPainter,
+	plugin/png;
+
+file
+	EscPainterHeadlessDraw.cpp,
+	script.usc;
+
+mainconfig
+	"" = "";
+
