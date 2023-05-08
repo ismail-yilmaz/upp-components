@@ -8,7 +8,7 @@ Paint(w) // Text on path example.
 	pos  = 0;
 
 	w.Begin()
-	 .Background(:White)
+	 .Clear(:White)
 	 .Center()
 	 .Circle(0, 0, r)
 	 .Stroke(1, :LtRed);

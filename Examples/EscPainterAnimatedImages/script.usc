@@ -25,7 +25,7 @@ Paint(w)
 	:colors = [ :White, :LtRed, :LtYellow, :LtGreen ];
 	
 	w.Begin()
-	 .Background(:Black)
+	 .Clear(:Black)
      .Center();
 	 DrawFourierCircles(w);
 	w.End();
