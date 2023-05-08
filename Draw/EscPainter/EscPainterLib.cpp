@@ -226,47 +226,47 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 : w(w_)
 , size(sz)
 {
-		v.Escape("Begin()",	this, THISFN(Begin));
-		v.Escape("End()"  ,	this, THISFN(End));
-		v.Escape("Clip()", this, THISFN(Clip));
-		v.Escape("ColorStop(pos, color)", this, THISFN(ColorStop));
-		v.Escape("ClearStops()", this, THISFN(ClearStops));
-		v.Escape("Opacity(o)", this, THISFN(Opacity));
-		v.Escape("LineCap(l)", this, THISFN(LineCap));
-		v.Escape("LineJoin(l)", this, THISFN(LineJoin));
-		v.Escape("MiterLimit(l)", this, THISFN(MiterLimit));
-		v.Escape("EvenOdd(b)", this, THISFN(LineJoin));
-		v.Escape("Invert(b)", this, THISFN(Invert));
-		v.Escape("Background(color)", this, THISFN(SetBackground));
-		v.Escape("Stroke(...)", this, THISFN(Stroke));
-		v.Escape("Fill(...)",	this, THISFN(Fill));
-		v.Escape("Dash(...)", this, THISFN(Dash));
-		v.Escape("Translate(...)", this, THISFN(Translate));
-		v.Escape("Rotate(r)", this, THISFN(Rotate));
-		v.Escape("Scale(...)", this, THISFN(Scale));
-		v.Escape("Move(...)", this, THISFN(Move));
-		v.Escape("TopLeft()", this, THISFN(TopLeft));
-		v.Escape("TopRight()", this, THISFN(TopRight));
-		v.Escape("TopCenter()", this, THISFN(TopCenter));
-		v.Escape("BottomCenter()", this, THISFN(BottomCenter));
-		v.Escape("BottomLeft()", this, THISFN(BottomLeft));
-		v.Escape("BottomRight()", this, THISFN(BottomRight));
-		v.Escape("Center()", this, THISFN(Center));
-		v.Escape("Line(...)", this, THISFN(Line));
-		v.Escape("Circle(...)",	this, THISFN(Circle));
-		v.Escape("Ellipse(...)", this, THISFN(Ellipse));
-		v.Escape("Arc(...)", this, THISFN(Arc));
-		v.Escape("Path(x)",	this, THISFN(Path));
-		v.Escape("Cubic(...)", this, THISFN(Cubic));
-		v.Escape("Quadratic(...)", this, THISFN(Quadratic));
-		v.Escape("BeginOnPath(...)", this, THISFN(BeginOnPath));
-		v.Escape("Rectangle(...)", this, THISFN(Rect));
-		v.Escape("RoundedRectangle(...)", this, THISFN(RoundRect));
-		v.Escape("GetSize()", this, THISFN(GetSize));
-		v.Escape("GetRect()", this, THISFN(GetRect));
-		v.Escape("GetCenterPoint()", this, THISFN(GetCenterPos));
-		v.Escape("Text(...)", this, THISFN(Text));
-		v.Escape("Character(...)", this, THISFN(Character));
+	v.Escape("Begin()",	this, THISFN(Begin));
+	v.Escape("End()"  ,	this, THISFN(End));
+	v.Escape("Clip()", this, THISFN(Clip));
+	v.Escape("Clear(color)", this, THISFN(Clear));
+	v.Escape("ColorStop(pos, color)", this, THISFN(ColorStop));
+	v.Escape("ClearStops()", this, THISFN(ClearStops));
+	v.Escape("Opacity(o)", this, THISFN(Opacity));
+	v.Escape("LineCap(l)", this, THISFN(LineCap));
+	v.Escape("LineJoin(l)", this, THISFN(LineJoin));
+	v.Escape("MiterLimit(l)", this, THISFN(MiterLimit));
+	v.Escape("EvenOdd(b)", this, THISFN(LineJoin));
+	v.Escape("Invert(b)", this, THISFN(Invert));
+	v.Escape("Stroke(...)", this, THISFN(Stroke));
+	v.Escape("Fill(...)",	this, THISFN(Fill));
+	v.Escape("Dash(...)", this, THISFN(Dash));
+	v.Escape("Translate(...)", this, THISFN(Translate));
+	v.Escape("Rotate(r)", this, THISFN(Rotate));
+	v.Escape("Scale(...)", this, THISFN(Scale));
+	v.Escape("Move(...)", this, THISFN(Move));
+	v.Escape("TopLeft()", this, THISFN(TopLeft));
+	v.Escape("TopRight()", this, THISFN(TopRight));
+	v.Escape("TopCenter()", this, THISFN(TopCenter));
+	v.Escape("BottomCenter()", this, THISFN(BottomCenter));
+	v.Escape("BottomLeft()", this, THISFN(BottomLeft));
+	v.Escape("BottomRight()", this, THISFN(BottomRight));
+	v.Escape("Center()", this, THISFN(Center));
+	v.Escape("Line(...)", this, THISFN(Line));
+	v.Escape("Circle(...)",	this, THISFN(Circle));
+	v.Escape("Ellipse(...)", this, THISFN(Ellipse));
+	v.Escape("Arc(...)", this, THISFN(Arc));
+	v.Escape("Path(x)",	this, THISFN(Path));
+	v.Escape("Cubic(...)", this, THISFN(Cubic));
+	v.Escape("Quadratic(...)", this, THISFN(Quadratic));
+	v.Escape("BeginOnPath(...)", this, THISFN(BeginOnPath));
+	v.Escape("Rectangle(...)", this, THISFN(Rect));
+	v.Escape("RoundedRectangle(...)", this, THISFN(RoundRect));
+	v.Escape("GetSize()", this, THISFN(GetSize));
+	v.Escape("GetRect()", this, THISFN(GetRect));
+	v.Escape("GetCenterPoint()", this, THISFN(GetCenterPos));
+	v.Escape("Text(...)", this, THISFN(Text));
+	v.Escape("Character(...)", this, THISFN(Character));
 }
 
 Rectf ESC_Painter::GetBufferRect() const
@@ -657,13 +657,6 @@ void ESC_Painter::Dash(EscEscape& e)
 	e = e.self;
 }
 
-void ESC_Painter::SetBackground(EscEscape& e)
-{
-	w.RectPath(GetBufferRect())
-		.Fill(ToColor(e[0]));
-	e = e.self;
-}
-
 void ESC_Painter::Rect(EscEscape& e)
 {
 	if(e.GetCount() == 1) {
@@ -817,6 +810,12 @@ void ESC_Painter::Character(EscEscape& e)
 	}
 	else
 		e.ThrowError("wrong number of arguments in call to 'Character'");
+	e = e.self;
+}
+
+void ESC_Painter::Clear(EscEscape& e)
+{
+	w.Clear(ToColor(e[0]));
 	e = e.self;
 }
 

@@ -27,6 +27,7 @@ public:
 	void Begin(EscEscape& e);
 	void End(EscEscape& e);
 	void Clip(EscEscape& e);
+	void Clear(EscEscape& e);
 	void ColorStop(EscEscape& e);
 	void ClearStops(EscEscape& e);
     void Opacity(EscEscape& e);
@@ -55,7 +56,6 @@ public:
 	void Stroke(EscEscape& e);
 	void Fill(EscEscape& e);
 	void Dash(EscEscape& e);
-	void SetBackground(EscEscape& e);
 	void Rect(EscEscape& e);
 	void RoundRect(EscEscape& e);
 	void Circle(EscEscape& e);
