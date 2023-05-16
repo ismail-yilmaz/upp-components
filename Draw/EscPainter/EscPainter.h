@@ -63,6 +63,7 @@ public:
 	void Ellipse(EscEscape& e);
 	void Text(EscEscape& e);
 	void Character(EscEscape& e);
+	void RenderSVG(EscEscape& e);
 
 public:
 	typedef ESC_Painter CLASSNAME;

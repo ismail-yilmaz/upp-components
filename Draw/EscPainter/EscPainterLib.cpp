@@ -268,6 +268,7 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 	v.Escape("GetCenterPoint()", this, THISFN(GetCenterPos));
 	v.Escape("Text(...)", this, THISFN(Text));
 	v.Escape("Character(...)", this, THISFN(Character));
+	v.Escape("RenderSVG(svg)", this, THISFN(RenderSVG));
 }
 
 Rectf ESC_Painter::GetBufferRect() const
@@ -831,6 +832,16 @@ void ESC_Painter::Character(EscEscape& e)
 	}
 	else
 		e.ThrowError("wrong number of arguments in call to 'Character'");
+	e = e.self;
+}
+
+void ESC_Painter::RenderSVG(EscEscape& e)
+{
+	// TODO: Add a special SVG loader function to PainterLib
+	// Reason: EscArray is not really suitable for handling large(r) svg files.
+
+	e.CheckArray(0);
+	Upp::RenderSVG(w, ~String(e[0]));
 	e = e.self;
 }
 

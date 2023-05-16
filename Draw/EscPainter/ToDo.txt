@@ -45,6 +45,7 @@ DONE:
     Text(...)
     Character(...)
     GetTextSize(...)
+    RenderSVG(svg)
 
 + Example demonstrating a static image.
 + Example demonstrating a simple animation.
