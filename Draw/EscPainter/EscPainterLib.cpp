@@ -841,8 +841,7 @@ void ESC_Painter::RenderSVG(EscEscape& e)
 	// Reason: EscArray is not really suitable for handling large(r) svg files.
 
 	e.CheckArray(0);
-	Upp::RenderSVG(w, ~String(e[0]));
-	e = e.self;
+	e = Upp::RenderSVG(w, ~String(e[0]));
 }
 
 void ESC_Painter::Clear(EscEscape& e)
