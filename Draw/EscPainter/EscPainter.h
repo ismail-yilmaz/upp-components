@@ -50,6 +50,7 @@ public:
 	void Line(EscEscape& e);
 	void Arc(EscEscape& e);
 	void Path(EscEscape& e);
+	void RectPath(EscEscape& e);
 	void Cubic(EscEscape& e);
 	void Quadratic(EscEscape& e);
 	void BeginOnPath(EscEscape& e);

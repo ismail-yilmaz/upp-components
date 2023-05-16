@@ -236,7 +236,7 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 	v.Escape("LineCap(l)", this, THISFN(LineCap));
 	v.Escape("LineJoin(l)", this, THISFN(LineJoin));
 	v.Escape("MiterLimit(l)", this, THISFN(MiterLimit));
-	v.Escape("EvenOdd(b)", this, THISFN(LineJoin));
+	v.Escape("EvenOdd(b)", this, THISFN(EvenOdd));
 	v.Escape("Invert(b)", this, THISFN(Invert));
 	v.Escape("Stroke(...)", this, THISFN(Stroke));
 	v.Escape("Fill(...)",	this, THISFN(Fill));
@@ -257,6 +257,7 @@ ESC_Painter::ESC_Painter(EscValue& v, Painter& w_, Size sz)
 	v.Escape("Ellipse(...)", this, THISFN(Ellipse));
 	v.Escape("Arc(...)", this, THISFN(Arc));
 	v.Escape("Path(x)",	this, THISFN(Path));
+	v.Escape("RectPath(...)", this, THISFN(RectPath));
 	v.Escape("Cubic(...)", this, THISFN(Cubic));
 	v.Escape("Quadratic(...)", this, THISFN(Quadratic));
 	v.Escape("BeginOnPath(...)", this, THISFN(BeginOnPath));
@@ -501,6 +502,26 @@ void ESC_Painter::Path(EscEscape& e)
 {
 	e.CheckArray(0);
 	w.Path((const String&) e[0]);
+	e = e.self;
+}
+
+void ESC_Painter::RectPath(EscEscape& e)
+{
+	int n = e.GetCount();
+	
+	if(n == 1) {
+		w.RectPath(ToRectf(e[0]));
+	}
+	else
+	if(n == 4) {
+		w.RectPath(
+			e[0].GetNumber(),
+			e[1].GetNumber(),
+			e[2].GetNumber(),
+			e[3].GetNumber());
+	}
+	else
+		e.ThrowError("wrong number of arguments in call to 'RectPath'");
 	e = e.self;
 }
 
@@ -821,32 +842,32 @@ void ESC_Painter::Clear(EscEscape& e)
 
 void PainterLib(ArrayMap<String, EscValue>& global)
 {
-	global.Add("Black",		ToEsc(Black));
-	global.Add("Gray",		ToEsc(Gray));
-	global.Add("LtGray",	ToEsc(LtGray));
-	global.Add("WhiteGray", ToEsc(WhiteGray));
-	global.Add("White",		ToEsc(White));
-	global.Add("Red",		ToEsc(Red));
-	global.Add("Green",		ToEsc(Green));
-	global.Add("Brown",		ToEsc(Brown));
-	global.Add("Blue",		ToEsc(Blue));
-	global.Add("Magenta",	ToEsc(Magenta));
-	global.Add("Cyan",		ToEsc(Cyan));
-	global.Add("Yellow",	ToEsc(Yellow));
-	global.Add("LtRed",		ToEsc(LtRed));
-	global.Add("LtGreen",	ToEsc(LtGreen));
-	global.Add("LtYellow",	ToEsc(LtYellow));
-	global.Add("LtBlue",	ToEsc(LtBlue));
-	global.Add("LtMagenta", ToEsc(LtMagenta));
-	global.Add("LtCyan",	ToEsc(LtCyan));
+    global.Add("Black",     ToEsc(Black));
+    global.Add("Gray",      ToEsc(Gray));
+    global.Add("LtGray",    ToEsc(LtGray));
+    global.Add("WhiteGray", ToEsc(WhiteGray));
+    global.Add("White",     ToEsc(White));
+    global.Add("Red",       ToEsc(Red));
+    global.Add("Green",     ToEsc(Green));
+    global.Add("Brown",     ToEsc(Brown));
+    global.Add("Blue",      ToEsc(Blue));
+    global.Add("Magenta",   ToEsc(Magenta));
+    global.Add("Cyan",      ToEsc(Cyan));
+    global.Add("Yellow",    ToEsc(Yellow));
+    global.Add("LtRed",     ToEsc(LtRed));
+    global.Add("LtGreen",   ToEsc(LtGreen));
+    global.Add("LtYellow",  ToEsc(LtYellow));
+    global.Add("LtBlue",    ToEsc(LtBlue));
+    global.Add("LtMagenta", ToEsc(LtMagenta));
+    global.Add("LtCyan",    ToEsc(LtCyan));
 
-	Escape(global, "StdFont(...)",  SIC_StdFont);
-	Escape(global, "Arial(h)",      SIC_Arial);
-	Escape(global, "Roman(h)",      SIC_Roman);
-	Escape(global, "Courier(h)",    SIC_Courier);
-	Escape(global, "GetTextSize(...)", SIC_GetTextSize);
+    Escape(global, "StdFont(...)",  SIC_StdFont);
+    Escape(global, "Arial(h)",      SIC_Arial);
+    Escape(global, "Roman(h)",      SIC_Roman);
+    Escape(global, "Courier(h)",    SIC_Courier);
+    Escape(global, "GetTextSize(...)", SIC_GetTextSize);
 
-	Scan(global, String(macros_plain, macros_plain_length));
+    Scan(global, String(macros_plain, macros_plain_length));
 }
 
 void EscPaint(ArrayMap<String, EscValue>& global, Painter& w, Size sz)
