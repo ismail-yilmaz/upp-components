@@ -276,6 +276,7 @@ VTPage& VTPage::SetSize(Size sz)
 	for(VTLine& line : lines) {
 		if(line.GetCount() < size.cx)
 			line.Adjust(size.cx, cellattrs);
+		line.Invalidate();
 	}
 	if(tabsync)
 		SetTabs(tabsize);
