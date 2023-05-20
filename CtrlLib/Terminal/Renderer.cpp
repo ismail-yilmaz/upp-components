@@ -236,13 +236,23 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 		w.DrawRect(caretrect, InvertColor);
 
 	// Hint new size.
-	if(sizehint && hinting) {
-		auto hint = GetSizeHint(GetView(), psz);
-		DrawFrame(w ,hint.b.Inflated(8), LtGray);
-		w.DrawRect(hint.b.Inflated(7), SColorText);
-		w.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
-	}
+	if(sizehint && hinting)
+		PaintSizeHint(w);
+
 	w.End();
+}
+
+void TerminalCtrl::PaintSizeHint(Draw& w)
+{
+	Tuple<String, Rect> hint = GetSizeHint();
+	Rect rr = hint.b.Inflated(8);
+	DrawPainter dp(w, GetView().GetSize());
+	dp.Begin();
+	dp.RoundedRectangle(rr.left, rr.top, rr.Width(), rr.Height(), 10.0)
+	  .Stroke(4, LtGray())
+	  .Fill(SColorText());
+	dp.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
+	dp.End();
 }
 
 void TerminalCtrl::PaintImages(Draw& w, ImageParts& parts, const Size& csz)

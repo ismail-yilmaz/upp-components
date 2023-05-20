@@ -388,8 +388,8 @@ private:
 
     void        SyncSize(bool notify = true);
 
-    Tuple<String, Rect> GetSizeHint(Rect r, Size sz);
-    void        RefreshSizeHint()                               { Refresh(GetSizeHint(GetView(), GetPageSize()).b.Inflated(8)); }
+    Tuple<String, Rect> GetSizeHint();
+    void        RefreshSizeHint()                               { Refresh(GetSizeHint().b.Inflated(12)); }
 
     Rect        GetCaretRect();
     void        PlaceCaret(bool scroll = false);
@@ -466,6 +466,7 @@ private:
     };
 
     void        Paint0(Draw& w, bool print = false);
+    void        PaintSizeHint(Draw& w);
     void        PaintImages(Draw& w, ImageParts& parts, const Size& csz);
 
     void        RenderImage(const ImageString& simg, bool scroll);

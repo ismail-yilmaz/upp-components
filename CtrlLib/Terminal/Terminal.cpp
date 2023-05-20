@@ -217,12 +217,13 @@ void TerminalCtrl::ScheduleRefresh()
 		SetTimeCallback(16, [=] { SyncSb(); RefreshDisplay(); }, TIMEID_REFRESH);
 }
 
-Tuple<String, Rect> TerminalCtrl::GetSizeHint(Rect r, Size sz)
+Tuple<String, Rect> TerminalCtrl::GetSizeHint()
 {
 	Tuple<String, Rect> hint;
-	hint.a << sz.cx << " x " << sz.cy;
-	hint.b = r.CenterRect(GetTextSize(hint.a, StdFont()));
-	return pick(hint);
+	Size psz = GetPageSize();
+	hint.a << psz.cx << " x " << psz.cy;
+	hint.b = GetView().CenterRect(GetTextSize(hint.a, StdFont()));
+	return hint;
 }
 
 void TerminalCtrl::SyncSb()
