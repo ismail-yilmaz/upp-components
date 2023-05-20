@@ -13,6 +13,9 @@ public:
     void            ShiftLeft(int begin, int end, int n, const VTCell& filler);
     void            ShiftRight(int begin, int end, int n, const VTCell& filler);
     bool            Fill(int begin, int end, const VTCell& filler, dword flags = 0);
+    bool            FillLeft(int begin, const VTCell& filler, dword flags = 0);
+    bool            FillRight(int begin, const VTCell& filler, dword flags = 0);
+    bool            FillLine(const VTCell& filler, dword flags = 0);
 
     void            Validate(bool b = true)  const          { invalid = !b;    }
     void            Invalidate() const                      { invalid = true;  }
@@ -24,7 +27,7 @@ public:
 
     static const VTLine& Void();
     bool IsVoid() const                                     { return this == &Void(); }
-    
+
     String          ToString() const;
     WString         ToWString() const;
 
@@ -69,7 +72,7 @@ class VTPage : Moveable<VTPage> {
 public:
     using Lines = Vector<VTLine>;
     using Saved = BiVector<VTLine>;
-    
+
     VTPage();
     VTPage(Size sz) : VTPage()                              { SetSize(sz); }
     virtual ~VTPage()                                       {}
@@ -96,11 +99,11 @@ public:
     const VTCell&   GetAttributes() const                   { return cellattrs; }
 
     VTPage&         Reset();
-    
+
     VTPage&         Backup();
     VTPage&         Discard();
     VTPage&         Restore();
-    
+
     VTPage&         SetSize(Size sz);
     VTPage&         SetSize(int cx, int cy)                 { return SetSize(Size(cx, cy)); }
     Size            GetSize() const                         { return size; }
@@ -144,20 +147,20 @@ public:
     VTPage&         MoveEnd();
     VTPage&         MoveTopLeft();
     VTPage&         MoveBottomRight();
-    
-    VTPage&         EraseLine(dword flags = 0)              { LineFill(cursor.y, 1, size.cx, cellattrs, flags); return *this;  }
-    VTPage&         EraseLeft(dword flags = 0)              { LineFill(cursor.y, 1, cursor.x, cellattrs, flags); return *this; }
-    VTPage&         EraseRight(dword flags = 0)             { LineFill(cursor.y, cursor.x, size.cx, cellattrs, flags); return *this; }
 
-    VTPage&         ErasePage(dword flags = 0)              { RectFill(GetView(), cellattrs, flags); return *this; }
-    VTPage&         EraseBefore(dword flags = 0)            { RectFill(Rect(1, 1, size.cx, cursor.y - 1), cellattrs, flags); return EraseLeft(flags); }
-    VTPage&         EraseAfter(dword flags = 0)             { RectFill(Rect(1, cursor.y + 1, size.cx, size.cy), cellattrs, flags); return EraseRight(flags); }
+    VTPage&         EraseLine(dword flags = 0);
+    VTPage&         EraseLeft(dword flags = 0);
+    VTPage&         EraseRight(dword flags = 0);
+
+    VTPage&         ErasePage(dword flags = 0);
+    VTPage&         EraseBefore(dword flags = 0);
+    VTPage&         EraseAfter(dword flags = 0);
 
     VTPage&         ScrollUp(int n = 1);
     VTPage&         ScrollDown(int n = 1);
     VTPage&         ScrollLeft(int n = 1);
     VTPage&         ScrollRight(int n = 1);
-    
+
     VTPage&         PanLeft(int n = 1);
     VTPage&         PanRight(int n = 1);
 

@@ -35,6 +35,22 @@ void VTLine::ShiftRight(int begin, int end, int n, const VTCell& filler)
 	invalid = true;
 }
 
+bool VTLine::FillLeft(int begin, const VTCell& filler, dword flags)
+{
+	for(int i = 1; i <= clamp(begin, 1, GetCount()); i++)
+		At(i - 1).Fill(filler, flags);
+	invalid = true;
+	return true;
+}
+
+bool VTLine::FillRight(int begin, const VTCell& filler, dword flags)
+{
+	for(int i = max(1, begin); i <= GetCount(); i++)
+		At(i - 1).Fill(filler, flags);
+	invalid = true;
+	return true;
+}
+
 bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
 {
 	int n = GetCount();
@@ -48,6 +64,14 @@ bool VTLine::Fill(int begin, int end, const VTCell& filler, dword flags)
 	if(done)
 		invalid = true;
 	return done;
+}
+
+bool VTLine::FillLine(const VTCell& filler, dword flags)
+{
+	for(VTCell& l : static_cast<Vector<VTCell>&>(*this))
+		l.Fill(filler, flags);
+	invalid = true;
+	return true;
 }
 
 const VTLine& VTLine::Void()
@@ -79,7 +103,7 @@ WString AsWString(VTLine::ConstRange& cellrange, bool tspaces)
 				j = 0;
 			}
 			if(cell.chr >= 32)
-				txt.Cat((int) cell.chr, 1);
+				txt.Cat(cell.chr, 1);
 		}
 	}
 	return pick(txt);
@@ -99,6 +123,7 @@ VTPage::VTPage()
 
 VTPage& VTPage::Reset()
 {
+	cellattrs = VTCell();
 	cursor = Null;
 	backup = Null;
 	tabsync = false;
@@ -248,8 +273,10 @@ VTPage& VTPage::SetSize(Size sz)
 		AdjustHistorySize();
 	}
 	lines.SetCount(size.cy);
-	for(VTLine& line : lines)
-		line.Adjust(size.cx, cellattrs);
+	for(VTLine& line : lines) {
+		if(line.GetCount() < size.cx)
+			line.Adjust(size.cx, cellattrs);
+	}
 	if(tabsync)
 		SetTabs(tabsize);
 	return MoveTo(cursor);
@@ -889,6 +916,62 @@ VTPage& VTPage::EraseCells(int n, dword flags)
 	lines[cursor.y - 1].Fill(cursor.x, cursor.x + n - 1, cellattrs, flags);
 	ClearEol();
 	return *this;
+}
+
+VTPage& VTPage::EraseLine(dword flags)
+{
+	LLOG("EraseLine(" << flags << ")");
+	
+	lines[cursor.y - 1].FillLine(cellattrs, flags);
+	ClearEol();
+	return *this;
+}
+
+VTPage& VTPage::EraseLeft(dword flags)
+{
+	LLOG("EraseLeft(" << flags << ")");
+	
+	lines[cursor.y - 1].FillLeft(cursor.x, cellattrs, flags);
+	ClearEol();
+	return *this;
+}
+
+VTPage& VTPage::EraseRight(dword flags)
+{
+	LLOG("EraseRight(" << flags << ")");
+	
+	lines[cursor.y - 1].FillRight(cursor.x, cellattrs, flags);
+	ClearEol();
+	return *this;
+}
+
+VTPage& VTPage::ErasePage(dword flags)
+{
+	LLOG("ErasePage(" << flags << ")");
+	
+	Rect r = GetView();
+	for(int i = r.top; i <= r.bottom; i++)
+		lines[i - 1].FillLine(cellattrs, flags);
+	ClearEol();
+	return *this;
+}
+
+VTPage& VTPage::EraseBefore(dword flags)
+{
+	LLOG("EraseBefore(" << flags << ")");
+	
+	for(int i = 1; i < cursor.y; i++)
+		lines[i - 1].FillLine(cellattrs, flags);
+	return EraseLeft(flags);
+}
+
+VTPage& VTPage::EraseAfter(dword flags)
+{
+	LLOG("EraseAfter(" << flags << ")");
+	
+	for(int i = cursor.y + 1; i <= size.cy; i++)
+		lines[i - 1].FillLine(cellattrs, flags);
+	return EraseRight(flags);
 }
 
 int VTPage::SetTabStop(int col, bool b)
