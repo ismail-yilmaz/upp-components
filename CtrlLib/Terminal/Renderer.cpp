@@ -244,15 +244,18 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 
 void TerminalCtrl::PaintSizeHint(Draw& w)
 {
-	Tuple<String, Rect> hint = GetSizeHint();
-	Rect rr = hint.b.Inflated(8);
-	DrawPainter dp(w, GetView().GetSize());
-	dp.Begin();
-	dp.RoundedRectangle(rr.left, rr.top, rr.Width(), rr.Height(), 10.0)
+	Tuple<String, Size> hint = GetSizeHint();
+	Rect rr = GetView().CenterRect(hint.b).Inflated(8);
+	Rect rx = Rect(rr.GetSize()).CenterRect(hint.b);
+	ImagePainter ip(rr.GetSize());
+	ip.Begin();
+	ip.Clear(RGBAZero());
+	ip.RoundedRectangle(0, 0, rr.Width(), rr.Height(), 10.0)
 	  .Stroke(4, LtGray())
 	  .Fill(SColorText());
-	dp.DrawText(hint.b.left, hint.b.top, hint.a, StdFont(), SColorPaper);
-	dp.End();
+	ip.DrawText(rx.left, rx.top, hint.a, StdFont(), SColorPaper);
+	ip.End();
+	w.DrawImage(rr.left, rr.top, ip.GetResult());
 }
 
 void TerminalCtrl::PaintImages(Draw& w, ImageParts& parts, const Size& csz)

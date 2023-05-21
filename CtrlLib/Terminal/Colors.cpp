@@ -209,7 +209,7 @@ void TerminalCtrl::ResetProgrammableColors(const VTInStream::Sequence& seq, int 
 					111, COLOR_PAPER,
 					117, COLOR_INK_SELECTED,
 					119, COLOR_PAPER_SELECTED, 0);
-			if(i > 0 && ResetLoadColor(i))
+			if(j > 0 && ResetLoadColor(j))
 				changed_colors++;
 		}
 	}

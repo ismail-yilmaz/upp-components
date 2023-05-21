@@ -388,8 +388,8 @@ private:
 
     void        SyncSize(bool notify = true);
 
-    Tuple<String, Rect> GetSizeHint();
-    void        RefreshSizeHint()                               { Refresh(GetSizeHint().b.Inflated(12)); }
+    Tuple<String, Size> GetSizeHint();
+    void        RefreshSizeHint();
 
     Rect        GetCaretRect();
     void        PlaceCaret(bool scroll = false);

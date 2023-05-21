@@ -181,10 +181,10 @@ void TerminalCtrl::ParseClipboardRequests(const VTInStream::Sequence& seq)
 	String data   = seq.GetStr(3);
 
 	if(IsClipboardReadPermitted() && data.IsEqual("?")) {
-		WString out = GetWString(Selection());
-		if(IsNull(out))
-			out = GetWString(Clipboard());
-		PutOSC("52;s0;" + Base64Encode(EncodeDataString(out)));
+		WString o = GetWString(Selection());
+		if(IsNull(o))
+			o = GetWString(Clipboard());
+		PutOSC("52;s0;" + Base64Encode(EncodeDataString(o)));
 	}
 	else
 	if(IsClipboardWritePermitted()) {
