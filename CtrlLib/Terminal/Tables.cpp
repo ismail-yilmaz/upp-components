@@ -178,8 +178,7 @@ const TerminalCtrl::CbFunction* TerminalCtrl::FindFunctionPtr(const VTInStream::
         VT_CSI('h', '?',  0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SetMode(q, true);                                          }),   // SM,          Set private modes
         VT_CSI('l', 0x00, 0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SetMode(q, false);                                         }),   // RM,          Reset ANSI modes
         VT_CSI('l', '?',  0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SetMode(q, false);                                         }),   // RM,          Reset private modes
-        VT_CSI('m', 0x00, 0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SelectGraphicsRendition(q);                                }),   // SGR,         Select graphics rendition (ANSI)
-        VT_CSI('m', '?',  0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SelectGraphicsRendition(q);                                }),   // SGR,         Select graphics rendition (DEC)
+        VT_CSI('m', 0x00, 0x00, 0x00, LEVEL_1, LEVEL_4,  { t.SelectGraphicsRendition(q);                                }),   // SGR,         Select graphics rendition (ANSI/DEC)
         VT_CSI('n', 0x00, 0x00, 0x00, LEVEL_1, LEVEL_4,  { t.ReportDeviceStatus(q);                                     }),   // DSR,         Send device status report (ANSI format)
         VT_CSI('n', '?',  0x00, 0x00, LEVEL_1, LEVEL_4,  { t.ReportDeviceStatus(q);                                     }),   // DECDSR,      Send device status (cursor position) report (DEC format)
         VT_CSI('p', 0x00, '\"', 0x00, LEVEL_1, LEVEL_4,  { t.SetDeviceConformanceLevel(q);                              }),   // DECSCL,      Select device conformance level
