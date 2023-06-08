@@ -43,6 +43,7 @@ These components are meant to supplement `uppsrc/CtrlLib`
 |:---         |:---             |
 | MessageCtrl |  A passive message widget and manager implementation.                                                  |
 | Terminal    |  A cross-platform, high-end terminal emulator widget and library with very good xterm compatibility.   |
+| StackCtrl |  A widget stacking container where only one widget is visible at a time.                                                  |
 
 ### Draw
 These components are meant to supplement `uppsrc/Draw`

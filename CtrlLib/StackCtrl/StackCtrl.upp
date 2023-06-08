@@ -1,0 +1,13 @@
+description "A widget stacking container where only one widget is visible a time.\377";
+
+uses
+	CtrlLib;
+
+file
+	StackCtrl.h,
+	StackCtrl.cpp,
+	Docs readonly separator,
+	src.tpp,
+	Info readonly separator,
+	Copying;
+
