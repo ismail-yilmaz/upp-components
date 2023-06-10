@@ -33,6 +33,25 @@ visible at a time.&]
 [s2;%% Enables or disables circular navigation between stacked ctrls.&]
 [s3; &]
 [s4; &]
+[s5;:Upp`:`:StackCtrl`:`:Animation`(int`): StackCtrl[@(0.0.255) `&] 
+[* Animation]([@(0.0.255) int] [*@3 ms] [@(0.0.255) `=] [@3 150])&]
+[s2;%% Enables or disables the ctrl transition animation. The animation 
+duration in miliseconds can be set using the [%-*@3 ms] parameter. 
+The value should be in between 100 ms and 1000 ms (1 secs). Setting 
+the duration anything below 100 ms effectively disables the animation. 
+Returns `*this for method chaining.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:StackCtrl`:`:Horz`(`): StackCtrl[@(0.0.255) `&] [* Horz]()&]
+[s2;%% Sets the orientation of ctrl transition animation to horizontal. 
+Returns `*this for method chaining.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:StackCtrl`:`:Vert`(`): StackCtrl[@(0.0.255) `&] [* Vert]()&]
+[s2;%% Sets the orientation of ctrl transition animation to vertical. 
+Returns `*this for method chaining. &]
+[s3; &]
+[s4; &]
 [s5;:Upp`:`:StackCtrl`:`:Add`(Upp`:`:Ctrl`&`): StackCtrl[@(0.0.255) `&] 
 [* Add](Ctrl[@(0.0.255) `&] [*@3 ctrl])&]
 [s2;%% Adds a new [%-*@3 ctrl] to the stack and activates it. Returns 

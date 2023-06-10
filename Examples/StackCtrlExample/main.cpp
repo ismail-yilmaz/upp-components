@@ -30,7 +30,7 @@ struct MyApp : TopWindow {
 				l->Add(AsString(j));
 		}
 		// Add a stackctrl and enable the wheel (circular navigation) mode.
-		Add(stack.Wheel().SizePos());
+		Add(stack.Wheel().Animation().SizePos());
 	}
 	
 	bool Key(dword key, int count) final
