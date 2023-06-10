@@ -2,35 +2,35 @@
 
 namespace Upp {
 
-StackCtrl& StackCtrl::Add(Ctrl& c)
+StackCtrl& StackCtrl::Add(Ctrl& ctrl)
 {
-	return Insert(GetCount(), c);
+	return Insert(GetCount(), ctrl);
 }
 
-StackCtrl& StackCtrl::Insert(int i, Ctrl& c)
+StackCtrl& StackCtrl::Insert(int i, Ctrl& ctrl)
 {
-	if(c.InFrame())
-		Ctrl::Add(c);
+	if(ctrl.InFrame())
+		Ctrl::Add(ctrl);
 	else {
-		c.Hide();
-		Ctrl::Add(c.SizePos());
-		list.Insert(i, &c);
-		Activate(&c);
+		ctrl.Hide();
+		Ctrl::Add(ctrl.SizePos());
+		list.Insert(i, &ctrl);
+		Activate(&ctrl);
 	}
 	return *this;
 }
 
-void StackCtrl::ChildRemoved(Ctrl *c)
+void StackCtrl::Remove(Ctrl& ctrl)
 {
-	Ctrl::ChildRemoved(c);
-	int i = list.Find(c);
+	int i = list.Find(&ctrl);
 	if(i < 0)
 		return;
 	if(i > 0)
 		Prev();
 	else
 		Next();
-	list.RemoveKey(c);
+	list.RemoveKey(&ctrl);
+	ctrl.Remove();
 }
 
 void StackCtrl::Prev()
@@ -57,16 +57,16 @@ void StackCtrl::Next()
 		GoBegin();
 }
 
-void StackCtrl::Activate(Ctrl *c)
+void StackCtrl::Activate(Ctrl *ctrl)
 {
 	// TODO: Implement transition animation.
 	
 	if(!activectrl)
-		activectrl = c;
+		activectrl = ctrl;
 	
-	if(c != activectrl) {
+	if(ctrl != activectrl) {
 		activectrl->Hide();
-		activectrl = c;
+		activectrl = ctrl;
 	}
 
 	activectrl->Show();
