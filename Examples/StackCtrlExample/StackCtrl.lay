@@ -1,0 +1,11 @@
+LAYOUT(MainLayout, 660, 388)
+	ITEM(StackCtrl, stack, HSizePosZ(2, 2).VSizePosZ(0, 84))
+	ITEM(Upp::Button, home, SetLabel(t_("Home")).HCenterPosZ(56, 0).BottomPosZ(53, 23))
+	ITEM(Upp::Button, end, SetLabel(t_("End")).HCenterPosZ(56, 0).BottomPosZ(5, 23))
+	ITEM(Upp::Button, next, SetLabel(t_("Next")).HCenterPosZ(56, 30).BottomPosZ(29, 23))
+	ITEM(Upp::Button, prev, SetLabel(t_("Prev")).HCenterPosZ(56, -30).BottomPosZ(29, 23))
+	ITEM(Upp::Option, wheel, SetLabel(t_("Wheel mode")).LeftPosZ(8, 128).BottomPosZ(33, 16))
+	ITEM(Upp::DropList, animmode, RightPosZ(12, 148).BottomPosZ(31, 19))
+	ITEM(Upp::Label, dv___7, SetLabel(t_("Animation")).RightPosZ(168, 64).BottomPosZ(31, 19))
+END_LAYOUT
+

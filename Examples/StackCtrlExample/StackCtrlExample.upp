@@ -5,7 +5,8 @@ uses
 	StackCtrl;
 
 file
-	main.cpp;
+	main.cpp,
+	StackCtrl.lay;
 
 mainconfig
 	"" = "GUI";

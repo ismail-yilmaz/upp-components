@@ -2,35 +2,52 @@
 
 using namespace Upp;
 
-struct MyApp : TopWindow {
-	StackCtrl stack;
+#define LAYOUTFILE <StackCtrlExample/StackCtrl.lay>
+#include <CtrlCore/lay.h>
+
+struct MyApp : WithMainLayout<TopWindow> {
+	Clock     clock;
+	Calendar  calendar;
+	DocEdit   docedit;
 	ArrayCtrl list;
-	Array<Ctrl> children;
-	
 	MyApp()
 	{
-		Sizeable().Zoomable().CenterScreen().SetRect(0, 0, 800, 600);
+		CtrlLayout(*this, "StackCtrl test");
+		Sizeable().Zoomable().CenterScreen();
 
 		list.AddColumn("Numbers");
+		for(int i = 0; i < 100; i++)
+			list.Add(AsString(i));
 
-		// Stack children.				// Indices
-		stack.Add(children.Create<Clock>());		// 0
-		stack.Add(children.Create<Calendar>());		// 1
-		stack.Add(children.Create<DocEdit>());		// 2
-		stack.Add(list);				// 3
+		prev  << [this] { stack.Prev(); };
+		next  << [this] { stack.Next(); };
+		home  << [this] { stack.GoBegin(); };
+		end   << [this] { stack.GoEnd(); };
+		wheel << [this] { stack.Wheel(~wheel); };
+		
+		animmode.Add(0, "No animation");
+		animmode.Add(1, "Vertical animation");
+		animmode.Add(2, "Horizontal animation");
+		animmode.GoBegin();
+		
+		animmode << [this]
+		{
+			int i = ~animmode;
+			switch(i) {
+			case 1:  stack.Vert().Animation(); break;
+			case 2:  stack.Horz().Animation(); break;
+			default: stack.Animation(0);
+			};
+		};
+		
+		// Stack children.		// Indices
+		stack.Add(clock);		// 0
+		stack.Add(calendar);	// 1
+		stack.Add(docedit);		// 2
+		stack.Add(list);		// 3
 		
 		// Get a child ctrl from index and set its data.
 		stack.Get(2) <<=  "Hello world.";
-
-		// Find a child ctrl in the stack and modify it.
-		int i = stack.Find(list);
-		if(i >= 0) {
-			ArrayCtrl *l = dynamic_cast<ArrayCtrl*>(&stack.Get(i));
-			for(int j = 0; l && (j < 100); j++)
-				l->Add(AsString(j));
-		}
-		// Add a stackctrl and enable the wheel (circular navigation) mode.
-		Add(stack.Wheel().Animation().SizePos());
 	}
 	
 	bool Key(dword key, int count) final
@@ -39,7 +56,7 @@ struct MyApp : TopWindow {
 		case K_SHIFT|K_ALT|K_LEFT:  stack.Prev(); break;
 		case K_SHIFT|K_ALT|K_RIGHT: stack.Next(); break;
 		case K_SHIFT|K_ALT|K_HOME:  stack.GoBegin(); break;
-		case K_SHIFT|K_ALT|K_END:   stack.GoEnd();
+		case K_SHIFT|K_ALT|K_END:   stack.GoEnd(); break;
 		default: return Ctrl::Key(key, count);
 		}
 		return true;
@@ -50,4 +67,3 @@ GUI_APP_MAIN
 {
 	MyApp().Run();
 }
-
