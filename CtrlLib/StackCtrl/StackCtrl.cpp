@@ -183,8 +183,14 @@ void StackCtrl::Animate(Ctrl *nextctrl)
 		bool done2 = ScrollCtrl(direction, *nextctrl,   rsrc2, rdst2, t);
 		if(done1 || done2)
 			break;
+		#ifdef PLATFORM_WIN32
+		// For some reason, Sync doesn't work as expected on Win32...
+		nextctrl->Refresh();
+		activectrl->Refresh();
+		#else
 		nextctrl->Sync();
 		activectrl->Sync();
+		#endif
 		Ctrl::ProcessEvents();
 		Sleep(0);
 	}
