@@ -1,0 +1,12 @@
+DONE:
++ Implemented HtmlNode class. (A modification of Upp::XmlNode class)
++ Implemented TidyHtmlParser, TidyHtmlParser::Node classes for traversing the document tree.
++ Implemented ParseHtml and RepairHtml convenience functions.
++ Added a minimal code example, parsing the legacy example.com.
++ Build on Windows (CLANG).
++ Added API documentation. 
++ Enabled U++'s memory managers.
+
+TODO:
+- Add U++ callbacks for libtidy's message queue.
+- Add more example code (both console & gui).

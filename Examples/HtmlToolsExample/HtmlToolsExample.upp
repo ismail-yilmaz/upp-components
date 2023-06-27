@@ -1,0 +1,13 @@
+description "Example code demonstrating HtmlTools package\377";
+
+uses
+	Core,
+	Core/SSL,
+	HtmlTools;
+
+file
+	HtmToolsExample.cpp;
+
+mainconfig
+	"" = "";
+

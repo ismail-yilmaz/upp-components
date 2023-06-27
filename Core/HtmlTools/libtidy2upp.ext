@@ -1,0 +1,8 @@
+// Imports the libtidy header and source files.
+
+files
+	libtidy/*.h
+	libtidy/*.c
+;
+
+includes ;
