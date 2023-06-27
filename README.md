@@ -1,10 +1,10 @@
 # upp-components
 
-This repository contains supplementary general-purpose packages for [Ultimate++](https://www.ultimatepp.org/index.html),  a C++ cross-platform rapid application development framework focused on programmers productivity.
+This repository contains supplementary general-purpose packages for [U++](https://www.ultimatepp.org/index.html),  a C++ cross-platform rapid application development framework focused on programmers productivity.
 
 ## Requirements
 
-- Ultimate++ framework (release >= 2020.2)
+- U++ framework (release >= 2020.2)
 - A C++ compiler that supports at least C++11. (GCC/CLANG/MinGW/MSC)
 
 ## Installation
@@ -30,6 +30,7 @@ These components are meant to supplement `uppsrc/Core`
 | CoRoutines  | A lightweight coroutines implementation (c++20 coroutines)                                  |
 | Ftp         | File transfer protocol encapsulation with advanced capabilities.                            |
 | Job         | A lightweight and flexible multithreading tool, using promise/future mechanism.             |
+| HtmlToos    | A powerful, yet easy-to-use html parser/sanitizer/prettifier package, based on libtidy      |
 | NetProxy    | A network proxy class implementing SOCKS and HTTP protocols.                                |
 | OAuth       | A package encapsulating the authorization code grant flow of OAuth2 authorization protocol. |
 | PtyProcess  | A cross-platform (POSIX/WinPty/WIN10) pseudo-terminal process implementation.               |
@@ -59,7 +60,7 @@ You can find reference examples demonstrating the usage of the above listed pack
 
 ## Version
 
-`upp-components` loosely follows the release cycles of Ultimate++. Releases are tagged twice a year.  Currently it is tagged as `2021.1`
+`upp-components` loosely follows the release cycles of U++. Releases are tagged twice a year.  Currently it is tagged as `2021.1`
 
 ## License
 
