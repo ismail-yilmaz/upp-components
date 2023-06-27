@@ -20,4 +20,4 @@ To be written...
 ![EscPainter static images](https://i.imgur.com/gVNSHC5.png)
 
 #### Basic animations, complex operations
-![EscPainter](https://i.imgur.com/zR0ySVX.png)
+![EscPainter animation](https://i.imgur.com/vmwpJOB.gif)
