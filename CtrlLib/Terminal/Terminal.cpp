@@ -38,7 +38,7 @@ TerminalCtrl::TerminalCtrl()
 	SetCharset(CHARSET_UNICODE);
 	InitParser(parser);
 	SetImageDisplay(NormalImageCellDisplay());
-	SetFrame(FieldFrame());
+	SetFrame(NullFrame());
 	History();
 	ResetColors();
 	HideScrollBar();
