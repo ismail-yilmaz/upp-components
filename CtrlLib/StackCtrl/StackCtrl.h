@@ -25,6 +25,8 @@ public:
     Ctrl&       Get(int i)              { ASSERT(i >= 0 && i < GetCount()); return *list[i]; }
     Ctrl&       operator[](int i)       { return Get(i); }
 
+	Ctrl*       GetActiveCtrl() const   { return list.Find(activectrl) >= 0 ? activectrl : nullptr; }
+		
     int         Find(Ctrl& ctrl) const  { return list.Find(&ctrl); }
 
     void        Goto(int i)             { if(i >= 0 && i < GetCount()) Activate(list[i]); }

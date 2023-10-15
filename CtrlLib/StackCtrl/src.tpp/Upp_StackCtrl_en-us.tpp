@@ -1,4 +1,4 @@
-topic "";
+topic "StackCtrl";
 [i448;a25;kKO9;2 $$1,0#37138531426314131252341829483380:class]
 [l288;2 $$2,2#27521748481378242620020725143825:desc]
 [0 $$3,0#96390100711032703541132217272105:end]
@@ -14,8 +14,8 @@ topic "";
 [s4; &]
 [s1;:Upp`:`:StackCtrl: [*3 StackCtrl][3  ][@(0.0.255)3 :][3  ][@(0.0.255)3 public][3  
 ParentCtrl]&]
-[s2;%% This class provides a stack of ctrls where only one ctrl is 
-visible at a time.&]
+[s2;%% This class provides a widget stacking container, where only 
+one ctrl is visible at a time.&]
 [s3; &]
 [ {{10000F(128)G(128)@1 [s0;%% [* Constructor detail]]}}&]
 [s3; &]
@@ -94,6 +94,12 @@ Note that out of bound indices will cause this method and operator
 to ASSERT in DEBUG mode and result in undefined behavior in RELEASE 
 mode. This can be avoided by clamping the indices between 0 and 
 GetCount() `- 1.&]
+[s3; &]
+[s4; &]
+[s5;:Upp`:`:StackCtrl`:`:GetActiveCtrl`(`)const: Ctrl[@(0.0.255) `* 
+][* GetActiveCtrl]() [@(0.0.255) const]&]
+[s2;%% Returns a pointer to active (shown) ctrl. Returns nullptr 
+on failure. .&]
 [s3; &]
 [s4; &]
 [s5;:Upp`:`:StackCtrl`:`:Find`(Upp`:`:Ctrl`&`)const: [@(0.0.255) int] 
