@@ -98,7 +98,7 @@ struct TabbedSshTerminal : TopWindow {
 		OpenMain();
 		while(IsOpen() && !workers.IsFinished()) {
 			ProcessEvents();
-			Sleep(10);
+			GuiSleep(10);
 		}
 		GuiUnlock __;
 		workers.Cancel();
