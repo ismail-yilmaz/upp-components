@@ -301,6 +301,13 @@ If no such attribute exists, returns [%-*@3 def].&]
 [s2; Sets the attribute [%-*@3 id] to have integer value [%-*@3 val].&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:HtmlNode`:`:FindAttr`(const char`*`)const:%- [@(0.0.255) int] 
+[* FindAttr]([@(0.0.255) const] [@(0.0.255) char] [@(0.0.255) `*][*@3 id]) 
+[@(0.0.255) const]&]
+[s2; Returns the index of the attribute [%-*@3 id] or returns `-1 if 
+no such attribute exists..&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:HtmlNode`:`:HasAttrs`(`)const:%- [@(0.0.255) bool] [* HasAttrs]() 
 [@(0.0.255) const]&]
 [s2; Returns true if the node has attributes.&]

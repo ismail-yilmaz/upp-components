@@ -1,5 +1,7 @@
 #include "HtmlTools.h"
 
+#define LLOG(x) // RLOG(x)
+
 namespace Upp {
 
 TidyHtmlParser::TidyHtmlParser(const String& html)
@@ -37,11 +39,11 @@ TidyHtmlParser& TidyHtmlParser::SetOption(const TidyOptionId id, const Value& va
 				&& tidyOptSetValue(doc, id, ~value.To<String>());
 		break;
 	default:
-		RLOG("Warning: Unrecognized option type");
+		LLOG("Warning: Unrecognized option type");
 		break;
 	}
 	if(!success)
-		RLOG("Warning: Unable to set option \"" << tidyOptGetName(opt) << "\" to " << value);
+		LLOG("Warning: Unable to set option \"" << tidyOptGetName(opt) << "\" to " << value);
 
 	return *this;
 }
@@ -51,7 +53,7 @@ TidyHtmlParser& TidyHtmlParser::SetOption(const String& id, const Value& value)
 	TidyOptionId optid = tidyOptGetIdForName(~id);
 	if(optid)
 		return SetOption(optid, value);
-	RLOG("Warning: Unrecognized option string: " << id);
+	LLOG("Warning: Unrecognized option string: " << id);
 	return *this;
 }
 
