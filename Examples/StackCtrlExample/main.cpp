@@ -39,13 +39,13 @@ struct MyApp : WithMainLayout<TopWindow> {
 			default: stack.Animation(0);
 			};
 		};
-		
-		// Stack children.		// Indices
-		stack.Add(clock);		// 0
-		stack.Add(calendar);	// 1
-		stack.Add(docedit);		// 2
-		stack.Add(list);		// 3
-		
+
+        // Stack children.      // Indices
+        stack.Add(clock);       // 0
+        stack.Add(calendar);    // 1
+        stack.Add(docedit);     // 2
+        stack.Add(list);        // 3
+
 		// Get a child ctrl from index and set its data.
 		stack.Get(2) <<=  "Hello world.";
 	}
