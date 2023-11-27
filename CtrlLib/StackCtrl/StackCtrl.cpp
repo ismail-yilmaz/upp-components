@@ -7,6 +7,7 @@ StackCtrl::StackCtrl()
 , duration(0)
 , vertical(false)
 , wheel(false)
+, animating(false)
 {
 }
 
@@ -68,7 +69,7 @@ void StackCtrl::Next()
 void StackCtrl::Activate(Ctrl *ctrl)
 {
 	GuiLock __;
-
+	
 	if(!activectrl)
 		activectrl = ctrl;
 	
@@ -112,11 +113,18 @@ bool StackCtrl::ScrollCtrl(enum Direction d, Ctrl& ctrl, Rect r, Rect target, in
 
 void StackCtrl::Animate(Ctrl *nextctrl)
 {
+	if(animating)
+		return;
+	
+	animating = true;
+	
 	int a = list.Find(activectrl);
 	int b = list.Find(nextctrl);
 
-	if(a == b)
+	if(a == b) {
+		animating = false;
 		return;
+	}
 	
 	Direction direction;
 	Rect r = GetView(), rsrc1 = r, rdst1 = r, rsrc2 = r, rdst2 = r;
@@ -195,6 +203,8 @@ void StackCtrl::Animate(Ctrl *nextctrl)
 	}
 	activectrl->SizePos();
 	nextctrl->SizePos();
+	
+	animating = false;
 }
 
 void StackCtrl::Serialize(Stream& s)

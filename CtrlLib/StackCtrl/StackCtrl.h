@@ -51,6 +51,7 @@ private:
     bool         wheel;
     bool         vertical;
     int          duration;
+    bool         animating;
 };
 
 }
