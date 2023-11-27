@@ -242,7 +242,7 @@ bool PtyProcess::DoStart(const char *cmd, const Vector<String> *args, const char
 	       return false;
 	}
 	
-	sNoBlock(slave);
+	//sNoBlock(slave); // Leads to infamous "resource unavailable" error on bash.
 	
 	if(slave > STDERR_FILENO)
 		close(slave);
