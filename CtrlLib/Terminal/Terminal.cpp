@@ -228,7 +228,7 @@ Tuple<String, Size> TerminalCtrl::GetSizeHint()
 
 void TerminalCtrl::RefreshSizeHint()
 {
-	Refresh(GetView().CenterRect(GetSizeHint().b).Inflated(12));
+	Refresh(GetViewRect().CenterRect(GetSizeHint().b).Inflated(12));
 }
 
 void TerminalCtrl::SyncSb()
@@ -526,7 +526,7 @@ void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 		return 0;
 	};
 
-	pt = GetView().Bind(pt);
+	pt = GetViewRect().Bind(pt);
 	bool captured = HasCapture();
 
 	if(IsTracking()) {

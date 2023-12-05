@@ -245,7 +245,7 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 void TerminalCtrl::PaintSizeHint(Draw& w)
 {
 	Tuple<String, Size> hint = GetSizeHint();
-	Rect rr = GetView().CenterRect(hint.b).Inflated(8);
+	Rect rr = GetViewRect().CenterRect(hint.b).Inflated(8);
 	Rect rx = Rect(rr.GetSize()).CenterRect(hint.b);
 	ImagePainter ip(rr.GetSize());
 	ip.Begin();

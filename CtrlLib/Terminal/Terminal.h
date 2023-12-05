@@ -388,6 +388,8 @@ private:
 
     void        SyncSize(bool notify = true);
 
+    Rect        GetViewRect() const                             { return Rect(GetView().GetSize()); }
+    
     Tuple<String, Size> GetSizeHint();
     void        RefreshSizeHint();
 
@@ -424,7 +426,7 @@ private:
     using       ImagePart  = Tuple<dword, Point, Rect>;
     using       ImageParts = Vector<ImagePart>;
 
-	// TODO: Needs a rewrite to be more flexible.
+    // TODO: Needs a rewrite to be more flexible.
     struct ImageString : Moveable<ImageString> {
         String  data;
         Size    size;
@@ -700,7 +702,7 @@ private:
     void        CancelOut()                                     { out.Clear(); }
 
     void        DisplayAlignmentTest();
-	int			ReadInt(const String& s, int def);
+    int         ReadInt(const String& s, int def);
 
 private:
     bool        GetUDKString(dword key, String& val);
