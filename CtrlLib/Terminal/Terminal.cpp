@@ -353,7 +353,7 @@ void TerminalCtrl::DragAndDrop(Point pt, PasteClip& d)
 void TerminalCtrl::LeftDown(Point pt, dword keyflags)
 {
 	SetFocus();
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		VTMouseEvent(pt, LEFTDOWN, keyflags);
 	else{
 		if(IsSelected(ClientToPagePos(pt))) {
@@ -369,7 +369,7 @@ void TerminalCtrl::LeftDown(Point pt, dword keyflags)
 
 void TerminalCtrl::LeftUp(Point pt, dword keyflags)
 {
-	if(IsTracking()) {
+	if(IsMouseTracking(keyflags)) {
 		if(!modes[XTX10MM])
 			VTMouseEvent(pt, LEFTUP, keyflags);
 	}
@@ -389,7 +389,7 @@ void TerminalCtrl::LeftDrag(Point pt, dword keyflags)
 	pt = ClientToPagePos(pt);
 	bool modifier = keyflags & K_CTRL;
 	
-	if(!IsTracking()) {
+	if(!IsMouseTracking(keyflags)) {
 		VectorMap<String, ClipData> data;
 		if(!HasCapture() && !modifier && IsSelected(pt)) {
 			WString tsample = GetSelectedText();
@@ -432,7 +432,7 @@ void TerminalCtrl::LeftDrag(Point pt, dword keyflags)
 
 void TerminalCtrl::LeftDouble(Point pt, dword keyflags)
 {
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		Ctrl::LeftDouble(pt, keyflags);
 	else {
 		ClearSelection();
@@ -462,7 +462,7 @@ void TerminalCtrl::LeftDouble(Point pt, dword keyflags)
 
 void TerminalCtrl::LeftTriple(Point pt, dword keyflags)
 {
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		Ctrl::LeftTriple(pt, keyflags);
 	else {
 		ClearSelection();
@@ -476,7 +476,7 @@ void TerminalCtrl::LeftTriple(Point pt, dword keyflags)
 void TerminalCtrl::MiddleDown(Point pt, dword keyflags)
 {
 	SetFocus();
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		VTMouseEvent(pt, MIDDLEDOWN, keyflags);
 	else {
 		WString w;
@@ -492,14 +492,14 @@ void TerminalCtrl::MiddleDown(Point pt, dword keyflags)
 
 void TerminalCtrl::MiddleUp(Point pt, dword keyflags)
 {
-	if(IsTracking() && !modes[XTX10MM])
+	if(IsMouseTracking(keyflags) && !modes[XTX10MM])
 		VTMouseEvent(pt, MIDDLEUP, keyflags);
 }
 
 void TerminalCtrl::RightDown(Point pt, dword keyflags)
 {
 	SetFocus();
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		VTMouseEvent(pt, RIGHTDOWN, keyflags);
 	else {
 		pt = ClientToPagePos(pt);
@@ -511,7 +511,7 @@ void TerminalCtrl::RightDown(Point pt, dword keyflags)
 
 void TerminalCtrl::RightUp(Point pt, dword keyflags)
 {
-	if(IsTracking() && !modes[XTX10MM])
+	if(IsMouseTracking(keyflags) && !modes[XTX10MM])
 		VTMouseEvent(pt, RIGHTUP, keyflags);
 }
 
@@ -529,7 +529,7 @@ void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 	pt = GetViewRect().Bind(pt);
 	bool captured = HasCapture();
 
-	if(IsTracking()) {
+	if(IsMouseTracking(keyflags)) {
 		if((modes[XTDRAGM] && captured) || modes[XTANYMM])
 			VTMouseEvent(pt, sGetMouseMotionEvent(captured), keyflags);
 	}
@@ -546,7 +546,7 @@ void TerminalCtrl::MouseMove(Point pt, dword keyflags)
 
 void TerminalCtrl::MouseWheel(Point pt, int zdelta, dword keyflags)
 {
-	bool b = IsTracking();
+	bool b = IsMouseTracking(keyflags);
 	if(!b && page->HasHistory())
 		sb.Wheel(zdelta, wheelstep);
 	else
@@ -661,12 +661,13 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 	}
 }
 
-bool TerminalCtrl::IsTracking() const
+bool TerminalCtrl::IsMouseTracking(dword keyflags) const
 {
-	return modes[XTX10MM]
-		|| modes[XTX11MM]
-		|| modes[XTANYMM]
-		|| modes[XTDRAGM];
+	return (keyflags & overridetracking) != overridetracking
+		&& (modes[XTX10MM]
+	     || modes[XTX11MM]
+		 || modes[XTANYMM]
+		 || modes[XTDRAGM]);
 }
 
 Point TerminalCtrl::ClientToPagePos(Point pt) const
@@ -1068,7 +1069,7 @@ TerminalCtrl& TerminalCtrl::ShowScrollBar(bool b)
 
 Image TerminalCtrl::CursorImage(Point p, dword keyflags)
 {
-	if(IsTracking())
+	if(IsMouseTracking(keyflags))
 		return Image::Arrow();
 	else
 	if(IsMouseOverHyperlink())

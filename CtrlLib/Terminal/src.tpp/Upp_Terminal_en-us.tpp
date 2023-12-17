@@ -1264,6 +1264,15 @@ onst]&]
 [s2; Returns true if mouse tracking mode is enabled.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:OverrideTracking`(dword`):%- TerminalCtrl[@(0.0.255) `&] 
+[* OverrideTracking](dword [*@3 modifier])&]
+[s2; Allows overriding the mouse tracking mode when the [%-*@3 modifier 
+]keys are pressed during any mouse movement or key event. Modifiers 
+can be [C K`_SHIFT, K`_CTRL, K`_ALT], or a combination of them. 
+The default modifier is the [C K`_SHIFT`|K`_CTRL] key combination. 
+Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:StdBar`(Upp`:`:Bar`&`):~~~384;%- [@(0.0.255) void]_[* StdBar](
 [_^Upp`:`:Bar^ Bar][@(0.0.255) `&]_[*@3 menu])&]
 [s2; The standard terminal menu. Standard terminal menu consists 

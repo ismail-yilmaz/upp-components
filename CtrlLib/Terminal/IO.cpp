@@ -398,6 +398,7 @@ void TerminalCtrl::Serialize(Stream& s)
 		s % gsets;
 		s % dpage;
 		s % cts;
+		s % overridetracking;
 	}
 
 	if(s.IsLoading()) {
@@ -412,8 +413,8 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
 	GuiLock __;
 
     ColorTableSerializer cts(colortable);
-    String chrset = CharsetName(charset);
-    
+    String chrset  = CharsetName(charset);
+
     jio ("ConformanceLevel",    clevel)
         ("EightBit",            eightbit)
         ("Charset",             chrset)
@@ -432,6 +433,7 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
         ("AlternateScroll",     alternatescroll)
         ("WheelStep",           wheelstep)
         ("AutoHideMouseCursor", hidemousecursor)
+        ("TrackingOverrideKey", overridetracking)
         ("WindowActions",       windowactions)
         ("WindowReports",       windowreports)
         ("SixelGraphics",       sixelimages)

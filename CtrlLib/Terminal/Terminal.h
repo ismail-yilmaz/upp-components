@@ -337,7 +337,8 @@ public:
     bool            IsMouseOverImage() const                        { Point pt = GetMouseViewPos(); return IsMouseOverImage(ClientToPagePos(pt)); }
     bool            IsMouseOverHyperlink() const                    { Point pt = GetMouseViewPos(); return IsMouseOverHyperlink(ClientToPagePos(pt)); }
 
-    bool            IsTracking() const;
+    bool            IsTracking() const                              { return IsMouseTracking(GetMouseFlags()); }
+    TerminalCtrl&   OverrideTracking(dword modifiers)               { overridetracking = modifiers; return *this; }
 
     const VTCell&   GetCellAtMousePos() const                       { Point pt = GetMouseViewPos(); return page->FetchCell(ClientToPagePos(pt));; }
     const VTCell&   GetCellAtCursorPos() const                      { return page->GetCell(); };
@@ -414,6 +415,7 @@ private:
     void        GetWordPosL(const VTLine& line, Point& pl) const;
     void        GetWordPosH(const VTLine& line, Point& ph) const;
 
+    bool        IsMouseTracking(dword keyflags) const;
     bool        IsMouseOverImage(Point pt) const                { return !IsSelected(pt) && page->FetchCell(pt).IsImage(); }
     bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
 
@@ -502,25 +504,26 @@ private:
     VScrollBar  sb;
     Scroller    scroller;
     Point       mousepos;
-    Font        font            = Monospace();
+    Font        font             = Monospace();
     byte        charset;
     Rect        caretrect;
-    Point       anchor          = Null;
-    Point       selpos          = Null;
-    dword       seltype         = SEL_NONE;
-    bool        multiclick      = false;
-    bool        ignorescroll    = false;
-    bool        mousehidden     = false;
-    bool        resizing        = false;
-    bool        hinting         = false;
-    bool        blinking        = false;
-    int         blinkinterval   = 500;
-    int         wheelstep       = GUI_WheelScrollLines();
-    int         metakeyflags    = MKEY_ESCAPE;
-    int         clipaccess      = CLIP_NONE;
-    dword       activelink      = 0;
-    dword       prevlink        = 0;
-    Size        padding         = { 0, 0 };
+    Point       anchor           = Null;
+    Point       selpos           = Null;
+    dword       seltype          = SEL_NONE;
+    bool        multiclick       = false;
+    bool        ignorescroll     = false;
+    bool        mousehidden      = false;
+    bool        resizing         = false;
+    bool        hinting          = false;
+    bool        blinking         = false;
+    int         blinkinterval    = 500;
+    int         wheelstep        = GUI_WheelScrollLines();
+    int         metakeyflags     = MKEY_ESCAPE;
+    int         clipaccess       = CLIP_NONE;
+    dword       activelink       = 0;
+    dword       prevlink         = 0;
+    int         overridetracking = K_SHIFT_CTRL;
+    Size        padding          = { 0, 0 };
 
     bool        eightbit;
     bool        reversewrap;

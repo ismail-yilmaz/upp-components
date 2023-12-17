@@ -251,7 +251,7 @@ void TerminalCtrl::PaintSizeHint(Draw& w)
 	ip.Begin();
 	ip.Clear(RGBAZero());
 	ip.RoundedRectangle(0, 0, rr.Width(), rr.Height(), 10.0)
-	  .Stroke(4, LtGray())
+	  .Stroke(1, LtGray())
 	  .Fill(SColorText());
 	ip.DrawText(rx.left, rx.top, hint.a, StdFont(), SColorPaper);
 	ip.End();
