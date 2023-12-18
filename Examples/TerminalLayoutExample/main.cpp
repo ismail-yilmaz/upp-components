@@ -116,7 +116,9 @@ void TerminalExample::MainMenu(Bar& bar)
 
 void TerminalExample::FileMenu(Bar& bar)
 {
-	bar.Add(t_("Exit"), [=] { Close(); });
+	bar.Add(t_("Screenshot"), [=] { Screenshot(); });
+	bar.Separator();
+	bar.Add(t_("Exit"),       [=] { Close(); });
 }
 
 void TerminalExample::ViewMenu(Bar& bar)
@@ -190,6 +192,16 @@ void TerminalExample::InsertCodePoint()
 		dword n = ScanInt(q.GetText(), nullptr, 16);
 		term.Key(n, 1);
 	}
+}
+
+void TerminalExample::Screenshot()
+{
+	// Take a screenshot of the terminal display.
+
+	ImagePainter w(term.GetSize());
+	term.PaintPage(w);
+	WriteClipboardImage(w);
+	PromptOK(t_("Screenshot is copied to the clipboard"));
 }
 
 void EditCodePoint::PopUp()

@@ -42,6 +42,7 @@ private:
     void    FontZoom(int n);
     void    LineSpacing(int n);
     void    InsertCodePoint();
+    void    Screenshot();
     void    About();
     
 private:
