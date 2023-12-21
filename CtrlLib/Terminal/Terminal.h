@@ -87,7 +87,8 @@ public:
     Gate<PasteClip&>     WhenClip;
     Event<const String&> WhenLink;
     Event<const String&> WhenImage;
-
+    Event<VTLine&>       WhenPaintLine;
+    
     // Window Ops support.
     Event<bool>          WhenWindowMinimize;
     Event<bool>          WhenWindowMaximize;

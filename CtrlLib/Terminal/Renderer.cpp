@@ -194,36 +194,49 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 		int y = i * csz.cy - (csz.cy * pos);
 		const VTLine& line = page->FetchLine(i);
 		if(!line.IsVoid() && w.IsPainting(0, y, wsz.cx, csz.cy)) {
-			Renderer::Attrs *la = lineattrs;
-			for(int j = 0; j < psz.cx; ++j, ++la) {
-				la->cell = &line.Get(j, GetAttrs());
-				la->x = j * csz.cx;
-				la->y = y;
-				la->is_link = hyperlinks && la->cell->IsHyperlink();
-				if((la->highlighted = IsSelected(Point(j, i)))) {
-					la->ink   = colortable[COLOR_INK_SELECTED];
-					la->paper = colortable[COLOR_PAPER_SELECTED];
+			auto PaintLine = [&](const VTLine& l) {
+				LTIMING("Terminal::PaintLine");
+				Renderer::Attrs *la = lineattrs;
+				for(int j = 0; j < psz.cx; ++j, ++la) {
+					la->cell = &l.Get(j, GetAttrs());
+					la->x = j * csz.cx;
+					la->y = y;
+					la->is_link = hyperlinks && la->cell->IsHyperlink();
+					if((la->highlighted = IsSelected(Point(j, i)))) {
+						la->ink   = colortable[COLOR_INK_SELECTED];
+						la->paper = colortable[COLOR_PAPER_SELECTED];
+					}
+					else {
+						SetInkAndPaperColor(*la->cell, la->ink, la->paper);
+					}
+					if(!nobackground
+					|| !IsNull(la->cell->paper)
+					|| la->highlighted
+					|| la->cell->IsInverted()
+					|| (la->is_link && la->cell->data == activelink)
+					|| print) {
+						rr.DrawRect(*la, (j == psz.cx - 1) ? wsz.cx - la->x : csz.cx, csz.cy);
+					}
 				}
-				else {
-					SetInkAndPaperColor(*la->cell, la->ink, la->paper);
+				rr.FlushRect();
+				la = lineattrs;
+				for(int j = 0; j < psz.cx; ++j, ++la) {
+					la->x += padding.cx;
+					la->y += padding.cy;
+					rr.DrawCell(*la, csz, la->highlighted || !blinking || print);
 				}
-				if(!nobackground
-				|| !IsNull(la->cell->paper)
-				|| la->highlighted
-				|| la->cell->IsInverted()
-				|| (la->is_link && la->cell->data == activelink)
-				|| print) {
-					rr.DrawRect(*la, (j == psz.cx - 1) ? wsz.cx - la->x : csz.cx, csz.cy);
-				}
+				rr.FlushCell();
+			};
+			PaintLine(line);
+			if(WhenPaintLine) {
+				LTIMING("TerminalCtrl::WhenPaintLine");
+				VTLine hl;
+				hl.SetCount(line.GetCount());
+				for(int i = 0; i < line.GetCount(); i++)
+					hl[i] = line[i];
+				WhenPaintLine(hl);
+				PaintLine(hl);
 			}
-			rr.FlushRect();
-			la = lineattrs;
-			for(int j = 0; j < psz.cx; ++j, ++la) {
-				la->x += padding.cx;
-				la->y += padding.cy;
-				rr.DrawCell(*la, csz, la->highlighted || !blinking || print);
-			}
-			rr.FlushCell();
 		}
 	}
 

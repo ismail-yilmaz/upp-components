@@ -199,6 +199,15 @@ in a format agnostic way, using the registered U`+`+ image decoders
 (e.g. the StreamRaster interface.). &]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenPaintLine:%- Event<VTLine[@(0.0.255) `&]> 
+[* WhenPaintLine]&]
+[s2; If defined, this event is dispatched after a line (row) is painted. 
+It passes a single parameter, VTLine, which represents a terminal 
+line, consisted of terminal cells. Cell attributes can be manipulated. 
+The main purpose of this event is to allow custom text highlighting 
+by the client code.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:WhenWindowMinimize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) boo
 l]>_[* WhenWindowMinimize]&]
 [s6;%- This event is a part of xterm`'s window ops extension.&]
