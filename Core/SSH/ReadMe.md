@@ -53,7 +53,7 @@ MS Windows (tm).
 
 ## License
 ```
-Copyright (c) 2019-2023, İsmail Yılmaz
+Copyright (c) 2019-2024, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

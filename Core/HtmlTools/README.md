@@ -20,7 +20,7 @@ A powerful yet easy to use [libtidy](https://github.com/htacg/tidy-html5) bindin
 
 HtmlTools package for U++
 
-Copyright (c) 2023, İsmail Yılmaz
+Copyright (c) 2023-2024, İsmail Yılmaz
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
