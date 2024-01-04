@@ -199,13 +199,16 @@ in a format agnostic way, using the registered U`+`+ image decoders
 (e.g. the StreamRaster interface.). &]
 [s3;%- &]
 [s4;%- &]
-[s5;:Upp`:`:TerminalCtrl`:`:WhenPaintLine:%- Event<VTLine[@(0.0.255) `&]> 
-[* WhenPaintLine]&]
-[s2; If defined, this event is dispatched after a line (row) is painted. 
-It passes a single parameter, VTLine, which represents a terminal 
-line, consisted of terminal cells. Cell attributes can be manipulated. 
-The main purpose of this event is to allow custom text highlighting 
-by the client code.&]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenHighlight:%- Event<VectorMap<[@(0.0.255) int], 
+VTLine>[@(0.0.255) `&]> [* WhenHighlight]&]
+[s2; If defined, this event will be dispatched before a line is painted. 
+It passes a reference to a VectorMap as its parameter. The keys 
+of the map represent the vertical position(s) of the line (row) 
+in the buffer and the values represent the corresponding line(s): 
+If the map contains multiple lines (i.e. count > 1), they should 
+be treated as a [/ wrapped], single and continous line. The main 
+purpose of this event is to allow custom text highlighting by 
+the client code.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:WhenWindowMinimize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) boo

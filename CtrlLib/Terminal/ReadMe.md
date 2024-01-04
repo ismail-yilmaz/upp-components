@@ -105,6 +105,7 @@ Thanks to U++ team, it is possible to run U++ GUI applications from within a web
 - Supports alternate screen buffer.
 - Supports history/scrollback buffer.
 - Has a user switchable scrollbar.
+- Supports custom cell-level highlighting.
 - Supports xterm style alternate scroll.
 - Supports resize (and optional lazy resize to reduce flicker on network terminals such as SSH-based ones).
 - Supports both immediate display refresh and delayed (buffered) display refresh.

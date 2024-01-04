@@ -194,7 +194,7 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 		int y = i * csz.cy - (csz.cy * pos);
 		const VTLine& line = page->FetchLine(i);
 		if(!line.IsVoid() && w.IsPainting(0, y, wsz.cx, csz.cy)) {
-			auto PaintLine = [&](const VTLine& l) {
+			auto PaintLine = [=, &w, &lineattrs, &rr](const VTLine& l, int i, int y) {
 				LTIMING("Terminal::PaintLine");
 				Renderer::Attrs *la = lineattrs;
 				for(int j = 0; j < psz.cx; ++j, ++la) {
@@ -227,16 +227,16 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 				}
 				rr.FlushCell();
 			};
-			PaintLine(line);
-			if(WhenPaintLine) {
-				LTIMING("TerminalCtrl::WhenPaintLine");
-				VTLine hl;
-				hl.SetCount(line.GetCount());
-				for(int i = 0; i < line.GetCount(); i++)
-					hl[i] = line[i];
-				WhenPaintLine(hl);
-				PaintLine(hl);
+			if(WhenHighlight) {
+				LTIMING("TerminalCtrl::WhenHighlight");
+				VectorMap<int, VTLine> hl;
+				page->FetchLine(i, hl);
+				WhenHighlight(hl);
+				for(const auto& h : ~hl)
+					PaintLine(h.value, h.key, h.key * csz.cy - (csz.cy * pos));
 			}
+			else
+				PaintLine(line, i, y);
 		}
 	}
 
@@ -249,7 +249,7 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 		w.DrawRect(caretrect, InvertColor);
 
 	// Hint new size.
-	if(sizehint && hinting)
+	if(sizehint && hinting && IsVisible())
 		PaintSizeHint(w);
 
 	w.End();

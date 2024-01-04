@@ -87,7 +87,7 @@ public:
     Gate<PasteClip&>     WhenClip;
     Event<const String&> WhenLink;
     Event<const String&> WhenImage;
-    Event<VTLine&>       WhenPaintLine;
+    Event<VectorMap<int, VTLine>&> WhenHighlight;
     
     // Window Ops support.
     Event<bool>          WhenWindowMinimize;
@@ -402,7 +402,7 @@ private:
 
     Point       GetCursorPos() const                            { return --page->GetPos(); /* VT cursor position is 1-based */ }
 
-    Point       ClientToPagePos(Point pt) const;
+    Point       ClientToPagePos(Point pt, bool ignoresb = false) const;
     Point       SelectionToPagePos(Point pt) const;
 
     void        SetSelection(Point  pl, Point ph, dword selflag);

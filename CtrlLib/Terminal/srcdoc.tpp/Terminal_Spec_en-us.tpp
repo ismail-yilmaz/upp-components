@@ -24,7 +24,7 @@ topic "Specifications";
 [2 $$0,0#00000000000000000000000000000000:Default]
 [{_}%EN-US 
 [s2;= Terminal Package for U`+`+&]
-[s0;= [*1 Copyright © 2019`-2023, ][*^https`:`/`/github`.com`/ismail`-yilmaz^1 İsmail 
+[s0;= [*1 Copyright © 2019`-2024, ][*^https`:`/`/github`.com`/ismail`-yilmaz^1 İsmail 
 Yılmaz]&]
 [s2; &]
 [s2;= Technical Specifications&]

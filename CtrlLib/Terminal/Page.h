@@ -6,9 +6,11 @@
 
 namespace Upp {
 
-class VTLine : public Moveable<VTLine, Vector<VTCell>> {
+class VTLine : public MoveableAndDeepCopyOption<VTLine, Vector<VTCell>> {
 public:
     VTLine();
+	VTLine(const VTLine& src, int);
+	
     void            Adjust(int cx, const VTCell& filler);
     void            ShiftLeft(int begin, int end, int n, const VTCell& filler);
     void            ShiftRight(int begin, int end, int n, const VTCell& filler);
@@ -30,7 +32,7 @@ public:
 
     String          ToString() const;
     WString         ToWString() const;
-
+	
     using Range = SubRangeOf<Vector<VTCell>>;
     using ConstRange = const SubRangeOf<const Vector<VTCell>>;
 
@@ -208,9 +210,11 @@ public:
     void            Invalidate(int begin, int end);
 
     // Index: 0-based.
-    const VTLine&   FetchLine(int i) const;
-    const VTLine&   operator[](int i) const                  { return FetchLine(i); }
     int             GetLineCount() const                     { return lines.GetCount() + saved.GetCount(); }
+    Tuple<int, int> GetLineSpan(int i) const;
+    const VTLine&   FetchLine(int i) const;
+    void            FetchLine(int i, VectorMap<int, VTLine>& line);
+    const VTLine&   operator[](int i) const                  { return FetchLine(i); }
 
     // Point: 0-based.
     const VTCell&   FetchCell(const Point& pt) const;

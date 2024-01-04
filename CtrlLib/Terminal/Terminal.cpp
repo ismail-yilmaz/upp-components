@@ -574,8 +574,14 @@ void TerminalCtrl::VTMouseEvent(Point pt, dword event, dword keyflags, int zdelt
 {
 	int  mouseevent = 0;
 
+	// Some interactive applications, particularly those using a Text User Interface (TUI),
+	// do not utilize the alternate buffer for drawing their interface (e.g., Far Manager on Windows).
+	// This behavior leads to offset mouse position reports because the scroll(bar) position is updated
+	// when the history or scrollback buffer is enabled. To address this issue, a workaround is implemented
+	// by refraining from calculating the scrolled position with VT mouse events.
+	
 	if(!modes[XTSGRPXMM])
-		pt = ClientToPagePos(pt) + 1;
+		pt = ClientToPagePos(pt, true) + 1;
 
 	switch(event) {
 	case LEFTUP:
@@ -670,10 +676,10 @@ bool TerminalCtrl::IsMouseTracking(dword keyflags) const
 		 || modes[XTDRAGM]);
 }
 
-Point TerminalCtrl::ClientToPagePos(Point pt) const
+Point TerminalCtrl::ClientToPagePos(Point pt, bool ignoresb) const
 {
 	Sizef csz = GetCellSize();
-	return (Point) Pointf(pt.x / csz.cx, pt.y / csz.cy + GetSbPos());
+	return (Point) Pointf(pt.x / csz.cx, pt.y / csz.cy + (ignoresb ? 0 : GetSbPos()));
 }
 
 Point TerminalCtrl::SelectionToPagePos(Point pt) const
@@ -779,15 +785,11 @@ WString TerminalCtrl::GetSelectedText() const
 
 void TerminalCtrl::GetLineSelection(const Point& pt, Point& pl, Point& ph) const
 {
-	pl = ph = pt;
+	Tuple<int, int> span = page->GetLineSpan(pt.y);
 	pl.x = 0;
+	pl.y = span.a;
 	ph.x = GetPageSize().cx;
-	int cy = page->GetLineCount();
-	
-	while(pl.y > 0 && page->FetchLine(pl.y - 1).IsWrapped())
-		pl.y--;
-	while(ph.y < cy && page->FetchLine(ph.y).IsWrapped())
-		ph.y++;
+	ph.y = span.b;
 }
 
 bool TerminalCtrl::GetWordSelection(const Point& pt, Point& pl, Point& ph) const

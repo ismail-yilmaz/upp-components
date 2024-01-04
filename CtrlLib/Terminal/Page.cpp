@@ -11,6 +11,13 @@ VTLine::VTLine()
 {
 }
 
+VTLine::VTLine(const VTLine& src, int)
+{
+	reinterpret_cast<Vector<VTCell>&>(*this) = clone(reinterpret_cast<const Vector<VTCell>&>(src));
+	invalid = src.invalid;
+	wrapped = src.wrapped;
+}
+
 void VTLine::Adjust(int cx, const VTCell& filler)
 {
 	if(cx < GetCount())
@@ -274,8 +281,9 @@ VTPage& VTPage::SetSize(Size sz)
 	}
 	lines.SetCount(size.cy);
 	for(VTLine& line : lines) {
-		if(line.GetCount() < size.cx)
+		if(line.GetCount() < size.cx) {
 			line.Adjust(size.cx, cellattrs);
+		}
 		line.Invalidate();
 	}
 	if(tabsync)
@@ -1121,6 +1129,7 @@ const VTCell& VTPage::FetchCell(const Point& pt) const
 			: VTCell::Void();
 }
 
+
 const VTLine& VTPage::FetchLine(int i) const
 {
 	int count = GetLineCount();
@@ -1138,6 +1147,18 @@ const VTLine& VTPage::FetchLine(int i) const
 	}
 	
 	return VTLine::Void();
+}
+
+void VTPage::FetchLine(int i, VectorMap<int, VTLine>& line)
+{
+	LLOG("FetchLine(" << i << ", " << &line << ")");
+	
+	Tuple<int, int> span = GetLineSpan(i);
+	for(int n = span.a; n <= span.b; n++) {
+		const VTLine& l = FetchLine(n);
+		if(!l.IsVoid())
+			line.Add(n, clone(l));
+	}
 }
 
 bool VTPage::FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> consumer, bool rect) const
@@ -1372,6 +1393,20 @@ String VTPage::Cursor::ToString() const
 	return Format(
 		"[%d:%d] - Flags: displaced: %`, EOL: %",
 			x, y, displaced, eol);
+}
+
+Tuple<int, int> VTPage::GetLineSpan(int i) const
+{
+	LLOG("GetLineSpan(" << i << ")");
+	
+	int lo = i, hi = i;
+
+	while(lo > 0 && FetchLine(lo - 1).IsWrapped())
+		lo--;
+	while(hi < GetLineCount() && FetchLine(hi).IsWrapped())
+		hi++;
+	
+	return MakeTuple(lo, hi);
 }
 
 WString AsWString(const VTPage& page, const Rect& r, bool rectsel, bool tspaces)
