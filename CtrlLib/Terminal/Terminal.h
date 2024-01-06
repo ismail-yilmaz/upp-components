@@ -87,7 +87,10 @@ public:
     Gate<PasteClip&>     WhenClip;
     Event<const String&> WhenLink;
     Event<const String&> WhenImage;
+    
+    
     Event<VectorMap<int, VTLine>&> WhenHighlight;
+    Gate<const VectorMap<int, WString>&, const WString&> WhenSearch;
     
     // Window Ops support.
     Event<bool>          WhenWindowMinimize;
@@ -307,6 +310,10 @@ public:
     void            ImagesBar(Bar& menu);
     void            OptionsBar(Bar& menu);
 
+    void            Goto(int pos)                                   { if(!IsAlternatePage()) sb.Set(clamp(pos, 0, page->GetLineCount() - 1)); }
+    void            Find(const WString& s);
+    void			Find(const String& s)                           { Find(s.ToWString()); }
+    
     void            Layout() override                               { SyncSize(true); SyncSb(); }
 
     void            Paint(Draw& w)  override                        { Paint0(w); }

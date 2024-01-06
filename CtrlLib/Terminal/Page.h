@@ -9,8 +9,8 @@ namespace Upp {
 class VTLine : public MoveableAndDeepCopyOption<VTLine, Vector<VTCell>> {
 public:
     VTLine();
-	VTLine(const VTLine& src, int);
-	
+    VTLine(const VTLine& src, int);
+    
     void            Adjust(int cx, const VTCell& filler);
     void            ShiftLeft(int begin, int end, int n, const VTCell& filler);
     void            ShiftRight(int begin, int end, int n, const VTCell& filler);
@@ -32,7 +32,7 @@ public:
 
     String          ToString() const;
     WString         ToWString() const;
-	
+    
     using Range = SubRangeOf<Vector<VTCell>>;
     using ConstRange = const SubRangeOf<const Vector<VTCell>>;
 
@@ -214,6 +214,7 @@ public:
     Tuple<int, int> GetLineSpan(int i) const;
     const VTLine&   FetchLine(int i) const;
     void            FetchLine(int i, VectorMap<int, VTLine>& line);
+    int             FetchLine(int i, VectorMap<int, WString>& line);
     const VTLine&   operator[](int i) const                  { return FetchLine(i); }
 
     // Point: 0-based.
@@ -282,3 +283,4 @@ WString AsWString(const VTPage& page, const Rect& r, bool rectsel = false, bool 
 
 }
 #endif
+

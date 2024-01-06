@@ -1151,7 +1151,7 @@ const VTLine& VTPage::FetchLine(int i) const
 
 void VTPage::FetchLine(int i, VectorMap<int, VTLine>& line)
 {
-	LLOG("FetchLine(" << i << ", " << &line << ")");
+	LLOG("FetchLine(" << i << ", " << &line << ") [fecthes as a line vector]");
 	
 	Tuple<int, int> span = GetLineSpan(i);
 	for(int n = span.a; n <= span.b; n++) {
@@ -1159,6 +1159,19 @@ void VTPage::FetchLine(int i, VectorMap<int, VTLine>& line)
 		if(!l.IsVoid())
 			line.Add(n, clone(l));
 	}
+}
+
+int VTPage::FetchLine(int i, VectorMap<int, WString>& line)
+{
+	LLOG("FetchLine(" << i << ", " << &line << ") [fetches as a text]");
+	
+	Tuple<int, int> span = GetLineSpan(i);
+	for(int n = span.a; n <= span.b; n++) {
+		const VTLine& l = FetchLine(n);
+		if(!l.IsVoid())
+			line.Add(n, l.ToWString());
+	}
+	return span.b;
 }
 
 bool VTPage::FetchRange(const Rect& r, Gate<const VTLine&, VTLine::ConstRange&> consumer, bool rect) const

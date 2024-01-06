@@ -204,11 +204,27 @@ VTLine>[@(0.0.255) `&]> [* WhenHighlight]&]
 [s2; If defined, this event will be dispatched before a line is painted. 
 It passes a reference to a VectorMap as its parameter. The keys 
 of the map represent the vertical position(s) of the line (row) 
-in the buffer and the values represent the corresponding line(s): 
-If the map contains multiple lines (i.e. count > 1), they should 
-be treated as a [/ wrapped], single and continous line. The main 
-purpose of this event is to allow custom text highlighting by 
-the client code.&]
+in the buffer and the values represent the corresponding line(s) 
+as 0`-based indices: If the map contains multiple lines (i.e. 
+count > 1), they should be treated as a [/ wrapped], single and 
+continous line. The main purpose of this event is to allow custom 
+text highlighting by the client code.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:WhenSearch:%- Gate<[@(0.0.255) const] VectorMap<[@(0.0.255) i
+nt], WString>[@(0.0.255) `&], [@(0.0.255) const] WString[@(0.0.255) `&]> 
+[* WhenSearch]&]
+[s2; If defined, this event will be dispatched whenever a find method 
+is called. It is NOOP by default. Client code can supply a text 
+search mechanism by defining this event. It passes 2 parameters 
+to the client code. The first parameter is a constant reference 
+to a VectorMap. Similar to WhenHighlight method, the keys of 
+this map represent the vertical position(s) of the line (row) 
+in the buffer and the values represent the WString version of 
+the corresponding line(s) as 0`-based indices: If the map contains 
+multiple lines (i.e. count > 1), they should be treated as a 
+[/ wrapped], single and continous line. Returning false will halt 
+the search at the current position.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:WhenWindowMinimize:%- [_^Upp`:`:Event^ Event]<[@(0.0.255) boo
@@ -1257,6 +1273,25 @@ as well.&]
 [s5;:Upp`:`:TerminalCtrl`:`:IsSelection`(`)const:%- [@(0.0.255) bool]_[* IsSelection]()_[@(0.0.255) c
 onst]&]
 [s2; Returns true if there is a selection.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:Find`(const WString`&`):%- [@(0.0.255) void] 
+[* Find]([@(0.0.255) const] WString[@(0.0.255) `&] [*@3 s])&]
+[s5;:Upp`:`:TerminalCtrl`:`:Find`(const String`&`):%- [@(0.0.255) void] 
+[* Find]([@(0.0.255) const] String[@(0.0.255) `&] [*@3 s])&]
+[s2; These methods allow the client code to search for a string [%-*@3 s] 
+in the terminal`'s buffer. They will not directly perform any 
+search but call the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenSearch^ W
+henSearch ]method for the each line. Client code can add any 
+type of  text searching mechanism by defining the [^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:WhenSearch^ W
+henSearch ]h method.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:Goto`(int`):%- [@(0.0.255) void] [* Goto]([@(0.0.255) int] 
+[*@3 pos])&]
+[s2; Scrolls into position [%-*@3 pos]. Position is zero`-based. This 
+method does nothing if the terminal is switched to the alternate 
+page.&]
 [s3;%- &]
 [s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:IsMouseOverImage`(`)const:%- [@(0.0.255) bool]_[* IsMouseOver

@@ -898,6 +898,17 @@ void TerminalCtrl::HighlightHyperlink(Point pt)
 	}
 }
 
+void TerminalCtrl::Find(const WString& s)
+{
+	int i = 0;
+	while(i < page->GetLineCount()) {
+		VectorMap<int, WString> m;
+		i = page->FetchLine(i, m) + 1;
+		if(!WhenSearch(m, s))
+			return;
+	}
+}
+
 void TerminalCtrl::StdBar(Bar& menu)
 {
 	menu.Sub(t_("Options"), [=](Bar& menu) { OptionsBar(menu); });
