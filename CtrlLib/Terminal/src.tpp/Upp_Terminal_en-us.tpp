@@ -743,6 +743,25 @@ _[@(0.0.255) const]&]
 [s2; Returns true if the scrollbar is visible.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:ScrollToEnd`(bool`):%- TerminalCtrl[@(0.0.255) `&] 
+[* ScrollToEnd]([@(0.0.255) bool] [*@3 b] [@(0.0.255) `=] [@(0.0.255) true])&]
+[s2; Enables or disables the automatic scrolling of the page to the 
+end of buffer. By defaulti the terminal will scroll to the end 
+of page when there is new output. Returns `*this for method chaining. 
+Does not affect the alternate buffer.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:NoScrollToEnd`(`):%- TerminalCtrl[@(0.0.255) `&] 
+[* DontScrollToEnd]()&]
+[s2; Disables the scrolling of the page to the end of buffer. Same 
+as ScrollToEnd(false). Returns `*this for method chaining.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:IsScrollingToEnd`(`)const:%- [@(0.0.255) bool] 
+[* IsScrollingToEnd]() [@(0.0.255) const]&]
+[s2; Returns true if the page scrolls when there is new output.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:SetScrollBarStyle`(const Upp`:`:ScrollBar`:`:Style`&`):%- [_^topic`:`/`/Terminal`/src`/Upp`_Terminal`_en`-us`#Upp`:`:TerminalCtrl`:`:class^ T
 erminalCtrl][@(0.0.255) `&]_[* SetScrollBarStyle]([@(0.0.255) const]_[_^Upp`:`:ScrollBar`:`:Style^ S
 crollBar`::Style][@(0.0.255) `&]_[*@3 s])&]
@@ -1085,7 +1104,7 @@ is enabled.&]
 [s5;:Upp`:`:TerminalCtrl`:`:PCStyleFunctionKeys`(bool`):%- [_^Upp`:`:TerminalCtrl^ Term
 inalCtrl][@(0.0.255) `&]_[* PCStyleFunctionKeys]([@(0.0.255) bool]_[*@3 b]_`=_[@(0.0.255) t
 rue])&]
-[s2; Enables or disables the PC`-style function keys feature. Disabled 
+[s2; Enables or disables the PC`-style function keys feature. Enabled 
 by default. Returns `*this for method chaining.&]
 [s3; &]
 [s4;%- &]
@@ -1294,6 +1313,20 @@ method does nothing if the terminal is switched to the alternate
 page.&]
 [s3;%- &]
 [s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetMousePagePos`(`)const:%- Point [* GetMousePagePos]() 
+[@(0.0.255) const]&]
+[s0;l288; Returns the position of mouse relative to the terminal`'s 
+page area. Note that the result can be a negative point or point 
+outside the page area.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:GetMousePagePosAsIndex`(`)const:%- [@(0.0.255) int] 
+[* GetMousePagePosAsIndex]() [@(0.0.255) const]&]
+[s2; Returns the position of mouse relative to the terminal`'s page 
+area as an [/ index]. Note that the result can be a negative point 
+or point outside the page area.&]
+[s3;%- &]
+[s4;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:IsMouseOverImage`(`)const:%- [@(0.0.255) bool]_[* IsMouseOver
 Image]()_[@(0.0.255) const]&]
 [s2; Returns true if the mouse pointer is hovering over an inline 
@@ -1435,8 +1468,23 @@ hyperlink cache to [%-*@3 maxcount]. The default [%-*@3 maxcount
 ]is 100.000 entries. The maximum length of a single entry can 
 be at most 2084 bytes.&]
 [s3; &]
+[ {{10000F(128)G(128)@1 [s0; [* Protected Method List]]}}&]
 [s3;%- &]
-[ {{10000F(128)G(128)@1 [s0; [* Constructor detail]]}}&]
+[s5;:Upp`:`:TerminalCtrl`:`:PreParse`(`):%- [@(0.0.255) virtual void] 
+[* PreParse]()&]
+[s2; Called right before the main parser or the echo parser starts 
+parsing the input. If the client code overrides this method, 
+it must call the base version in the method body.&]
+[s3;%- &]
+[s4;%- &]
+[s5;:Upp`:`:TerminalCtrl`:`:PostParse`(`):%- [@(0.0.255) virtual void] 
+[* PostParse]()&]
+[s2; Called right after the main parser or the echo parser finishes 
+parsing the input. If the client code overrides this method, 
+it must call the base version in the method body. .&]
+[s3;%- &]
+[s3;%- &]
+[ {{10000F(128)G(128)@1 [s0; [* Constructor Detail]]}}&]
 [s3;%- &]
 [s5;:Upp`:`:TerminalCtrl`:`:TerminalCtrl`(`):%- [* TerminalCtrl]()&]
 [s2; Default constructor.&]

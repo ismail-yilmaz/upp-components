@@ -5,162 +5,142 @@
 
 namespace Upp {
 
-class Renderer {
-public:
-	struct Attrs {
-        const VTCell *cell = nullptr;
-        int     x     = 0;
-        int     y     = 0;
-        Color   ink   = Null;
-        Color   paper = Null;
-        bool    is_link:1;
-        bool    highlighted:1;
-	};
-	
-private:
-	Draw&		w;
-	Rect		rect;
-	WString		text;
-	Point		textpos;
-	Point		begin_link, end_link;
-	Point		begin_line, end_line;
-	Vector<int> dx;
-	int			dxcount;
-	Font		font;
-	Size		fsz;
-	word		sgr;
-	Color		ink;
-	Color		paper;
-	Color		background;
-	bool		transparent;
-	bool		blinkingtext;
-
-    using       ImagePart  = Tuple<dword, Point, Rect>;
-    using       ImageParts = Vector<ImagePart>;
-	ImageParts&	imageparts;
-	
-public:
-	Renderer(Draw& w, ImageParts& im, Font f, Size sz, Color bkg, bool bt, bool tr)
-		: w(w)
-		, imageparts(im)
-		, font(f)
-		, fsz(sz)
-		, ink(Null)
-		, paper(Null)
-		, background(bkg)
-		, begin_link(Null)
-		, end_link(Null)
-		, begin_line(Null)
-		, end_line(Null)
-		, textpos(0, 0)
-		, dxcount(0)
-		, transparent(tr)
-		, blinkingtext(bt)
-		, sgr(VTCell::SGR_NORMAL) {}
-
-	void DrawRect(const Attrs& a, int cx, int cy)
-	{
-		Rect r = RectC(a.x, a.y, cx, cy);
-		if(rect.top == r.top && rect.bottom == r.bottom && rect.right == r.left && paper == a.paper) {
-			rect.right = r.right;
-			return;
-		}
-		FlushRect();
-		paper = a.paper;
-		rect  = r;
-	}
-	
-	void FlushRect()
-	{
-		if(IsNull(rect) || (!transparent && paper == background))
-			return;
-
-		LTIMING("Renderer::FlushRect");
-
-		w.DrawRect(rect, paper);
-		rect = Null;
-	}
-
-	void DrawCell(const Attrs& a, Size csz, bool show)
-	{
-		const VTCell& cell = *a.cell;
-		
-		if(cell.IsImage())
-			CollectImageParts(a, cell, csz);
-		
-		dxcount = dx.GetCount();
-		bool overline = cell.IsOverlined() && show;
-	
-		if(textpos.y != a.y || textpos.x >= a.x || sgr != cell.sgr || ink != a.ink || !dxcount) {
-			FlushCell();
-			textpos = Point(a.x, a.y);
-			ink = a.ink;
-			sgr = cell.sgr;
-			font.Bold(cell.IsBold());
-			font.Italic(cell.IsItalic());
-			font.Strikeout(cell.IsStrikeout());
-			font.Underline(cell.IsUnderlined());
-
-			if(a.is_link)
-				begin_link = end_link = Point(a.x, a.y + fsz.cy - 1);
-
-			if(overline)
-				begin_line = end_line = Point(a.x, a.y);
-		}
-
-		if(cell.chr < 0x20 || cell.IsImage() || cell.IsConcealed() || (!show && (cell.IsBlinking() && blinkingtext))) {
-			if(dxcount)
-				dx.Top() += csz.cx;
-		}
-		else {
-			text.Cat((int) cell.chr);
-			dx.Add(csz.cx);
-		}
-
-		if(a.is_link)
-			end_link.x += fsz.cx;
-
-		if(overline)
-			end_line.x += fsz.cx;
-	}
-
-	void FlushCell()
-	{
-		if(text.IsEmpty()) return;
-
-		LTIMING("Renderer::FlushCell");
-
-		w.DrawText(textpos.x, textpos.y, text, font, ink, dx);
-
-		if(begin_link.x < end_link.x) // Hyperlink underline
-			w.DrawLine(begin_link, end_link, PEN_DOT, ink);
-
-		if(begin_line.x < end_line.x) // Text overline
-			w.DrawLine(begin_line, end_line, PEN_SOLID, ink);
-
-		dx.Clear();
-		begin_link = end_link = Null;
-		begin_line = end_line = Null;
-		dxcount = 0;
-		textpos.y = Null;
-		text.Clear();
-	}
-	
-	void CollectImageParts(const Attrs& a, const VTCell& cell, const Size& sz)
-	{
-		dword id = cell.chr;
-		Point coords = Point(a.x, a.y);
-		Rect  ir = RectC(cell.object.col * sz.cx, cell.object.row * sz.cy, sz.cx, sz.cy);
-		if(!imageparts.IsEmpty()) {
-			ImagePart& part = imageparts.Top();
-			if(id == part.a && part.b.y == coords.y && part.c.right == ir.left) {
-				part.c.right = ir.right;
-				return;
-			}
-		}
-		imageparts.Add(MakeTuple(id, coords, ir));
-	}
+struct CellPaintData {
+	Point pos   = {0, 0};
+	Size  size  = {0, 0};
+	Color ink   = Null;
+	Color paper = Null;
+	bool show:1;
+	bool highlight:1;
 };
+
+class sRectRenderer {
+	Draw& w;
+	Rect  cr;
+	Color color;
+	Color background;
+	bool  transparent:1;
+
+public:
+	void DrawRect(const VTCell& cell, const CellPaintData& data);
+	void Flush();
+
+	sRectRenderer(Draw& w, Color bkg, bool tr)
+		: w(w), background(bkg), transparent(tr), cr(Null), color(Null) {}
+	~sRectRenderer()              { Flush(); }
+};
+
+void sRectRenderer::Flush()
+{
+	if(IsNull(cr) || (!transparent && color == background))
+		return;
+	LTIMING("sRectRenderer::Flush");
+	w.DrawRect(cr, color);
+	cr = Null;
+}
+
+void sRectRenderer::DrawRect(const VTCell& cell, const CellPaintData& data)
+{
+	Rect r(data.pos, data.size);
+	if(cr.top == r.top && cr.bottom == r.bottom && cr.right == r.left && data.paper == color) {
+		cr.right = r.right;
+		return;
+	}
+	Flush();
+	cr = r;
+	color = data.paper;
+}
+
+class sTextRenderer {
+	Draw&       w;
+	Font        font;
+	bool        canlink;
+	int         y, icount = 0, lcount = 0;
+	struct Chrs : Moveable<Chrs> {
+		Vector<int> x;
+		Vector<int> width;
+		WString     text;
+	};
+	VectorMap< Tuple<dword, Color>, Chrs > cache;
+
+public:
+	int  GetImageCount() const                     { return icount; }
+	int  GetLinkCount()  const                     { return lcount; }
+	void DrawChar(const VTCell& cell, const CellPaintData& data);
+	void Flush();
+
+	sTextRenderer(Draw& w, Font f, bool l) : w(w), font(f), canlink(l) { y = Null; }
+	~sTextRenderer()                               { Flush();  }
+};
+
+void sTextRenderer::Flush()
+{
+	if(cache.GetCount() == 0)
+		return;
+	
+	LTIMING("sTextRenderer::Flush");
+
+	for(int i = 0; i < cache.GetCount(); i++) {
+		Chrs& c = cache[i];
+		if(c.x.GetCount()) {
+			const Tuple<dword, Color>& fc = cache.GetKey(i);
+			int x = c.x[0], cx = c.x.Top();
+			for(int i = 0; i < c.x.GetCount() - 1; i++)
+				c.x[i] = c.x[i + 1] - c.x[i];
+			c.x.Top() = c.width.Top();
+			font.Bold(fc.a & VTCell::SGR_BOLD)
+			    .Italic(fc.a & VTCell::SGR_ITALIC)
+				.Strikeout(fc.a & VTCell::SGR_STRIKEOUT)
+				.Underline(fc.a & VTCell::SGR_UNDERLINE);
+			if(fc.a & VTCell::SGR_OVERLINE) {
+				int h = font.GetDescent() - 2;
+				w.DrawLine(x, y + h, cx + font.GetMonoWidth(), y + h, PEN_SOLID, fc.b);
+			}
+			if(canlink && fc.a & VTCell::SGR_HYPERLINK) {
+				int h = font.GetAscent() + 2;
+				w.DrawLine(x, y + h, cx + font.GetMonoWidth(), y + h, PEN_DOT, fc.b);
+				font.NoUnderline();
+			}
+			w.DrawText(x, y, c.text, font, fc.b, c.x);
+		}
+	}
+	cache.Clear();
+}
+
+void sTextRenderer::DrawChar(const VTCell& cell, const CellPaintData& data)
+{
+	Point p = data.pos;
+	if(y != p.y) {
+		Flush();
+		y = p.y;
+	}
+
+	Chrs *c = &cache.GetAdd(MakeTuple(cell.sgr, data.ink));
+	
+	if(c->x.GetCount() && c->x.Top() > p.x || (cell.IsUnderlined() || cell.IsHyperlink()) && cache.GetCount() > 1) {
+		Flush();
+		c = &cache.GetAdd(MakeTuple(cell.sgr, data.ink));
+	}
+
+	icount += (int) cell.sgr & VTCell::SGR_IMAGE;
+	lcount += (int) cell.sgr & VTCell::SGR_HYPERLINK;
+
+	bool hide = false;
+	hide |= cell.chr < 0x20;
+	hide |= cell.IsImage();
+	hide |= cell.IsConcealed();
+	hide |= (!data.show && !data.highlight && cell.IsBlinking());
+	
+	if(hide) {
+		if(c->width.GetCount())
+			c->width.Top() += data.size.cx;
+	}
+	else {
+		c->text.Cat((int) cell.chr);
+		c->x.Add(p.x);
+		c->width.Add(data.size.cx);
+	}
+}
 
 void TerminalCtrl::Paint0(Draw& w, bool print)
 {
@@ -170,79 +150,87 @@ void TerminalCtrl::Paint0(Draw& w, bool print)
 	Size wsz = GetSize();
 	Size psz = GetPageSize();
 	Size csz = GetCellSize();
-	ImageParts imageparts;
 
 	w.Clip(wsz);
 
-	Renderer rr(
-		w,
-		imageparts,
-		font,
-		GetFontSize(),
-		colortable[COLOR_PAPER],
-		blinkingtext,
-		nobackground
-	);
-
 	LTIMING("TerminalCtrl::Paint");
 
-	Buffer<Renderer::Attrs> lineattrs(psz.cx);
+	Color bkg = colortable[COLOR_PAPER];
+
+	CellPaintData cpd;
+	cpd.size = csz;
+	Buffer<CellPaintData> linepaintdata(psz.cx, cpd);
 
 	if(!nobackground)
-		w.DrawRect(wsz, colortable[COLOR_PAPER]);
+		w.DrawRect(wsz, bkg);
 	for(int i = pos; i < min(pos + psz.cy, page->GetLineCount()); ++i) {
 		int y = i * csz.cy - (csz.cy * pos);
 		const VTLine& line = page->FetchLine(i);
 		if(!line.IsVoid() && w.IsPainting(0, y, wsz.cx, csz.cy)) {
-			auto PaintLine = [=, &w, &lineattrs, &rr](const VTLine& l, int i, int y) {
-				LTIMING("Terminal::PaintLine");
-				Renderer::Attrs *la = lineattrs;
-				for(int j = 0; j < psz.cx; ++j, ++la) {
-					la->cell = &l.Get(j, GetAttrs());
-					la->x = j * csz.cx;
-					la->y = y;
-					la->is_link = hyperlinks && la->cell->IsHyperlink();
-					if((la->highlighted = IsSelected(Point(j, i)))) {
-						la->ink   = colortable[COLOR_INK_SELECTED];
-						la->paper = colortable[COLOR_PAPER_SELECTED];
-					}
-					else {
-						SetInkAndPaperColor(*la->cell, la->ink, la->paper);
-					}
-					if(!nobackground
-					|| !IsNull(la->cell->paper)
-					|| la->highlighted
-					|| la->cell->IsInverted()
-					|| (la->is_link && la->cell->data == activelink)
-					|| print) {
-						rr.DrawRect(*la, (j == psz.cx - 1) ? wsz.cx - la->x : csz.cx, csz.cy);
+			auto PaintLine = [this, &w, &linepaintdata, &csz, &wsz, &psz, &pos, &bkg, &print](const VTLine& line, int i) {
+				LTIMING("TerminalCtrl::PaintLine");
+				int y = i * csz.cy - (csz.cy * pos);
+				{
+					// Render the background rectangles.
+					sRectRenderer rr(w, bkg, nobackground);
+					for(int j = 0, x = 0; j < psz.cx; j++, x += csz.cx) {
+						const VTCell& cell = line.Get(j, GetAttrs());
+						CellPaintData& data = linepaintdata[j];
+						data.highlight = IsSelected(Point(j,i));
+						data.show |= cell.IsHyperlink() && cell.data == activelink;
+						data.show |= cell.IsInverted();
+						data.show |= print;
+						if(data.highlight) {
+							data.ink = colortable[COLOR_INK_SELECTED];
+							data.paper = colortable[COLOR_PAPER_SELECTED];
+						}
+						else {
+							SetInkAndPaperColor(cell, data.ink, data.paper);
+						}
+						data.pos = {x, y};
+						if(j == psz.cx - 1)
+							data.size.cx = wsz.cx - x;
+						data.show |= data.highlight;
+						rr.DrawRect(cell, data);
 					}
 				}
-				rr.FlushRect();
-				la = lineattrs;
-				for(int j = 0; j < psz.cx; ++j, ++la) {
-					la->x += padding.cx;
-					la->y += padding.cy;
-					rr.DrawCell(*la, csz, la->highlighted || !blinking || print);
+				int icount = 0, lcount = 0;
+				{
+					// Render the text by combining non-contiguous chunks of chars.
+					sTextRenderer tr(w, GetFont(), hyperlinks);
+					for(int j = 0, x = 0; j < psz.cx; j++, x += csz.cx) {
+						CellPaintData& data = linepaintdata[j];
+						data.pos = { x + padding.cx, y + padding.cy };
+						data.show = !blinking;
+						tr.DrawChar(line.Get(j, GetAttrs()), data);
+					}
+					icount = tr.GetImageCount();
+					lcount = tr.GetLinkCount();
 				}
-				rr.FlushCell();
+				{
+					if(icount) {
+						// Render inline images, if any.
+						ImageParts ip;
+						for(int j = 0, x = 0; j < psz.cx; j++, x += csz.cx) {
+							if(line[j].IsImage())
+								CollectImage(ip, x, y, line.Get(j, GetAttrs()), csz);
+						}
+						PaintImages(w, ip, csz);
+					}
+				}
 			};
-			if(WhenHighlight) {
-				LTIMING("TerminalCtrl::WhenHighlight");
-				VectorMap<int, VTLine> hl;
-				page->FetchLine(i, hl);
-				WhenHighlight(hl);
-				for(const auto& h : ~hl)
-					PaintLine(h.value, h.key, h.key * csz.cy - (csz.cy * pos));
+			if(highlight) {
+					LTIMING("TerminalCtrl::WhenHighlight");
+					VectorMap<int, VTLine> hl;
+					page->FetchLine(i, hl);
+					WhenHighlight(hl);
+					for(const auto& h : ~hl)
+						PaintLine(h.value, h.key);
 			}
 			else
-				PaintLine(line, i, y);
+				PaintLine(line, i);
 		}
 	}
-
-	// Paint inline images, if any
-	if(imageparts.GetCount())
-		PaintImages(w, imageparts, csz);
 
 	// Paint a steady (non-blinking) caret, if enabled.
 	if(modes[DECTCEM] && HasFocus() && (print || !caret.IsBlinking()))
@@ -280,18 +268,30 @@ void TerminalCtrl::PaintImages(Draw& w, ImageParts& parts, const Size& csz)
 		const Point& pt = part.b;
 		const Rect&  rr = part.c;
 		Rect r(pt, rr.GetSize());
-		if(w.IsPainting(r)) {
-			InlineImage im = GetCachedImageData(id, Null, csz);
-			if(!IsNull(im.image)) {
-				im.paintrect = rr;	// Keep it updated.
-				im.fontsize  = csz;	// Keep it updated.
-				imgdisplay->Paint(w, r, im, colortable[COLOR_INK], colortable[COLOR_PAPER], 0);
-			}
+		InlineImage im = GetCachedImageData(id, Null, csz);
+		if(!IsNull(im.image)) {
+			im.paintrect = rr;	// Keep it updated.
+			im.fontsize  = csz;	// Keep it updated.
+			imgdisplay->Paint(w, r, im, colortable[COLOR_INK], colortable[COLOR_PAPER], 0);
 		}
 	}
+}
 
-	if(parts.GetCount())
-		parts.Clear();
+void TerminalCtrl::CollectImage(ImageParts& ip, int x, int y, const VTCell& cell, const Size& sz)
+{
+	LTIMING("TerminalCtrl::CollectImage");
+	
+	dword id = cell.chr;
+	Point coords = Point(x, y);
+	Rect  ir = RectC(cell.object.col * sz.cx, cell.object.row * sz.cy, sz.cx, sz.cy);
+	if(!ip.IsEmpty()) {
+		ImagePart& part = ip.Top();
+		if(id == part.a && part.b.y == coords.y && part.c.right == ir.left) {
+			part.c.right = ir.right;
+			return;
+		}
+	}
+	ip.Add(MakeTuple(id, coords, ir));
 }
 
 void TerminalCtrl::RenderImage(const ImageString& imgs, bool scroll)
@@ -403,6 +403,7 @@ void TerminalCtrl::SetImageCacheMaxSize(int maxsize, int maxcount)
 
 void TerminalCtrl::RenderHyperlink(const String& uri)
 {
+	
 	GetCachedHyperlink(FoldHash(GetHashValue(uri)), uri);
 }
 

@@ -40,7 +40,7 @@ void TerminalCtrl::SetEmulation(int level, bool reset)
 void TerminalCtrl::Reset(bool full)
 {
 	LLOG("Performing " << (full ? "full" : "soft") << " reset...");
-	
+
 	if(full) {
 		AlternateScreenBuffer(false);
 		DECcolm(false);
@@ -60,7 +60,7 @@ void TerminalCtrl::Reset(bool full)
 	cellattrs.Clear();
 
 	udk.Clear();
-	
+
 	modes.Clear();
 	modes.Set(SRM);
 	modes.Set(DECTCEM);
@@ -76,10 +76,10 @@ void TerminalCtrl::Reset(bool full)
 	apage.Displaced(false);
 	apage.AutoWrap(true);
 	apage.ReverseWrap(false);
-	
+
 	caret = Caret();
 	caret.WhenAction = [=] { ScheduleRefresh(); };
-	
+
 	CancelOut();
 }
 
@@ -132,9 +132,9 @@ void TerminalCtrl::Flush()
 {
 	if(out.IsEmpty())
 		return;
-	
+
 	LLOG("Flush() -> " << out.GetLength() << " bytes.");
-	
+
 	WhenOutput(out);
 	if(!modes[SRM]) // Local echo on/off.
 		Echo(out);
@@ -180,7 +180,7 @@ TerminalCtrl& TerminalCtrl::Put0(int c, int cnt)
 			}
 		}
 	}
-	
+
 	return *this;
 }
 
@@ -216,7 +216,7 @@ TerminalCtrl& TerminalCtrl::Put(int c, int cnt)
 TerminalCtrl& TerminalCtrl::PutRaw(const String& s, int cnt)
 {
 	LLOG("PutRaw() -> " << s);
-	
+
 	while(cnt-- > 0) out.Cat(s);
 	return *this;
 }
@@ -224,7 +224,7 @@ TerminalCtrl& TerminalCtrl::PutRaw(const String& s, int cnt)
 TerminalCtrl& TerminalCtrl::PutESC(const String& s, int cnt)
 {
 	LLOG("PutESC() -> " << s);
-	
+
 	while(cnt-- > 0) { Put0(0x1B).Put0(s); }
 	Flush();
 	return *this;
@@ -304,7 +304,7 @@ TerminalCtrl& TerminalCtrl::PutSS2(int c, int cnt)
 TerminalCtrl& TerminalCtrl::PutSS3(const String& s, int cnt)
 {
 	LLOG("PutSS3() -> " << s);
-	
+
 	while(cnt-- > 0) { Put0(0x8F).Put0(s); }
 	Flush();
 	return *this;
@@ -343,11 +343,13 @@ TerminalCtrl& TerminalCtrl::PutEol()
 
 TerminalCtrl& TerminalCtrl::Echo(const String& s)
 {
-	VTInStream echoparser;
-	InitParser(echoparser);
-	PreParse();
-	echoparser.Parse(s, IsUtf8Mode());
-	PostParse();
+	if(s.GetLength()) {
+		VTInStream echoparser;
+		InitParser(echoparser);
+		PreParse();
+		echoparser.Parse(s, IsUtf8Mode());
+		PostParse();
+	}
 	return *this;
 }
 
@@ -399,6 +401,8 @@ void TerminalCtrl::Serialize(Stream& s)
 		s % dpage;
 		s % cts;
 		s % overridetracking;
+		s % scrolltoend;
+		s % highlight;
 	}
 
 	if(s.IsLoading()) {
@@ -430,6 +434,7 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
         ("PCStyleFunctionKeys", pcstylefunctionkeys)
         ("UDK",                 userdefinedkeys)
         ("LockUDK",             userdefinedkeyslocked)
+        ("ScrollToEnd",         scrolltoend)
         ("AlternateScroll",     alternatescroll)
         ("WheelStep",           wheelstep)
         ("AutoHideMouseCursor", hidemousecursor)
@@ -451,6 +456,7 @@ void TerminalCtrl::Jsonize(JsonIO& jio)
         ("LightColors",         lightcolors)
         ("AdjustColorstoTheme", adjustcolors)
         ("TransparentBackground", nobackground)
+        ("Highlight",           highlight)
         ("ColorTable",          cts);
         
     if(jio.IsLoading()) {

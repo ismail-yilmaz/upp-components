@@ -26,6 +26,24 @@ void VTLine::Adjust(int cx, const VTCell& filler)
 	invalid = true;
 }
 
+void VTLine::Grow(int cx, const VTCell& filler)
+{
+	if(cx > GetCount()) {
+		wrapped = false;
+		SetCount(cx, filler);
+		invalid = true;
+	}
+}
+
+void VTLine::Shrink(int cx)
+{
+	if(cx < GetCount()) {
+		wrapped = false;
+		SetCount(cx);
+		invalid = true;
+	}
+}
+
 void VTLine::ShiftLeft(int begin, int end, int n, const VTCell& filler)
 {
 	Insert(end, filler, n);
@@ -281,9 +299,7 @@ VTPage& VTPage::SetSize(Size sz)
 	}
 	lines.SetCount(size.cy);
 	for(VTLine& line : lines) {
-		if(line.GetCount() < size.cx) {
-			line.Adjust(size.cx, cellattrs);
-		}
+		line.Grow(size.cx, cellattrs);
 		line.Invalidate();
 	}
 	if(tabsync)
@@ -364,7 +380,7 @@ int VTPage::CellAdd(const VTCell& cell, int width)
 {
 	if(width <= 0)
 		return cursor.x;
-
+	
 	if(autowrap && cursor.eol)
 	{
 		lines[cursor.y - 1].Wrap();
@@ -404,6 +420,7 @@ VTPage& VTPage::RepeatCell(int n)
 {
 	LLOG("RepeatCell(" << n << ")");
 
+	TryShrinkCurrentLine();
 	const VTCell& cell = GetCell(cursor.x - 1, cursor.y);
 	for(int i = 0, w = cell.GetWidth(); i < n; i++)
 		CellAdd(cell, w);

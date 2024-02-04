@@ -199,6 +199,10 @@ public:
     bool            HasScrollBar() const                            { return sb.IsChild();          }
     TerminalCtrl&   SetScrollBarStyle(const ScrollBar::Style& s)    { sb.SetStyle(s); return *this; }
 
+    TerminalCtrl&   ScrollToEnd(bool b = true)                      { scrolltoend = b; return *this; }
+    TerminalCtrl&   NoScrollToEnd()                                 { return ScrollToEnd(false); }
+    bool            IsScrollingToEnd() const                        { return scrolltoend; }
+
     TerminalCtrl&   AlternateScroll(bool b = true)                  { alternatescroll = b; return *this; }
     TerminalCtrl&   NoAlternateScroll()                             { return AlternateScroll(false); }
     bool            HasAlternateScroll() const                      { return alternatescroll; }
@@ -274,6 +278,10 @@ public:
     TerminalCtrl&   NoPCStyleFunctionKeys()                         { return PCStyleFunctionKeys(false); }
     bool            HasPCStyleFunctionKeys() const                  { return pcstylefunctionkeys; }
     
+    TerminalCtrl&   EnableHighlight(bool b = true)                  { highlight = b; return *this; }
+    TerminalCtrl&   DisableHighlight()                              { return EnableHighlight(false); }
+    bool            IsHighlightEnabled() const                      { return highlight; }
+    
     TerminalCtrl&   SetImageDisplay(const Display& d)               { imgdisplay = &d; return *this; }
     const Display&  GetImageDisplay() const                         { return *imgdisplay; }
 
@@ -290,7 +298,10 @@ public:
 
     Size            PageSizeToClient(Size sz) const                 { return AddFrameSize(sz * GetCellSize()); }
     Size            PageSizeToClient(int col, int row) const        { return PageSizeToClient(Size(col, row)); }
-
+    
+    int             PagePosToIndex(Point pt) const                  { return pt.y * GetPageSize().cx + pt.x;  }
+    int             PagePosToIndex(int col, int row) const          { return PagePosToIndex(Point(col, row)); }
+   
     Size            GetMinSize() const override                     { return PageSizeToClient(Size(2, 2)); }
     Size            GetStdSize() const override                     { return PageSizeToClient(Size(80, 24)); }
     Size            GetMaxSize() const override                     { return PageSizeToClient(Size(132, 24)); }
@@ -312,7 +323,7 @@ public:
 
     void            Goto(int pos)                                   { if(!IsAlternatePage()) sb.Set(clamp(pos, 0, page->GetLineCount() - 1)); }
     void            Find(const WString& s);
-    void			Find(const String& s)                           { Find(s.ToWString()); }
+    void            Find(const String& s)                           { Find(s.ToWString()); }
     
     void            Layout() override                               { SyncSize(true); SyncSb(); }
 
@@ -342,13 +353,16 @@ public:
     Image           MouseEvent(int event, Point pt, int zdelta, dword keyflags) override;
     void            VTMouseEvent(Point pt, dword event, dword keyflags, int zdelta = 0);
 
-    bool            IsMouseOverImage() const                        { Point pt = GetMouseViewPos(); return IsMouseOverImage(ClientToPagePos(pt)); }
-    bool            IsMouseOverHyperlink() const                    { Point pt = GetMouseViewPos(); return IsMouseOverHyperlink(ClientToPagePos(pt)); }
+    bool            IsMouseOverImage() const                        { return IsMouseOverImage(GetMousePagePos()); }
+    bool            IsMouseOverHyperlink() const                    { return IsMouseOverHyperlink(GetMousePagePos()); }
 
     bool            IsTracking() const                              { return IsMouseTracking(GetMouseFlags()); }
     TerminalCtrl&   OverrideTracking(dword modifiers)               { overridetracking = modifiers; return *this; }
 
-    const VTCell&   GetCellAtMousePos() const                       { Point pt = GetMouseViewPos(); return page->FetchCell(ClientToPagePos(pt));; }
+    Point           GetMousePagePos() const                         { Point pt = GetMouseViewPos(); return ClientToPagePos(pt); }
+    int             GetMousePagePosAsIndex() const                  { return PagePosToIndex(GetMousePagePos()); }
+
+    const VTCell&   GetCellAtMousePos() const                       { return page->FetchCell(GetMousePagePos()); }
     const VTCell&   GetCellAtCursorPos() const                      { return page->GetCell(); };
 
     String          GetHyperlinkUri()                               { return GetHyperlinkURI(mousepos, true); }
@@ -379,12 +393,12 @@ public:
     static void     ClearHyperlinkCache();
     static void     SetHyperlinkCacheMaxSize(int maxcount);
 
+    virtual void    PreParse()                                      { }
+    virtual void    PostParse()                                     { ScheduleRefresh(); }
+
 private:
     void        InitParser(VTInStream& vts);
     
-    void        PreParse()                                      { /*ScheduleRefresh();*/ }
-    void        PostParse()                                     { ScheduleRefresh(); }
-
     void        SyncPage(bool notify = true);
     void        SwapPage();
 
@@ -393,7 +407,7 @@ private:
     void        Blink(bool b);
 
     void        Scroll();
-    void        SyncSb();
+    void        SyncSb(bool forcescroll = false);
 
     void        SyncSize(bool notify = true);
 
@@ -425,7 +439,7 @@ private:
 
     bool        IsMouseTracking(dword keyflags) const;
     bool        IsMouseOverImage(Point pt) const                { return !IsSelected(pt) && page->FetchCell(pt).IsImage(); }
-    bool        IsMouseOverHyperlink(Point pt) const            { return !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
+    bool        IsMouseOverHyperlink(Point pt) const            { return hyperlinks && !IsSelected(pt) && page->FetchCell(pt).IsHyperlink(); }
 
     void        HighlightHyperlink(Point pt);
 
@@ -479,8 +493,10 @@ private:
 
     void        Paint0(Draw& w, bool print = false);
     void        PaintSizeHint(Draw& w);
-    void        PaintImages(Draw& w, ImageParts& parts, const Size& csz);
 
+    void        PaintImages(Draw& w, ImageParts& parts, const Size& csz);
+    void        CollectImage(ImageParts& ip, int x, int y, const VTCell& cell, const Size& sz);
+    
     void        RenderImage(const ImageString& simg, bool scroll);
     const InlineImage& GetCachedImageData(dword id, const ImageString& simg, const Size& csz);
 
@@ -537,6 +553,7 @@ private:
     bool        reversewrap;
     bool        keynavigation;
     bool        legacycharsets;
+    bool        scrolltoend;
     bool        alternatescroll;
     bool        pcstylefunctionkeys;
     bool        userdefinedkeys;
@@ -557,6 +574,7 @@ private:
     bool        adjustcolors;
     bool        lightcolors;
     bool        hidemousecursor;
+    bool        highlight;
 
 // Down beloe is the emulator stuff, formerley knonw as "Console"...
 

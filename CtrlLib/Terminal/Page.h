@@ -12,6 +12,8 @@ public:
     VTLine(const VTLine& src, int);
     
     void            Adjust(int cx, const VTCell& filler);
+    void            Grow(int cx, const VTCell& filler);
+    void            Shrink(int cx);
     void            ShiftLeft(int begin, int end, int n, const VTCell& filler);
     void            ShiftRight(int begin, int end, int n, const VTCell& filler);
     bool            Fill(int begin, int end, const VTCell& filler, dword flags = 0);
@@ -132,7 +134,7 @@ public:
     const VTCell&   GetCell(int x, int y) const;
     const VTCell&   GetCell(Point pt) const                 { return GetCell(pt.x, pt.y);   }
     const VTCell&   GetCell() const                         { return GetCell(cursor);       }
-    int             AddCell(const VTCell& cell)             { return CellAdd(cell, cell.GetWidth()); }
+    int             AddCell(const VTCell& cell)             { TryShrinkCurrentLine(); return CellAdd(cell, cell.GetWidth()); }
     VTPage&         InsertCell(const VTCell& cell);
     VTPage&         RepeatCell(int n);
 
@@ -248,6 +250,7 @@ private:
     VTPage&         RewrapCursor(int n);
     int             LineInsert(int pos, int n, const VTCell& attrs);
     int             LineRemove(int pos, int n, const VTCell& attrs);
+    void            TryShrinkCurrentLine()                                          { lines[cursor.y - 1].Shrink(size.cx); }
     int             CellAdd(const VTCell& cell, int width = 1);
     int             CellInsert(int pos, int n, const VTCell& attrs, bool pan);
     int             CellRemove(int pos, int n, const VTCell& attrs, bool pan);
